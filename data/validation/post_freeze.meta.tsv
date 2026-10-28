@@ -1,0 +1,1258 @@
+id	taxid	phylum	class	order	family	genus	species	species_in_bfd	genus_in_bfd	release	level	n50	total_len
+GCA_023105775.2	181123	Basidiomycota	Pucciniomycetes	Pucciniales	Sphaerophragmiaceae	Austropuccinia		False	True	2025-06-17	Chromosome	26484131	982558553
+GCA_050084925.1	319420	Ascomycota	Eurotiomycetes	Chaetothyriales	Herpotrichiellaceae	Rhinocladiella		False	True	2025-05-01	Scaffold	520003	34715284
+GCA_050157985.1	318829	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		False	True	2025-05-06	Complete Genome	6773983	42973823
+GCA_050229795.1	27337	Ascomycota	Sordariomycetes	Glomerellales	Plectosphaerellaceae	Verticillium		False	True	2025-05-07	Contig	2154558	35820038
+GCA_050230655.1	56409	Ascomycota	Saccharomycetes	Saccharomycodales	Saccharomycodaceae	Hanseniaspora		False	True	2025-05-07	Chromosome	857515	11597263
+GCA_050230735.1	29833	Ascomycota	Saccharomycetes	Saccharomycodales	Saccharomycodaceae	Hanseniaspora		False	True	2025-05-07	Chromosome	1428200	9034224
+GCA_050613835.1	168172	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia	Puccinia striiformis	True	True	2025-05-29	Chromosome	4452449	77128783
+GCA_050613845.1	168172	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia	Puccinia striiformis	True	True	2025-05-29	Chromosome	4606998	75199855
+GCA_050948235.1	29833	Ascomycota	Saccharomycetes	Saccharomycodales	Saccharomycodaceae	Hanseniaspora		False	True	2025-06-17	Scaffold	2370	10403537
+GCA_051805525.1	5286	Basidiomycota	Microbotryomycetes	Sporidiobolales	Sporidiobolaceae	Rhodotorula		False	True	2025-07-29	Complete Genome	1462557	20635648
+GCA_051805535.1	5286	Basidiomycota	Microbotryomycetes	Sporidiobolales	Sporidiobolaceae	Rhodotorula		False	True	2025-07-29	Complete Genome	1471245	20386868
+GCA_051820205.1	56187	Basidiomycota	Agaricomycetes	Agaricales	Agaricaceae	Coprinus		False	True	2025-08-05	Contig	2225135	42537158
+GCA_051943505.2	63405	Ascomycota	Eurotiomycetes	Onygenales	Arthrodermataceae	Microsporum		False	True	2026-03-15	Scaffold	159649	22650228
+GCA_051943795.2	5551	Ascomycota	Eurotiomycetes	Onygenales	Arthrodermataceae	Trichophyton		False	True	2026-03-15	Scaffold	65302	21913842
+GCA_051943815.2	5551	Ascomycota	Eurotiomycetes	Onygenales	Arthrodermataceae	Trichophyton		False	True	2026-03-15	Scaffold	50525	22059570
+GCA_051943915.2	5478	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Nakaseomyces		False	True	2026-03-15	Scaffold	56551	12011376
+GCA_051943995.2	76775	Basidiomycota	Malasseziomycetes	Malasseziales	Malasseziaceae	Malassezia		False	True	2026-03-15	Scaffold	265249	7286657
+GCA_052055015.2	55194	Basidiomycota	Malasseziomycetes	Malasseziales	Malasseziaceae	Malassezia		False	True	2026-03-15	Scaffold	20982	12840661
+GCA_053222855.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2025-10-28	Scaffold	45762	12328261
+GCA_053222895.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2025-10-28	Scaffold	24398	12270373
+GCA_053222915.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2025-10-28	Scaffold	80267	12336563
+GCA_053222935.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2025-10-28	Scaffold	62716	12328369
+GCA_053222945.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2025-10-28	Scaffold	57519	12329751
+GCA_053222975.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2025-10-28	Scaffold	42168	12325068
+GCA_053222995.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2025-10-28	Scaffold	84122	12332140
+GCA_053223005.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2025-10-28	Scaffold	43492	12321038
+GCA_053223685.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2025-10-28	Scaffold	82047	12338333
+GCA_053223705.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2025-10-28	Scaffold	30504	12253118
+GCA_053223745.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2025-10-28	Scaffold	55917	12322302
+GCA_053223765.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2025-10-28	Scaffold	29115	12290018
+GCA_053223785.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2025-10-28	Scaffold	86913	12329109
+GCA_053223805.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2025-10-28	Scaffold	43957	12316466
+GCA_053223825.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2025-10-28	Scaffold	42720	12343569
+GCA_053456535.1	5480	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Lodderomyces		False	True	2025-11-13	Complete Genome	2094148	13084032
+GCA_054051405.1	1053101	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusicolla		False	True	2025-12-17	Contig	5217545	50240203
+GCA_054098455.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2025-12-19	Scaffold	359656	46537525
+GCA_054161515.1	51453	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma		False	True	2025-12-24	Complete Genome	5254019	34266957
+GCA_054162035.1	51453	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma		False	True	2025-12-24	Complete Genome	5258055	34233584
+GCA_054162085.1	51453	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma		False	True	2025-12-24	Complete Genome	5313602	34816021
+GCA_054858825.1	27326	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Metschnikowia		False	True	2026-01-30	Contig	14644	31993168
+GCA_054858935.1	27326	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Metschnikowia		False	True	2026-01-30	Contig	19150	25776205
+GCA_054948735.1	203904	Basidiomycota	Pucciniomycetes	Pucciniales	Zaghouaniaceae	Hemileia		False	True	2026-02-06	Chromosome	2821904	665884918
+GCA_055769365.1	3080368	Basidiomycota	Tremellomycetes	Trichosporonales	Trichosporonaceae	Trichosporon		False	True	2026-03-10	Contig	2382508	20957460
+GCA_056010345.1	5353	Basidiomycota	Agaricomycetes	Agaricales	Omphalotaceae	Lentinula		False	True	2026-03-15	Complete Genome	5762873	50057248
+GCA_056010365.1	5353	Basidiomycota	Agaricomycetes	Agaricales	Omphalotaceae	Lentinula		False	True	2026-03-15	Complete Genome	5798252	51166050
+GCA_056321735.1	4896	Ascomycota	Schizosaccharomycetes	Schizosaccharomycetales	Schizosaccharomycetaceae	Schizosaccharomyces		False	True	2026-03-25	Contig	4612334	13346522
+GCA_056632795.1	5207	Basidiomycota	Tremellomycetes	Tremellales	Cryptococcaceae	Cryptococcus		False	True	2026-04-07	Complete Genome	1378042	18880176
+GCA_056747125.1	376348	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia	Puccinia striiformis	True	True	2026-04-16	Chromosome	4427822	75244898
+GCA_056822685.1	156630	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-04-21	Complete Genome	3094696	33172085
+GCA_057127665.1	156607	Basidiomycota	Agaricomycetes	Thelephorales	Thelephoraceae	Hydnellum		False	True	2026-04-30	Contig	9171955	101831154
+GCA_057657855.1	28995	Basidiomycota	Agaricomycetes	Agaricales	Pleurotaceae	Pleurotus		False	True	2026-05-15	Complete Genome	3291763	39882895
+GCA_057662195.1	168172	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia	Puccinia striiformis	True	True	2026-05-20	Chromosome	4550042	76876019
+GCA_057675205.1	1325733	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-05-21	Scaffold	256197	48338502
+GCA_057715455.1	192011	Basidiomycota	Tremellomycetes	Tremellales	Cryptococcaceae	Cryptococcus		False	True	2026-05-22	Contig	1370373	18941530
+GCA_057715575.1	192011	Basidiomycota	Tremellomycetes	Tremellales	Cryptococcaceae	Cryptococcus		False	True	2026-05-22	Contig	1406576	19286885
+GCA_057715635.1	192011	Basidiomycota	Tremellomycetes	Tremellales	Cryptococcaceae	Cryptococcus		False	True	2026-05-22	Contig	1123746	19218362
+GCA_057715715.1	192011	Basidiomycota	Tremellomycetes	Tremellales	Cryptococcaceae	Cryptococcus		False	True	2026-05-22	Contig	1402078	20418445
+GCA_057808355.1	5062	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-05-14	Complete Genome	4920988	38282360
+GCA_057808365.1	5062	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-05-14	Complete Genome	4902411	37996583
+GCA_057814745.1	168172	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia	Puccinia striiformis	True	True	2026-06-01	Chromosome	4658364	77155809
+GCA_057913135.1	5062	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-05-15	Chromosome	4812697	37927775
+GCA_057913195.1	5062	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-05-15	Chromosome	4939513	38731829
+GCA_057913235.1	5062	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-05-15	Chromosome	4454453	37253248
+GCA_057913295.1	5062	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-05-15	Chromosome	4822670	39182164
+GCA_058411265.1	29883	Basidiomycota	Agaricomycetes	Agaricales	Hydnangiaceae	Laccaria		False	True	2026-06-25	Scaffold	102937	52019176
+GCA_058411565.1	5476	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Candida		False	True	2026-06-25	Chromosome	1953264	14134236
+GCA_058411585.1	5476	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Candida		False	True	2026-06-25	Chromosome	1980827	14660828
+GCA_058969805.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-07-06	Complete Genome	923785	11997721
+GCA_059056815.1	3080368	Basidiomycota	Tremellomycetes	Trichosporonales	Trichosporonaceae	Trichosporon		False	True	2026-07-07	Chromosome	1650533	20969021
+GCA_059056845.1	3080368	Basidiomycota	Tremellomycetes	Trichosporonales	Trichosporonaceae	Trichosporon		False	True	2026-07-07	Chromosome	2220832	20969069
+GCA_059330025.1	318829	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		False	True	2026-07-13	Complete Genome	6311493	42958876
+GCA_059330095.1	318829	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		False	True	2026-07-13	Chromosome	5928839	44918736
+GCA_059330485.1	318829	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		False	True	2026-07-13	Chromosome	6045283	45125712
+GCA_059724765.1	381046	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Lachancea		False	True	2025-11-14	Complete Genome	1558908	11045627
+GCA_059724795.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-11-14	Complete Genome	906136	11948881
+GCA_059724825.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-11-14	Complete Genome	912007	13198297
+GCA_059750275.1	2498619	Basidiomycota	Agaricomycetes	Polyporales	Polyporaceae	Lentinus		False	True	2026-08-03	Contig	3601686	52584492
+GCA_059750405.1	5327	Basidiomycota	Agaricomycetes	Polyporales	Polyporaceae	Trametes		False	True	2026-08-03	Contig	3185525	38650762
+GCA_059750435.1	75324	Basidiomycota	Agaricomycetes	Agaricales	Cortinariaceae	Cortinarius		False	True	2026-08-03	Contig	1795608	299586622
+GCA_059750535.1	90312	Basidiomycota	Agaricomycetes	Polyporales	Cerrenaceae	Cerrena		False	True	2026-08-03	Contig	2775925	36965335
+GCA_059919085.1	3720739	Ascomycota	Eurotiomycetes	Eurotiales	Trichocomaceae	Talaromyces		False	True	2026-08-06	Contig	4575112	37297615
+GCA_059919235.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-08-06	Contig	795618	11837511
+GCA_060079935.1	5480	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Lodderomyces		False	True	2026-08-13	Complete Genome	2094138	13051190
+GCA_060154625.1	4841	Mucoromycota	Mucoromycetes	Mucorales	Mucoraceae	Mucor		False	True	2026-08-17	Scaffold	12362	47633522
+GCA_060154715.1	168172	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia	Puccinia striiformis	True	True	2026-08-17	Chromosome	3999834	76625775
+GCA_060230635.1	29875	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma		False	True	2026-08-18	Scaffold	197105	40614214
+GCA_060230935.1	61366	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-08-18	Scaffold	219478	47700535
+GCA_060231055.1	61366	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-08-18	Scaffold	249091	49961861
+GCA_060231075.1	61366	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-08-18	Scaffold	211281	50053242
+GCA_060231115.1	61366	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-08-18	Scaffold	286613	46481749
+GCA_060231205.1	61366	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-08-18	Scaffold	236450	46515933
+GCA_060414325.1	3036237	Ascomycota	Dothideomycetes	Myriangiales	Elsinoaceae	Elsinoe		False	True	2026-08-25	Scaffold	393851	24737018
+GCA_060414475.1	5076	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Penicillium		False	True	2026-08-25	Contig	9143414	33192826
+GCA_060417825.1	1571499	Ascomycota	Dothideomycetes	Pleosporales	Morosphaeriaceae	Aquilomyces		False	False	2026-08-25	Contig	1844975	49872950
+GCA_060417845.1	1571506	Ascomycota	Dothideomycetes	Pleosporales	Periconiaceae	Flavomyces		False	False	2026-08-25	Contig	343475	42104155
+GCA_060417865.1	2137868	Ascomycota	Leotiomycetes	Helotiales		Polyphilus		False	False	2026-08-25	Contig	2666151	69889513
+GCA_060419215.1	86839	Basidiomycota	Microbotryomycetes	Sporidiobolales	Sporidiobolaceae	Rhodotorula		False	True	2026-08-25	Contig	1155710	17492584
+GCA_060497155.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-08-27	Contig	32971	12251901
+GCA_060497165.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-08-27	Contig	31867	12245740
+GCA_060497175.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-08-27	Contig	37430	12232816
+GCA_060497215.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-08-27	Contig	41057	12193161
+GCA_060497255.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-08-27	Contig	44800	12240340
+GCA_060497295.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-08-27	Contig	47630	12261994
+GCA_060497315.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-08-27	Contig	53297	12247609
+GCA_060497335.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-08-27	Contig	51873	12275559
+GCA_060511415.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-08-27	Contig	2302567	12329123
+GCA_060511445.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-08-27	Contig	2304921	12349661
+GCA_060511475.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-08-27	Contig	2311016	12394182
+GCA_060574865.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	388111	35774501
+GCA_060574885.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	327508	35569271
+GCA_060574915.1	283364	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	290567	34004436
+GCA_060574935.1	119957	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	230283	38706176
+GCA_060574955.1	230009	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	115758	44568575
+GCA_060574975.1	156630	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	662896	33582460
+GCA_060574995.1	119955	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	245610	40502046
+GCA_060575015.1	156630	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	832544	33671827
+GCA_060575035.1	2803122	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	755670	33797200
+GCA_060575055.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	1128024	33990256
+GCA_060575085.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	1551101	34208282
+GCA_060575105.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	1485369	34456692
+GCA_060575125.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	1080792	33342397
+GCA_060575145.1	156630	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	715185	34155844
+GCA_060575165.1	156630	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	775512	33951032
+GCA_060575185.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	1526647	33491165
+GCA_060575215.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	888070	33567354
+GCA_060575245.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	1089097	34234708
+GCA_060575265.1	156630	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	695141	33689797
+GCA_060575285.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	842536	33679851
+GCA_060575305.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	1515319	33457991
+GCA_060575325.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	1811598	34029844
+GCA_060575345.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	1417543	34136537
+GCA_060575365.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	1559164	33720945
+GCA_060575395.1	119953	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	253542	35615707
+GCA_060575415.1	156630	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	802354	34253838
+GCA_060575435.1	2803130	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	744453	33761597
+GCA_060575455.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	725657	33824951
+GCA_060575475.1	156630	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	887562	33602241
+GCA_060575495.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	1776980	33892127
+GCA_060575515.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	881217	33366543
+GCA_060575535.1	156630	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	773006	33571500
+GCA_060575555.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	1688959	33499831
+GCA_060575575.1	156630	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	826810	33935800
+GCA_060575595.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	1279202	33811508
+GCA_060575615.1	2803139	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-28	Scaffold	1474216	33425306
+GCA_060595755.1	5544	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma		False	True	2026-08-30	Scaffold	634114	36946024
+GCA_060595785.1	5483	Basidiomycota	Ustilaginomycetes	Ustilaginales	Ustilaginaceae	Pseudozyma		False	True	2026-08-30	Complete Genome	894176	20223705
+GCA_060595835.1	5207	Basidiomycota	Tremellomycetes	Tremellales	Cryptococcaceae	Cryptococcus		False	True	2026-08-30	Scaffold	302230	18521315
+GCA_060595855.1	3787097	Microsporidia			Astathelohaniidae	Astathelohania		False	True	2026-08-30	Contig	9832	5441150
+GCA_060658265.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-08-31	Scaffold	1120833	34071233
+GCA_060658785.1	3758606	Ascomycota	Dothideomycetes	Mycosphaerellales	Mycosphaerellaceae	Teratoramularia		False	True	2026-08-31	Contig	4317038	26260140
+GCA_060680565.1	3712851	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-08-31	Contig	791694	11841357
+GCA_060680605.1	3687703	Basidiomycota	Agaricomycetes	Cantharellales	Ceratobasidiaceae	Ceratobasidium		False	True	2026-08-31	Contig	346324	81003775
+GCA_060680665.1	3687702	Basidiomycota	Agaricomycetes	Cantharellales	Ceratobasidiaceae	Ceratobasidium		False	True	2026-08-31	Contig	535517	59552518
+GCA_060680705.1	3687701	Basidiomycota	Agaricomycetes	Cantharellales	Ceratobasidiaceae	Ceratobasidium		False	True	2026-08-31	Contig	545114	74799454
+GCA_060680765.1	3687700	Basidiomycota	Agaricomycetes	Cantharellales	Ceratobasidiaceae	Ceratobasidium		False	True	2026-08-31	Contig	690223	72233501
+GCA_060680805.1	3687699	Basidiomycota	Agaricomycetes	Cantharellales	Ceratobasidiaceae	Ceratobasidium		False	True	2026-08-31	Contig	725590	62327577
+GCA_060682965.1	58853	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma		False	True	2026-09-01	Contig	205758	32925004
+GCA_060682995.1	935214	Ascomycota	Sordariomycetes	Hypocreales	Cordycipitaceae	Simplicillium		False	True	2026-09-01	Contig	586004	29277997
+GCA_060683065.1	935214	Ascomycota	Sordariomycetes	Hypocreales	Cordycipitaceae	Simplicillium		False	True	2026-09-01	Contig	745300	29179118
+GCA_060683085.1	5076	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Penicillium		False	True	2026-09-01	Contig	643497	33387818
+GCA_060683105.1	469277	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-09-01	Contig	637036	34372793
+GCA_060683165.1	469277	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-09-01	Contig	594658	34078107
+GCA_060683185.1	1507543	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-09-01	Contig	883800	33265774
+GCA_060697205.1	1500003	Blastocladiomycota	Physodermatomycetes	Physodermatales	Physodermataceae	Paraphysoderma		False	True	2026-09-01	Chromosome	671976	27509606
+GCA_060697215.1	912113	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-09-01	Scaffold	690988	56660673
+GCA_060697815.1	206542	Ascomycota	Eurotiomycetes	Chaetothyriales	Trichomeriaceae	Knufia		False	True	2026-09-01	Scaffold	199108	27502896
+GCA_060697845.1	206542	Ascomycota	Eurotiomycetes	Chaetothyriales	Trichomeriaceae	Knufia		False	True	2026-09-01	Scaffold	388941	27493889
+GCA_060697985.1	206542	Ascomycota	Eurotiomycetes	Chaetothyriales	Trichomeriaceae	Knufia		False	True	2026-09-01	Scaffold	411912	27531084
+GCA_060698005.1	2486360	Ascomycota	Eurotiomycetes	Chaetothyriales	Herpotrichiellaceae	Exophiala		False	True	2026-09-01	Scaffold	1339489	28248079
+GCA_060698025.1	2486360	Ascomycota	Eurotiomycetes	Chaetothyriales	Herpotrichiellaceae	Exophiala		False	True	2026-09-01	Scaffold	360179	28250253
+GCA_060698155.1	2486360	Ascomycota	Eurotiomycetes	Chaetothyriales	Herpotrichiellaceae	Exophiala		False	True	2026-09-01	Scaffold	192831	28378998
+GCA_060698235.1	2486360	Ascomycota	Eurotiomycetes	Chaetothyriales	Herpotrichiellaceae	Exophiala		False	True	2026-09-01	Scaffold	326448	28379116
+GCA_060698265.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-09-01	Scaffold	162068	11517916
+GCA_060698305.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-09-01	Scaffold	170211	11502124
+GCA_060698415.1	206542	Ascomycota	Eurotiomycetes	Chaetothyriales	Trichomeriaceae	Knufia		False	True	2026-09-01	Scaffold	397953	27563373
+GCA_060698425.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-09-01	Scaffold	132638	11500217
+GCA_060698505.1	2486360	Ascomycota	Eurotiomycetes	Chaetothyriales	Herpotrichiellaceae	Exophiala		False	True	2026-09-01	Scaffold	1360449	28157339
+GCA_060698575.1	2486360	Ascomycota	Eurotiomycetes	Chaetothyriales	Herpotrichiellaceae	Exophiala		False	True	2026-09-01	Scaffold	412150	28372504
+GCA_060698595.1	206542	Ascomycota	Eurotiomycetes	Chaetothyriales	Trichomeriaceae	Knufia		False	True	2026-09-01	Scaffold	388939	27545341
+GCA_060698665.1	2486360	Ascomycota	Eurotiomycetes	Chaetothyriales	Herpotrichiellaceae	Exophiala		False	True	2026-09-01	Scaffold	639150	28339769
+GCA_060698755.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-09-01	Scaffold	134775	11475941
+GCA_060698775.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-09-01	Scaffold	160848	11500105
+GCA_060698825.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-09-01	Scaffold	116776	11468340
+GCA_060698905.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-09-01	Scaffold	149866	11505228
+GCA_060702455.1	61369	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-09-01	Scaffold	201855	55143533
+GCA_060702475.1	61369	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-09-01	Scaffold	130085	58172926
+GCA_060702495.1	61369	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-09-01	Scaffold	135189	56019813
+GCA_060702515.1	61369	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-09-01	Scaffold	140224	56351218
+GCA_060702535.1	61369	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-09-01	Scaffold	134118	56427253
+GCA_060702555.1	61369	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-09-01	Scaffold	123620	56536374
+GCA_060702575.1	61369	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-09-01	Scaffold	240914	52010769
+GCA_060702595.1	59765	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-09-01	Chromosome	4176325	56112191
+GCA_060702605.1	61369	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-09-01	Contig	3694426	65103928
+GCA_060806595.1	573508	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-09-02	Complete Genome	3559973	27874854
+GCA_061084975.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	43327	12265740
+GCA_061084995.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	41668	12239154
+GCA_061085075.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	43643	12223312
+GCA_061085115.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	44066	12242505
+GCA_061085135.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	44343	12264045
+GCA_061085195.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	39032	12261672
+GCA_061085235.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	64384	12270495
+GCA_061085245.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	54240	12276078
+GCA_061085315.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	71546	12276162
+GCA_061085355.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	77316	12252015
+GCA_061085375.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	72704	12278574
+GCA_061085415.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	33144	12242761
+GCA_061085475.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	33412	12210813
+GCA_061085495.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	33214	12246756
+GCA_061085515.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	41838	12212938
+GCA_061085535.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	39559	12215284
+GCA_061085555.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	41361	12258578
+GCA_061085575.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	34922	12229743
+GCA_061085595.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	34018	12247367
+GCA_061085615.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	30164	12237334
+GCA_061085635.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	35914	12222782
+GCA_061085655.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	44381	12260122
+GCA_061085675.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	43314	12235873
+GCA_061085695.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	42461	12265334
+GCA_061085925.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	39049	12214106
+GCA_061085965.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	38667	12262492
+GCA_061085985.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	39601	12260044
+GCA_061086045.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	46676	12262323
+GCA_061086065.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	36740	12266095
+GCA_061086085.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	42109	12246398
+GCA_061086145.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	38210	12231566
+GCA_061086185.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	38727	12264934
+GCA_061086205.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	43884	12264761
+GCA_061086285.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-08	Contig	44193	12263434
+GCA_061099145.1	1131645	Ascomycota	Eurotiomycetes	Eurotiales	Trichocomaceae	Talaromyces		False	True	2026-09-08	Contig	5052387	37896617
+GCA_061099175.1	110534	Ascomycota	Sordariomycetes	Xylariales	Xylariaceae	Biscogniauxia		False	True	2026-09-08	Complete Genome	5589039	47488274
+GCA_061099385.1	318829	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		False	True	2026-09-08	Scaffold	22015	41006736
+GCA_061140395.1	120017	Basidiomycota	Ustilaginomycetes	Ustilaginales	Ustilaginaceae	Ustilago		False	True	2026-09-09	Chromosome	1002192	28416558
+GCA_061208565.1	123925	Basidiomycota	Agaricomycetes	Agaricales	Clitocybaceae	Collybia		False	True	2026-09-11	Complete Genome	4122277	43748370
+GCA_061208585.1	123925	Basidiomycota	Agaricomycetes	Agaricales	Clitocybaceae	Collybia		False	True	2026-09-11	Complete Genome	3753783	42563404
+GCA_061208605.1	123925	Basidiomycota	Agaricomycetes	Agaricales	Clitocybaceae	Collybia		False	True	2026-09-11	Complete Genome	4027804	45038919
+GCA_061208645.1	123925	Basidiomycota	Agaricomycetes	Agaricales	Clitocybaceae	Collybia		False	True	2026-09-11	Complete Genome	3646770	44248433
+GCA_061228495.1	423460	Basidiobolomycota	Basidiobolomycetes	Basidiobolales	Basidiobolaceae	Basidiobolus		False	True	2026-09-13	Contig	5675	6516501
+GCA_061232755.1	59765	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-07-17	Contig	4427170	57292497
+GCA_061234795.1	2737915	Rozellomycota				Rozella		False	True	2026-08-02	Contig	17388	14703475
+GCA_061237835.1	64657	Basidiomycota	Tremellomycetes	Tremellales	Tremellaceae	Tremella		False	True	2026-09-08	Complete Genome	2255468	26749457
+GCA_061237955.1	64657	Basidiomycota	Tremellomycetes	Tremellales	Tremellaceae	Tremella		False	True	2026-09-08	Complete Genome	2245846	26295269
+GCA_061291925.1	68746	Basidiomycota	Agaricomycetes	Agaricales	Strophariaceae	Stropharia		False	True	2026-09-14	Complete Genome	3767329	47593772
+GCA_061291985.1	68746	Basidiomycota	Agaricomycetes	Agaricales	Strophariaceae	Stropharia		False	True	2026-09-14	Complete Genome	3684449	48461588
+GCA_061310165.1	3835412	Basidiomycota	Agaricomycetes	Polyporales	Phanerochaetaceae	Phanerodontia		False	True	2026-09-16	Contig	159605	37622003
+GCA_061310925.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-16	Complete Genome	9039171	36894531
+GCA_061310975.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-16	Complete Genome	8969708	36818927
+GCA_061310985.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-16	Complete Genome	9024920	36785499
+GCA_061311055.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-16	Complete Genome	8981334	36984958
+GCA_061311125.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-16	Complete Genome	9001535	37040791
+GCA_061311145.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-16	Complete Genome	9048503	36820611
+GCA_061311225.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-16	Complete Genome	9047719	36914926
+GCA_061311255.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-16	Complete Genome	8977151	36874484
+GCA_061311265.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-16	Complete Genome	8951396	36989817
+GCA_061311355.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-16	Complete Genome	9005939	36865289
+GCA_061311405.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-16	Complete Genome	8981323	36908131
+GCA_061311445.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-16	Complete Genome	9035547	36775674
+GCA_061311525.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-16	Complete Genome	9025103	36965782
+GCA_061311535.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-16	Complete Genome	8966894	36904220
+GCA_061311545.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-16	Complete Genome	8946815	36815312
+GCA_061318855.1	29911	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-09-16	Contig	3395661	32642406
+GCA_061319035.1	85927	Ascomycota	Dothideomycetes	Botryosphaeriales	Botryosphaeriaceae	Diplodia		False	True	2026-09-16	Contig	3214590	45052732
+GCA_061335555.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Chromosome	9473585	38184862
+GCA_061335605.1	51453	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma		False	True	2026-09-17	Complete Genome	5317186	34726479
+GCA_061336215.1	51453	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma		False	True	2026-09-17	Complete Genome	5241954	34242889
+GCA_061346145.1	117187	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Contig	209827	43397183
+GCA_061346435.1	523103	Ascomycota	Eurotiomycetes	Onygenales	Arthrodermataceae	Trichophyton		False	True	2026-09-17	Chromosome	5018406	23461531
+GCA_061350575.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-17	Contig	32461	12251509
+GCA_061350615.1	1111114	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-09-17	Contig	302114	42581004
+GCA_061353175.1	40978	Microsporidia			Glugeidae	Glugea		False	False	2026-09-17	Contig	557527	16711591
+GCA_061354595.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	685039	51960728
+GCA_061354635.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	391191	55859031
+GCA_061354655.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	613267	53190783
+GCA_061354715.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	608681	52893494
+GCA_061354735.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	549202	50441049
+GCA_061354755.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	485953	53695821
+GCA_061354795.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	426060	49268536
+GCA_061354835.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	618656	48788828
+GCA_061354875.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	513909	49229079
+GCA_061354895.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	518568	48744858
+GCA_061354915.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	598967	50241638
+GCA_061354955.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	307159	56345675
+GCA_061354995.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	576653	50265338
+GCA_061355015.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	492242	51151995
+GCA_061355055.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	545493	51091780
+GCA_061355095.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	810050	49694478
+GCA_061355115.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	498274	50834792
+GCA_061355155.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	593721	53279029
+GCA_061355175.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	597209	51739193
+GCA_061355215.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	469093	55702744
+GCA_061355235.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	552327	50644842
+GCA_061355275.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	568294	51138168
+GCA_061355315.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	546387	50795267
+GCA_061355335.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	498282	51131704
+GCA_061355375.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	545492	51128348
+GCA_061355415.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	580357	53305760
+GCA_061355435.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	198413	55170719
+GCA_061355455.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	521934	51591997
+GCA_061355515.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	500430	54621948
+GCA_061355535.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	696565	48641878
+GCA_061355555.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	701818	48664929
+GCA_061355615.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	556907	51977322
+GCA_061355635.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	176587	52903733
+GCA_061355655.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Scaffold	195672	51882863
+GCA_061372115.1	136831	Basidiomycota	Pucciniomycetes	Pucciniales	Coleosporiaceae	Cronartium	Cronartium quercuum	True	True	2026-09-17	Complete Genome	5404143	86876455
+GCA_061372205.1	1850919	Ascomycota	Dipodascomycetes	Dipodascales	Trichomonascaceae	Zygoascus		False	True	2026-09-17	Scaffold	361436	11313061
+GCA_061372425.1	36066	Basidiomycota	Agaricomycetes	Cantharellales	Hydnaceae	Cantharellus		False	True	2026-09-17	Contig	578489	171112880
+GCA_061475905.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	25289	11875524
+GCA_061475945.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	61477	12235583
+GCA_061475985.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	40949	12353168
+GCA_061476005.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	38513	11609538
+GCA_061476045.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	52234	12335937
+GCA_061476065.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	38839	12345372
+GCA_061476105.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	33311	12346064
+GCA_061476145.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	37794	12348707
+GCA_061476165.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	34215	12346683
+GCA_061476185.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	39706	12451460
+GCA_061476245.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	32024	12356764
+GCA_061476265.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	32398	12345117
+GCA_061476285.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	40789	12340497
+GCA_061476325.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	27600	12331205
+GCA_061476345.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	35464	12350439
+GCA_061476385.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	40230	12348058
+GCA_061476425.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	47798	12338352
+GCA_061476465.1	3777029	Ascomycota	Dothideomycetes	Botryosphaeriales	Phyllostictaceae	Phyllosticta		False	True	2026-09-20	Contig	566302	32232876
+GCA_061476485.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Scaffold	42921	13307981
+GCA_061476605.1	318829	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		False	True	2026-09-20	Scaffold	48430	41966213
+GCA_061476755.1	176275	Ascomycota	Sordariomycetes	Hypocreales	Cordycipitaceae	Beauveria		False	True	2026-09-20	Contig	3907826	32995949
+GCA_061476815.1	176275	Ascomycota	Sordariomycetes	Hypocreales	Cordycipitaceae	Beauveria		False	True	2026-09-20	Contig	4380399	34133655
+GCA_061476995.1	5530	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae	Metarhizium		False	True	2026-09-20	Chromosome	5546066	42627817
+GCA_061479715.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	30946	12240074
+GCA_061479735.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	32300	12240573
+GCA_061479775.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	33960	12207951
+GCA_061479795.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	31751	12250778
+GCA_061479835.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	37880	12213201
+GCA_061479855.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	41560	12254833
+GCA_061479895.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	37665	12256327
+GCA_061479935.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	39471	12261354
+GCA_061479955.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	45310	12263876
+GCA_061479995.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	45193	12276307
+GCA_061480035.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	41898	12264358
+GCA_061480055.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	47560	12186206
+GCA_061480075.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	41786	12270294
+GCA_061480135.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	44962	12241588
+GCA_061480155.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	41055	12261724
+GCA_061480175.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	65191	12277542
+GCA_061480215.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	69705	12271121
+GCA_061480255.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	67473	12251847
+GCA_061480275.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	68766	12286169
+GCA_061480315.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	68172	12273769
+GCA_061480335.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	67613	12270723
+GCA_061480375.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	61170	12248552
+GCA_061480395.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	62462	12276798
+GCA_061480415.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	77928	12255509
+GCA_061480455.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	65717	12268307
+GCA_061480495.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	68626	12248350
+GCA_061480515.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	70715	12273298
+GCA_061480555.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	70851	12253168
+GCA_061480595.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	72280	12278643
+GCA_061480615.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	99613	12262735
+GCA_061480635.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	62141	12252431
+GCA_061480695.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	80034	12253042
+GCA_061480715.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	79480	12271463
+GCA_061480735.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	70040	12263866
+GCA_061480775.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	69895	12185459
+GCA_061480815.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	66604	12268578
+GCA_061480835.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	68425	12285280
+GCA_061480875.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	29562	12227613
+GCA_061480895.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	35592	12255449
+GCA_061480935.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	37201	12231820
+GCA_061480955.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	36461	12232483
+GCA_061481015.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	41383	12257657
+GCA_061481035.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	43265	12238144
+GCA_061481055.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	43785	12238826
+GCA_061481095.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	42327	12259542
+GCA_061481115.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	42853	12255650
+GCA_061481155.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	40942	12262080
+GCA_061481175.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	41901	12263221
+GCA_061481215.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	69176	12274776
+GCA_061481235.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	39169	12266200
+GCA_061481295.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	65347	12272742
+GCA_061481315.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	70201	12275515
+GCA_061481335.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	69791	12276140
+GCA_061481375.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	65557	12271798
+GCA_061481395.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	77914	12274923
+GCA_061481435.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	67033	12272255
+GCA_061481455.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	73530	12280821
+GCA_061481495.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	74659	12231844
+GCA_061481515.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	77315	12272827
+GCA_061481535.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	73201	12278230
+GCA_061481595.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	21354	12195775
+GCA_061481615.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	22588	12211315
+GCA_061481635.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	24217	12212773
+GCA_061481675.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	23312	12213672
+GCA_061481715.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	23479	12238533
+GCA_061481735.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-20	Contig	23332	12207536
+GCA_061531755.1	3870909	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Penicillium		False	True	2026-09-21	Contig	129693	30086145
+GCA_061535225.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Scaffold	42028	12224332
+GCA_061535295.1	3799477	Basidiomycota	Agaricomycetes	Agaricales	Omphalotaceae	Lentinula		False	True	2026-09-21	Scaffold	899	69813414
+GCA_061535355.1	1266744	Ascomycota	Eurotiomycetes	Eurotiales	Trichocomaceae	Talaromyces		False	True	2026-09-21	Contig	3662808	32031842
+GCA_061535745.1	654390	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-09-21	Chromosome	4618314	48975907
+GCA_061535765.1	2827487	Ascomycota	Dothideomycetes	Mycosphaerellales	Mycosphaerellaceae	Septoria		False	True	2026-09-21	Contig	3096034	35095400
+GCA_061538245.1	315225	Ascomycota	Leotiomycetes	Helotiales	Vibrisseaceae	Chlorovibrissea		False	False	2026-09-21	Contig	290464	41953626
+GCA_061538255.1	199676	Ascomycota	Leotiomycetes	Helotiales	Lachnaceae	Lachnum		False	True	2026-09-21	Contig	269997	49521194
+GCA_061538295.1	2259765	Ascomycota	Leotiomycetes	Helotiales		Crocicreas		False	False	2026-09-21	Contig	27147	59785242
+GCA_061538305.1	420282	Ascomycota	Leotiomycetes	Rhytismatales	Rhytismataceae	Coccomyces		False	False	2026-09-21	Contig	329942	43174297
+GCA_061538345.1	2576867	Ascomycota	Leotiomycetes	Helotiales	Helotiaceae	Phaeohelotium		False	False	2026-09-21	Contig	205211	50386304
+GCA_061538455.1	3735102	Ascomycota	Leotiomycetes	Helotiales	Lachnaceae	Lachnocudoniella		False	False	2026-09-21	Contig	97613	56567383
+GCA_061538465.1	3735102	Ascomycota	Leotiomycetes	Helotiales	Lachnaceae	Lachnocudoniella		False	False	2026-09-21	Contig	93392	56856659
+GCA_061539275.1	1463623	Ascomycota	Leotiomycetes	Helotiales	Vibrisseaceae	Chlorovibrissea		False	False	2026-09-21	Contig	120028	42844404
+GCA_061547685.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	29450	12242920
+GCA_061547695.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	29276	12231597
+GCA_061547725.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	35711	12255773
+GCA_061547735.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	38292	12256384
+GCA_061547745.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	40299	12259100
+GCA_061547765.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	41481	12264424
+GCA_061547775.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	44387	12234374
+GCA_061547785.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	41104	12237738
+GCA_061547815.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	45310	12259953
+GCA_061547825.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	43325	12218959
+GCA_061547835.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	43971	12219182
+GCA_061547855.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	36951	12259307
+GCA_061547865.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	39559	12262701
+GCA_061547875.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	37637	12253174
+GCA_061547905.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	42439	12223013
+GCA_061547915.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	44861	12262078
+GCA_061547925.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	40179	12259514
+GCA_061547955.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	35737	12258701
+GCA_061547965.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	37593	12238632
+GCA_061547975.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	38529	12260786
+GCA_061548005.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	45296	12235641
+GCA_061548015.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	45299	12260302
+GCA_061548025.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	40812	12234501
+GCA_061548055.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	44841	12267149
+GCA_061548065.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	40205	12260427
+GCA_061548075.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	43989	12221185
+GCA_061548105.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	44695	12262754
+GCA_061548115.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	43345	12258501
+GCA_061548125.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	43590	12267315
+GCA_061548155.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	44955	12261044
+GCA_061548165.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	44381	12264934
+GCA_061548175.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	50069	12261899
+GCA_061548205.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	42812	12220004
+GCA_061548215.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	43597	12253374
+GCA_061548225.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	45032	12258746
+GCA_061548265.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	42831	12265746
+GCA_061548285.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	40170	12263776
+GCA_061548295.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	43075	12264597
+GCA_061548305.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	39746	12257717
+GCA_061548315.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	43075	12264331
+GCA_061548325.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	46058	12269446
+GCA_061548355.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	45802	12237669
+GCA_061548365.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	43074	12261510
+GCA_061548375.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	39113	12260532
+GCA_061548405.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	42658	12276184
+GCA_061548415.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	45030	12263161
+GCA_061548435.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	42015	12260198
+GCA_061548455.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	42251	12262276
+GCA_061548465.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	38533	12260135
+GCA_061548475.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	47055	12268011
+GCA_061548485.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	44154	12268226
+GCA_061548515.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	41117	12235223
+GCA_061548525.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	38123	12234910
+GCA_061548535.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	43247	12261110
+GCA_061548565.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	68219	12276839
+GCA_061548575.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	62514	12273999
+GCA_061548585.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	76641	12273990
+GCA_061548615.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	60964	12282793
+GCA_061549465.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-21	Contig	40685	12261210
+GCA_061561685.1	36016	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Petasospora		False	True	2026-09-22	Scaffold	403180	11423123
+GCA_061583505.1	156630	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-09-22	Scaffold	268740	33839408
+GCA_061583535.1	5599	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-09-22	Scaffold	11090	33222093
+GCA_061583575.1	3876528	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Kodamaea		False	True	2026-09-22	Contig	1801149	12324427
+GCA_061583585.1	175687	Basidiomycota	Agaricomycetes	Hymenochaetales	Hymenochaetaceae	Fulvifomes		False	True	2026-09-22	Scaffold	8785	48962652
+GCA_061584345.1	33178	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-09-22	Scaffold	516672	29880645
+GCA_061584355.1	169388	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-22	Scaffold	897050	50065433
+GCA_061584415.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-09-22	Scaffold	17635	15409001
+GCA_061597655.1	318829	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		False	True	2026-09-23	Scaffold	89196	41091799
+GCA_061597665.1	5580	Ascomycota	Dothideomycetes	Dothideales	Saccotheciaceae	Aureobasidium		False	True	2026-09-23	Scaffold	2060717	25474156
+GCA_061597675.1	318829	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		False	True	2026-09-23	Scaffold	184035	39977425
+GCA_061597725.1	318829	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		False	True	2026-09-23	Scaffold	69921	43527942
+GCA_061603445.1	36050	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-23	Chromosome	8583137	45561350
+GCA_061603495.1	36050	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-23	Complete Genome	9658791	43174040
+GCA_061603565.1	36050	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-23	Chromosome	8503070	44385037
+GCA_061603605.1	36050	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-23	Chromosome	5531537	44419148
+GCA_061603625.1	36050	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-23	Scaffold	5109796	43352041
+GCA_061603655.1	36050	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-23	Complete Genome	8512972	43428081
+GCA_061603705.1	36050	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-23	Chromosome	8599491	43724057
+GCA_061603715.1	36050	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-23	Chromosome	8530277	44668586
+GCA_061603755.1	36050	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-23	Chromosome	9781240	43045604
+GCA_061604035.1	2981857	Ascomycota	Dothideomycetes	Dothideales	Saccotheciaceae	Aureobasidium		False	True	2026-09-23	Contig	777099	25308897
+GCA_061604045.1	2981858	Ascomycota	Dothideomycetes	Dothideales	Saccotheciaceae	Aureobasidium		False	True	2026-09-23	Contig	1165215	25342395
+GCA_061611795.1	73230	Ascomycota	Eurotiomycetes	Onygenales	Ajellomycetaceae	Emergomyces		False	True	2026-09-23	Contig	4473560	32572177
+GCA_061611815.1	1955775	Ascomycota	Eurotiomycetes	Onygenales	Ajellomycetaceae	Emergomyces		False	True	2026-09-23	Complete Genome	4239726	32413196
+GCA_061611825.1	1955774	Ascomycota	Eurotiomycetes	Onygenales	Ajellomycetaceae	Emergomyces		False	True	2026-09-23	Chromosome	4469582	33353734
+GCA_061611845.1	2248776	Ascomycota	Eurotiomycetes	Onygenales	Ajellomycetaceae	Emergomyces		False	True	2026-09-23	Chromosome	3738837	28662731
+GCA_061611855.1	2060907	Ascomycota	Eurotiomycetes	Onygenales	Ajellomycetaceae	Emergomyces		False	True	2026-09-23	Chromosome	3738050	33475457
+GCA_061611865.1	2060908	Ascomycota	Eurotiomycetes	Onygenales	Ajellomycetaceae	Emergomyces		False	True	2026-09-23	Chromosome	5096094	35821341
+GCA_061611875.1	1972497	Ascomycota	Eurotiomycetes	Onygenales	Ajellomycetaceae	Emergomyces		False	True	2026-09-23	Contig	1881691	34265261
+GCA_061611885.1	438356	Ascomycota	Dothideomycetes	Mycosphaerellales	Mycosphaerellaceae	Cercospora		False	True	2026-09-23	Complete Genome	4537806	40751606
+GCA_061612335.1	1578925	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		False	True	2026-09-23	Complete Genome	6793283	49916457
+GCA_061612825.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	65287	12881639
+GCA_061612835.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	74754	13163853
+GCA_061612845.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	97145	13215955
+GCA_061612855.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	68624	12927342
+GCA_061612865.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	55376	13304780
+GCA_061612875.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	51759	13624737
+GCA_061612885.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	74559	12979196
+GCA_061612895.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	77269	12886904
+GCA_061612905.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	70837	12732646
+GCA_061612915.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	82706	12743406
+GCA_061612925.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	95001	12289807
+GCA_061612935.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	73330	12835530
+GCA_061612945.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	59855	13017929
+GCA_061612955.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	75653	12859413
+GCA_061612965.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	74454	13172905
+GCA_061612975.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	82885	13227605
+GCA_061612985.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	78118	13091358
+GCA_061612995.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	76581	13125100
+GCA_061613005.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	54929	13178076
+GCA_061613015.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	50842	13401551
+GCA_061613025.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	86617	12930172
+GCA_061613035.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	76930	12893183
+GCA_061613045.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	65633	13197257
+GCA_061613055.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	68033	13382583
+GCA_061613065.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	66711	13201298
+GCA_061613075.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	66384	12853208
+GCA_061613085.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	75065	12649460
+GCA_061613095.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	50615	13491353
+GCA_061613105.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	87327	12951934
+GCA_061613115.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	81244	12525218
+GCA_061613125.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	72855	12918600
+GCA_061613135.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	70124	13037389
+GCA_061613145.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	55141	13481405
+GCA_061613155.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	91035	12735506
+GCA_061613165.1	189963	Basidiomycota	Tremellomycetes	Trichosporonales	Trichosporonaceae	Trichosporon	Trichosporon asahii	True	True	2026-09-23	Complete Genome	4052870	25523718
+GCA_061613175.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-23	Contig	62452	13633332
+GCA_061613905.1	37727	Ascomycota	Eurotiomycetes	Eurotiales	Trichocomaceae	Talaromyces		False	True	2026-09-24	Chromosome	3788900	28280235
+GCA_061617035.1	2078593	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-09-24	Contig	3779866	86945073
+GCA_061617115.1	3416288	Ascomycota	Sordariomycetes	Xylariales	Xylariaceae	Xylaria		False	True	2026-09-24	Contig	5185669	50958917
+GCA_061618315.1	169388	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-24	Scaffold	554516	50673925
+GCA_061618345.1	5507	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-24	Scaffold	549968	46418219
+GCA_062004073.1	3734466	Ascomycota	Dipodascomycetes	Dipodascales	Trichomonascaceae	Zygoascus		False	True	2026-09-28	Contig	1031382	10467327
+GCA_062004075.1	3734465	Ascomycota	Dipodascomycetes	Dipodascales	Trichomonascaceae	Zygoascus		False	True	2026-09-28	Contig	843013	11585061
+GCA_062004078.1	3734464	Ascomycota	Dipodascomycetes	Dipodascales	Trichomonascaceae	Starmerella		False	True	2026-09-28	Contig	756608	10391701
+GCA_062004079.1	3734463	Ascomycota	Dipodascomycetes	Dipodascales	Trichomonascaceae	Wickerhamiella		False	True	2026-09-28	Contig	395362	9624094
+GCA_062004584.1	4911	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Kluyveromyces		False	True	2026-09-28	Contig	1508316	11899893
+GCA_062004742.1	3735054	Ascomycota	Sordariomycetes	Coniochaetales	Coniochaetaceae	Coniochaeta		False	True	2026-09-28	Scaffold	163036	35156661
+GCA_062004744.1	3735056	Ascomycota	Dothideomycetes	Cladosporiales	Cladosporiaceae	Cladosporium		False	True	2026-09-28	Scaffold	614395	35691216
+GCA_062004751.1	3735055	Ascomycota	Dothideomycetes	Hysteriales	Hysteriaceae			False	False	2026-09-28	Scaffold	256628	58877265
+GCA_062004764.1	69781	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Penicillium		False	True	2026-09-28	Contig	4211400	30669705
+GCA_062009380.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	5595044	143392937
+GCA_062009385.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	7195446	143279435
+GCA_062009389.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	6822969	143578628
+GCA_062009399.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	6130783	141927477
+GCA_062009400.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	5784250	143822317
+GCA_062009401.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	6692855	145282789
+GCA_062009418.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	5077336	142532778
+GCA_062009420.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	7730005	145915163
+GCA_062009422.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	6664205	143253479
+GCA_062009433.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	6459348	147409797
+GCA_062009434.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	3075516	140688021
+GCA_062009435.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	3683619	143811700
+GCA_062009442.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	5314440	142697631
+GCA_062009444.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	4352262	161364534
+GCA_062009445.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	6040207	147008307
+GCA_062009458.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	5021481	164798187
+GCA_062009459.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	5853060	146235808
+GCA_062009460.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	6206598	147353084
+GCA_062009467.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	6195873	146937379
+GCA_062009471.1	27345	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-09-28	Chromosome	5135698	141319592
+GCA_062009909.1	228216	Basidiomycota	Agaricomycetes	Agaricales	Pleurotaceae	Pleurotus		False	True	2026-09-29	Contig	2542736	49435747
+GCA_062009920.1	169388	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-29	Contig	2416816	57678605
+GCA_062012680.1	121759	Ascomycota	Eurotiomycetes	Onygenales	Ajellomycetaceae	Paracoccidioides		False	True	2026-09-30	Contig	1880991	29743130
+GCA_062012681.1	121759	Ascomycota	Eurotiomycetes	Onygenales	Ajellomycetaceae	Paracoccidioides		False	True	2026-09-30	Contig	110233	27328612
+GCA_062012685.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-30	Contig	61855	12271988
+GCA_062012686.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-30	Contig	56397	12270932
+GCA_062012687.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-30	Contig	57364	12273972
+GCA_062012688.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-30	Contig	58054	12272752
+GCA_062012692.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-30	Contig	58495	12230492
+GCA_062012693.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-30	Contig	106609	12296249
+GCA_062012694.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-30	Contig	97029	12284641
+GCA_062012698.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-30	Contig	44753	12267229
+GCA_062012699.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-30	Contig	88546	12281790
+GCA_062012700.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-30	Contig	111207	12238946
+GCA_062012704.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-30	Contig	90966	12287263
+GCA_062012705.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-30	Contig	102166	12288498
+GCA_062012707.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-30	Contig	111471	12281537
+GCA_062012710.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-30	Contig	107209	12294634
+GCA_062012711.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-09-30	Contig	85357	12273021
+GCA_062016387.1	40492	Basidiomycota	Agaricomycetes	Russulales	Stereaceae	Stereum		False	True	2026-10-05	Contig	2797043	63588223
+GCA_062016388.1	371454	Basidiomycota	Tremellomycetes	Tremellales	Naemateliaceae	Naematelia		False	True	2026-10-05	Contig	1804622	20726439
+GCA_062019138.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	246019	30485352
+GCA_062019141.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	368829	29820145
+GCA_062019142.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	364977	30194296
+GCA_062019143.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	315880	31719984
+GCA_062019147.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	597977	30398057
+GCA_062019148.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	309728	29887769
+GCA_062019150.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	454567	30442083
+GCA_062019153.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	467857	30812022
+GCA_062019154.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	303904	30148082
+GCA_062019155.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	424848	30507395
+GCA_062019159.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	499475	30617493
+GCA_062019160.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	521004	30095575
+GCA_062019161.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	495895	30129104
+GCA_062019165.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	584366	30379059
+GCA_062019166.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	425818	30569794
+GCA_062019167.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	410879	30439333
+GCA_062019171.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	411360	30529124
+GCA_062019172.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	528271	30029305
+GCA_062019173.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	310319	30639145
+GCA_062019177.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	411880	30535771
+GCA_062019178.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	Scaffold	514585	30430415
+GCA_062019793.1	34356	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Kodamaea		False	True	2026-10-05	Contig	146935	12297135
+GCA_062020481.1	5627	Basidiomycota	Agaricomycetes	Polyporales	Grifolaceae	Grifola		False	True	2026-10-06	Complete Genome	3079378	37592532
+GCA_062020482.1	4929	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Meyerozyma		False	True	2026-10-05	Scaffold	1676311	10612560
+GCA_062022857.1	486154	Basidiomycota	Agaricomycetes	Cantharellales	Tulasnellaceae	Tulasnella		False	True	2026-10-06	Scaffold	43135	39004858
+GCA_062022858.1	492012	Basidiomycota	Agaricomycetes	Cantharellales	Tulasnellaceae	Tulasnella		False	True	2026-10-06	Scaffold	60393	33248148
+GCA_062022870.1	5061	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-06	Contig	3375944	35556169
+GCA_062024532.1	3895878	Ascomycota	Dothideomycetes	Venturiales	Cylindrosympodiaceae	Cylindrosympodium		False	False	2026-10-07	Contig	396132	34369678
+GCA_062024533.1	3895885	Ascomycota	Dothideomycetes	Pleosporales	Didymosphaeriaceae	Montagnula		False	False	2026-10-07	Contig	81315	35076555
+GCA_062024534.1	3895884	Ascomycota	Sordariomycetes	Sordariales	Sordariaceae			False	False	2026-10-07	Contig	82279	39578675
+GCA_062024535.1	3895886	Ascomycota	Dothideomycetes	Pleosporales	Didymellaceae	Epicoccum		False	True	2026-10-07	Contig	74771	34417812
+GCA_062024536.1	3895879	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Curvularia		False	True	2026-10-07	Contig	134127	31383733
+GCA_062024537.1	3895882	Ascomycota	Sordariomycetes	Sordariales	Chaetomiaceae	Arcopilus		False	True	2026-10-07	Contig	69133	33652360
+GCA_062024538.1	3895880	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Curvularia		False	True	2026-10-07	Contig	864208	31817197
+GCA_062024539.1	3895883	Ascomycota	Dothideomycetes	Pleosporales	Phaeosphaeriaceae	Neostagonospora		False	False	2026-10-07	Contig	400778	35010734
+GCA_062024540.1	3895881	Ascomycota	Dothideomycetes	Pleosporales	Didymellaceae	Ascochyta		False	True	2026-10-07	Contig	191405	32727942
+GCA_062024675.1	5548	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma		False	True	2026-10-07	Scaffold	392189	32447150
+GCA_062024677.1	3895876	Ascomycota	Dothideomycetes	Pleosporales	Didymellaceae			False	False	2026-10-07	Contig	57597	32025434
+GCA_062024678.1	3895872	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-10-07	Contig	191530	86966161
+GCA_062024679.1	3895873	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-10-07	Contig	1207259	33881255
+GCA_062024680.1	3895874	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Penicillium		False	True	2026-10-07	Contig	400477	37855057
+GCA_062024681.1	3895877	Ascomycota	Sordariomycetes	Coniochaetales	Coniochaetaceae	Coniochaeta		False	True	2026-10-07	Contig	249480	39175331
+GCA_062024683.1	73001	Ascomycota	Dothideomycetes	Pleosporales	Didymellaceae	Phoma		False	True	2026-10-07	Contig	701086	31766709
+GCA_062024721.1	1124679	Basidiomycota	Agaricomycetes	Agaricales		Dendrothele		False	True	2026-10-07	Scaffold	13316	59653811
+GCA_062024722.1	1124679	Basidiomycota	Agaricomycetes	Agaricales		Dendrothele		False	True	2026-10-07	Contig	13316	59643556
+GCA_062024761.1	2070801	Ascomycota	Eurotiomycetes	Onygenales	Nannizziopsiaceae	Emydomyces		False	True	2026-10-07	Complete Genome	8361712	39896675
+GCA_062029889.1	3835411	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma		False	True	2026-10-10	Scaffold	271562	31871766
+GCA_062029959.1	5037	Ascomycota	Eurotiomycetes	Onygenales	Ajellomycetaceae	Histoplasma		False	True	2026-10-10	Contig	5161774	34827701
+GCA_062034305.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-12	Contig	28862	12227471
+GCA_062034306.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-12	Contig	30638	12236905
+GCA_062034307.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-12	Contig	30330	12233449
+GCA_062034308.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-12	Contig	26906	12214305
+GCA_062034309.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-12	Contig	33769	12247808
+GCA_062034310.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-12	Contig	27641	12236704
+GCA_062034311.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-12	Contig	27261	12209084
+GCA_062034312.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-12	Contig	29607	12235242
+GCA_062034313.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-12	Contig	30571	12237863
+GCA_062034314.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-12	Contig	28857	12239805
+GCA_062034315.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-12	Contig	32877	12204608
+GCA_062034316.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-12	Contig	32824	12139226
+GCA_062034319.1	2600213	Basidiomycota	Agaricomycetes	Sebacinales	Serendipitaceae	Serendipita		False	True	2026-10-12	Contig	2710195	38899175
+GCA_062034320.1	2600215	Basidiomycota	Agaricomycetes	Sebacinales	Serendipitaceae	Serendipita		False	True	2026-10-12	Contig	1811712	35358857
+GCA_062034321.1	2600216	Basidiomycota	Agaricomycetes	Sebacinales	Serendipitaceae	Serendipita		False	True	2026-10-12	Contig	2032117	38487819
+GCA_062034322.1	2136033	Basidiomycota	Agaricomycetes	Sebacinales	Serendipitaceae			False	False	2026-10-12	Contig	1666104	40693196
+GCA_062034324.1	1873345	Ascomycota	Dothideomycetes	Mycosphaerellales	Mycosphaerellaceae	Teratoramularia		False	True	2026-10-12	Contig	349859	21228971
+GCA_062034328.1	2562765	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-10-12	Scaffold	1722073	37173667
+GCA_062034329.1	936053	Mucoromycota	Mucoromycetes	Mucorales	Rhizopodaceae	Rhizopus		False	True	2026-10-12	Contig	32509	35986056
+GCA_062034330.1	55194	Basidiomycota	Malasseziomycetes	Malasseziales	Malasseziaceae	Malassezia		False	True	2026-10-12	Complete Genome	1808246	15747006
+GCA_062034331.1	49224	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma		False	True	2026-10-12	Scaffold	141688	40526526
+GCA_062039096.1	318829	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		False	True	2026-10-13	Contig	6522540	46264799
+GCA_062039097.1	318829	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		False	True	2026-10-13	Contig	4729120	46417310
+GCA_062041668.1	59765	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-10-14	Contig	4474084	51102030
+GCA_062042531.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	5124492	54415048
+GCA_062042533.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	5707294	54418416
+GCA_062042534.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	5804761	53717517
+GCA_062042535.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	5352039	53637573
+GCA_062042536.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Complete Genome	5804272	53589153
+GCA_062042537.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	4455339	53777308
+GCA_062042538.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	5802801	53676934
+GCA_062042539.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	4658865	54362469
+GCA_062042540.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Complete Genome	5761614	54874261
+GCA_062042541.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	5755471	53376171
+GCA_062042542.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	5805152	53660449
+GCA_062042543.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	5171835	54485823
+GCA_062042544.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	5490199	54331848
+GCA_062042545.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	5138482	54087105
+GCA_062042546.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	4439038	54041319
+GCA_062042547.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	5694603	53991246
+GCA_062042548.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	5719862	54766504
+GCA_062042558.1	3713335	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Diutina		False	True	2026-10-15	Complete Genome	1922956	11035057
+GCA_062042560.1	1537583	Basidiomycota	Agaricomycetes	Polyporales	Laetiporaceae	Laetiporus		False	True	2026-10-15	Contig	3789181	49165318
+GCA_062042561.1	318829	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		False	True	2026-10-15	Complete Genome	6819218	44104412
+GCA_062042562.1	306554	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Contig	2354333	51638877
+GCA_062042564.1	352851	Ascomycota	Leotiomycetes	Helotiales	Sclerotiniaceae	Sclerotinia		False	True	2026-10-15	Contig	2947581	49264888
+GCA_062042565.1	352851	Ascomycota	Leotiomycetes	Helotiales	Sclerotiniaceae	Sclerotinia		False	True	2026-10-15	Chromosome	2907466	48638711
+GCA_062043556.1	3104263	Entomophthoromycota	Entomophthoromycetes	Entomophthorales	Ancylistaceae	Ancylistes		False	False	2026-09-26	Scaffold	87372	111952910
+GCA_062043674.1	224912	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-07-04	Contig	4556308	59312162
+GCA_062043676.1	224912	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-07-05	Scaffold	4236063	63189236
+GCA_062043679.1	3400292	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-07-04	Contig	5234297	54185900
+GCA_062043680.1	3400292	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-07-04	Contig	4874496	53880271
+GCA_062043684.1	3400292	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-07-04	Contig	5094086	56054467
+GCA_062043685.1	2717166	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-07-04	Contig	4067548	64825998
+GCA_062043696.1	96582	Ascomycota	Pezizomycetes	Pezizales	Chorioactidaceae	Chorioactis		False	False	2026-09-12	Contig	1918515	61433164
+GCA_062043716.1	2741988	Chytridiomycota	Chytridiomycetes	Rhizophydiales				False	False	2026-07-03	Contig	18523	16557855
+GCA_062044104.1	3895892	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Kluyveromyces		False	True	2026-10-09	Contig	993195	10217206
+GCA_062044432.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	673798	36558238
+GCA_062044433.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	743466	36543728
+GCA_062044434.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	788120	37019459
+GCA_062044435.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	828812	35688824
+GCA_062044436.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	550669	35850437
+GCA_062044437.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	705060	36397161
+GCA_062044438.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	851800	37401831
+GCA_062044439.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	654946	36769352
+GCA_062044440.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	598433	35609668
+GCA_062044441.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	624352	36740076
+GCA_062044442.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	984805	37689233
+GCA_062044443.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	1148869	37469973
+GCA_062044444.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	882830	35699248
+GCA_062044445.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	516423	34532390
+GCA_062044446.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	748344	36713764
+GCA_062044447.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	1264724	38727240
+GCA_062044448.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	745870	36160455
+GCA_062044449.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	485174	34494974
+GCA_062044450.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	1789364	40266071
+GCA_062044451.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	400391	34658086
+GCA_062044452.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	2225337	40107785
+GCA_062044453.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	812578	37375241
+GCA_062044454.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	1002446	37846018
+GCA_062044455.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	1346613	38208266
+GCA_062044456.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	631847	34556592
+GCA_062044457.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	497319	34935437
+GCA_062044458.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	1082294	38290091
+GCA_062044459.1	5022	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus		False	True	2026-10-16	Contig	724106	36550926
+GCA_062045532.1	61366	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-10-17	Scaffold	252335	48028761
+GCA_062045626.1	702382	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma		False	True	2026-10-18	Contig	1105838	35633578
+GCA_062045686.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-10-18	Contig	804258	12021212
+GCA_062045687.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-10-18	Contig	809899	11942413
+GCA_062045688.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-10-18	Contig	796876	11969063
+GCA_062045689.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-10-18	Contig	796768	11969709
+GCA_062046599.1	68746	Basidiomycota	Agaricomycetes	Agaricales	Strophariaceae	Stropharia		False	True	2026-10-19	Contig	3154176	96481046
+GCA_062046625.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-19	Contig	2321994	12389707
+GCA_062046653.1	318829	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		False	True	2026-10-19	Scaffold	25482	39132870
+GCA_062050973.1	5288	Basidiomycota	Microbotryomycetes	Sporidiobolales	Sporidiobolaceae	Rhodotorula		False	True	2026-10-20	Scaffold	124825	20842800
+GCA_062050975.1	86837	Basidiomycota	Microbotryomycetes	Sporidiobolales	Sporidiobolaceae	Rhodotorula		False	True	2026-10-20	Scaffold	203751	20868846
+GCA_062050976.1	86832	Basidiomycota	Microbotryomycetes	Sporidiobolales	Sporidiobolaceae	Rhodotorula		False	True	2026-10-20	Scaffold	213988	19331617
+GCA_062050977.1	3085677	Ascomycota	Dothideomycetes	Cladosporiales	Cladosporiaceae	Cladosporium		False	True	2026-10-20	Scaffold	160838	65481882
+GCA_062052782.1	2802321	Ascomycota	Dothideomycetes	Pleosporales	Didymellaceae	Stagonosporopsis		False	True	2026-10-20	Contig	1899228	33800590
+GCA_062052784.1	293381	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Penicillium		False	True	2026-10-20	Contig	5382892	30527894
+GCA_062053292.1	33173	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Eremothecium		False	True	2026-10-21	Contig	966746	9058354
+GCA_062053301.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	32377	12241691
+GCA_062053302.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	30650	12198072
+GCA_062053303.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	28787	12239975
+GCA_062053306.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	25504	12235085
+GCA_062053307.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	30162	12235920
+GCA_062053308.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	28513	12197252
+GCA_062053311.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	32295	12240336
+GCA_062053314.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	18411	12194904
+GCA_062053319.1	117187	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-10-21	Scaffold	100789	42276476
+GCA_062053321.1	38033	Ascomycota	Sordariomycetes	Sordariales	Chaetomiaceae	Chaetomium		False	True	2026-10-21	Contig	4740904	34218672
+GCA_062053325.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	32416	12245191
+GCA_062053326.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	16669	12161317
+GCA_062053327.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	30624	12179903
+GCA_062053328.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	33412	12201636
+GCA_062053329.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	32162	12245899
+GCA_062053330.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	33144	12247214
+GCA_062053331.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	32298	12238601
+GCA_062053332.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	35499	12208556
+GCA_062053333.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	33802	12246460
+GCA_062053334.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	34784	12247313
+GCA_062053335.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	33951	12244014
+GCA_062053336.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	24266	12202728
+GCA_062053337.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	31500	12246899
+GCA_062053338.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	30949	12249978
+GCA_062053339.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	30162	12214513
+GCA_062053340.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	29069	12180951
+GCA_062053342.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	35563	12226321
+GCA_062053343.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	32953	12249273
+GCA_062053344.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	30358	12238437
+GCA_062053347.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	38771	12253415
+GCA_062053348.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	31144	12243368
+GCA_062053349.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	37876	12231679
+GCA_062053350.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	38576	12225365
+GCA_062053351.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	38220	12256029
+GCA_062053352.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	40046	12256636
+GCA_062053353.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	37804	12236568
+GCA_062053354.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	42829	12258169
+GCA_062053355.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	28291	12224177
+GCA_062053356.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	34119	12232498
+GCA_062053357.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	41383	12257548
+GCA_062053358.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	37104	12259498
+GCA_062053359.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	29635	12256481
+GCA_062053360.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	40570	12252833
+GCA_062053361.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	43046	12234871
+GCA_062053362.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	43807	12261405
+GCA_062053363.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	46676	12261228
+GCA_062053364.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	69262	12280835
+GCA_062053365.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	50813	12265189
+GCA_062053366.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	34146	12229997
+GCA_062053369.1	498019	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma		False	True	2026-10-21	Contig	37074	12252026
+GCA_062053387.1	86838	Basidiomycota	Microbotryomycetes	Sporidiobolales	Sporidiobolaceae	Rhodotorula		False	True	2026-10-22	Contig	1092370	20789392
+GCA_062053388.1	460519	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Komagataella		False	True	2026-10-22	Scaffold	1007870	9319290
+GCA_062053389.1	86837	Basidiomycota	Microbotryomycetes	Sporidiobolales	Sporidiobolaceae	Rhodotorula		False	True	2026-10-22	Contig	383183	21722586
+GCA_062053534.1	710243	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-22	Chromosome	1312170	50404813
+GCA_900007795.1	409370	Ascomycota	Dipodascomycetes	Dipodascales	Trichomonascaceae	Blastobotrys		False	True	2026-07-09	Chromosome	3827910	11804616
+GCA_902810775.2	2714548	Ascomycota	Leotiomycetes	Helotiales	Sclerotiniaceae	Myriosclerotinia		False	True	2026-03-24	Contig	2649720	43533135
+GCA_907164605.1	2036924	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Penicillium		False	True	2025-08-27	Scaffold	161688	27517845
+GCA_907164625.1	2608786	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Penicillium		False	True	2025-08-27	Scaffold	214773	36081733
+GCA_918257225.2	1163648	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces	Saccharomyces kudriavzevii	True	True	2026-09-12	Scaffold	819894	11972268
+GCA_964035615.1	117187	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-03-29	Contig	1219182	43552795
+GCA_964263275.1	4950	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	645296	9156289
+GCA_964263315.1	4950	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Scaffold	1277217	9402426
+GCA_964263395.1	35629	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	604123	8976510
+GCA_964263405.1	35629	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	639147	9403628
+GCA_964263415.1	35629	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	802855	9402741
+GCA_964263425.1	1136883	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	405810	10168300
+GCA_964263455.1	3680297	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	392291	10237729
+GCA_964263465.1	1056991	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	666895	9133599
+GCA_964263475.1	3680294	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	667480	8967431
+GCA_964263485.1	3680299	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	549183	9221377
+GCA_964263495.1	1056991	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	870851	9086957
+GCA_964263505.1	3680288	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	404829	9086278
+GCA_964263545.1	1143185	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	249692	10205839
+GCA_964263555.1	3680294	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	683132	8951989
+GCA_964263575.1	3680288	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	905663	9093471
+GCA_964263585.1	3680295	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	514529	9091903
+GCA_964263595.1	1056991	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	322606	9201042
+GCA_964263605.1	35629	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	653422	9406191
+GCA_964263615.1	1143185	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	319078	10091377
+GCA_964263625.1	1056991	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	667089	9139319
+GCA_964263635.1	1056991	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	158544	9189193
+GCA_964263645.1	3680299	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	556690	9211965
+GCA_964263655.1	3680288	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Contig	652918	9054907
+GCA_964263665.1	3680297	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Torulaspora		False	True	2025-07-09	Scaffold	196063	10266346
+GCA_965276445.1	91752	Basidiomycota	Agaricomycetes	Russulales	Hericiaceae	Hericium		False	True	2025-05-03	Contig	127684	62657397
+GCA_965276535.1	222052	Basidiomycota	Agaricomycetes	Agaricales	Cortinariaceae	Phlegmacium		False	True	2025-05-03	Scaffold	746348	167554647
+GCA_965283515.1	35717	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae	Epichloe		False	True	2025-05-19	Scaffold	40800	26821874
+GCA_965283525.1	35717	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae	Epichloe		False	True	2025-05-19	Contig	15103	27999573
+GCA_965283535.1	35717	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae	Epichloe		False	True	2025-05-19	Scaffold	23139	29875547
+GCA_965283545.1	35717	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae	Epichloe		False	True	2025-05-19	Scaffold	26824	30659143
+GCA_965283555.1	35717	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae	Epichloe		False	True	2025-05-19	Contig	12320	27054444
+GCA_965283565.1	35717	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae	Epichloe		False	True	2025-05-19	Contig	29453	30316530
+GCA_965283575.1	35717	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae	Epichloe		False	True	2025-05-19	Contig	36697	27062794
+GCA_965283585.1	35717	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae	Epichloe		False	True	2025-05-19	Contig	11970	27361799
+GCA_965286845.1	45537	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Diutina		False	True	2025-10-11	Complete Genome	3010089	14007052
+GCA_965358655.1	45537	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Diutina		False	True	2025-10-30	Complete Genome	2366658	13990122
+GCA_965358665.1	45537	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Diutina		False	True	2025-10-11	Complete Genome	2583527	14046618
+GCA_965358675.1	45537	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Diutina		False	True	2025-10-30	Complete Genome	3384698	14034053
+GCA_965601335.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-07-28	Scaffold	311447	11866926
+GCA_965601345.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-07-28	Scaffold	311447	11866926
+GCA_965601355.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-07-28	Scaffold	311447	11866926
+GCA_965601365.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-07-28	Scaffold	311447	11866926
+GCA_965605615.1	566093	Basidiomycota	Agaricomycetes	Agaricales	Hygrophoraceae	Hygrocybe		False	True	2025-07-07	Scaffold	1298934	30341660
+GCA_965620535.1	104224	Basidiomycota	Agaricomycetes	Agaricales	Hygrophoraceae	Hygrocybe		False	True	2025-07-09	Scaffold	926221	36949095
+GCA_965643385.2	4956	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-02-27	Contig	1446532	10159852
+GCA_965643395.1	4956	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2025-08-09	Contig	426706	9683010
+GCA_965643405.1	4956	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2025-08-09	Contig	231969	9683395
+GCA_965643435.1	4956	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2025-08-09	Contig	392772	9696890
+GCA_965643445.1	1365887	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2025-08-09	Contig	96474	19854351
+GCA_965643455.1	4956	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2025-08-09	Contig	458164	9678818
+GCA_965643465.1	4956	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2025-08-09	Contig	356102	9686986
+GCA_965643475.1	4956	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2025-08-09	Contig	455277	9684462
+GCA_965649415.1	71936	Basidiomycota	Agaricomycetes	Agaricales	Entolomataceae	Clitopilus		False	True	2025-07-30	Chromosome	759812	38391105
+GCA_965654195.1	71918	Basidiomycota	Agaricomycetes	Agaricales	Omphalotaceae	Rhodocollybia		False	True	2025-08-03	Scaffold	379684	139619489
+GCA_965788925.1	3395814	Basidiomycota	Agaricomycetes	Boletales	Gyroporaceae	Gyroporus		False	True	2025-08-23	Chromosome	1327408	102341911
+GCA_974869015.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	824633	12535522
+GCA_974871525.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	824907	12382989
+GCA_974872485.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	824683	12385410
+GCA_974873075.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	829212	12473960
+GCA_974922795.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	824839	12492910
+GCA_974922825.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	838700	12483071
+GCA_974922875.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	824852	12412417
+GCA_974923055.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	824656	12247306
+GCA_974923065.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	824871	12379387
+GCA_974923075.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	824884	12359884
+GCA_974923085.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	778011	12562493
+GCA_974923095.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	824923	12248378
+GCA_974923105.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	777994	12257121
+GCA_974924285.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	935843	12254979
+GCA_974924305.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	826041	12305791
+GCA_974924435.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	751878	12492133
+GCA_974924475.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	853585	12759246
+GCA_974925755.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	935757	12374046
+GCA_974925815.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	583424	10968454
+GCA_974925875.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	824768	12310970
+GCA_974926775.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	824858	12436295
+GCA_974926795.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	824870	12297725
+GCA_974927055.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	824748	12381501
+GCA_974927125.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	824777	12369144
+GCA_974927145.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	824794	12432499
+GCA_974927175.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	934107	12368767
+GCA_974927225.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	829701	12354973
+GCA_974928515.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	936201	12321768
+GCA_974929195.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	935777	12292235
+GCA_974929755.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	935884	12351550
+GCA_974929765.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-10-26	Contig	905731	12285666
+GCA_975849915.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-11	Contig	10011	2340368
+GCA_975851445.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-09	Contig	13459	1256746
+GCA_975901235.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-10	Contig	14419	2026734
+GCA_975901535.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-13	Contig	4417	2730383
+GCA_975902375.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-24	Contig	1315	3627277
+GCA_975902415.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-13	Contig	6257	2864121
+GCA_975902655.1	2862414	Ascomycota	Dipodascomycetes	Dipodascales	Dipodascaceae	Geotrichum		False	True	2025-10-23	Contig	40638	3801456
+GCA_975904055.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-11	Contig	4749	2172777
+GCA_975904785.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-22	Contig	4393	3604637
+GCA_975905055.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-12	Contig	9893	2661377
+GCA_975905355.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-09	Contig	5541	1134596
+GCA_975905865.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-12	Contig	3749	2334979
+GCA_975955085.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-09	Contig	18270	1106421
+GCA_975956465.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-23	Contig	17454	3959667
+GCA_975956635.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-14	Contig	6821	3311371
+GCA_975956915.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-11	Contig	3857	1985766
+GCA_975957575.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-10	Contig	4460	1625326
+GCA_975957675.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-08	Contig	10534	1002024
+GCA_975957825.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-08	Contig	1841	776218
+GCA_975958155.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-14	Contig	1594	2999740
+GCA_975958705.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-10	Contig	3840	1879534
+GCA_975960115.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-25	Contig	17910	5599411
+GCA_975960895.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-24	Contig	1470	3805520
+GCA_975961735.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-09	Contig	15646	1559935
+GCA_975961795.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-09	Contig	3297	1119535
+GCA_975961875.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-10	Contig	15529	1985151
+GCA_975962105.1	2862414	Ascomycota	Dipodascomycetes	Dipodascales	Dipodascaceae	Geotrichum		False	True	2025-10-13	Contig	19722	2969152
+GCA_975962915.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-08	Contig	4453	785655
+GCA_975963385.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-10	Contig	1746	1583759
+GCA_975964995.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-09	Contig	4777	1602268
+GCA_975965595.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-08	Contig	5058	963205
+GCA_975966675.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-08	Contig	4732	911633
+GCA_975966835.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-11	Contig	8650	2187682
+GCA_975967085.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-11	Contig	40134	2228302
+GCA_975967225.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-08	Contig	3314	916937
+GCA_975967265.1	176794	Basidiomycota	Agaricomycetes	Russulales	Russulaceae	Russula		False	True	2025-10-26	Contig	15658	15210896
+GCA_975967745.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-10	Contig	8571	1728006
+GCA_975968075.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-12	Contig	5398	2403102
+GCA_975968225.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-12	Contig	3524	2432327
+GCA_975969255.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-09	Contig	3877	1539404
+GCA_975969275.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-09	Contig	6518	1141206
+GCA_975970235.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-09	Contig	7876	1479850
+GCA_975971175.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-09	Contig	7478	1419299
+GCA_975971235.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-13	Contig	4039	2852387
+GCA_975971275.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-12	Contig	5814	2450105
+GCA_975971445.1	551772	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2025-10-09	Contig	2158	1084417
+GCA_976009005.1	1754190	Neocallimastigomycota	Neocallimastigomycetes	Neocallimastigales	Neocallimastigaceae	Neocallimastix		False	True	2025-10-09	Contig	3776	1507632
+GCA_977014875.1	174080	Ascomycota	Lecanoromycetes	Lecanorales	Cladoniaceae	Cladonia		False	True	2025-11-08	Contig	620960	118776513
+GCA_977018765.1	4911	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Kluyveromyces		False	True	2026-02-01	Contig	439911	10863491
+GCA_977018775.1	4911	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Kluyveromyces		False	True	2026-02-01	Contig	275929	10764990
+GCA_977018785.1	4911	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Kluyveromyces		False	True	2026-02-01	Contig	441616	10706631
+GCA_977018795.1	4911	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Kluyveromyces		False	True	2026-02-01	Contig	592132	10773936
+GCA_977018805.1	4911	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Kluyveromyces		False	True	2026-02-01	Contig	477072	10696876
+GCA_977018815.1	4911	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Kluyveromyces		False	True	2026-02-01	Contig	421308	10763719
+GCA_977018825.1	4911	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Kluyveromyces		False	True	2026-02-01	Contig	441626	10690227
+GCA_977035815.1	71948	Basidiomycota	Agaricomycetes	Agaricales	Kuehneromycetaceae	Kuehneromyces		False	True	2025-11-13	Scaffold	1258356	54022057
+GCA_977064315.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-11-20	Contig	928633	11944772
+GCA_977064335.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2025-11-20	Contig	930519	12150146
+GCA_977065945.1	71694	Basidiomycota	Agaricomycetes	Agaricales	Psathyrellaceae	Coprinopsis		False	True	2025-11-28	Scaffold	1530580	54769206
+GCA_977071145.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	Contig	167649	40496828
+GCA_977071155.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	Contig	155803	39988342
+GCA_977071165.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	Contig	176617	40572079
+GCA_977071185.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	Contig	167662	40576945
+GCA_977071195.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	Contig	176621	40611171
+GCA_977071205.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	Contig	157875	40432347
+GCA_977071215.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	Contig	167657	40585601
+GCA_977071225.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	Contig	160468	40010630
+GCA_977071235.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	Contig	174103	40511566
+GCA_977071255.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	Contig	158515	40862423
+GCA_977071265.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	Contig	159271	40026905
+GCA_977071275.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	Contig	153494	41716912
+GCA_977071285.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	Contig	164199	40699416
+GCA_977071295.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	Contig	152144	40946671
+GCA_977071305.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	Contig	164125	40343318
+GCA_977097105.1	2093779	Ascomycota	Sordariomycetes	Sordariales	Podosporaceae	Podospora		False	True	2026-09-01	Complete Genome	4712216	34767643
+GCA_977110955.1	58291	Mucoromycota	Mucoromycetes	Mucorales	Rhizopodaceae	Rhizopus		False	True	2025-12-07	Contig	4723566	28452767
+GCA_977862175.1	29001	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-02-01	Contig	1083097	30673699
+GCA_977862195.1	29001	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-02-01	Contig	985408	30410473
+GCA_977862205.1	29001	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-02-01	Contig	616686	30563430
+GCA_977871655.1	29001	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Alternaria		False	True	2026-02-01	Contig	1202661	30787608
+GCA_977885145.1	284592	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Debaryomyces	Debaryomyces hansenii	True	True	2026-02-05	Contig	3664	6923940
+GCA_977927235.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-02-25	Contig	824725	12282927
+GCA_977927295.1	1973307	Basidiomycota	Agaricomycetes	Agaricales	Hemipholiotaceae	Cyclocybe		False	True	2026-03-01	Scaffold	88153	40495671
+GCA_977970225.1	208348	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia		False	True	2026-02-16	Chromosome	5525781	120217236
+GCA_978019425.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-03-02	Contig	915544	11636459
+GCA_978019435.1	4932	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-03-02	Contig	925843	11758376
+GCA_978898735.1	76328	Basidiomycota	Agaricomycetes	Agaricales	Tricholomataceae	Tricholoma		False	True	2026-02-26	Scaffold	814265	72805771
+GCA_979017145.1	181886	Basidiomycota	Agaricomycetes	Agaricales	Inocybaceae	Inocybe		False	True	2026-02-27	Contig	173251	40916279
+GCA_980434565.1	5323	Basidiomycota	Agaricomycetes	Agaricales	Pleurotaceae	Pleurotus		False	True	2026-02-28	Scaffold	557571	51479285
+GCA_980476495.1	3158089	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Komagataea		False	True	2026-02-28	Contig	1104533	11166610
+GCA_980648115.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1037863	10722148
+GCA_980648335.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1725213	11144849
+GCA_980648655.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1550523	10847186
+GCA_980648925.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-02-28	Contig	42461	18973705
+GCA_980649025.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1746892	11177326
+GCA_980649045.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1708215	11132766
+GCA_980649085.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-02-28	Contig	997550	14130773
+GCA_980649315.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1725704	11230917
+GCA_980649405.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1639254	11266828
+GCA_980649425.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1724792	11240940
+GCA_980649435.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	133070	9513458
+GCA_980649455.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1121894	26784188
+GCA_980649475.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	3155522	10829029
+GCA_980649665.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-02-28	Contig	1083551	13794109
+GCA_980649705.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-02-28	Contig	1422144	13582920
+GCA_980649735.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-02-28	Contig	616167	13682980
+GCA_980649815.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	3155428	10687150
+GCA_980649825.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	724618	10734974
+GCA_980649875.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-02-28	Contig	775643	13699426
+GCA_980650505.1	4926	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2026-02-28	Contig	2061335	11895829
+GCA_980650545.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1727229	11125701
+GCA_980650555.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-02-28	Contig	1320190	13710252
+GCA_980650605.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-02-28	Contig	1073846	13753499
+GCA_980650615.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-02-28	Contig	180292	11106394
+GCA_980650645.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-02-28	Contig	1026994	13710125
+GCA_980650995.1	4959	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Debaryomyces		False	True	2026-02-28	Contig	22978	12491395
+GCA_980651085.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1717928	11281846
+GCA_980651635.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1731504	11263199
+GCA_980651655.1	27326	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Metschnikowia		False	True	2026-02-28	Contig	991135	16237911
+GCA_980651945.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1545193	10749142
+GCA_980651975.1	4959	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Debaryomyces		False	True	2026-02-28	Contig	1489499	12760402
+GCA_980652285.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-02-28	Contig	2047693	13455298
+GCA_980652375.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1721377	11201308
+GCA_980652395.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	3155758	10783395
+GCA_980652425.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1547488	10865425
+GCA_980652465.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-02-28	Contig	1093676	13851797
+GCA_980652845.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-02-28	Contig	775643	13699426
+GCA_980652865.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-02-28	Contig	1002987	13515119
+GCA_980652885.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-02-28	Contig	579552	13821876
+GCA_980652905.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-02-28	Contig	964786	13649389
+GCA_980652995.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1556222	10798777
+GCA_980653955.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1821079	11366410
+GCA_980654215.1	4926	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2026-02-28	Contig	2033909	11986517
+GCA_980654235.1	4926	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2026-02-28	Contig	2018895	11914503
+GCA_980654245.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1558780	10697196
+GCA_980654795.1	4927	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Hansenula		False	True	2026-02-28	Contig	700581	13810067
+GCA_980654835.1	4926	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2026-02-28	Contig	306799	11646251
+GCA_980654865.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	1749995	11275471
+GCA_980654895.1	45543	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma		False	True	2026-02-28	Contig	3155227	10796716
+GCA_980750485.1	68759	Basidiomycota	Agaricomycetes	Cantharellales	Hydnaceae	Hydnum		False	True	2026-02-28	Chromosome	285017	53382899
+GCA_980757495.1	63577	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma		False	True	2026-04-05	Contig	5599070	37203717
+GCA_980757555.1	63577	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma		False	True	2026-04-05	Contig	1961217	37517233
+GCA_980757575.1	63577	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma		False	True	2026-04-05	Contig	5623141	37242066
+GCA_981115655.1	152943	Basidiomycota	Agaricomycetes	Russulales	Russulaceae	Lactarius		False	True	2026-02-28	Scaffold	758906	60472488
+GCA_981691435.1	655819	Ascomycota	Sordariomycetes	Hypocreales	Cordycipitaceae	Beauveria	Beauveria bassiana	True	True	2026-03-23	Scaffold	4324062	34792393
+GCA_982206755.1	3297552	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Debaryomyces		False	True	2026-04-17	Scaffold	373434	10656365
+GCA_982206775.1	3297552	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Debaryomyces		False	True	2026-04-17	Scaffold	279215	10669980
+GCA_982206785.1	3297552	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Debaryomyces		False	True	2026-04-17	Scaffold	375468	10658993
+GCA_982258805.1	1131652	Ascomycota	Eurotiomycetes	Eurotiales	Trichocomaceae	Talaromyces		False	True	2026-03-12	Contig	4736953	37778702
+GCA_982296955.1	56467	Basidiomycota	Agaricomycetes	Agaricales	Hygrophoraceae	Ampulloclitocybe		False	True	2026-03-18	Chromosome	954494	101224673
+GCA_982319265.1	68753	Basidiomycota	Agaricomycetes	Gomphales	Clavariadelphaceae	Clavariadelphus		False	True	2026-03-22	Scaffold	199912	285742227
+GCA_982319345.1	559292	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces	Saccharomyces cerevisiae	True	True	2026-03-22	Contig	818688	12190865
+GCA_982319355.1	4926	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2026-03-22	Scaffold	1510997	22754246
+GCA_982374305.1	318605	Basidiomycota	Agaricomycetes	Agaricales	Inocybaceae	Inocybe		False	True	2026-04-04	Contig	355895	60580411
+GCA_982374845.1	63577	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma		False	True	2026-04-04	Contig	3390322	36929794
+GCA_982374855.1	63577	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma		False	True	2026-04-04	Contig	3083507	36743021
+GCA_982397245.1	109871	Chytridiomycota	Chytridiomycetes	Rhizophydiales		Batrachochytrium		False	True	2026-04-10	Contig	129243	6848931
+GCA_982397325.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-04-10	Contig	148126	32169607
+GCA_982397335.1	5068	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-04-10	Contig	551764	34745153
+GCA_982397345.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-04-10	Contig	227129	32746967
+GCA_982397375.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-04-10	Contig	381200	30265957
+GCA_982397415.1	1835702	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Penicillium		False	True	2026-04-10	Contig	182174	28831703
+GCA_982397425.1	4909	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Pichia		False	True	2026-04-10	Contig	3650	9057256
+GCA_982436665.1	5580	Ascomycota	Dothideomycetes	Dothideales	Saccotheciaceae	Aureobasidium		False	True	2026-06-15	Contig	2401477	29331492
+GCA_982436685.1	245174	Basidiomycota	Wallemiomycetes	Wallemiales	Wallemiaceae	Wallemia		False	True	2026-06-15	Contig	575800	9727704
+GCA_982436695.1	91943	Ascomycota	Dothideomycetes	Mycosphaerellales	Teratosphaeriaceae	Hortaea		False	True	2026-06-15	Contig	1194787	27068140
+GCA_982436715.1	5580	Ascomycota	Dothideomycetes	Dothideales	Saccotheciaceae	Aureobasidium		False	True	2026-05-19	Chromosome	2367765	30168053
+GCA_982551785.1	165390	Basidiomycota	Agaricomycetes	Agaricales	Cortinariaceae	Cortinarius		False	True	2026-04-27	Scaffold	98047	184204013
+GCA_982554145.1	220798	Basidiomycota	Agaricomycetes	Agaricales	Cortinariaceae	Cortinarius		False	True	2026-04-27	Scaffold	265000	119686657
+GCA_984506835.1	2661923	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	240547	11961649
+GCA_984506845.1	2661923	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	322771	9607751
+GCA_984506855.1	927244	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	218738	9849641
+GCA_984506865.1	2661923	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	376369	8884110
+GCA_984506875.1	1074906	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	343676	9629926
+GCA_984506885.1	2661923	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	458195	9659623
+GCA_984506895.1	927244	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	417978	9848514
+GCA_984506905.1	1074906	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	233604	10004043
+GCA_984506915.1	1074906	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	381889	9626619
+GCA_984506925.1	2661923	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	323040	9070315
+GCA_984506935.1	927244	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	278342	9849455
+GCA_984506945.1	2661923	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	180856	10969373
+GCA_984506955.1	2661923	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	270919	8990892
+GCA_984506975.1	927244	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	477623	9851151
+GCA_984506985.1	2661923	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	329336	12679871
+GCA_984506995.1	927244	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	463549	9850077
+GCA_984507015.1	2661923	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	489532	9131899
+GCA_984507025.1	2661923	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	221092	12454489
+GCA_984507035.1	2661923	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	177113	9220289
+GCA_984567195.1	2661923	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-09-08	Contig	161581	12624243
+GCA_984573905.1	2830151	Basidiomycota	Agaricomycetes	Russulales	Russulaceae	Russula		False	True	2026-06-15	Scaffold	1447686	41869326
+GCA_984589275.1	176829	Basidiomycota	Agaricomycetes	Russulales	Russulaceae	Russula		False	True	2026-06-22	Scaffold	1433293	37560958
+GCA_984589525.1	152950	Basidiomycota	Agaricomycetes	Russulales	Russulaceae	Lactifluus		False	True	2026-06-22	Scaffold	1535086	60943254
+GCA_984766385.1	3417509	Microsporidia			Amblyosporidae			False	False	2026-06-22	Contig	1477805	11856551
+GCA_984799105.1	304812	Basidiomycota	Agaricomycetes	Agaricales	Cortinariaceae	Cortinarius		False	True	2026-06-26	Scaffold	389129	123420981
+GCA_984806565.1	92637	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae	Metarhizium		False	True	2026-06-26	Scaffold	7782126	45395921
+GCA_984806575.1	92637	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae	Metarhizium		False	True	2026-06-26	Scaffold	7306845	44957059
+GCA_984806585.1	92637	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae	Metarhizium		False	True	2026-06-26	Scaffold	5568509	45049269
+GCA_984806595.1	92637	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae	Metarhizium		False	True	2026-06-26	Scaffold	6759621	45017180
+GCA_984806605.1	92637	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae	Metarhizium		False	True	2026-06-26	Scaffold	4629285	44851856
+GCA_984806715.1	182063	Basidiomycota	Agaricomycetes	Agaricales	Squamanitaceae	Cystoderma		False	True	2026-06-26	Scaffold	539784	52450197
+GCA_984807485.1	285026	Basidiomycota	Agaricomycetes	Agaricales	Inocybaceae	Inocybe		False	True	2026-07-04	Scaffold	481167	48982923
+GCA_985557935.1	393245	Basidiomycota	Agaricomycetes	Agaricales	Cortinariaceae	Calonarius		False	True	2026-07-04	Scaffold	914140	49096656
+GCA_985568085.1	3417525	Microsporidia			Nosematidae	Vairimorpha		False	True	2026-07-01	Contig	324913	2555900
+GCA_985568095.1	3417511	Microsporidia			Amblyosporidae			False	False	2026-07-04	Scaffold	1135273	11278429
+GCA_985568135.1	3417515	Microsporidia			Amblyosporidae			False	False	2026-07-04	Scaffold	2159936	57193168
+GCA_985568145.1	3417510	Microsporidia			Amblyosporidae			False	False	2026-07-04	Scaffold	310798	7981256
+GCA_985568175.1	3417517	Microsporidia			Nosematidae	Vairimorpha		False	True	2026-07-04	Contig	576159	9287116
+GCA_985568215.1	3417506	Microsporidia			Amblyosporidae			False	False	2026-06-17	Chromosome	1668023	16946571
+GCA_985568245.1	3417506	Microsporidia			Amblyosporidae			False	False	2026-07-04	Scaffold	1021933	9973443
+GCA_985568275.1	3417506	Microsporidia			Amblyosporidae			False	False	2026-06-27	Chromosome	1553481	17120065
+GCA_985568295.1	3417519	Microsporidia			Nosematidae	Vairimorpha		False	True	2026-07-04	Contig	432922	6144358
+GCA_985568335.1	3417512	Microsporidia			Amblyosporidae			False	False	2026-07-04	Scaffold	538937	9097107
+GCA_985568355.1	3417539	Microsporidia			Enterocytozoonidae			False	False	2026-07-04	Contig	162867	5317982
+GCA_985568425.1	3417514	Microsporidia			Amblyosporidae			False	False	2026-07-04	Contig	787364	14817156
+GCA_985607175.1	521075	Basidiomycota	Agaricomycetes	Agaricales	Hygrophoraceae	Hygrocybe		False	True	2026-07-04	Contig	157097	35043951
+GCA_985809295.1	103449	Microsporidia			Pleistophoridae	Vavraia		False	True	2026-07-04	Contig	164055	7218033
+GCA_986172045.1	85970	Basidiomycota	Agaricomycetes	Boletales	Rhizopogonaceae	Rhizopogon		False	True	2026-06-27	Chromosome	1279781	35057135
+GCA_986194955.1	3417532	Microsporidia			Nosematidae	Nosema		False	True	2026-07-04	Contig	335970	13720882
+GCA_986199775.1	3417528	Microsporidia			Nosematidae	Vairimorpha		False	True	2026-07-04	Contig	432190	6713675
+GCA_986280935.1	75750	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-01	Complete Genome	538	538
+GCA_986280965.1	5061	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-01	Complete Genome	543	543
+GCA_986281005.1	5061	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-01	Complete Genome	543	543
+GCA_986281045.1	182096	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-01	Complete Genome	500	500
+GCA_986281055.1	182096	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-01	Complete Genome	500	500
+GCA_986281105.1	5059	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-01	Complete Genome	560	560
+GCA_986281295.1	75750	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-05	Complete Genome	501	501
+GCA_986281305.1	5059	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-05	Complete Genome	560	560
+GCA_986281435.1	75750	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-05	Complete Genome	490	490
+GCA_986281585.1	75750	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-06	Complete Genome	511	511
+GCA_986281605.1	5059	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-06	Complete Genome	563	563
+GCA_986281635.1	75750	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-06	Complete Genome	506	506
+GCA_986281655.1	5059	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-06	Complete Genome	583	583
+GCA_986281665.1	5059	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-06	Complete Genome	573	573
+GCA_986281675.1	746128	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-06	Complete Genome	564	564
+GCA_986281685.1	33178	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-06	Complete Genome	347	347
+GCA_986341945.1	5059	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-02	Complete Genome	563	563
+GCA_986341985.1	75750	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-07-02	Complete Genome	522	522
+GCA_986392205.1	186922	Glomeromycota	Glomeromycetes	Glomerales	Glomeraceae			False	False	2026-09-04	Contig	84028	3027534
+GCA_986392275.1	210103	Ascomycota	Sordariomycetes	Diaporthales	Cryphonectriaceae	Cryphonectria		False	True	2026-09-09	Contig	250350	7221264
+GCA_986392515.1	1539891	Glomeromycota	Glomeromycetes	Diversisporales	Diversisporaceae	Diversispora		False	True	2026-09-05	Contig	4260495	4269214
+GCA_986392635.1	210103	Ascomycota	Sordariomycetes	Diaporthales	Cryphonectriaceae	Cryphonectria		False	True	2026-09-09	Contig	29244	5116719
+GCA_986392785.1	186922	Glomeromycota	Glomeromycetes	Glomerales	Glomeraceae			False	False	2026-09-04	Contig	49477	3217670
+GCA_986694465.1	646506	Basidiomycota	Agaricomycetes	Agaricales	Marasmiaceae	Marasmius		False	True	2026-09-01	Scaffold	15890	17608298
+GCA_986708375.1	86079	Basidiomycota	Agaricomycetes	Agaricales	Cortinariaceae	Cortinarius		False	True	2026-09-01	Scaffold	1393519	61529678
+GCA_986708645.1	183875	Basidiomycota	Agaricomycetes	Agaricales	Cortinariaceae	Cortinarius		False	True	2026-09-01	Scaffold	1086220	72791642
+GCA_986708685.1	222050	Basidiomycota	Agaricomycetes	Agaricales	Cortinariaceae	Calonarius		False	True	2026-08-31	Scaffold	954791	42402473
+GCA_986749655.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	248269	56864262
+GCA_986843135.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	229645	61652811
+GCA_986843155.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	336690	59759215
+GCA_986843175.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	440971	58267597
+GCA_986843195.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	574665	53849124
+GCA_986843265.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	201320	58084418
+GCA_986843315.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	217770	58801561
+GCA_986843355.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	331080	60650839
+GCA_986843365.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	270564	60875477
+GCA_986843435.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	234055	60362879
+GCA_986843445.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	368331	58210336
+GCA_986843505.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	357136	55536308
+GCA_986843575.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-08-31	Scaffold	156092	56515527
+GCA_986843605.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	344629	56613584
+GCA_986843645.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	205988	57690091
+GCA_986843675.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	438790	55000503
+GCA_986843685.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	457324	55227249
+GCA_986843715.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	348797	56951634
+GCA_986843725.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-08-31	Scaffold	127855	58742791
+GCA_986843785.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	244050	53451237
+GCA_986843835.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	339170	60017345
+GCA_986843855.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	197519	61011316
+GCA_986843865.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	615156	54116854
+GCA_986843875.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	291251	54929540
+GCA_986844095.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-08-31	Scaffold	74261	53776970
+GCA_986844105.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	270732	57999045
+GCA_986844135.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-08-31	Scaffold	88669	56925531
+GCA_986844205.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	224794	60676645
+GCA_986844235.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	710401	55244317
+GCA_986844365.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	236593	61169612
+GCA_986844515.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	275163	59304989
+GCA_986844735.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	259784	59086316
+GCA_986844765.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	329638	59768412
+GCA_986844875.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	345400	60934731
+GCA_986844885.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	358646	61336633
+GCA_986844895.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	223328	60087802
+GCA_986844905.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	314635	60343263
+GCA_986844915.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	269015	57103971
+GCA_986844925.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	299888	55661479
+GCA_986844945.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	252878	57398327
+GCA_986845265.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	471932	54895012
+GCA_986845355.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	271760	59480405
+GCA_986845365.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	278321	60612021
+GCA_986845455.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	365543	58809571
+GCA_986845625.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	696864	54064691
+GCA_986845645.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	236300	59681379
+GCA_986845665.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	162798	59209181
+GCA_986845685.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	201782	60162622
+GCA_986845705.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	421656	56646498
+GCA_986845715.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	203746	58923992
+GCA_986845725.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	265163	57748704
+GCA_986845745.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	740773	53392857
+GCA_986845785.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	251663	62271168
+GCA_986845925.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-08-31	Scaffold	603673	54000578
+GCA_986845965.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	323789	56391585
+GCA_986846165.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	148335	56275495
+GCA_986846175.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	225836	57378796
+GCA_986846185.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	213050	60345302
+GCA_986846195.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	272880	60675804
+GCA_986846205.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	247998	60479557
+GCA_986846235.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	382824	57190289
+GCA_986846385.1	29856	Ascomycota	Sordariomycetes	Hypocreales	Bionectriaceae	Clonostachys		False	True	2026-09-01	Scaffold	422897	54910557
+GCA_986885585.1	2075521	Basidiomycota	Agaricomycetes	Agaricales	Entolomataceae	Entoloma		False	True	2026-08-28	Chromosome	448758	76675223
+GCA_986885625.1	2075521	Basidiomycota	Agaricomycetes	Agaricales	Entolomataceae	Entoloma		False	True	2026-09-01	Scaffold	486546	76432686
+GCA_986918515.1	57200	Basidiomycota	Agaricomycetes	Cantharellales	Hydnaceae	Craterellus		False	True	2026-08-28	Chromosome	1049692	61249021
+GCA_986918545.1	57200	Basidiomycota	Agaricomycetes	Cantharellales	Hydnaceae	Craterellus		False	True	2026-09-01	Scaffold	1457214	63208362
+GCA_986918555.1	67723	Basidiomycota	Agaricomycetes	Agaricales	Amanitaceae	Amanita		False	True	2026-09-01	Scaffold	1543196	39710635
+GCA_987087495.1	3738075	Ascomycota	Saccharomycetes	Phaffomycetales	Phaffomycetaceae	Barnettozyma		False	True	2026-09-01	Contig	1104533	11166610
+GCA_987106635.1	166043	Basidiomycota	Agaricomycetes	Agaricales	Inocybaceae	Inocybe		False	True	2026-09-01	Chromosome	621992	62226841
+GCA_987106675.1	166043	Basidiomycota	Agaricomycetes	Agaricales	Inocybaceae	Inocybe		False	True	2026-09-01	Scaffold	637259	59624922
+GCA_987114275.1	183880	Basidiomycota	Agaricomycetes	Agaricales	Cortinariaceae	Thaxterogaster		False	False	2026-09-01	Chromosome	643533	56246776
+GCA_987114515.1	304747	Basidiomycota	Agaricomycetes	Agaricales	Cortinariaceae	Calonarius		False	True	2026-08-28	Chromosome	766748	50087202
+GCA_987114615.1	304747	Basidiomycota	Agaricomycetes	Agaricales	Cortinariaceae	Calonarius		False	True	2026-09-01	Scaffold	645191	49575399
+GCA_987114645.1	183880	Basidiomycota	Agaricomycetes	Agaricales	Cortinariaceae	Thaxterogaster		False	False	2026-09-01	Scaffold	788283	49560885
+GCA_987127905.1	1080349	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces		False	True	2026-09-01	Scaffold	132795	11725271
+GCA_987193425.1	645133	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum	Colletotrichum graminicola	True	True	2026-09-08	Contig	6422679	57521198
+GCA_987223925.1	698985	Ascomycota	Dipodascomycetes	Dipodascales	Trichomonascaceae	Entelexis		False	True	2026-09-08	Contig	640390	9875893
+GCA_987224235.1	2596945	Ascomycota	Dipodascomycetes	Dipodascales	Trichomonascaceae	Entelexis		False	True	2026-09-08	Contig	788383	9947274
+GCA_987432755.1	324740	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Kregervanrija		False	True	2026-09-08	Contig	2201021	13031074
+GCA_987563255.1	264965	Basidiomycota	Agaricomycetes	Agaricales	Agaricaceae	Agaricus		False	True	2026-09-09	Scaffold	627114	38033366
+GCA_987566535.1	264965	Basidiomycota	Agaricomycetes	Agaricales	Agaricaceae	Agaricus		False	True	2026-09-02	Chromosome	578897	38549964
+GCA_987566605.1	557305	Basidiomycota	Agaricomycetes	Agaricales	Hygrophoraceae	Hygrocybe		False	True	2026-09-09	Scaffold	495000	44413850
+GCA_987567215.1	557305	Basidiomycota	Agaricomycetes	Agaricales	Hygrophoraceae	Hygrocybe		False	True	2026-09-09	Chromosome	684565	42978895
+GCA_988135445.1	2010948	Ascomycota	Dothideomycetes	Pleosporales	Didymellaceae	Epicoccum		False	True	2026-09-09	Contig	254997	32330858
+GCA_988135455.1	5068	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-09-09	Contig	522013	34724016
+GCA_988135465.1	915347	Basidiomycota	Agaricomycetes	Agaricales	Psathyrellaceae	Ephemerocybe		False	True	2026-09-09	Contig	258654	38459565
+GCA_988135475.1	563466	Ascomycota	Sordariomycetes	Microascales	Microascaceae	Scedosporium		False	True	2026-09-09	Contig	121155	43987964
+GCA_988135485.1	33178	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-09-09	Contig	548355	29988775
+GCA_988135495.1	166389	Ascomycota	Eurotiomycetes	Onygenales	Gymnoascaceae	Gymnascella		False	False	2026-09-09	Contig	92845	25146001
+GCA_988135515.1	2059439	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-09-09	Contig	263306	37077306
+GCA_988135525.1	41984	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-09-09	Contig	339409	38861521
+GCA_988135545.1	1220210	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-09-09	Contig	479483	35052453
+GCA_988135585.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-09-09	Contig	323470	30240882
+GCA_988135605.1	36022	Ascomycota	Saccharomycetes	Phaffomycetales	Wickerhamomycetaceae	Petasospora		False	True	2026-09-09	Contig	211058	12317238
+GCA_988135615.1	82519	Basidiomycota	Tremellomycetes	Trichosporonales	Trichosporonaceae	Apiotrichum		False	True	2026-09-09	Contig	345320	31357899
+GCA_988135625.1	1173306	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-09-09	Contig	180269	25731952
+GCA_988135635.1	41735	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-09-09	Contig	190017	32760733
+GCA_988135685.1	1537659	Ascomycota	Dothideomycetes	Eremomycetales	Eremomycetaceae	Arthrographis		False	False	2026-09-09	Contig	365335	24129826
+GCA_988135695.1	41743	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-09-09	Contig	108829	28210692
+GCA_988135715.1	1636503	Ascomycota	Eurotiomycetes	Onygenales	Gymnoascaceae	Arachniotus		False	False	2026-09-09	Contig	261857	25606398
+GCA_988135725.1	41734	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-09-09	Contig	208172	30297492
+GCA_988135735.1	446515	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Penicillium		False	True	2026-09-09	Contig	180672	28829698
+GCA_988135745.1	2259870	Ascomycota	Dothideomycetes	Cladosporiales	Cladosporiaceae	Cladosporium		False	True	2026-09-09	Contig	264885	24868200
+GCA_988135765.1	746128	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-09-09	Contig	182353	28345700
+GCA_988137515.1	1036253	Ascomycota	Sordariomycetes	Sordariales	Chaetomiaceae	Chaetomium		False	True	2026-09-09	Contig	863965	34694665
+GCA_988143485.1	118794	Basidiomycota	Agaricomycetes	Russulales	Russulaceae	Lactarius		False	True	2026-09-09	Scaffold	807081	57352538
+GCA_988143915.1	118794	Basidiomycota	Agaricomycetes	Russulales	Russulaceae	Lactarius		False	True	2026-09-02	Chromosome	728436	59264247
+GCA_988205085.1	746128	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-09-09	Contig	256687	30704459
+GCA_988225255.1	688661	Mucoromycota	Mucoromycetes	Mucorales	Lichtheimiaceae	Lichtheimia		False	True	2026-09-09	Contig	148168	32844234
+GCA_988225395.1	561152	Ascomycota	Sordariomycetes	Microascales	Microascaceae	Scopulariopsis		False	True	2026-09-09	Contig	166258	31775564
+GCA_988264965.1	230822	Basidiomycota	Agaricomycetes	Agaricales	Psathyrellaceae	Psathyrella		False	True	2026-09-12	Scaffold	1316211	40531858
+GCA_988264995.1	304823	Basidiomycota	Agaricomycetes	Agaricales	Cortinariaceae	Cortinarius		False	True	2026-09-14	Chromosome	464332	94097817
+GCA_988265045.1	304823	Basidiomycota	Agaricomycetes	Agaricales	Cortinariaceae	Cortinarius		False	True	2026-09-12	Scaffold	437836	92777977
+GCA_988265185.1	230822	Basidiomycota	Agaricomycetes	Agaricales	Psathyrellaceae	Psathyrella		False	True	2026-09-14	Chromosome	1304126	40971153
+GCA_988288075.1	5630	Basidiomycota	Agaricomycetes	Polyporales	Laetiporaceae	Laetiporus		False	True	2026-10-21	Contig	272727	42869360
+GCA_988288085.1	5630	Basidiomycota	Agaricomycetes	Polyporales	Laetiporaceae	Laetiporus		False	True	2026-10-21	Contig	165304	47196056
+GCA_988323705.1	181985	Basidiomycota	Agaricomycetes	Agaricales	Clitocybaceae	Collybia		False	True	2026-10-03	Scaffold	690972	64367979
+GCA_988323835.1	181985	Basidiomycota	Agaricomycetes	Agaricales	Clitocybaceae	Collybia		False	True	2026-10-03	Chromosome	770813	63737765
+GCA_988425225.1	2732611	Ascomycota	Dothideomycetes	Pleosporales	Thyridariaceae	Parathyridaria		False	False	2026-10-05	Complete Genome	3421887	41705588
+GCA_988425405.1	85998	Basidiomycota	Agaricomycetes	Boletales	Suillaceae	Suillus		False	True	2026-10-07	Scaffold	1301121	63263805
+GCA_988426935.1	41956	Basidiomycota	Agaricomycetes	Agaricales	Amanitaceae	Amanita		False	True	2026-10-20	Chromosome	2631730	50299825
+GCA_988438765.1	85125	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Zygosaccharomyces		False	True	2026-10-21	Scaffold	312370	10094373
+GCA_988554075.1	2447973	Basidiomycota	Agaricomycetes	Agaricales	Inocybaceae	Inocybe		False	True	2026-10-20	Chromosome	829661	41125901
+GCA_988906465.1	85998	Basidiomycota	Agaricomycetes	Boletales	Suillaceae	Suillus		False	True	2026-10-20	Chromosome	1335833	71210826
+GCA_989627475.1	2447973	Basidiomycota	Agaricomycetes	Agaricales	Inocybaceae	Inocybe		False	True	2026-10-21	Scaffold	781578	40192075
