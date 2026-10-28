@@ -15,7 +15,7 @@ gmg run my_genomes/ --index bfd_s10000.v1.gmgi -o results/     # a folder (or fi
 column -t -s$'\t' results/results.tsv | less -S                 # one row per input; hits in results/hits.tsv
 ```
 
-`results.tsv` has one row per input with the calls from phylum to species, confidence, QC flags and status; `run.json` records how the
+`results/report.html` is the report (open it in a browser); `results.tsv` has one row per input with the calls from phylum to species, confidence, QC flags and status; `run.json` records how the
 run was made. Columns are documented in [docs/results-schema.md](docs/results-schema.md). Other commands: `gmg sketch / build / guess / info / convert / cluster / bench`.
 
 ## Develop (no Homebrew or rustup needed)
@@ -40,7 +40,8 @@ pixi run -e bio ...  # adds sourmash 4.9.4, mash 2.3, skani 0.3.2, ncbi-datasets
 |---|---|
 | `crates/gmg-core` | FracMinHash sketching (sourmash-compatible), index, search, taxon calls, clustering helpers; no I/O |
 | `crates/gmg-cli` | `gmg sketch / build / guess / info / convert / cluster / bench` |
-| `crates/gmg-wasm` | JavaScript API (`Index`: load, sketch, guess) |
+| `crates/gmg-report` | report engine: standalone HTML report with inline SVG charts (no I/O; also runs in WASM) |
+| `crates/gmg-wasm` | JavaScript API (`Index`: load, sketch, guess; `render_report`) |
 | `scripts/` | analysis and audit (Python), `scripts/hpcc/` SLURM jobs |
 | `reports/`, `data/` | results, calibrated thresholds, cluster tables, label audit |
 

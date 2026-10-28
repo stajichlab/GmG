@@ -181,6 +181,21 @@ fn run_folder_end_to_end() {
     assert_eq!(manifest["status_counts"]["error"], 1);
     assert_eq!(manifest["index"]["n_genomes"], 6);
 
+    // report.html is written by default, with the heatmap (2 assemblies), and `gmg report` regenerates it
+    let report = fs::read_to_string(out.join("report.html")).unwrap();
+    assert!(
+        report.contains("Classification report") && report.contains("Relationships among inputs")
+    );
+    assert!(report.contains("id=\"q-empty\""), "error card present");
+    assert!(
+        !report.contains(d.to_str().unwrap()),
+        "no local path in the report"
+    );
+    assert!(out.join("relationships.json").exists());
+    fs::remove_file(out.join("report.html")).unwrap();
+    ok(&["report", out.to_str().unwrap()]);
+    assert!(out.join("report.html").exists());
+
     // --resume reuses the two good results and retries only the failed one
     let o = ok(&[
         "run",
@@ -206,6 +221,18 @@ fn run_folder_end_to_end() {
         "--thresholds",
         "novel",
     ]);
+    assert!(out2.join("report.html").exists());
+    let out3 = d.join("out3");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out3.to_str().unwrap(),
+        "--no-report",
+    ]);
+    assert!(!out3.join("report.html").exists());
     let (h2, rows2) = read_tsv(&out2.join("results.tsv"));
     let m2 = rows2
         .iter()

@@ -13,7 +13,9 @@ The id of an input is its file name without those extensions (two inputs with th
 | `results.tsv` | one row per input |
 | `hits.tsv` | the top-N reference genomes per input (long format) |
 | `run.json` | manifest: tool version and commit, command, times, index (k, scaled, seed, genomes), thresholds, status counts, input list |
-| `results.jsonl` | full per-input records (what the TSVs are built from; used by `--resume`) |
+| `results.jsonl` | full per-input records (what the TSVs and the report are built from; used by `--resume`) |
+| `report.html` | the report: one standalone page (inline SVG, no network), see below. `--no-report` skips it; `gmg report DIR` rebuilds it |
+| `relationships.json` | pairwise ANI between the assemblies (2 to 60 of them), for the report heatmap |
 
 Empty cell = not applicable / not called. TSV cells never contain tabs or newlines.
 
@@ -50,3 +52,17 @@ genus was left out. See `reports/calibration_known.md` and `reports/calibration_
 ## hits.tsv
 
 `query_id, hit_rank, hit_id, taxid, shared, phylum, class, order, family, genus, species, cluster, schema_version` (the lineage is the metadata of the reference genome).
+
+## report.html
+
+One self-contained page (open it in any browser; no network needed; print it for a PDF until the PDF output exists, issue #23). Sections: summary
+(headline percentage and counts), how deep each call went, composition by phylum and genus (colours fixed per phylum), how close the nearest
+references are, relationships among inputs (heatmap, only for runs with 2 to 60 assemblies), a sortable/filterable table of all inputs, a detail card per
+input (inputs needing attention first: errors, no match, low confidence, then lowest ANI; at most `--report-cards` cards, default 400), and a short
+"how to read this" with the exact thresholds. Every chart has a "Table view" with the numbers behind it. Long runs: the table lists the first 5,000 inputs;
+all inputs are always in `results.tsv`. The same code renders the report in the browser (WASM `render_report`).
+
+## results.jsonl additions
+
+`qc.abundance_hist` (reads only): `{counts: [seen 1..12 times], over12, min_abund, median_kept}`, the hashes of a read set by how often they were seen;
+`median_kept` estimates k-mer coverage.
