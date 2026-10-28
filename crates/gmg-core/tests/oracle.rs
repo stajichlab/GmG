@@ -87,7 +87,14 @@ fn synthetic_matches_sourmash_crate() {
     for (k, scaled, seed) in [(21u32, 1000u32, 7u64), (21, 10, 11), (31, 100, 13)] {
         let contigs = synthetic_contigs(seed, 4, 120_000);
         let mut ours = FracSketch::new(k as usize, scaled, DEFAULT_SEED);
-        let mut theirs = KmerMinHash::new(scaled, k, HashFunctions::Murmur64Dna, DEFAULT_SEED, false, 0);
+        let mut theirs = KmerMinHash::new(
+            scaled,
+            k,
+            HashFunctions::Murmur64Dna,
+            DEFAULT_SEED,
+            false,
+            0,
+        );
         for c in &contigs {
             ours.add_sequence(c);
             theirs.add_sequence(c, true).unwrap();
