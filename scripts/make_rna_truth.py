@@ -3,7 +3,7 @@
 
 usage: make_rna_truth.py SAMPLES_CSV RNASEQ_READS_DIR OUT_DIR [N=300] [MAX_PER_GENUS=3]
 RNASEQ_READS_DIR holds <Species_name>_norm_{R1,R2,SE}.fastq.gz (reads pooled from up to 5 SRA runs, cleaned and normalised for assembly).
-Truth lineage = the BFD samples.csv lineage of that species. Takes R1 if present, else SE. Stratified by phylum (proportional, at least
+Truth lineage = the BFD samples.csv lineage of that species. Takes R1 if present, else SE; files that are empty (0 bytes) or tiny are skipped (most of the directory was emptied). Stratified by phylum (proportional, at least
 MIN_PER_PHYLUM=8 where available), at most MAX_PER_GENUS per genus, fixed seed.
 writes OUT_DIR/rna.truth.tsv and OUT_DIR/rna.list (paths, one per line).
 """
@@ -12,7 +12,8 @@ import csv, os, random, sys, collections
 samples, rdir, out = sys.argv[1:4]
 n = int(sys.argv[4]) if len(sys.argv) > 4 else 300
 per_genus = int(sys.argv[5]) if len(sys.argv) > 5 else 3
-files = set(os.listdir(rdir))
+# many files in the BFD read directory were emptied after use (0 bytes): keep only readable ones (> 1 MB)
+files = {f for f in os.listdir(rdir) if os.path.getsize(os.path.join(rdir, f)) > 1_000_000}
 lin = {}
 with open(samples, newline="") as fh:
     for r in csv.DictReader(fh):
