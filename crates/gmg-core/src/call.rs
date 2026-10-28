@@ -15,11 +15,15 @@ pub struct Thresholds {
 }
 
 impl Default for Thresholds {
+    /// Calibrated on BFD (23,669 genomes, scaled=10000) for the common case that the reference holds close
+    /// relatives: species/genus from leave-one-out, family and above from leave-species-out, target precision 0.95
+    /// (`data/thresholds/bfd_s10000.known.json`; `reports/calibration_known.md`). For queries that may belong to a
+    /// genus absent from the reference use `bfd_s10000.novel.json`, which is far stricter.
     fn default() -> Self {
         Self {
-            min_shared: [5, 5, 5, 8, 15, 30],
-            min_ani: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            min_consistency: [0.6, 0.6, 0.6, 0.6, 0.6, 0.6],
+            min_shared: [5, 5, 5, 5, 5, 5],
+            min_ani: [0.7109, 0.7109, 0.7109, 0.7715, 0.7765, 0.9938],
+            min_consistency: [0.5, 0.5, 0.6, 0.9, 0.5, 0.9],
             margin: 0.9,
             top_n: 10,
         }

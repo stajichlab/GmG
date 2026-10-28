@@ -58,3 +58,16 @@ if len(sys.argv) > 3:
     print(f"- best hit is in the query's own cluster: {cl_ok.mean():.3f}")
     print(f"- species label of the vote equals the query's label: {sp_ok.mean():.3f}")
     print(f"- of the queries with a wrong species label, the best hit is still in the query's cluster: {cl_ok[~sp_ok].mean():.3f} (n={int((~sp_ok).sum())})")
+
+if "n_hashes" in cl.columns:
+    cl["n_hashes"] = pd.to_numeric(cl["n_hashes"])
+    dd = cl.merge(meta[["id", "species"]].rename(columns={"species": "sp"}), on="id")
+    dd = dd[dd["sp"] != ""]
+    med = dd.groupby("sp")["n_hashes"].transform("median"); cnt = dd.groupby("sp")["n_hashes"].transform("size")
+    big = dd[(cnt >= 5) & (dd["n_hashes"] > 1.6 * med)].copy()
+    big["x_median"] = (big["n_hashes"] / med[big.index]).round(2)
+    print(f"\n## genome-size outliers\n\n{len(big)} genomes are > 1.6x the median size (sketch hashes) of their species (species with >= 5 genomes): possible mixed/contaminated assemblies, or true polyploid/hybrid genomes.\n")
+    print("| id | species | x median | hashes |\n|---|---|---|---|")
+    for _, r in big.sort_values("x_median", ascending=False).head(25).iterrows():
+        print(f"| {r['id']} | {r['sp']} | {r['x_median']} | {r['n_hashes']} |")
+    big[["id", "sp", "x_median", "n_hashes"]].to_csv("size_outliers.tsv", sep="\t", index=False)

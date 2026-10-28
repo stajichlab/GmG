@@ -89,6 +89,10 @@ enum Cmd {
         /// file with genome ids, highest priority first (e.g. BFD rule: BUSCO, N50); others follow in index order
         #[arg(long)]
         order: Option<PathBuf>,
+        /// a genome joins a centroid only if the centroid has at most this many times its hashes
+        /// (a much larger centroid is probably a mixed or contaminated assembly that "contains" its neighbours)
+        #[arg(long, default_value_t = 1.6)]
+        max_size_ratio: f64,
         #[arg(short, long)]
         out: PathBuf,
     },
@@ -356,7 +360,7 @@ fn main() -> Result<()> {
                 );
             }
         }
-        Cmd::Cluster { index, sketches, ani, order, out } => {
+        Cmd::Cluster { index, sketches, ani, order, max_size_ratio, out } => {
             let ix = load_index(&index)?;
             let n = ix.genomes.len();
             let by_id: std::collections::HashMap<&str, u32> =
@@ -381,6 +385,7 @@ fn main() -> Result<()> {
             let k = ix.ksize as f64;
             let mut centroid: Vec<Option<(u32, f64)>> = vec![None; n]; // (centroid genome, member ANI)
             let mut n_clusters = 0usize;
+            let mut n_too_big = 0usize;
             for &g in &prio {
                 if centroid[g as usize].is_some() {
                     continue;
@@ -401,18 +406,22 @@ fn main() -> Result<()> {
                     let mem = &ix.genomes[h.genome as usize];
                     let a = (h.shared as f64 / mem.n_hashes.max(1) as f64).powf(1.0 / k);
                     if a >= ani {
+                        if m.n_hashes as f64 > max_size_ratio * mem.n_hashes.max(1) as f64 {
+                            n_too_big += 1;
+                            continue;
+                        }
                         centroid[h.genome as usize] = Some((g, a));
                     }
                 }
             }
             let mut w = BufWriter::new(File::create(&out)?);
-            writeln!(w, "id\tcluster\tis_centroid\tani_to_centroid\tspecies\tgenus")?;
+            writeln!(w, "id\tcluster\tis_centroid\tani_to_centroid\tspecies\tgenus\tn_hashes")?;
             for (i, g) in ix.genomes.iter().enumerate() {
                 let (c, a) = centroid[i].unwrap();
-                writeln!(w, "{}\t{}\t{}\t{:.4}\t{}\t{}", g.id, ix.genomes[c as usize].id, c as usize == i, a, g.lineage[5], g.lineage[4])?;
+                writeln!(w, "{}\t{}\t{}\t{:.4}\t{}\t{}\t{}", g.id, ix.genomes[c as usize].id, c as usize == i, a, g.lineage[5], g.lineage[4], g.n_hashes)?;
             }
             w.flush()?;
-            eprintln!("{n} genomes -> {n_clusters} clusters at ANI >= {ani} ({})", out.display());
+            eprintln!("{n} genomes -> {n_clusters} clusters at ANI >= {ani} ({}); {n_too_big} (centroid, genome) pairs above the ANI cutoff were refused by the size ratio", out.display());
         }
         Cmd::Convert { index, out } => {
             let ix = load_index(&index)?;

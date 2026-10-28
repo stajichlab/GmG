@@ -133,7 +133,12 @@ def main():
                 a = x[x["answerable"]]
                 cells.append(f"{a['vote_ok'].mean():.3f} (n={len(a)})" if len(a) >= 10 else "-")
             md.append(f"| {ph} | {len(g)} | " + " | ".join(cells) + " |")
-    pools = {"species": ["loo", "los"], "genus": ["los", "log"], "family": ["log"], "order": ["log"], "class": ["log"], "phylum": ["log"]}
+    # GMG_POOLS=known : the reference holds close relatives (species/genus from leave-one-out, higher ranks from leave-species-out)
+    # GMG_POOLS=novel : the query may be a new species/genus (species from loo+los, genus from los+log, higher ranks from leave-genus-out)
+    if os.environ.get("GMG_POOLS", "novel") == "known":
+        pools = {"species": ["loo"], "genus": ["loo"], "family": ["los"], "order": ["los"], "class": ["los"], "phylum": ["los"]}
+    else:
+        pools = {"species": ["loo", "los"], "genus": ["los", "log"], "family": ["log"], "order": ["log"], "class": ["log"], "phylum": ["log"]}
     th = dict(min_shared=[5] * 6, min_ani=[0.0] * 6, min_consistency=[0.6] * 6, margin=0.9, top_n=10)
     md.append(f"\n## calibration (precision >= {TARGET}, counting unanswerable queries as errors)\n\n| rank | pool | min_ani | min_consistency | precision | coverage | n |\n|---|---|---|---|---|---|---|")
     for i, r in enumerate(RANKS):
