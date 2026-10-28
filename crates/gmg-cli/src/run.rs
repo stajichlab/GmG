@@ -17,7 +17,7 @@ use std::sync::Mutex;
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
 /// Bump when a column of results.tsv / hits.tsv or a key of results.jsonl / run.json changes meaning.
-pub const SCHEMA_VERSION: u32 = 1;
+pub const SCHEMA_VERSION: u32 = 2; // 2: tentative_genus column; balanced default thresholds
 
 pub struct RunArgs {
     pub inputs: Vec<PathBuf>,
@@ -146,7 +146,8 @@ fn utc_now() -> String {
 
 fn thresholds_json(th: &Thresholds) -> Value {
     json!({"min_shared": th.min_shared, "min_ani": th.min_ani, "min_consistency": th.min_consistency,
-           "margin": th.margin, "top_n": th.top_n})
+           "margin": th.margin, "top_n": th.top_n,
+           "tentative_genus_min_ani": th.tentative_genus_min_ani})
 }
 
 /// Provisional QC flags (issue #29 will refine them); they explain results, they never change a call.
@@ -312,6 +313,7 @@ fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
     for r in RANKS {
         header.push(format!("call_{r}"));
     }
+    header.push("tentative_genus".to_string());
     for r in RANKS {
         header.push(format!("conf_{r}"));
     }
@@ -348,6 +350,7 @@ fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
         for k in RANKS {
             row.push(tsv_cell(&g["calls"][k]["taxon"]));
         }
+        row.push(tsv_cell(&g["tentative_genus"]["taxon"]));
         for k in RANKS {
             row.push(if g.is_null() {
                 String::new()

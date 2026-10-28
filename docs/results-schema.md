@@ -1,4 +1,4 @@
-# `gmg run` outputs (schema version 1)
+# `gmg run` outputs (schema version 2)
 
 ```
 gmg run GENOMES_DIR [MORE_INPUTS...] --index bfd.gmgi -o results/
@@ -6,7 +6,7 @@ gmg run GENOMES_DIR [MORE_INPUTS...] --index bfd.gmgi -o results/
 
 Inputs are files or directories (searched recursively): FASTA (`.fa .fna .fasta .fas .ffn`) or FASTQ (`.fq .fastq`), optionally gzipped.
 The id of an input is its file name without those extensions (two inputs with the same id are an error).
-`--kind auto|assembly|reads` (auto = by extension), `--thresholds known|novel|FILE.json`, `--resume`, `--top N`.
+`--kind auto|assembly|reads` (auto = by extension), `--thresholds known|permissive|novel|FILE.json`, `--resume`, `--top N`.
 
 | file | content |
 |---|---|
@@ -27,6 +27,7 @@ Empty cell = not applicable / not called. TSV cells never contain tabs or newlin
 | `status` | `ok` = a call at genus or species; `low_confidence` = calls only at family or above; `no_match` = no rank passed (nothing similar enough in the reference, e.g. not a fungus); `error` = the input could not be processed (see `message`) |
 | `best_rank` | deepest rank with a call (`phylum` ... `species`) |
 | `call_<rank>` | the taxon called at that rank; empty if withheld. Calls are hierarchical: a rank is withheld if a higher rank failed its threshold |
+| `tentative_genus` | a genus the evidence points to but does not support as a call: the genus was not called because ANI is below the genus cutoff (0.90 by default), but ANI is at least 0.7765 and the vote and the higher ranks pass. In that range a named genus is right about 80% of the time even when the genus is in the reference, and wrong when it is not, so it is never a call; the row has status `low_confidence` |
 | `conf_<rank>` | vote consistency 0-1: share of the near-best reference hits that agree on the taxon (an evidence value, not a probability) |
 | `top_hit`, `top_hit_species`, `top_hit_taxid` | best matching reference genome, its species label and NCBI taxid |
 | `ani` | containment ANI of the query in the top hit, `containment_query^(1/k)` |
@@ -36,13 +37,15 @@ Empty cell = not applicable / not called. TSV cells never contain tabs or newlin
 | `n_hashes`, `total_bases`, `n50` | sketch size after filtering, input bases, N50 (assemblies) |
 | `qc_flags` | comma-separated, see below |
 | `message` | error text |
-| `schema_version` | 1 |
+| `schema_version` | 2 |
 
 ### Thresholds
 
-`known` (default) was calibrated on BFD for queries whose genus has relatives in the reference (95% precision per rank in leave-one-out and
-leave-species-out tests). `novel` is far stricter: family, genus and species are never called because no threshold reached 95% precision when the
-genus was left out. See `reports/calibration_known.md` and `reports/calibration_novel.md`. Use `--thresholds FILE.json` for your own.
+* `known` (default, the *balanced* set) was calibrated on BFD for queries whose genus has relatives in the reference (about 95% precision per rank in leave-one-out and leave-species-out tests), with the **genus cutoff raised to ANI 0.90**: with the earlier 0.7765 a genus was named for 58% of queries whose genus is *not* in the reference; at 0.90 it is 18% (`reports/validation/novelty_curve.md`, issue #57), for about 8 points of coverage in the common case.
+* `permissive` is the earlier set (genus cutoff 0.7765, no tentative genus): more genus calls, many of them wrong when the genus is absent.
+* `novel` is far stricter: family, genus and species are never called because no threshold reached 95% precision when the genus was left out.
+* Species stay at ANI 0.9938 (a species is still named for 11.7% of queries whose species is absent).
+Held-out checks: `reports/validation/`. Use `--thresholds FILE.json` for your own (`tentative_genus_min_ani` optional; above 1 switches the tentative field off).
 
 ### QC flags (provisional, see issue #29)
 

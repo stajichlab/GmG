@@ -29,7 +29,11 @@ pub fn guess_json(index: &RefIndex, g: &Guess, query: &str, top: usize) -> Value
                "shared": t.shared, "ani": t.ani, "containment_query": t.containment_query,
                "containment_ref": t.containment_ref})
     });
-    json!({"query": query, "query_hashes": g.query_hashes, "top": top_json, "calls": calls, "hits": hits})
+    let tentative = g
+        .tentative_genus
+        .as_ref()
+        .map(|t| json!({"taxon": t.taxon, "ani": t.ani, "consistency": t.consistency}));
+    json!({"query": query, "query_hashes": g.query_hashes, "top": top_json, "calls": calls, "tentative_genus": tentative, "hits": hits})
 }
 
 impl Thresholds {
@@ -59,6 +63,9 @@ impl Thresholds {
         }
         if let Some(n) = v.get("top_n").and_then(|n| n.as_u64()) {
             th.top_n = n as usize;
+        }
+        if let Some(t) = v.get("tentative_genus_min_ani").and_then(|t| t.as_f64()) {
+            th.tentative_genus_min_ani = t;
         }
         Ok(th)
     }

@@ -54,6 +54,8 @@ pub struct Rec {
     pub flags: Vec<String>,
     pub hist: Option<Hist>,
     pub calls: [Call; 6],
+    /// (taxon, ani, consistency) of a genus the evidence points to but does not support as a call
+    pub tentative_genus: Option<(String, f64, f64)>,
     pub top: Option<Top>,
     pub hits: Vec<Hit>,
 }
@@ -79,6 +81,13 @@ impl Rec {
                 consistency: c["consistency"].as_f64().unwrap_or(0.0),
             };
         }
+        let tentative_genus = g["tentative_genus"].as_object().and_then(|_| {
+            Some((
+                g["tentative_genus"]["taxon"].as_str()?.to_string(),
+                g["tentative_genus"]["ani"].as_f64().unwrap_or(0.0),
+                g["tentative_genus"]["consistency"].as_f64().unwrap_or(0.0),
+            ))
+        });
         let top = g["top"].as_object().map(|_| Top {
             id: s(&g["top"]["id"]),
             cluster: s(&g["top"]["cluster"]),
@@ -140,6 +149,7 @@ impl Rec {
                 .unwrap_or_default(),
             hist,
             calls,
+            tentative_genus,
             top,
             hits,
         }
