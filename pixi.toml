@@ -28,6 +28,7 @@ pytest = "*"
 # a C compiler for crates with C code (zstd-sys via needletail); macOS uses the Xcode command line tools
 [target.linux-64.dependencies]
 c-compiler = "*"
+binutils = "*"
 
 [feature.bio.dependencies]
 sourmash = "4.9.4.*"
