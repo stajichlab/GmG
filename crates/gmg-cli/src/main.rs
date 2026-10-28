@@ -5,6 +5,8 @@ use gmg_core::{
     DEFAULT_SEED, RANKS,
 };
 use needletail::parse_fastx_file;
+mod run;
+
 use rayon::prelude::*;
 use std::fs::File;
 use std::io::{BufReader, BufWriter, Write};
@@ -70,10 +72,39 @@ enum Cmd {
         max_reads: Option<u64>,
         #[arg(long, default_value_t = 5)]
         top: usize,
-        /// JSON with min_shared[6], min_ani[6], min_consistency[6], margin, top_n (from scripts/calibrate.py)
+        /// `known` (default), `novel`, or a JSON file (min_shared[6], min_ani[6], min_consistency[6], margin, top_n)
         #[arg(long)]
-        thresholds: Option<PathBuf>,
+        thresholds: Option<String>,
         queries: Vec<PathBuf>,
+    },
+    /// Classify every genome / read set in a folder: writes results.tsv, hits.tsv and run.json
+    Run {
+        /// directories (searched recursively) and/or files: FASTA (.fa .fna .fasta .fas .ffn) or FASTQ (.fq .fastq), optionally .gz
+        #[arg(required = true)]
+        inputs: Vec<PathBuf>,
+        #[arg(long)]
+        index: PathBuf,
+        /// output directory
+        #[arg(short, long)]
+        out: PathBuf,
+        /// `known` (default), `novel` (queries that may belong to a genus absent from the reference), or a JSON file
+        #[arg(long)]
+        thresholds: Option<String>,
+        /// auto (by extension), assembly or reads
+        #[arg(long, default_value = "auto", value_parser = ["auto", "assembly", "reads"])]
+        kind: String,
+        /// drop hashes seen fewer than this many times (default 1 for assemblies, 2 for reads)
+        #[arg(long)]
+        min_abund: Option<u32>,
+        /// reads: stop after this many reads per file
+        #[arg(long)]
+        max_reads: Option<u64>,
+        /// reference hits per input in hits.tsv
+        #[arg(long, default_value_t = 5)]
+        top: usize,
+        /// reuse finished results from a previous run in the same output directory
+        #[arg(long)]
+        resume: bool,
     },
     /// Summarise an index
     Info { index: PathBuf },
@@ -135,7 +166,7 @@ enum Cmd {
     },
 }
 
-fn strip_ext(name: &str) -> String {
+pub(crate) fn strip_ext(name: &str) -> String {
     for e in [
         ".fa.gz",
         ".fasta.gz",
@@ -165,6 +196,81 @@ fn id_of(path: &Path) -> String {
     )
 }
 
+/// Per-input counts gathered while sketching (used for QC flags).
+pub(crate) struct Stats {
+    pub n_records: u64,
+    pub total_len: u64,
+    /// bases other than A/C/G/T (case-insensitive)
+    pub non_acgt: u64,
+    pub n50: u64,
+}
+
+/// Sketch one file and collect basic stats. Returns None if it has no sequence records.
+pub(crate) fn sketch_with_stats(
+    path: &Path,
+    k: u32,
+    scaled: u32,
+    abund: bool,
+    max_reads: Option<u64>,
+) -> Result<Option<(SketchFile, Stats)>> {
+    let mut r = parse_fastx_file(path).with_context(|| format!("opening {}", path.display()))?;
+    let mut sk = FracSketch::new(k as usize, scaled, DEFAULT_SEED);
+    let (mut n, mut total, mut non_acgt) = (0u64, 0u64, 0u64);
+    let mut lens: Vec<u64> = Vec::new();
+    while let Some(rec) = r.next() {
+        let rec = rec.with_context(|| format!("parsing {}", path.display()))?;
+        let seq = rec.seq();
+        sk.add_sequence(&seq);
+        n += 1;
+        total += seq.len() as u64;
+        non_acgt += seq
+            .iter()
+            .filter(|b| !matches!(b.to_ascii_uppercase(), b'A' | b'C' | b'G' | b'T'))
+            .count() as u64;
+        if !abund {
+            lens.push(seq.len() as u64);
+        }
+        if max_reads.is_some_and(|m| n >= m) {
+            break;
+        }
+    }
+    if n == 0 {
+        return Ok(None);
+    }
+    lens.sort_unstable_by(|a, b| b.cmp(a));
+    let (mut acc, mut n50) = (0u64, 0u64);
+    for l in &lens {
+        acc += l;
+        if acc * 2 >= total {
+            n50 = *l;
+            break;
+        }
+    }
+    let (hashes, abunds) = if abund {
+        let (h, a) = sk.finish_with_abundance();
+        (h, Some(a))
+    } else {
+        (sk.finish(), None)
+    };
+    let sf = SketchFile {
+        ksize: k,
+        scaled,
+        seed: DEFAULT_SEED,
+        name: id_of(path),
+        hashes,
+        abunds,
+    };
+    Ok(Some((
+        sf,
+        Stats {
+            n_records: n,
+            total_len: total,
+            non_acgt,
+            n50,
+        },
+    )))
+}
+
 /// Sketch one file. Returns None if it has no sequence records.
 fn sketch_file(
     path: &Path,
@@ -173,34 +279,7 @@ fn sketch_file(
     abund: bool,
     max_reads: Option<u64>,
 ) -> Result<Option<SketchFile>> {
-    let mut r = parse_fastx_file(path).with_context(|| format!("opening {}", path.display()))?;
-    let mut sk = FracSketch::new(k as usize, scaled, DEFAULT_SEED);
-    let mut n = 0u64;
-    while let Some(rec) = r.next() {
-        let rec = rec.with_context(|| format!("parsing {}", path.display()))?;
-        sk.add_sequence(&rec.seq());
-        n += 1;
-        if max_reads.is_some_and(|m| n >= m) {
-            break;
-        }
-    }
-    if n == 0 {
-        return Ok(None);
-    }
-    let (hashes, abunds) = if abund {
-        let (h, a) = sk.finish_with_abundance();
-        (h, Some(a))
-    } else {
-        (sk.finish(), None)
-    };
-    Ok(Some(SketchFile {
-        ksize: k,
-        scaled,
-        seed: DEFAULT_SEED,
-        name: id_of(path),
-        hashes,
-        abunds,
-    }))
+    Ok(sketch_with_stats(path, k, scaled, abund, max_reads)?.map(|(s, _)| s))
 }
 
 fn write_sketch(path: &Path, s: &SketchFile) -> Result<()> {
@@ -217,7 +296,7 @@ fn read_sketch(path: &Path) -> Result<SketchFile> {
     Ok(SketchFile::read(&mut BufReader::new(f))?)
 }
 
-fn load_index(path: &Path) -> Result<RefIndex> {
+pub(crate) fn load_index(path: &Path) -> Result<RefIndex> {
     let f = File::open(path).with_context(|| format!("opening {}", path.display()))?;
     Ok(RefIndex::read(&mut BufReader::with_capacity(1 << 20, f))?)
 }
@@ -251,6 +330,21 @@ fn read_meta(path: &Path) -> Result<Vec<GenomeMeta>> {
         });
     }
     Ok(out)
+}
+
+/// `known` (default), `novel` (stricter: queries that may belong to a genus absent from the reference) or a JSON file.
+pub(crate) fn load_thresholds(spec: Option<&str>) -> Result<(Thresholds, String)> {
+    match spec {
+        None | Some("known") => Ok((Thresholds::default(), "known".to_string())),
+        Some("novel") => Ok((
+            Thresholds::from_json_str(include_str!(
+                "../../../data/thresholds/bfd_s10000.novel.json"
+            ))
+            .map_err(|e| anyhow::anyhow!(e))?,
+            "novel".to_string(),
+        )),
+        Some(p) => Ok((read_thresholds(Path::new(p))?, p.to_string())),
+    }
 }
 
 fn read_thresholds(path: &Path) -> Result<Thresholds> {
@@ -390,10 +484,7 @@ fn main() -> Result<()> {
             queries,
         } => {
             let ix = load_index(&index)?;
-            let th = match thresholds {
-                Some(p) => read_thresholds(&p)?,
-                None => Thresholds::default(),
-            };
+            let (th, _) = load_thresholds(thresholds.as_deref())?;
             for q in &queries {
                 let hashes = query_hashes(&ix, q, min_abund, max_reads)?;
                 let g = guess(&ix, &hashes, &|_| false, &th);
@@ -511,6 +602,29 @@ fn main() -> Result<()> {
                 b,
                 a as f64 / b as f64
             );
+        }
+        Cmd::Run {
+            inputs,
+            index,
+            out,
+            thresholds,
+            kind,
+            min_abund,
+            max_reads,
+            top,
+            resume,
+        } => {
+            run::run(run::RunArgs {
+                inputs,
+                index,
+                out,
+                thresholds,
+                kind,
+                min_abund,
+                max_reads,
+                top,
+                resume,
+            })?;
         }
         Cmd::Info { index } => {
             let ix = load_index(&index)?;
@@ -678,10 +792,15 @@ fn query_hashes(
         sketch_file(path, ix.ksize, ix.scaled, min_abund > 1, max_reads)?
             .with_context(|| format!("{}: no sequence records", path.display()))?
     };
+    query_hashes_from(ix, sk, min_abund)
+}
+
+/// Check a sketch against the index (k, seed, scaled), drop hashes seen fewer than `min_abund` times, downsample to the index.
+pub(crate) fn query_hashes_from(ix: &RefIndex, sk: SketchFile, min_abund: u32) -> Result<Vec<u64>> {
     if sk.ksize != ix.ksize || sk.seed != ix.seed {
         bail!(
             "{}: k/seed ({}/{}) do not match the index ({}/{})",
-            path.display(),
+            sk.name,
             sk.ksize,
             sk.seed,
             ix.ksize,
@@ -691,7 +810,7 @@ fn query_hashes(
     if sk.scaled > ix.scaled {
         bail!(
             "{}: query scaled {} is coarser than the index scaled {}",
-            path.display(),
+            sk.name,
             sk.scaled,
             ix.scaled
         );

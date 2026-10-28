@@ -159,7 +159,8 @@ def main():
             th["min_consistency"][i] = b["min_consistency"]
             md.append(f"| {r} | {'+'.join(pools[r])} | {b['min_ani']:.4f} | {b['min_consistency']} | {b['precision']:.3f} | {b['coverage']:.3f} | {b['n']} |")
         else:
-            md.append(f"| {r} | {'+'.join(pools[r])} | (no threshold reaches the target) | | | | |")
+            th["min_ani"][i] = 1.01   # unreachable: this rank is never called when no threshold reaches the precision target
+            md.append(f"| {r} | {'+'.join(pools[r])} | (no threshold reaches the target: rank withheld) | | | | |")
     open(out + ".md", "w").write("\n".join(md) + "\n")
     json.dump(th, open(out + ".thresholds.json", "w"), indent=1)
     print("\n".join(md))

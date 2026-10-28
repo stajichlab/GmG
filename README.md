@@ -8,6 +8,16 @@ ANI-cluster, each with a confidence. Built for MATPredict routing, meant as a ge
 Status: working CLI and core (`gmg`), a WASM build, and a 23,669-genome BFD reference built on the HPCC.
 Results: [reports/overnight_2026-10-27.md](reports/overnight_2026-10-27.md). History: [LOG.md](LOG.md). Design: [plan.md](plan.md).
 
+## Quick start
+
+```
+gmg run my_genomes/ --index bfd_s10000.v1.gmgi -o results/     # a folder (or files) of FASTA / FASTQ
+column -t -s$'\t' results/results.tsv | less -S                 # one row per input; hits in results/hits.tsv
+```
+
+`results.tsv` has one row per input with the calls from phylum to species, confidence, QC flags and status; `run.json` records how the
+run was made. Columns are documented in [docs/results-schema.md](docs/results-schema.md). Other commands: `gmg sketch / build / guess / info / convert / cluster / bench`.
+
 ## Develop (no Homebrew or rustup needed)
 
 Everything runs in a [pixi](https://pixi.sh) environment (Rust, wasm tooling, Node, Python, optional bio tools):
