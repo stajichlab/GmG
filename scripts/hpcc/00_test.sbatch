@@ -10,8 +10,10 @@
 set -euo pipefail
 source $HOME/projects/GmG/scripts/hpcc/env.sh
 cd $GMG_REPO
-git log --oneline | head -1
+git log -1 --oneline
 export CARGO_BUILD_JOBS=$SLURM_CPUS_PER_TASK
-pixi run test 2>&1 | grep -E "test result|FAILED|error"
-pixi run wasm-test 2>&1 | tail -1
-pixi run build 2>&1 | tail -1
+# keep the output (tail, not grep) so failures stay visible; pipefail makes a failing pixi fail the job
+pixi run test 2>&1 | tail -40
+pixi run wasm-test 2>&1 | tail -3
+pixi run build 2>&1 | tail -2
+ls -la target/release/gmg
