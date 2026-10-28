@@ -1,0 +1,18 @@
+[package]
+name = "gmg-cli"
+description = "gmg: guess a fungal genome's taxonomy from FracMinHash sketches"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "gmg"
+path = "src/main.rs"
+
+[dependencies]
+gmg-core = { path = "../gmg-core" }
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+needletail = "0.7.3"
+rayon = "1"
+serde_json = "1"
