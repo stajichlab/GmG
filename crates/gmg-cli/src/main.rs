@@ -95,6 +95,12 @@ enum Cmd {
         /// restrict queries to this phylum
         #[arg(long)]
         phylum: Option<String>,
+        /// only genomes whose id is listed (one per line) may be references (simulates a smaller, representatives-only index)
+        #[arg(long)]
+        ref_list: Option<PathBuf>,
+        /// with --ref-list: query only genomes that are NOT in the reference list
+        #[arg(long)]
+        queries_outside: bool,
         /// random sample of this many queries
         #[arg(long)]
         sample: Option<usize>,
@@ -354,13 +360,22 @@ fn main() -> Result<()> {
                 println!("taxa_{r}\t{}", t.len() - 1);
             }
         }
-        Cmd::Bench { index, sketches, mode, phylum, sample, seed, shards, shard_index, out } => {
+        Cmd::Bench { index, sketches, mode, phylum, ref_list, queries_outside, sample, seed, shards, shard_index, out } => {
             let ix = load_index(&index)?;
             if !["loo", "los", "log"].contains(&mode.as_str()) {
                 bail!("--mode must be loo, los or log");
             }
+            let allowed: Option<Vec<bool>> = match &ref_list {
+                Some(p) => {
+                    let ids: std::collections::HashSet<String> =
+                        std::fs::read_to_string(p)?.lines().map(|l| l.trim().to_string()).collect();
+                    Some(ix.genomes.iter().map(|g| ids.contains(&g.id)).collect())
+                }
+                None => None,
+            };
             let mut qs: Vec<u32> = (0..ix.genomes.len() as u32)
                 .filter(|&g| phylum.as_ref().is_none_or(|p| &ix.genomes[g as usize].lineage[0] == p))
+                .filter(|&g| !queries_outside || allowed.as_ref().is_none_or(|a| !a[g as usize]))
                 .collect();
             // deterministic shuffle (xorshift) so samples and shards are reproducible
             let mut s = seed.wrapping_mul(0x9E3779B97F4A7C15) | 1;
@@ -387,7 +402,7 @@ fn main() -> Result<()> {
                         "log" => 4,
                         _ => usize::MAX,
                     };
-                    let skip = |g: u32| g == gi || (rk != usize::MAX && mine[rk] != 0 && ix.lineage_ids[g as usize][rk] == mine[rk]);
+                    let skip = |g: u32| g == gi || allowed.as_ref().is_some_and(|a| !a[g as usize]) || (rk != usize::MAX && mine[rk] != 0 && ix.lineage_ids[g as usize][rk] == mine[rk]);
                     let g = guess(&ix, &q, &skip, &th);
                     let (tid, tshared, tani, tcq, tcr) = match &g.top {
                         Some(t) => (ix.genomes[t.genome as usize].id.clone(), t.shared, t.ani, t.containment_query, t.containment_ref),
