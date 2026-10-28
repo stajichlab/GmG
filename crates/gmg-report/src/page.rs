@@ -49,14 +49,16 @@ fn chip(status: &str) -> String {
 pub struct Th {
     pub min_ani: [f64; 6],
     pub min_cons: [f64; 6],
+    pub tentative_genus_min_ani: f64,
 }
 
 impl Th {
     pub fn from_run(run: &Value) -> Th {
         let v = &run["thresholds"]["values"];
         let mut t = Th {
-            min_ani: [0.7109, 0.7109, 0.7109, 0.7715, 0.7765, 0.9938],
+            min_ani: [0.7109, 0.7109, 0.7109, 0.7715, 0.90, 0.9938],
             min_cons: [0.5, 0.5, 0.6, 0.9, 0.5, 0.9],
+            tentative_genus_min_ani: 0.7765,
         };
         for i in 0..6 {
             if let Some(x) = v["min_ani"][i].as_f64() {
@@ -65,6 +67,9 @@ impl Th {
             if let Some(x) = v["min_consistency"][i].as_f64() {
                 t.min_cons[i] = x;
             }
+        }
+        if let Some(x) = v["tentative_genus_min_ani"].as_f64() {
+            t.tentative_genus_min_ani = x;
         }
         t
     }
@@ -84,10 +89,13 @@ fn reasons(r: &Rec, th: &Th) -> Vec<(usize, String)> {
         } else if cons < th.min_cons[i] {
             format!("Vote consistency {cons:.3} is below the {:.3} required: the near-best references disagree", th.min_cons[i])
         } else if ani < th.min_ani[i] {
-            format!(
-                "ANI {ani:.4} is below the {:.4} required for a {k} call",
-                th.min_ani[i]
-            )
+            match (&r.tentative_genus, i) {
+                (Some((t, _, _)), 4) => format!(
+                    "ANI {ani:.4} is below the {:.4} required for a genus call. The evidence points to {t} as the nearest genus, shown as tentative: in this range a named genus is right only about 80% of the time even when the genus is in the reference, and it may be a genus that is not in the reference",
+                    th.min_ani[i]
+                ),
+                _ => format!("ANI {ani:.4} is below the {:.4} required for a {k} call", th.min_ani[i]),
+            }
         } else {
             "A higher rank was not called, so deeper ranks are not called".to_string()
         };
@@ -103,21 +111,32 @@ fn ladder(r: &Rec) -> String {
         let called = i as i32 <= best && !r.call(i).is_empty();
         let cons = r.calls[i].consistency;
         let gap = !called && (i as i32) < best; // a deeper rank was called; the reference metadata has no value here
-        let name = if called {
+        let tent = if i == 4 && !called {
+            r.tentative_genus.as_ref()
+        } else {
+            None
+        };
+        let name = if let Some((t, _, _)) = tent {
+            format!("{t} (tentative)")
+        } else if called {
             r.call(i).to_string()
         } else if gap {
             "not in reference".into()
         } else {
             "withheld".into()
         };
-        let tip = if called {
+        let tip = if let Some((t, a, c)) = tent {
+            format!("genus: {t} is the nearest genus but is only tentative (ANI {a:.3} is below the genus cutoff; vote consistency {c:.2})")
+        } else if called {
             format!("{k}: {} · vote consistency {cons:.2}", r.call(i))
         } else if gap {
             format!("{k}: the reference metadata has no {k} for these genomes")
         } else {
             format!("{k}: not called")
         };
-        let class = if called {
+        let class = if tent.is_some() {
+            "tent"
+        } else if called {
             "on"
         } else if gap {
             "na"
@@ -136,7 +155,13 @@ fn ladder(r: &Rec) -> String {
             r#"<div class="rk {class} tip" tabindex="0" data-tip="{}"{style}><div class="rk-n">{k}</div><div class="rk-v">{}</div><div class="rk-m"><span style="width:{:.0}%"></span></div></div>"#,
             esc(&tip),
             esc(&name),
-            if called { 100.0 * cons } else { 0.0 }
+            if called {
+                100.0 * cons
+            } else if let Some((_, _, c)) = tent {
+                100.0 * c
+            } else {
+                0.0
+            }
         ));
     }
     format!(r#"<div class="ladder">{cells}</div>"#)
@@ -188,6 +213,10 @@ fn card(r: &Rec, th: &Th, open: bool) -> String {
         r.call(4).to_string()
     } else {
         call
+    };
+    let call = match (&r.tentative_genus, call.is_empty()) {
+        (Some((t, _, _)), true) => format!("{t} (tentative)"),
+        _ => call,
     };
     let head = format!(
         r#"<summary><span class="card-id">{id}</span>{}{dot}<span class="card-call">{}</span></summary>"#,
@@ -298,10 +327,22 @@ fn trow(r: &Rec, has_card: bool) -> String {
         } else {
             esc(ph)
         },
-        if call.is_empty() {
-            "—".to_string()
-        } else {
-            esc(call)
+        {
+            let tent = r
+                .tentative_genus
+                .as_ref()
+                .map(|(t, _, _)| {
+                    format!(
+                        r#" <span class="muted">· tentative genus: {}</span>"#,
+                        esc(t)
+                    )
+                })
+                .unwrap_or_default();
+            if call.is_empty() && tent.is_empty() {
+                "—".to_string()
+            } else {
+                format!("{}{tent}", esc(call))
+            }
         },
         ani.map(|a| f(a, 3)).unwrap_or_else(|| "—".into()),
         st = r.status,
@@ -596,10 +637,11 @@ pub fn render(
 <section class="card2 meth"><h2>How to read this report</h2>
 <ul>
 <li><b>Call by rank.</b> Phylum to species. A rank is called when the nearest reference genomes agree on it (vote consistency) and the input is similar enough to them (ANI). Higher ranks are easier than lower ones, so the ladder can stop part-way.</li>
+<li><b>Tentative genus.</b> A genus is called only at ANI of at least the cutoff shown in the thresholds table (0.90 by default). Between that and ANI 0.7765 the nearest genus is shown as tentative: it is right only about 80% of the time in that range even when the genus is in the reference, and wrong when the genus is not in the reference. It never counts as a call.</li>
 <li><b>Vote consistency</b> is the share of near-best references agreeing on the taxon, an evidence value, not a probability.</li>
 <li><b>ANI</b> here is containment ANI: the k = 21 sketch fraction of the input found in a reference, raised to 1/21. From a very small overlap it is not meaningful: look at the percentage of the input found.</li>
 <li><b>Species labels follow the reference metadata.</b> Where references disagree about a name (hybrids, species complexes) the genus is usually right and the species is withheld; the ANI cluster is the safer unit.</li>
-<li>Thresholds are calibrated to about 95% precision on held-out genomes of the reference (<code>known</code> set). Genomes from a genus the reference lacks need the stricter <code>novel</code> set.</li>
+<li>Thresholds are calibrated to about 95% precision on held-out genomes of the reference (<code>known</code> set). The genus cutoff is raised to ANI 0.90 because with the earlier 0.7765 a genus was named for 58% of queries whose genus is not in the reference. Genomes from a genus the reference lacks may need the stricter <code>novel</code> set.</li>
 </ul>
 <h3>Thresholds used ({th_name})</h3>
 <table class="small"><thead><tr><th>Rank</th><th>Minimum ANI</th><th>Minimum vote consistency</th></tr></thead><tbody>{thr_rows}</tbody></table>

@@ -72,7 +72,7 @@ enum Cmd {
         max_reads: Option<u64>,
         #[arg(long, default_value_t = 5)]
         top: usize,
-        /// `known` (default), `novel`, or a JSON file (min_shared[6], min_ani[6], min_consistency[6], margin, top_n)
+        /// `known` (default), `permissive`, `novel`, or a JSON file (min_shared[6], min_ani[6], min_consistency[6], margin, top_n, tentative_genus_min_ani)
         #[arg(long)]
         thresholds: Option<String>,
         queries: Vec<PathBuf>,
@@ -87,7 +87,7 @@ enum Cmd {
         /// output directory
         #[arg(short, long)]
         out: PathBuf,
-        /// `known` (default), `novel` (queries that may belong to a genus absent from the reference), or a JSON file
+        /// `known` (default), `permissive` (older, lower genus cutoff), `novel` (queries that may belong to a genus absent from the reference), or a JSON file
         #[arg(long)]
         thresholds: Option<String>,
         /// auto (by extension), assembly or reads
@@ -345,10 +345,18 @@ fn read_meta(path: &Path) -> Result<Vec<GenomeMeta>> {
     Ok(out)
 }
 
-/// `known` (default), `novel` (stricter: queries that may belong to a genus absent from the reference) or a JSON file.
+/// `known` (default; the balanced set), `permissive` (the earlier, lower genus cutoff), `novel` (stricter: queries that may belong
+/// to a genus absent from the reference) or a JSON file.
 pub(crate) fn load_thresholds(spec: Option<&str>) -> Result<(Thresholds, String)> {
     match spec {
         None | Some("known") => Ok((Thresholds::default(), "known".to_string())),
+        Some("permissive") => Ok((
+            Thresholds::from_json_str(include_str!(
+                "../../../data/thresholds/bfd_s10000.permissive.json"
+            ))
+            .map_err(|e| anyhow::anyhow!(e))?,
+            "permissive".to_string(),
+        )),
         Some("novel") => Ok((
             Thresholds::from_json_str(include_str!(
                 "../../../data/thresholds/bfd_s10000.novel.json"

@@ -110,6 +110,10 @@ details.card[open] summary::before { content: "▾"; }
 .rk { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; min-width: 0; }
 .rk.on { background: color-mix(in srgb, var(--series-1) 9%, var(--surface-1)); border-left: 3px solid var(--series-1); }
 .rk.off, .rk.na { color: var(--text-muted); }
+.rk.tent { background: var(--page); border-left: 3px solid var(--text-muted); }
+.rk.tent .rk-v { font-style: italic; font-weight: 600; color: var(--text-secondary); }
+.rk.tent .rk-m span { background: var(--text-muted); }
+.rk.tent .rk-n::after { content: " · tentative"; text-transform: none; letter-spacing: 0; }
 .rk.na { background: var(--page); }
 .rk-n { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
 .rk-v { font-size: 13.5px; font-weight: 600; margin: 2px 0 6px; overflow-wrap: anywhere; min-height: 2.6em; }

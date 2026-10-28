@@ -12,20 +12,27 @@ pub struct Thresholds {
     /// Hits within `margin` x the top shared count vote on the call (at most `top_n` of them).
     pub margin: f64,
     pub top_n: usize,
+    /// A genus whose evidence is below `min_ani[4]` but at least this ANI (and passes the other gates) is reported as
+    /// `tentative_genus`, never as a call: in that band a named genus is right only ~80% of the time even when the genus is in the
+    /// reference, and wrong whenever it is not. Set above 1.0 to switch the field off.
+    pub tentative_genus_min_ani: f64,
 }
 
 impl Default for Thresholds {
-    /// Calibrated on BFD (23,669 genomes, scaled=10000) for the common case that the reference holds close
-    /// relatives: species/genus from leave-one-out, family and above from leave-species-out, target precision 0.95
-    /// (`data/thresholds/bfd_s10000.known.json`; `reports/calibration_known.md`). For queries that may belong to a
-    /// genus absent from the reference use `bfd_s10000.novel.json`, which is far stricter.
+    /// The `balanced` set: calibrated on BFD (23,669 genomes, scaled=10000) to ~95% precision per rank for the common case that
+    /// the reference holds close relatives (species/genus from leave-one-out, family and above from leave-species-out), with the genus
+    /// cutoff raised from ANI 0.7765 to 0.90 so that a genus absent from the reference is named for 18% of queries instead of 58%
+    /// (`reports/validation/novelty_curve.md`, issue #57); the 0.7765-0.90 band is kept as `tentative_genus`.
+    /// `data/thresholds/bfd_s10000.known.json`; the earlier permissive genus cutoff is `bfd_s10000.permissive.json`;
+    /// for genomes that may belong to a genus absent from the reference use `bfd_s10000.novel.json`.
     fn default() -> Self {
         Self {
             min_shared: [5, 5, 5, 5, 5, 5],
-            min_ani: [0.7109, 0.7109, 0.7109, 0.7715, 0.7765, 0.9938],
+            min_ani: [0.7109, 0.7109, 0.7109, 0.7715, 0.90, 0.9938],
             min_consistency: [0.5, 0.5, 0.6, 0.9, 0.5, 0.9],
             margin: 0.9,
             top_n: 10,
+            tentative_genus_min_ani: 0.7765,
         }
     }
 }
@@ -50,6 +57,14 @@ pub struct TopHit {
     pub ani: f64,
 }
 
+/// A genus the evidence points to but does not support as a call (see `Thresholds::tentative_genus_min_ani`).
+#[derive(Clone, Debug)]
+pub struct Tentative {
+    pub taxon: String,
+    pub ani: f64,
+    pub consistency: f64,
+}
+
 #[derive(Clone, Debug)]
 pub struct Guess {
     pub query_hashes: usize,
@@ -59,6 +74,9 @@ pub struct Guess {
     /// thresholded, hierarchical calls: Some(taxon) only if this and every higher rank passed
     pub calls: Vec<Option<String>>,
     pub hits: Vec<(u32, u32)>,
+    /// set only when the genus was NOT called because its ANI is below `min_ani[4]`, but the vote, the higher ranks and
+    /// `tentative_genus_min_ani` all hold
+    pub tentative_genus: Option<Tentative>,
 }
 
 pub fn guess(
@@ -89,6 +107,7 @@ pub fn guess_from_hits(index: &RefIndex, qlen: usize, hits: &[Hit], th: &Thresho
             votes: empty_votes(),
             calls: vec![None; 6],
             hits: vec![],
+            tentative_genus: None,
         };
     };
     let g = &index.genomes[top.genome as usize];
@@ -112,6 +131,7 @@ pub fn guess_from_hits(index: &RefIndex, qlen: usize, hits: &[Hit], th: &Thresho
     let mut votes = Vec::with_capacity(6);
     let mut calls = vec![None; 6];
     let mut open = true;
+    let mut tentative = false;
     for r in 0..6 {
         // weight per interned taxon id (0 = unknown, ignored)
         let mut w: Vec<(u32, f64)> = Vec::new();
@@ -142,6 +162,13 @@ pub fn guess_from_hits(index: &RefIndex, qlen: usize, hits: &[Hit], th: &Thresho
             let pass = top.shared >= th.min_shared[r]
                 && ani >= th.min_ani[r]
                 && cons >= th.min_consistency[r];
+            if r == 4 {
+                tentative = open
+                    && !pass
+                    && top.shared >= th.min_shared[4]
+                    && cons >= th.min_consistency[4]
+                    && ani >= th.tentative_genus_min_ani;
+            }
             if open && pass {
                 calls[r] = taxon.clone();
             } else {
@@ -154,11 +181,21 @@ pub fn guess_from_hits(index: &RefIndex, qlen: usize, hits: &[Hit], th: &Thresho
             consistency: cons,
         });
     }
+    let tentative_genus = if tentative {
+        votes[4].taxon.clone().map(|taxon| Tentative {
+            taxon,
+            ani,
+            consistency: votes[4].consistency,
+        })
+    } else {
+        None
+    };
     Guess {
         query_hashes: qlen,
         top: Some(topinfo),
         votes,
         calls,
+        tentative_genus,
         hits: hits
             .iter()
             .take(th.top_n)
@@ -216,6 +253,48 @@ mod tests {
         // nothing shared -> no calls
         let g = guess(&ix, &[5000, 5001], &|_| false, &th);
         assert!(g.calls.iter().all(|c| c.is_none()));
+    }
+
+    #[test]
+    fn tentative_genus_in_the_band_between_the_cutoffs() {
+        let mut b = IndexBuilder::new(21, 1, 42);
+        b.add(
+            m("a1", "Aspergillus", "Aspergillus fumigatus"),
+            (0..1000).collect(),
+        );
+        let ix = b.build(2);
+        let th = Thresholds::default();
+        // 33 of 1000 query hashes found in the reference: containment 0.033, ANI = 0.033^(1/21) ~ 0.85
+        let q: Vec<u64> = (0..33).chain(5000..5967).collect();
+        let g = guess(&ix, &q, &|_| false, &th);
+        let ani = g.top.as_ref().unwrap().ani;
+        assert!(ani > 0.8 && ani < 0.9, "ani {ani}");
+        assert!(
+            g.calls[4].is_none(),
+            "genus must not be called below the 0.90 cutoff"
+        );
+        assert_eq!(g.calls[0].as_deref(), Some("Ascomycota"));
+        let t = g.tentative_genus.expect("tentative genus");
+        assert_eq!(t.taxon, "Aspergillus");
+        assert!((t.ani - ani).abs() < 1e-12);
+        // identical query: genus is a real call, so no tentative field
+        let g = guess(&ix, &(0..1000).collect::<Vec<_>>(), &|_| false, &th);
+        assert_eq!(g.calls[4].as_deref(), Some("Aspergillus"));
+        assert!(g.tentative_genus.is_none());
+        let off = Thresholds {
+            tentative_genus_min_ani: 2.0,
+            ..Thresholds::default()
+        };
+        let q: Vec<u64> = (0..33).chain(5000..5967).collect();
+        assert!(guess(&ix, &q, &|_| false, &off).tentative_genus.is_none());
+        // a failed higher rank closes the gate: no tentative genus either
+        let strict = Thresholds {
+            min_ani: [0.99, 0.99, 0.99, 0.99, 0.90, 0.9938],
+            ..Thresholds::default()
+        };
+        assert!(guess(&ix, &q, &|_| false, &strict)
+            .tentative_genus
+            .is_none());
     }
 
     #[test]

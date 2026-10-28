@@ -224,3 +224,35 @@ fn svg_text_stays_inside_the_viewbox() {
         &bad[..bad.len().min(5)]
     );
 }
+
+#[test]
+fn tentative_genus_is_shown_as_tentative_everywhere() {
+    let (results, run, _) = fixture();
+    let rec = json!({
+        "id": "tent1", "path": "tent1.fa", "kind": "assembly", "status": "low_confidence", "best_rank": "family",
+        "qc": {"total_bases": 3e7, "n50": 1e6, "n_hashes": 3000}, "qc_flags": [],
+        "guess": {
+            "calls": {
+                "phylum": {"taxon": "Ascomycota", "vote": "Ascomycota", "consistency": 1.0},
+                "class": {"taxon": "Sordariomycetes", "vote": "Sordariomycetes", "consistency": 1.0},
+                "order": {"taxon": "Hypocreales", "vote": "Hypocreales", "consistency": 1.0},
+                "family": {"taxon": "Nectriaceae", "vote": "Nectriaceae", "consistency": 1.0},
+                "genus": {"taxon": null, "vote": "Fusarium", "consistency": 0.8},
+                "species": {"taxon": null, "vote": "Fusarium solani", "consistency": 0.5}
+            },
+            "tentative_genus": {"taxon": "Fusarium", "ani": 0.85, "consistency": 0.8},
+            "top": {"id": "r1", "cluster": "", "shared": 100, "ani": 0.85, "containment_query": 0.033, "containment_ref": 0.03},
+            "hits": [{"id": "r1", "taxid": 1, "shared": 100, "lineage": ["Ascomycota", "Sordariomycetes", "Hypocreales", "Nectriaceae", "Fusarium", "Fusarium solani"], "cluster": ""}]
+        }
+    });
+    let mut all = results;
+    all.push(rec);
+    let html = render_html(&all, &run, None, &Options::default());
+    assert!(html.contains("Fusarium (tentative)"), "ladder / header");
+    assert!(html.contains("tentative genus: Fusarium"), "table");
+    assert!(html.contains("shown as tentative"), "evidence sentence");
+    assert!(html.contains("Tentative genus.</b>"), "how-to-read note");
+    for s in svgs(&html) {
+        roxmltree::Document::parse(s).unwrap();
+    }
+}
