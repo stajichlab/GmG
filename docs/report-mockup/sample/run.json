@@ -1,0 +1,1101 @@
+{
+  "command": [
+    "gmg",
+    "run",
+    "mock_in",
+    "--index",
+    "bfd_s10000.v1.gmgi",
+    "-o",
+    "mock_out"
+  ],
+  "commit": "6e35dc46c",
+  "elapsed_seconds": 32.3,
+  "finished_utc": "2026-10-28T19:15:58Z",
+  "index": {
+    "bytes": 198294922,
+    "k": 21,
+    "n_genomes": 23669,
+    "path": "bfd_s10000.v1.gmgi",
+    "scaled": 10000,
+    "seed": 42
+  },
+  "inputs": [
+    {
+      "id": "GCA_000006275.3",
+      "kind": "assembly",
+      "path": "genomes/GCA_000006275.3.fna",
+      "size_bytes": 37337352,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000006335.3",
+      "kind": "assembly",
+      "path": "genomes/GCA_000006335.3.fna",
+      "size_bytes": 14815474,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000143125.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000143125.1.fna",
+      "size_bytes": 30038341,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000145635.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000145635.1.fna",
+      "size_bytes": 44383637,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000146915.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_000146915.2.fna",
+      "size_bytes": 37688912,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000149035.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000149035.1.fna",
+      "size_bytes": 52358695,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000149205.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_000149205.2.fna",
+      "size_bytes": 30662782,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000149425.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000149425.1.fna",
+      "size_bytes": 10743509,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000149555.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000149555.1.fna",
+      "size_bytes": 42410849,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000149685.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000149685.1.fna",
+      "size_bytes": 15744791,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000149845.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_000149845.2.fna",
+      "size_bytes": 11883665,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000149865.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000149865.1.fna",
+      "size_bytes": 24203463,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000166975.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000166975.1.fna",
+      "size_bytes": 11761636,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000167675.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_000167675.2.fna",
+      "size_bytes": 33821656,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000170175.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_000170175.2.fna",
+      "size_bytes": 27934532,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000170995.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_000170995.2.fna",
+      "size_bytes": 39518856,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000171015.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_000171015.2.fna",
+      "size_bytes": 36598251,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000181695.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_000181695.2.fna",
+      "size_bytes": 9072421,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000182965.3",
+      "kind": "assembly",
+      "path": "genomes/GCA_000182965.3.fna",
+      "size_bytes": 14461747,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000184105.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000184105.1.fna",
+      "size_bytes": 31280691,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000185945.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000185945.1.fna",
+      "size_bytes": 18605432,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000221225.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000221225.1.fna",
+      "size_bytes": 28679728,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000222895.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_000222895.2.fna",
+      "size_bytes": 40249969,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000223465.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000223465.1.fna",
+      "size_bytes": 10884276,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000223565.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000223565.1.fna",
+      "size_bytes": 9520650,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000226195.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_000226195.2.fna",
+      "size_bytes": 35654201,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000227095.3",
+      "kind": "assembly",
+      "path": "genomes/GCA_000227095.3.fna",
+      "size_bytes": 14318114,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000230395.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_000230395.2.fna",
+      "size_bytes": 35290755,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000240685.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_000240685.2.fna",
+      "size_bytes": 38614856,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000241205.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_000241205.2.fna",
+      "size_bytes": 13586454,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000259595.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000259595.1.fna",
+      "size_bytes": 12871905,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000269785.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_000269785.2.fna",
+      "size_bytes": 37052294,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000292645.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000292645.1.fna",
+      "size_bytes": 42139959,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000293215.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000293215.1.fna",
+      "size_bytes": 24856768,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000313505.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000313505.1.fna",
+      "size_bytes": 12423992,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000313545.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000313545.1.fna",
+      "size_bytes": 25613919,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000315255.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000315255.1.fna",
+      "size_bytes": 44389175,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000334115.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000334115.1.fna",
+      "size_bytes": 37688669,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000338975.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000338975.1.fna",
+      "size_bytes": 36920425,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000474925.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000474925.1.fna",
+      "size_bytes": 32634189,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000586535.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000586535.1.fna",
+      "size_bytes": 23392159,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000590845.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_000590845.2.fna",
+      "size_bytes": 20882096,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000597665.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000597665.1.fna",
+      "size_bytes": 119985646,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000750115.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_000750115.2.fna",
+      "size_bytes": 29386445,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000775525.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000775525.1.fna",
+      "size_bytes": 14638752,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000784635.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000784635.1.fna",
+      "size_bytes": 15406503,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000827335.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000827335.1.fna",
+      "size_bytes": 71964263,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000835765.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000835765.1.fna",
+      "size_bytes": 17699948,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000952015.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000952015.1.fna",
+      "size_bytes": 36424131,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000952835.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000952835.1.fna",
+      "size_bytes": 37559852,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000956085.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000956085.1.fna",
+      "size_bytes": 40019774,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_000965245.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_000965245.1.fna",
+      "size_bytes": 37537012,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_001046915.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_001046915.1.fna",
+      "size_bytes": 11716346,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_001417885.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_001417885.1.fna",
+      "size_bytes": 11104291,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_001515485.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_001515485.2.fna",
+      "size_bytes": 22857077,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_001638945.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_001638945.1.fna",
+      "size_bytes": 37026638,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_001746955.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_001746955.1.fna",
+      "size_bytes": 9581725,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_001857865.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_001857865.1.fna",
+      "size_bytes": 39394038,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_002006585.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_002006585.1.fna",
+      "size_bytes": 35359546,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_002127715.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_002127715.1.fna",
+      "size_bytes": 50453232,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_002163515.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_002163515.1.fna",
+      "size_bytes": 12590726,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_002215855.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_002215855.1.fna",
+      "size_bytes": 18460007,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_002215885.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_002215885.1.fna",
+      "size_bytes": 19150706,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_002222215.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_002222215.1.fna",
+      "size_bytes": 19103216,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_003691605.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_003691605.1.fna",
+      "size_bytes": 7388698,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_003708635.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_003708635.2.fna",
+      "size_bytes": 26375262,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_004334915.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_004334915.1.fna",
+      "size_bytes": 12888443,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_006112615.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_006112615.1.fna",
+      "size_bytes": 47098516,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_006942115.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_006942115.1.fna",
+      "size_bytes": 15735780,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_006942135.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_006942135.1.fna",
+      "size_bytes": 15291522,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_006942155.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_006942155.1.fna",
+      "size_bytes": 10835026,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_011393275.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_011393275.1.fna",
+      "size_bytes": 11863027,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_011801205.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_011801205.1.fna",
+      "size_bytes": 19329451,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_013180795.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_013180795.1.fna",
+      "size_bytes": 23561267,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_013183815.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_013183815.1.fna",
+      "size_bytes": 23872576,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_013390285.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_013390285.1.fna",
+      "size_bytes": 44025329,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_013620965.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_013620965.1.fna",
+      "size_bytes": 13373743,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_013620985.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_013620985.1.fna",
+      "size_bytes": 16592688,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_016801405.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_016801405.1.fna",
+      "size_bytes": 37484850,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_017309835.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_017309835.1.fna",
+      "size_bytes": 14974715,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_017310615.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_017310615.1.fna",
+      "size_bytes": 38472432,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_017355575.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_017355575.1.fna",
+      "size_bytes": 31500795,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_020647705.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_020647705.1.fna",
+      "size_bytes": 41968554,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_020716685.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_020716685.1.fna",
+      "size_bytes": 148667485,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_020716725.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_020716725.1.fna",
+      "size_bytes": 149051567,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_020716765.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_020716765.1.fna",
+      "size_bytes": 148928646,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_021556655.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_021556655.1.fna",
+      "size_bytes": 28179405,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_021556705.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_021556705.1.fna",
+      "size_bytes": 37413138,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_030567355.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_030567355.1.fna",
+      "size_bytes": 11715398,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_030570515.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_030570515.1.fna",
+      "size_bytes": 15994786,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_030573535.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_030573535.1.fna",
+      "size_bytes": 11526973,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_035658335.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_035658335.1.fna",
+      "size_bytes": 19453009,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_037948965.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_037948965.1.fna",
+      "size_bytes": 9081508,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_046127475.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_046127475.1.fna",
+      "size_bytes": 29234079,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_050613845.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_050613845.1.fna",
+      "size_bytes": 76141869,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_057662195.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_057662195.1.fna",
+      "size_bytes": 77838912,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_057814745.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_057814745.1.fna",
+      "size_bytes": 78122164,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_059750275.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_059750275.1.fna",
+      "size_bytes": 53244273,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_060154715.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_060154715.1.fna",
+      "size_bytes": 77585578,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_060231115.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_060231115.1.fna",
+      "size_bytes": 47386073,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_060697205.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_060697205.1.fna",
+      "size_bytes": 27857447,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_060702555.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_060702555.1.fna",
+      "size_bytes": 57672028,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_060702595.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_060702595.1.fna",
+      "size_bytes": 56816432,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_061311055.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_061311055.1.fna",
+      "size_bytes": 37544703,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_061372115.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_061372115.1.fna",
+      "size_bytes": 88116619,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_061603605.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_061603605.1.fna",
+      "size_bytes": 45120430,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_061613165.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_061613165.1.fna",
+      "size_bytes": 25875448,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_062019161.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_062019161.1.fna",
+      "size_bytes": 30527319,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_062034329.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_062034329.1.fna",
+      "size_bytes": 36715518,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_062043556.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_062043556.1.fna",
+      "size_bytes": 113549526,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_062043676.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_062043676.1.fna",
+      "size_bytes": 63982078,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_900091695.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_900091695.1.fna",
+      "size_bytes": 38335979,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_900099495.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_900099495.1.fna",
+      "size_bytes": 40196544,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_900149145.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_900149145.1.fna",
+      "size_bytes": 7884116,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_900184105.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_900184105.1.fna",
+      "size_bytes": 41167525,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_900184115.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_900184115.1.fna",
+      "size_bytes": 39112977,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_900465115.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_900465115.1.fna",
+      "size_bytes": 44005318,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_900638725.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_900638725.1.fna",
+      "size_bytes": 128435198,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_905220315.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_905220315.1.fna",
+      "size_bytes": 12173510,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_918257225.2",
+      "kind": "assembly",
+      "path": "genomes/GCA_918257225.2.fna",
+      "size_bytes": 12123791,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_918268175.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_918268175.1.fna",
+      "size_bytes": 12000146,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_937872485.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_937872485.1.fna",
+      "size_bytes": 11850090,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_947241705.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_947241705.1.fna",
+      "size_bytes": 12257621,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_947243785.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_947243785.1.fna",
+      "size_bytes": 11907647,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_958305195.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_958305195.1.fna",
+      "size_bytes": 98055566,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_964213375.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_964213375.1.fna",
+      "size_bytes": 56452779,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_964289775.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_964289775.1.fna",
+      "size_bytes": 142933724,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_977065945.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_977065945.1.fna",
+      "size_bytes": 55472656,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_977071145.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_977071145.1.fna",
+      "size_bytes": 41735845,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_977071185.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_977071185.1.fna",
+      "size_bytes": 41856781,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_977071195.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_977071195.1.fna",
+      "size_bytes": 41862230,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_977071255.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_977071255.1.fna",
+      "size_bytes": 42332926,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_977110955.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_977110955.1.fna",
+      "size_bytes": 28810759,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_980750485.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_980750485.1.fna",
+      "size_bytes": 54193662,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_981691435.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_981691435.1.fna",
+      "size_bytes": 35228564,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_982319345.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_982319345.1.fna",
+      "size_bytes": 12346743,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_982397245.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_982397245.1.fna",
+      "size_bytes": 6949399,
+      "status": "no_match"
+    },
+    {
+      "id": "GCA_984766385.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_984766385.1.fna",
+      "size_bytes": 12006759,
+      "status": "low_confidence"
+    },
+    {
+      "id": "GCA_985568095.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_985568095.1.fna",
+      "size_bytes": 11421185,
+      "status": "low_confidence"
+    },
+    {
+      "id": "GCA_985568215.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_985568215.1.fna",
+      "size_bytes": 17159189,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_986199775.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_986199775.1.fna",
+      "size_bytes": 6800760,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_986392275.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_986392275.1.fna",
+      "size_bytes": 7319848,
+      "status": "no_match"
+    },
+    {
+      "id": "GCA_986885625.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_986885625.1.fna",
+      "size_bytes": 77391467,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_987193425.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_987193425.1.fna",
+      "size_bytes": 58241849,
+      "status": "ok"
+    },
+    {
+      "id": "GCA_988225255.1",
+      "kind": "assembly",
+      "path": "genomes/GCA_988225255.1.fna",
+      "size_bytes": 33321540,
+      "status": "ok"
+    },
+    {
+      "id": "empty_file",
+      "kind": "assembly",
+      "path": "genomes/empty_file.fa",
+      "size_bytes": 0,
+      "status": "error"
+    },
+    {
+      "id": "A1163_0.5x",
+      "kind": "reads",
+      "path": "reads/A1163_0.5x.fastq.gz",
+      "size_bytes": 5353934,
+      "status": "ok"
+    },
+    {
+      "id": "A1163_5x",
+      "kind": "reads",
+      "path": "reads/A1163_5x.fastq.gz",
+      "size_bytes": 53481598,
+      "status": "ok"
+    }
+  ],
+  "schema_version": 1,
+  "started_utc": "2026-10-28T19:15:26Z",
+  "status_counts": {
+    "error": 1,
+    "low_confidence": 2,
+    "no_match": 2,
+    "ok": 143
+  },
+  "thresholds": {
+    "name": "known",
+    "values": {
+      "margin": 0.9,
+      "min_ani": [
+        0.7109,
+        0.7109,
+        0.7109,
+        0.7715,
+        0.7765,
+        0.9938
+      ],
+      "min_consistency": [
+        0.5,
+        0.5,
+        0.6,
+        0.9,
+        0.5,
+        0.9
+      ],
+      "min_shared": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "top_n": 10
+    }
+  },
+  "tool": "gmg",
+  "version": "0.0.1"
+}
