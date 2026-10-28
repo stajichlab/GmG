@@ -1,0 +1,37 @@
+group	rank	n	called	precision	recall
+all	phylum	558	0.9964	1.0000	0.9964
+all	class	558	0.9964	0.9964	0.9928
+all	order	558	0.9964	0.9964	0.9928
+all	family	558	0.9964	0.9946	0.9910
+all	genus	558	0.9964	0.9946	0.9910
+all	species	558	0.9140	0.9961	0.9104
+relabelled=	phylum	556	0.9964	1.0000	0.9964
+relabelled=	class	556	0.9964	0.9964	0.9928
+relabelled=	order	556	0.9964	0.9964	0.9928
+relabelled=	family	556	0.9964	0.9946	0.9910
+relabelled=	genus	556	0.9964	0.9946	0.9910
+relabelled=	species	556	0.9137	0.9961	0.9101
+relabelled=yes	phylum	2	1.0000	1.0000	1.0000
+relabelled=yes	class	2	1.0000	1.0000	1.0000
+relabelled=yes	order	2	1.0000	1.0000	1.0000
+relabelled=yes	family	2	1.0000	1.0000	1.0000
+relabelled=yes	genus	2	1.0000	1.0000	1.0000
+relabelled=yes	species	2	1.0000	1.0000	1.0000
+species=Coccidioides immitis	phylum	175	1.0000	1.0000	1.0000
+species=Coccidioides immitis	class	175	1.0000	0.9943	0.9943
+species=Coccidioides immitis	order	175	1.0000	0.9943	0.9943
+species=Coccidioides immitis	family	175	1.0000	0.9943	0.9943
+species=Coccidioides immitis	genus	175	1.0000	0.9943	0.9943
+species=Coccidioides immitis	species	175	0.9543	0.9940	0.9486
+species=Coccidioides posadasii	phylum	383	0.9948	1.0000	0.9948
+species=Coccidioides posadasii	class	383	0.9948	0.9974	0.9922
+species=Coccidioides posadasii	order	383	0.9948	0.9974	0.9922
+species=Coccidioides posadasii	family	383	0.9948	0.9948	0.9896
+species=Coccidioides posadasii	genus	383	0.9948	0.9948	0.9896
+species=Coccidioides posadasii	species	383	0.8956	0.9971	0.8930
+n50_bin=<10 kb	phylum	558	0.9964	1.0000	0.9964
+n50_bin=<10 kb	class	558	0.9964	0.9964	0.9928
+n50_bin=<10 kb	order	558	0.9964	0.9964	0.9928
+n50_bin=<10 kb	family	558	0.9964	0.9946	0.9910
+n50_bin=<10 kb	genus	558	0.9964	0.9946	0.9910
+n50_bin=<10 kb	species	558	0.9140	0.9961	0.9104
