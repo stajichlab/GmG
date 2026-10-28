@@ -24,5 +24,6 @@
   0.6
  ],
  "margin": 0.9,
- "top_n": 10
+ "top_n": 10,
+ "tentative_genus_min_ani": 0.7765
 }

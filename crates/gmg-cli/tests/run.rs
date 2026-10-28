@@ -79,10 +79,8 @@ fn col(h: &[String], name: &str) -> usize {
         .unwrap_or_else(|| panic!("no column {name}"))
 }
 
-#[test]
-fn run_folder_end_to_end() {
-    let dir = tempfile::tempdir().unwrap();
-    let d = dir.path();
+/// Six random 200 kb genomes in two genera of three phyla, sketched at scaled=10 and indexed; returns (genomes, index path, rng).
+fn build_reference(d: &Path) -> (Vec<Vec<u8>>, std::path::PathBuf, Rng) {
     let mut rng = Rng(0x9E3779B97F4A7C15);
     let genomes: Vec<Vec<u8>> = (0..6).map(|_| rng.genome(200_000)).collect();
     let lineage = [
@@ -118,6 +116,14 @@ fn run_folder_end_to_end() {
         "-o",
         ix.to_str().unwrap(),
     ]);
+    (genomes, ix, rng)
+}
+
+#[test]
+fn run_folder_end_to_end() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, mut rng) = build_reference(d);
 
     // inputs: an exact copy of g2, a 2%-mutated copy of g4 in a sub-folder, an empty FASTA, a text file to ignore
     let inp = d.join("in");
@@ -240,4 +246,58 @@ fn run_folder_end_to_end() {
         .unwrap();
     assert_eq!(m2[col(&h2, "call_genus")], "");
     assert_eq!(m2[col(&h2, "status")], "low_confidence");
+}
+
+#[test]
+fn divergent_input_gets_a_tentative_genus_not_a_genus_call() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, mut rng) = build_reference(d);
+    // 15% substitutions: ANI to g4 about 0.85, between the tentative cutoff (0.7765) and the genus cutoff (0.90)
+    let inp = d.join("in");
+    fs::create_dir_all(&inp).unwrap();
+    fs::write(
+        inp.join("divergent.fa"),
+        fasta("divergent", &rng.mutate(&genomes[4], 150)),
+    )
+    .unwrap();
+    let out = d.join("out");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+    ]);
+    let (h, rows) = read_tsv(&out.join("results.tsv"));
+    let r = &rows[0];
+    let ani: f64 = r[col(&h, "ani")].parse().unwrap();
+    assert!(ani > 0.8 && ani < 0.9, "ani {ani}");
+    assert_eq!(
+        r[col(&h, "call_genus")],
+        "",
+        "genus must not be called below ANI 0.90"
+    );
+    assert_eq!(r[col(&h, "tentative_genus")], "Agaricus");
+    assert_eq!(r[col(&h, "status")], "low_confidence");
+    let report = fs::read_to_string(out.join("report.html")).unwrap();
+    assert!(
+        report.contains("Agaricus (tentative)") && report.contains("tentative genus: Agaricus")
+    );
+    // the permissive set (the earlier 0.7765 genus cutoff) names the genus instead
+    let out2 = d.join("out2");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out2.to_str().unwrap(),
+        "--thresholds",
+        "permissive",
+    ]);
+    let (h2, rows2) = read_tsv(&out2.join("results.tsv"));
+    assert_eq!(rows2[0][col(&h2, "call_genus")], "Agaricus");
+    assert_eq!(rows2[0][col(&h2, "tentative_genus")], "");
 }
