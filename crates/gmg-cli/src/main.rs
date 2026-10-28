@@ -11,7 +11,7 @@ use std::io::{BufReader, BufWriter, Write};
 use std::path::{Path, PathBuf};
 
 #[derive(Parser)]
-#[command(name = "gmg", version, about = "Guess My Genome")]
+#[command(name = "gmg", version = concat!(env!("CARGO_PKG_VERSION"), " (", env!("GMG_GIT"), ")"), about = "Guess My Genome")]
 struct Cli {
     /// worker threads (default: all cores)
     #[arg(long, global = true)]
