@@ -1,0 +1,52 @@
+# `gmg run` outputs (schema version 1)
+
+```
+gmg run GENOMES_DIR [MORE_INPUTS...] --index bfd.gmgi -o results/
+```
+
+Inputs are files or directories (searched recursively): FASTA (`.fa .fna .fasta .fas .ffn`) or FASTQ (`.fq .fastq`), optionally gzipped.
+The id of an input is its file name without those extensions (two inputs with the same id are an error).
+`--kind auto|assembly|reads` (auto = by extension), `--thresholds known|novel|FILE.json`, `--resume`, `--top N`.
+
+| file | content |
+|---|---|
+| `results.tsv` | one row per input |
+| `hits.tsv` | the top-N reference genomes per input (long format) |
+| `run.json` | manifest: tool version and commit, command, times, index (k, scaled, seed, genomes), thresholds, status counts, input list |
+| `results.jsonl` | full per-input records (what the TSVs are built from; used by `--resume`) |
+
+Empty cell = not applicable / not called. TSV cells never contain tabs or newlines.
+
+## results.tsv
+
+| column | meaning |
+|---|---|
+| `query_id`, `path`, `kind` | input id, path, `assembly` or `reads` |
+| `status` | `ok` = a call at genus or species; `low_confidence` = calls only at family or above; `no_match` = no rank passed (nothing similar enough in the reference, e.g. not a fungus); `error` = the input could not be processed (see `message`) |
+| `best_rank` | deepest rank with a call (`phylum` ... `species`) |
+| `call_<rank>` | the taxon called at that rank; empty if withheld. Calls are hierarchical: a rank is withheld if a higher rank failed its threshold |
+| `conf_<rank>` | vote consistency 0-1: share of the near-best reference hits that agree on the taxon (an evidence value, not a probability) |
+| `top_hit`, `top_hit_species`, `top_hit_taxid` | best matching reference genome, its species label and NCBI taxid |
+| `ani` | containment ANI of the query in the top hit, `containment_query^(1/k)` |
+| `containment_query`, `containment_ref` | fraction of the query's hashes found in the top hit / of the top hit's hashes found in the query |
+| `shared` | number of shared sketch hashes with the top hit |
+| `cluster` | ANI cluster of the top hit (empty if the index has no cluster column) |
+| `n_hashes`, `total_bases`, `n50` | sketch size after filtering, input bases, N50 (assemblies) |
+| `qc_flags` | comma-separated, see below |
+| `message` | error text |
+| `schema_version` | 1 |
+
+### Thresholds
+
+`known` (default) was calibrated on BFD for queries whose genus has relatives in the reference (95% precision per rank in leave-one-out and
+leave-species-out tests). `novel` is far stricter: family, genus and species are never called because no threshold reached 95% precision when the
+genus was left out. See `reports/calibration_known.md` and `reports/calibration_novel.md`. Use `--thresholds FILE.json` for your own.
+
+### QC flags (provisional, see issue #29)
+
+`short_genome` (< 5 Mb), `long_genome` (> 150 Mb), `fragmented` (N50 < 10 kb), `high_N` (> 5% non-ACGT), `few_hashes` (< 100 sketch hashes),
+`identical_to_reference` (ANI >= 0.9999 and the reference is fully contained). Flags explain a result; they never change a call.
+
+## hits.tsv
+
+`query_id, hit_rank, hit_id, taxid, shared, phylum, class, order, family, genus, species, cluster, schema_version` (the lineage is the metadata of the reference genome).
