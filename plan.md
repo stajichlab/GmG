@@ -1,5 +1,7 @@
 # GmG (Guess My Genome): plan (draft for feasibility review)
 
+> **Current state: `reports/overnight_2026-10-27.md` (results) and `LOG.md` (history). This file is the original design; sections 12-14 and the report supersede earlier parts.**
+
 Repo: GmG (renamed from PopSketch, 2026-10-27). **PopSketch** is now the working name for the later population-structure layer (strain trees, PCA) inside this repo; whether it stays here or splits out is decided after GmG works.
 
 Status: DRAFT 2026-10-27. Numbers marked **[measured]** come from the 15-genome *A. fumigatus* test in `data/`. Everything marked **[est]** is an estimate that Milestone 0 must verify. Sections 12-14 record what was found on the HPCC and what is built (the `gmg-core` Rust crate); the rest is still plan.
