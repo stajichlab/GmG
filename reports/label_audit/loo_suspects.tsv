@@ -1,0 +1,106 @@
+id	rank	own	neighbours	top_id	ani	genus	species
+GCA_052696405.1_DUKE_Asor_1.0	phylum	Basidiomycota	Ascomycota	GCA_054471015.1_ASM5447101v1	0.979		Microbotryomycetes sp. NB124-2
+GCA_004959885.1_SRS-W-3	phylum	Ascomycota	Mucoromycota	GCA_000587855.1_B50	0.9853	Penicillium	Penicillium sp. W3 MMC-2018
+GCA_002233575.1_ASM223357v1	phylum	Ascomycota	Basidiomycota	GCA_003116895.1_JCM_11170_assembly_v001	1.0	Geotrichum	Geotrichum fermentans
+GCA_055690705.1_ASM5569070v1	phylum	Basidiomycota	Ascomycota	GCA_023619845.1_ASM2361984v1	0.9894	Omphalotus	Omphalotus olearius
+GCA_002994575.1_FL11_1	phylum	Basidiomycota	Ascomycota	GCA_002072375.1_ASM207237v1	0.9588	Uromyces	Uromyces transversalis
+GCA_054471015.1_ASM5447101v1	phylum	Ascomycota	Basidiomycota	GCA_052696405.1_DUKE_Asor_1.0	0.9819		Saccharomycotina sp. YJ-2025b
+GCA_057978835.1_Crustfungi8_Clados	class	Dothideomycetes	Sordariomycetes	GCA_027574645.1_ASM2757464v1	0.987	Cladosporium	Cladosporium sp. 450A
+GCA_037043785.1_ASM3704378v1	class	Eurotiomycetes	Sordariomycetes	GCA_037893235.1_ASM3789323v1	0.9963	Talaromyces	Talaromyces purpureogenus
+GCA_037074925.2_ASM3707492v2	class	Leotiomycetes	Sordariomycetes	GCA_037042185.1_ASM3704218v1	0.985	Tetracladium	Tetracladium maxilliforme
+GCA_001074275.1_ASM107427v1	class	Saccharomycetes	Pichiomycetes	GCA_029931525.1_ASM2993152v1	0.9975	Naumovozyma	Naumovozyma dairenensis
+GCA_004959885.1_SRS-W-3	class	Eurotiomycetes	Mucoromycetes	GCA_000587855.1_B50	0.9853	Penicillium	Penicillium sp. W3 MMC-2018
+GCA_022813755.1_ASM2281375v1	class	Dothideomycetes	Sordariomycetes	GCA_022813565.1_ASM2281356v1	1.0	Cladosporium	Cladosporium austrohemisphaericum
+GCA_039700845.1_ASM3970084v1	class	Dothideomycetes	Sordariomycetes	GCA_033060795.1_pgTrit_morethan500	0.9982	Alternaria	Alternaria alternata
+GCA_002233575.1_ASM223357v1	class	Dipodascomycetes	Tremellomycetes	GCA_003116895.1_JCM_11170_assembly_v001	1.0	Geotrichum	Geotrichum fermentans
+GCA_035928285.1_ASM3592828v1	class	Dothideomycetes	Eurotiomycetes	GCA_035928545.1_ASM3592854v1	1.0	Vermiconidia	Vermiconidia calcicola
+GCA_055690705.1_ASM5569070v1	class	Agaricomycetes	Eurotiomycetes	GCA_023619845.1_ASM2361984v1	0.9894	Omphalotus	Omphalotus olearius
+GCA_025802115.2_ASM2580211v2	class	Sordariomycetes	Eurotiomycetes	GCA_022813405.1_ASM2281340v1	0.9503	Bertia	Bertia moriformis
+GCA_017654825.1_ASM1765482v1	class	Tremellomycetes	Microbotryomycetes	GCA_017654785.1_ASM1765478v1	0.9946	Cryptococcus	Cryptococcus sp. T15_22C
+GCA_037044295.1_ASM3704429v1	class	Eurotiomycetes	Sordariomycetes	GCA_018350245.1_ASM1835024v1	0.9932	Aspergillus	Aspergillus subversicolor
+GCF_011074885.1_ASM1107488v2	class	Pichiomycetes	Saccharomycetes	GCA_057557315.1_ASM5755731v1	0.9922	Brettanomyces	Brettanomyces bruxellensis
+GCA_037042185.1_ASM3704218v1	class	Sordariomycetes	Leotiomycetes	GCA_037074925.2_ASM3707492v2	0.99		Sordariomycetes sp. S80-01Y
+GCA_057978885.1_Crustfungi10_Chaeto	class	Sordariomycetes	Eurotiomycetes	GCA_056320565.1_ASM5632056v1	0.9776		Chaetomiaceae sp. 537B
+GCA_049307695.1_EMGR_V1	class	Dothideomycetes	Eurotiomycetes	GCA_051225625.1_ASM5122562v1	0.9991	Emarellia	Emarellia grisea
+GCA_001659765.1_ASM165976v1	class	Dipodascomycetes	Saccharomycetes	GCA_979262865.1_PYCC9235_1	0.9997	Wickerhamiella	Wickerhamiella versatilis
+GCA_029300795.1_ASM2930079v1	class	Saccharomycetes	Pichiomycetes	GCF_000209165.1_ASM20916v1	0.9999		Saccharomycetales sp.
+GCA_002994575.1_FL11_1	class	Pucciniomycetes	Eurotiomycetes	GCA_002072375.1_ASM207237v1	0.9588	Uromyces	Uromyces transversalis
+GCA_002153405.1_ASM215340v1	class	Dothideomycetes	Eurotiomycetes	GCA_039702135.1_ASM3970213v1	0.9923	Mycosphaerella	Mycosphaerella populi
+GCA_029290875.1_ASM2929087v1	class	Saccharomycetes	Pichiomycetes	GCA_000755205.1_ASM75520v1	0.9979		Saccharomycetales sp.
+GCA_037044025.1_ASM3704402v1	class	Dothideomycetes	Sordariomycetes	GCA_037043915.1_ASM3704391v1	0.9999	Cladosporium	Cladosporium antarcticum
+GCA_029301555.1_ASM2930155v1	class	Saccharomycetes	Pichiomycetes	GCA_025531575.1_ASM2553157v1	0.9982		Saccharomycetales sp.
+GCA_029301595.1_ASM2930159v1	class	Saccharomycetes	Pichiomycetes	GCA_012295375.1_ASM1229537v1	0.9958		Saccharomycetales sp.
+GCA_057557315.1_ASM5755731v1	class	Saccharomycetes	Pichiomycetes	GCF_011074885.1_ASM1107488v2	0.9748		Saccharomycetes sp.
+GCA_001599655.1_JCM_5230_assembly_v001	class	Exobasidiomycetes	Pucciniomycetes	GCA_030280995.1_Hv_R1_Cat_CENPAT	0.9699	Golubevia	Golubevia pallescens
+GCA_024606205.1_ASM2460620v1	class	Dothideomycetes	Eurotiomycetes	GCA_003069565.1_ASM306956v1	1.0	Alternaria	Alternaria sp. SPS-2
+GCA_039702135.1_ASM3970213v1	class	Eurotiomycetes	Dothideomycetes	GCA_002153405.1_ASM215340v1	0.993	Penicillium	Penicillium sp. 32 TS-2023
+GCA_003069565.1_ASM306956v1	class	Eurotiomycetes	Dothideomycetes	GCA_024606205.1_ASM2460620v1	1.0	Aspergillus	Aspergillus fumigatus
+GCA_017654785.1_ASM1765478v1	class	Microbotryomycetes	Tremellomycetes	GCA_017654825.1_ASM1765482v1	0.9951	Phenoliferia	Phenoliferia glacialis
+GCA_019924265.1_ASM1992426v1	class	Dothideomycetes	Eurotiomycetes	GCA_043234805.1_ASM4323480v1	0.9891	Aureobasidium	Aureobasidium melanogenum
+GCA_029295605.1_ASM2929560v1	class	Saccharomycetes	Pichiomycetes	GCA_023623335.1_ASM2362333v1	0.994		Saccharomycetales sp.
+GCA_022813265.1_ASM2281326v1	class	Dothideomycetes	Eurotiomycetes	GCA_022814395.1_ASM2281439v1	0.979	Zalaria	Zalaria obscura
+GCA_046252445.1_ASM4625244v1	class	Pichiomycetes	Eurotiomycetes	GCA_003116565.1_ASM311656v1	1.0	Candidozyma	Candidozyma auris
+GCA_037044075.1_ASM3704407v1	class	Sordariomycetes	Eurotiomycetes	GCA_019022425.1_ASM1902242v1	0.9941	Phialemonium	Phialemonium inflatum
+GCA_016906875.1_ASM1690687v1	class	Pichiomycetes	Saccharomycetes	GCA_057557315.1_ASM5755731v1	0.9861	Brettanomyces	Brettanomyces sp. HC-2020a
+GCA_029301665.1_ASM2930166v1	class	Saccharomycetes	Pichiomycetes	GCA_025531575.1_ASM2553157v1	0.9971		Saccharomycetales sp.
+GCA_057978835.1_Crustfungi8_Clados	order	Cladosporiales	Hypocreales	GCA_027574645.1_ASM2757464v1	0.987	Cladosporium	Cladosporium sp. 450A
+GCA_037043785.1_ASM3704378v1	order	Eurotiales	Hypocreales	GCA_037893235.1_ASM3789323v1	0.9963	Talaromyces	Talaromyces purpureogenus
+GCA_022264855.1_Trabet1	order	Polyporales	Agaricales	GCA_059750515.1_gfCorCape2_p1.1	0.9678	Lenzites	Lenzites betulinus
+GCA_003314385.1_ASM331438v1	order	Gomphales	Boletales	GCA_003314275.1_ASM331427v1	0.9605	Gomphus	Gomphus sp. MG54
+GCA_001074275.1_ASM107427v1	order	Saccharomycetales	Serinales	GCA_029931525.1_ASM2993152v1	0.9975	Naumovozyma	Naumovozyma dairenensis
+GCA_004959885.1_SRS-W-3	order	Eurotiales	Mucorales	GCA_000587855.1_B50	0.9853	Penicillium	Penicillium sp. W3 MMC-2018
+GCA_027569505.1_ASM2756950v1	order	Chaetosphaeriales	Sordariales	GCA_004802645.1_ASM480264v1	0.9602	Chloridium	Chloridium humicola
+GCA_004802645.1_ASM480264v1	order	Sordariales	Chaetosphaeriales	GCA_027569505.1_ASM2756950v1	0.9598	Amesomyces	Amesomyces nigricolor
+GCA_022813755.1_ASM2281375v1	order	Cladosporiales	Hypocreales	GCA_022813565.1_ASM2281356v1	1.0	Cladosporium	Cladosporium austrohemisphaericum
+GCA_023087585.1_ASM2308758v1	order	Pleosporales	Botryosphaeriales	GCA_023087545.1_ASM2308754v1	0.999	Bipolaris	Bipolaris maydis
+GCA_060251805.1_ASM6025180v1	order	Phaffomycetales	Saccharomycetales	GCA_030574675.1_ASM3057467v1	0.9905	Wickerhamomyces	Wickerhamomyces sp. 50C-3
+GCA_042257065.1_ASM4225706v1	order	Filobasidiales	Tremellales	GCA_900079645.1_Mo29	0.9702	Naganishia	Naganishia uzbekistanensis
+GCA_039700845.1_ASM3970084v1	order	Pleosporales	Hypocreales	GCA_033060795.1_pgTrit_morethan500	0.9982	Alternaria	Alternaria alternata
+GCA_002233575.1_ASM223357v1	order	Dipodascales	Trichosporonales	GCA_003116895.1_JCM_11170_assembly_v001	1.0	Geotrichum	Geotrichum fermentans
+GCA_035928285.1_ASM3592828v1	order	Mycosphaerellales	Chaetothyriales	GCA_035928545.1_ASM3592854v1	1.0	Vermiconidia	Vermiconidia calcicola
+GCA_037892935.1_ASM3789293v1	order	Boletales	Hymenochaetales	GCA_040938115.1_ASM4093811v1	1.0	Phlebopus	Phlebopus portentosus
+GCA_055690705.1_ASM5569070v1	order	Agaricales	Eurotiales	GCA_023619845.1_ASM2361984v1	0.9894	Omphalotus	Omphalotus olearius
+GCA_029295655.1_ASM2929565v1	order	Hypocreales	Togniniales	GCF_000392275.1_UCRPA7V03	0.9895		Hypocreales sp.
+GCA_025802115.2_ASM2580211v2	order	Coronophorales	Eurotiales	GCA_022813405.1_ASM2281340v1	0.9503	Bertia	Bertia moriformis
+GCA_017654825.1_ASM1765482v1	order	Tremellales	Kriegeriales	GCA_017654785.1_ASM1765478v1	0.9946	Cryptococcus	Cryptococcus sp. T15_22C
+GCA_037044295.1_ASM3704429v1	order	Eurotiales	Hypocreales	GCA_018350245.1_ASM1835024v1	0.9932	Aspergillus	Aspergillus subversicolor
+GCA_002778095.1_ASM277809v1	order	Ophiostomatales	Hypocreales	GCA_001636815.1_SPI_1.0	0.9687	Fragosphaeria	Fragosphaeria purpurea
+GCA_046127395.1_ASM4612739v1	order	Dothideales	Pleosporales	GCA_041146855.1_ASM4114685v1	0.9645	Dichomera	Dichomera gemmicola
+GCA_057978885.1_Crustfungi10_Chaeto	order	Sordariales	Eurotiales	GCA_056320565.1_ASM5632056v1	0.9776		Chaetomiaceae sp. 537B
+GCA_049307695.1_EMGR_V1	order	Pleosporales	Eurotiales	GCA_051225625.1_ASM5122562v1	0.9991	Emarellia	Emarellia grisea
+GCA_011057605.1_IIL_Mf_1.0	order	Mycosphaerellales	Botryosphaeriales	GCA_018153875.1_ASM1815387v1	0.9938	Pseudocercospora	Pseudocercospora fijiensis
+GCA_001659765.1_ASM165976v1	order	Dipodascales	Saccharomycetales	GCA_979262865.1_PYCC9235_1	0.9997	Wickerhamiella	Wickerhamiella versatilis
+GCA_029300795.1_ASM2930079v1	order	Saccharomycetales	Serinales	GCF_000209165.1_ASM20916v1	0.9999		Saccharomycetales sp.
+GCA_002994575.1_FL11_1	order	Pucciniales	Eurotiales	GCA_002072375.1_ASM207237v1	0.9588	Uromyces	Uromyces transversalis
+GCA_002153405.1_ASM215340v1	order	Mycosphaerellales	Eurotiales	GCA_039702135.1_ASM3970213v1	0.9923	Mycosphaerella	Mycosphaerella populi
+GCA_029290875.1_ASM2929087v1	order	Saccharomycetales	Serinales	GCA_000755205.1_ASM75520v1	0.9979		Saccharomycetales sp.
+GCA_037044025.1_ASM3704402v1	order	Cladosporiales	Hypocreales	GCA_037043915.1_ASM3704391v1	0.9999	Cladosporium	Cladosporium antarcticum
+GCA_040938115.1_ASM4093811v1	order	Hymenochaetales	Boletales	GCA_037892935.1_ASM3789293v1	1.0	Rigidonotus	Rigidonotus glomeratus
+GCA_003314395.1_ASM331439v1	order	Russulales	Agaricales	GCA_003314755.1_ASM331475v1	0.9883	Albatrellus	Albatrellus ellisii
+GCA_937872655.1_ERR1094797_bin.38_CONCOCT_v1.1_MAG	order	Leucosporidiales	Kriegeriales	GCA_054785315.1_Glawat057_1.0	0.996	Leucosporidium	Leucosporidium creatinivorum
+GCA_017499575.1_ASM1749957v1	order	Polyporales	Agaricales	GCA_024195665.1_ASM2419566v1	0.982	Sanguinoderma	Sanguinoderma rugosum
+GCA_900079645.1_Mo29	order	Tremellales	Filobasidiales	GCA_042257065.1_ASM4225706v1	0.9701	Cryptococcus	Cryptococcus sp. 05_00
+GCA_001636815.1_SPI_1.0	order	Hypocreales	Ophiostomatales	GCA_002778095.1_ASM277809v1	0.9685	Niveomyces	Niveomyces insectorum
+GCA_003314275.1_ASM331427v1	order	Boletales	Gomphales	GCA_003314385.1_ASM331438v1	0.9606	Chroogomphus	Chroogomphus rutilus
+GCA_003314755.1_ASM331475v1	order	Agaricales	Russulales	GCA_003314395.1_ASM331439v1	0.9726	Pleurotus	Pleurotus eryngii
+GCA_029301555.1_ASM2930155v1	order	Saccharomycetales	Pichiales	GCA_025531575.1_ASM2553157v1	0.9982		Saccharomycetales sp.
+GCA_035927975.1_ASM3592797v1	order	Cladosporiales	Mycosphaerellales	GCA_030553495.1_ASM3055349v1	0.9993	Rachicladosporium	Rachicladosporium monterosium
+GCA_029301595.1_ASM2930159v1	order	Saccharomycetales	Pichiales	GCA_012295375.1_ASM1229537v1	0.9958		Saccharomycetales sp.
+GCA_022813475.1_ASM2281347v1	order	Pleosporales	Cladosporiales	GCA_022814635.1_ASM2281463v1	0.9907	Pseudopyrenochaeta	Pseudopyrenochaeta terrestris
+GCA_001599655.1_JCM_5230_assembly_v001	order	Golubeviales	Pucciniales	GCA_030280995.1_Hv_R1_Cat_CENPAT	0.9699	Golubevia	Golubevia pallescens
+GCA_024606205.1_ASM2460620v1	order	Pleosporales	Eurotiales	GCA_003069565.1_ASM306956v1	1.0	Alternaria	Alternaria sp. SPS-2
+GCA_023079265.1_ASM2307926v1	order	Pleosporales	Botryosphaeriales	GCA_029169085.1_ASM2916908v1	0.9921	Alternaria	Alternaria brassicicola
+GCA_039702135.1_ASM3970213v1	order	Eurotiales	Mycosphaerellales	GCA_002153405.1_ASM215340v1	0.993	Penicillium	Penicillium sp. 32 TS-2023
+GCA_003069565.1_ASM306956v1	order	Eurotiales	Pleosporales	GCA_024606205.1_ASM2460620v1	1.0	Aspergillus	Aspergillus fumigatus
+GCA_023087545.1_ASM2308754v1	order	Botryosphaeriales	Pleosporales	GCA_023087585.1_ASM2308758v1	0.9995	Lasiodiplodia	Lasiodiplodia pseudotheobromae
+GCA_017654785.1_ASM1765478v1	order	Kriegeriales	Tremellales	GCA_017654825.1_ASM1765482v1	0.9951	Phenoliferia	Phenoliferia glacialis
+GCA_016618145.1_ASM1661814v1	order	Hymenochaetales	Polyporales	GCA_001792895.1_ASM179289v1	0.9534	Sanghuangporus	Sanghuangporus lonicericola
+GCA_019924265.1_ASM1992426v1	order	Dothideales	Chaetothyriales	GCA_043234805.1_ASM4323480v1	0.9891	Aureobasidium	Aureobasidium melanogenum
+GCA_030574675.1_ASM3057467v1	order	Saccharomycetales	Phaffomycetales	GCA_060251805.1_ASM6025180v1	0.9908		Candida sp.
+GCA_029295605.1_ASM2929560v1	order	Saccharomycetales	Serinales	GCA_023623335.1_ASM2362333v1	0.994		Saccharomycetales sp.
+GCA_022813125.1_ASM2281312v1	order	Pleosporales	Cladosporiales	GCA_022814475.1_ASM2281447v1	0.9999	Septoriella	Septoriella neoarundinis
+GCA_022813265.1_ASM2281326v1	order	Dothideales	Eurotiales	GCA_022814395.1_ASM2281439v1	0.979	Zalaria	Zalaria obscura
+GCA_046252445.1_ASM4625244v1	order	Serinales	Eurotiales	GCA_003116565.1_ASM311656v1	1.0	Candidozyma	Candidozyma auris
+GCA_037044075.1_ASM3704407v1	order	Cephalothecales	Eurotiales	GCA_019022425.1_ASM1902242v1	0.9941	Phialemonium	Phialemonium inflatum
+GCA_029301665.1_ASM2930166v1	order	Saccharomycetales	Pichiales	GCA_025531575.1_ASM2553157v1	0.9971		Saccharomycetales sp.
+GCA_022814475.1_ASM2281447v1	order	Cladosporiales	Pleosporales	GCA_022813125.1_ASM2281312v1	0.9997	Cladosporium	Cladosporium endophyticum

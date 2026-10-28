@@ -41,7 +41,8 @@ pub struct TopHit {
     pub shared: u32,
     pub containment_query: f64,
     pub containment_ref: f64,
-    /// containment ANI estimate, max(containment)^(1/k)
+    /// containment ANI estimate from the query's containment in the hit, containment_query^(1/k).
+    /// (Not max(cq, cr): a small reference fully contained in a large query would then score ~1.)
     pub ani: f64,
 }
 
@@ -71,7 +72,7 @@ pub fn guess_from_hits(index: &RefIndex, qlen: usize, hits: &[Hit], th: &Thresho
     let g = &index.genomes[top.genome as usize];
     let cq = top.shared as f64 / qlen.max(1) as f64;
     let cr = top.shared as f64 / g.n_hashes.max(1) as f64;
-    let ani = cq.max(cr).powf(1.0 / index.ksize as f64);
+    let ani = cq.powf(1.0 / index.ksize as f64);
     let topinfo = TopHit { genome: top.genome, shared: top.shared, containment_query: cq, containment_ref: cr, ani };
 
     let cutoff = (top.shared as f64 * th.margin).ceil() as u32;
