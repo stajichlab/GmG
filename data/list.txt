@@ -1,0 +1,15 @@
+genomes/GCA_000002655.1.fna
+genomes/GCA_000150145.1.fna
+genomes/GCA_024220425.1.fna
+genomes/GCA_040142845.1.fna
+genomes/GCA_040142855.1.fna
+genomes/GCA_040142865.1.fna
+genomes/GCA_040142875.1.fna
+genomes/GCA_040142885.1.fna
+genomes/GCA_040142945.1.fna
+genomes/GCA_040142955.1.fna
+genomes/GCA_040142975.1.fna
+genomes/GCA_040167795.1.fna
+genomes/GCA_040167805.1.fna
+genomes/GCA_058972525.1.fna
+genomes/GCA_058972625.1.fna

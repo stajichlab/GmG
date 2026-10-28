@@ -1,0 +1,417 @@
+Assembly Accession	Organism Infraspecific Names Strain	Assembly Stats Total Sequence Length	Assembly Stats Contig N50	Assembly Level	Assembly Refseq Category	Annotation Name
+GCA_000731615.1	niveus	27355096	76771	Scaffold		Annotation submitted by Oklahoma State University
+GCA_001643655.1	IF1SW-F4	28240437	114095	Scaffold		
+GCA_001643665.1	ISSFT-021	28526023	187953	Scaffold		
+GCA_001715275.2	LMB-35Aa	27522527	556577	Scaffold		
+GCA_002234955.1		29478624	90675	Contig		Annotation submitted by University of Montreal
+GCA_002234985.1		28231324	76555	Contig		Annotation submitted by University of Montreal
+GCA_003069565.1	SPS-2	33400178	2610814	Contig		
+GCA_003116565.1	NRRL 5109	27522781	156707	Scaffold		
+GCA_012656115.1	CNM-CM8686	28139937	80982	Scaffold		Annotation submitted by UNICAMP
+GCA_012656125.1	CNM-CM8689	28040897	97997	Scaffold		Annotation submitted by UNICAMP
+GCA_012656165.1	CNM-CM8812	28750914	54231	Scaffold		Annotation submitted by UNICAMP
+GCA_012656185.1	CNM-CM8714	28460177	47698	Scaffold		Annotation submitted by UNICAMP
+GCA_012656215.1	CNM-CM8057	28291260	64202	Scaffold		Annotation submitted by UNICAMP
+GCA_015571995.1	CAPA D	28366356	221028	Scaffold		
+GCA_015572005.1	CAPA A	29052788	301014	Scaffold		
+GCA_015572015.1	CAPA B	28631024	335186	Scaffold		
+GCA_015572025.1	CAPA C	28193962	303016	Scaffold		
+GCA_015586125.1	IF1SW-F4	28149552	400374	Scaffold		
+GCA_018804105.1	ICMP 23421	28974204	189384	Scaffold		
+GCA_020498725.1	D-2-28L-1	28243033	133178	Contig		Annotation submitted by Leibniz-HKI
+GCA_020498735.1	B-1-26-5	27843475	86945	Contig		Annotation submitted by Leibniz-HKI
+GCA_020498745.1	B-1-27-5	28255402	95272	Contig		Annotation submitted by Leibniz-HKI
+GCA_020498755.1	E-1-75s-2	28780792	27466	Contig		Annotation submitted by Leibniz-HKI
+GCA_020498765.1	E-1-65L-4	28057478	76626	Contig		Annotation submitted by Leibniz-HKI
+GCA_020498805.1	D-2-49L-5	28176613	125598	Contig		Annotation submitted by Leibniz-HKI
+GCA_020498815.1	D-2-47L-1	28801176	133337	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020498865.1	B-1-45-2	28480589	123567	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020498875.1	B-1-45-5	28526323	151127	Contig		Annotation submitted by Leibniz-HKI
+GCA_020498885.1	B-1-44-s	28308792	90047	Contig		Annotation submitted by Leibniz-HKI
+GCA_020498895.1	E-1-65L-2	28477410	73866	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020498905.1	E-1-74s-1	28945127	146973	Contig		Annotation submitted by Leibniz-HKI
+GCA_020498945.1	E-1-70L-5	28548837	168567	Contig		Annotation submitted by Leibniz-HKI
+GCA_020498965.1	B-1-43-1	29747220	102713	Contig		Annotation submitted by Leibniz-HKI
+GCA_020498985.1	E-1-70L-4	28731764	157358	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499005.1	C-1-93L-3	29656728	108645	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499015.1	E-1-75s-1	28874656	155567	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499035.1	D-2-23L-5	28980097	53196	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499045.1	E-1-21-2	27622210	79710	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499075.1	E-1-25-10	28540761	104944	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499115.1	E-1-7-1	28856919	113546	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499125.1	E-1-14-1	27870778	99985	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499135.1	E-1-56s-1	28155974	105705	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499155.1	C-1-51s-1	27359290	110855	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499185.1	D-2-24s-1	28196134	100983	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499195.1	D-2-17L-1	29540360	89730	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499225.1	C-1-69L-1	28402403	95473	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499245.1	C-1-72L-1	30755727	19905	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499255.1	D-2-22s-1	28663994	115700	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499265.1	D-2-25L-2	28658326	108764	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499315.1	D-2-25L-3	27922986	99824	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499325.1	C-1-33L-1	28235639	105102	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499335.1	C-1-27s-1	28180863	105033	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499355.1	C-1-6s-2	29638842	39313	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499395.1	E-1-35-1	27559269	85780	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499405.1	E-1-33L-1	27895352	80393	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499415.1	E-1-49-1	28255274	103909	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020499455.1	E-1-48-2	27804465	88232	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499475.1	C-1-31L-1	27997153	82952	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499485.1	C-1-28L-2	28027958	110306	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499495.1	C-1-6s-3	27629356	87156	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499505.1	B-1-48-5	28261887	99993	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499565.1	B-1-32-1	28346092	102339	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499575.1	D-2-2s-2	28260839	115498	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499585.1	D-2-29s-1	28160192	107099	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499595.1	D-2-35s-1	28169123	101003	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499605.1	D-2-39L-1	28234499	119310	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499645.1	D-2-43L-2	27973087	106620	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499675.1	NRZ-2016-141	28790710	234197	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020499685.1	NRZ-2016-121	28444795	179971	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499695.1	NRZ-2016-342	28636847	222186	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499715.1	NRZ-2016-108	28504902	200642	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499755.1	NRZ-2016-071	29320939	227146	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499775.1	NRZ-2018-649	29397117	134442	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499785.1	NRZ-2016-063	29074193	174124	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499805.1	NRZ-2018-646	28589858	191769	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499815.1	NRZ-2018-539	28601938	182143	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499825.1	NRZ-2018-529	28485909	189991	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499865.1	NRZ-2018-396	28682752	191803	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499885.1	C-1-60L-1	28412967	104719	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499905.1	B-1-75L-1	28356313	164734	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499915.1	B-1-67L-1	28569106	174609	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499935.1	B-1-68s-1	28908513	133507	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499975.1	B-1-66s-1	28348725	149655	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020499985.1	B-1-63s-1	28167875	146793	Contig		Annotation submitted by Leibniz-HKI
+GCA_020499995.1	B-1-70s-1	28147908	140197	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020500025.1	B-1-69L-1	29034720	65466	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500065.1	C-1-72s-2	29308037	76825	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500075.1	B-1-71L-1	29775523	98757	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020500085.1	C-1-76s-1	28928932	176911	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500105.1	D-2-38L-1	28623764	119515	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500115.1	C-1-80s-1	28824358	142315	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500165.1	C-1-40s-1	28578733	107556	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500185.1	NRZ-2018-313	28604347	213192	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500195.1	D-2-2s-3	28401554	117328	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500205.1	NRZ-2018-326	29047967	227926	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500215.1	NRZ-2017-339	28077888	262892	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500235.1	NRZ-2018-307	29839604	107570	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500275.1	NRZ-2018-290	29291325	166174	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500285.1	NRZ-2016-032	28882502	233429	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500295.1	NRZ-2018-300	28962044	220961	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500305.1	NRZ-2018-286	28217744	207135	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500355.1	NRZ-2018-272	29180784	217339	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500365.1	NRZ-2018-281	28411783	215921	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500385.1	NRZ-2018-236	28626499	246106	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500395.1	NRZ-2018-146	28491286	173367	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500445.1	NRZ-2018-123	28079454	191336	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500455.1	NRZ-2017-101	28959711	223203	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020500465.1	NRZ-2018-043	28399898	243508	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500475.1	NRZ-2018-097	28223574	219294	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500485.1	NRZ-2017-546	28517128	197306	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500535.1	NRZ-2017-537	29524334	104888	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500545.1	NRZ-2017-534	30619450	55085	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500555.1	NRZ-2017-508	28515497	177982	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500565.1	NRZ-2017-434	29063869	141295	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500595.1	NRZ-2017-381	28682044	207092	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500605.1	NRZ-2017-362	29392878	51039	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500645.1	NRZ-2017-346	28775373	211176	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020500655.1	NRZ-2017-322	28773727	211222	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020500685.1	NRZ-2017-283	28661373	207027	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500695.1	NRZ-2017-282	28350381	204854	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500705.1	NRZ-2014-065	28844010	227189	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500765.1	NRZ-2015-218	28275619	188698	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500775.1	NRZ-2017-214	28450857	227717	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500785.1	NRZ-2017-195	28875295	234332	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500805.1	NRZ-2017-134	28374250	182289	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500815.1	NRZ-2017-115	29002076	245499	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500845.1	NRZ-2017-096	28459965	284275	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500865.1	NRZ-2017-069	28092100	204696	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500875.1	NRZ-2017-076	28888981	252260	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500905.1	NRZ-2017-040	27608923	280264	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500935.1	NRZ-2017-039	28295300	252096	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500945.1	D-2-15L-2	28512924	100596	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500965.1	C-1-77s-2	28131686	123824	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500975.1	B-1-46-5	28210945	94959	Contig		Annotation submitted by Leibniz-HKI
+GCA_020500995.1	A-2-43L-2	28305380	101491	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501005.1	D-2-48L-1	29362000	160921	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501045.1	D-2-43s-1	29124461	109508	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501075.1	D-2-50s-1	28545058	140237	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501095.1	A-2-45L-5	28548605	110601	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501105.1	D-2-49L-2	28241475	155912	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501115.1	F-1-39-1	27929182	81041	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501135.1	A-2-44L-2	28222034	97548	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501145.1	A-2-35L-1	28134820	111745	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501175.1	F-1-42-2	29244949	75647	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501185.1	D-2-47L-2	28505619	163464	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020501235.1	A-2-34L-2	28043646	74756	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501245.1	C-1-34s-1	28237350	114027	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501255.1	E-1-67s-1	28247440	109570	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501265.1	C-1-99L-2	28352357	147402	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501325.1	C-1-69s-1	29291638	116552	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501335.1	A-3-30s-2	28643923	104539	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501345.1	A-3-37s-1	27950280	113574	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501355.1	C-1-94L-2	29760572	59513	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501375.1	C-1-67s-1	28464067	108601	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501405.1	A-2-49L-5	28400646	167337	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501425.1	E-1-66s-1	28949945	188845	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501445.1	C-1-49-1	28122101	131582	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501465.1	A-2-49L-2	28329346	89195	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501475.1	L-3-24-3	28229341	118957	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501495.1	L-3-11-2	28974757	163368	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501535.1	L-3-22-2	28488299	154090	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501545.1	L-3-7-1	27581182	93527	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501555.1	L-3-24-1	28453784	106213	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501575.1	L-3-13-2	29151304	108077	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501605.1	L-3-13-1	28139393	134329	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501615.1	L-3-11-1	28680153	122482	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501635.1	L-3-15-2	27918570	164309	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501645.1	L-3-21-3	28599260	148943	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501695.1	L-3-21-1	28776466	102361	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020501705.1	G-2-3-1	28087233	97934	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501715.1	G-2-9-2	28879096	108481	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501735.1	G-2-5-2	27933223	101612	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020501765.1	G-2-14-1	28695284	117558	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501785.1	G-2-1-2	28505666	102187	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501805.1	G-2-6-1	28468055	101661	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501815.1	G-2-22-4	27503192	112133	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501835.1	C-1-90L-1	30007983	90075	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501875.1	H-1-26-1	28590607	104084	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501885.1	F-1-14-1	28425878	104564	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501895.1	C-1-24L-3	28196647	114022	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501905.1	I-1-49-3	29187600	127217	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501935.1	I-1-48-3	28879625	195780	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501985.1	H-1-23-3	28653678	162208	Contig		Annotation submitted by Leibniz-HKI
+GCA_020501995.1	H-1-10-6	30116072	103595	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020502005.1	C-1-66L-3	28453972	149801	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502025.1	H-1-1-2	28684295	127857	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502035.1	C-1-66L-2	28665967	97822	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502045.1	K-1-8L-3	28584837	166570	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020502095.1	K-1-48s-1	29313889	187915	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502105.1	K-1-1L-2	28774847	180641	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502115.1	C-1-64L-2	29317324	89888	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502125.1	H-1-29-2	27767854	102493	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502165.1	E-1-20-2	27648357	111493	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502185.1	L-2-13-4	27913724	98675	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502215.1	H-1-21-9	28048065	100197	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502225.1	H-1-30-2	28255791	108642	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502235.1	A-3-40L-1	28467739	110709	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502245.1	H-1-21-5	28333876	100469	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502325.1	A-3-45L-2	28788552	110397	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502335.1	A-3-46s-1	28616355	91916	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502365.1	L-2-21-2	29589490	91026	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502375.1	L-2-4-3	27978829	105858	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502385.1	L-2-24-1	28762267	30247	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502425.1	A-3-43s-1	27702772	110909	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502435.1	A-2-36s-3	28103948	93419	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502455.1	A-2-35s-1	27968037	95494	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502485.1	C-1-33L-2	28460188	84130	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502495.1	C-1-40L-2	27880483	93416	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502525.1	E-1-37L-2	28256630	87974	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502545.1	E-1-46-2	28879767	108993	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502575.1	C-1-28L-1	28324937	95347	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502595.1	C-1-30L-1	27465053	101591	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502605.1	C-1-31s-1	28199381	101274	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502615.1	B-1-30-1	28694866	97357	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502625.1	H-1-15-2	27935943	97077	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502675.1	B-1-32-3	27661008	91231	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502695.1	D-2-15L-3	28628246	120756	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502705.1	I-1-2-2	27545848	91034	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502715.1	I-1-2-4	28327385	93214	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502725.1	I-1-19-2	28209615	81110	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502875.1	I-1-32-1	28029597	95441	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502985.1	I-1-32-2	28192916	94497	Contig		Annotation submitted by Leibniz-HKI
+GCA_020502995.1	I-1-22-4	27899817	89197	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503015.1	I-1-22-5	27592659	99957	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503055.1	I-1-12-1	28218037	88063	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503065.1	D-2-26s-1	29277912	110303	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503085.1	I-1-25-1	27813052	85845	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503095.1	F-1-3L-1	27907996	107791	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503105.1	F-1-13L-3	28488026	100913	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503165.1	F-1-33L-2	27471615	99804	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503175.1	C-1-93s-1	28764030	129311	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503185.1	F-1-13L-1	28526979	102553	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503195.1	K-1-12L-1	28151001	87133	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503205.1	F-1-4L-1	28176902	98982	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503245.1	K-1-4s-1_2	29206520	85733	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503265.1	K-1-24L-1	28254843	88957	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503275.1	F-1-10L-1	28460549	81113	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503295.1	L-2-11-4	29103238	35630	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503305.1	L-2-11-2	28476041	97959	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503345.1	L-2-22-4	28742810	95782	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503365.1	L-2-16-3	28237466	100030	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503375.1	L-2-15-4	28074625	111740	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503395.1	L-2-9-5	28155566	91161	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503435.1	L-2-7-1	28079410	98775	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503445.1	L-2-7-2	28600000	112580	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503455.1	L-2-9-1	28247170	105591	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503465.1	L-2-17-1	27583147	88396	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503515.1	L-2-16-1	28360234	86988	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503535.1	K-1-4s-1	29273995	81493	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503545.1	K-1-3L-4	28060071	94346	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503555.1	K-1-18L-6	28828458	89054	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503565.1	K-1-8L-1	29094513	73819	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503595.1	K-1-1L-5	28991368	90291	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020503635.1	K-1-32s-1	28429573	77074	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503645.1	D-2-39L-2	28528401	95776	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503665.1	K-1-18L-3	28837655	91223	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503705.1	K-1-34L-1	28730191	108280	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503715.1	K-1-3L-2	28015221	90087	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503725.1	A-2-47s-3	28267658	105117	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503735.1	A-2-47L-2	28257875	170057	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503745.1	A-2-48s-2	29546722	107895	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020503795.1	A-2-27s-1	28418434	141501	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503805.1	D-2-44L-1	28638472	95517	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503815.1	D-2-43L-1	27980984	104433	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503825.1	A-2-26s-2	28794509	140942	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503885.1	B-1-73L-1	28242338	152673	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503895.1	B-1-66L-1	28559176	140590	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503905.1	B-1-78L-1	28981206	159256	Scaffold		Annotation submitted by Leibniz-HKI
+GCA_020503915.1	C-1-76s-2	28797123	127526	Contig		Annotation submitted by Leibniz-HKI
+GCA_020503935.1	D-2-32L-1	28757805	113619	Contig		Annotation submitted by Leibniz-HKI
+GCA_020510485.1	C-1-24L-2	29301658	101141	Contig		Annotation submitted by Leibniz-HKI
+GCA_023620045.1	PT30-03	28666227	278521	Scaffold		
+GCA_023620055.1	R1620	29271003	459580	Scaffold		
+GCA_023620085.1	R2404	29164784	530746	Scaffold		
+GCA_023620105.1	R2806	28576441	543420	Scaffold		
+GCA_023620135.1	PB4306	28829636	588677	Scaffold		
+GCA_023620155.1	R2805	28598617	507047	Scaffold		
+GCA_023620165.1	PM4304	28723079	428117	Scaffold		
+GCA_023620175.1	Y1703	28596609	578568	Scaffold		
+GCA_023620195.1	PF1904	28589834	525946	Scaffold		
+GCA_023620225.1	PB4204	28841320	603215	Scaffold		
+GCA_023620235.1	PT4102	28542213	310732	Scaffold		
+GCA_023620255.1	R1907	28513092	443104	Scaffold		
+GCA_023620275.1	S3811D	28590117	511007	Scaffold		
+GCA_023620295.1	PF3501	28590041	609907	Scaffold		
+GCA_023620325.1	PH4002	28341043	521553	Scaffold		
+GCA_023620335.1	M40-03A	28605564	464635	Scaffold		
+GCA_023620365.1	PM1702	28488040	312083	Scaffold		
+GCA_023620375.1	F1903	28595146	486364	Scaffold		
+GCA_023620605.1	X1902	28541510	428322	Scaffold		
+GCA_023620755.1	R4201	28569636	409252	Scaffold		
+GCA_023620795.1	PM1906	28595503	527408	Scaffold		
+GCA_023620825.1	PF1804	28862430	392866	Scaffold		
+GCA_023620835.1	PK1002	28578560	399443	Scaffold		
+GCA_023620865.1	PB30-11	28555054	539458	Scaffold		
+GCA_023620875.1	PT4105	28591582	529790	Scaffold		
+GCA_023620895.1	PB4205	28822604	467660	Scaffold		
+GCA_023620925.1	M1650	28596636	668449	Scaffold		
+GCA_023620935.1	PH1799	28591908	500156	Scaffold		
+GCA_023620975.1	PA4301	28757819	389589	Scaffold		
+GCA_023620985.1	PG3602	28596448	614957	Scaffold		
+GCA_023620995.1	Y3805	28597854	458858	Scaffold		
+GCA_023621025.1	F2701	28566500	531005	Scaffold		
+GCA_023621035.1	PA1607	29248331	477228	Scaffold		
+GCA_023621065.1	PM1903	28594087	518879	Scaffold		
+GCA_023621075.1	PT4101	28572048	418116	Scaffold		
+GCA_024220425.1	A1160	29257632	3799872	Chromosome		
+GCA_025118165.1	IP_24	28601849	739807	Scaffold		
+GCA_025201645.1	IP_23	28507736	561740	Scaffold		
+GCA_025765995.1	R4506	28796382	549401	Scaffold		
+GCA_025766045.1	PYS2101	28631319	207599	Scaffold		
+GCA_025766085.1	F1804	29230508	451910	Scaffold		
+GCA_025766105.1	S3901	28806448	429623	Scaffold		
+GCA_025766145.1	B3604	28683911	462731	Scaffold		
+GCA_029618165.1	M.20.0011028	28634440	540160	Scaffold		Annotation submitted by Vanderbilt University
+GCA_029618175.1	M.20.0011027	28625135	516646	Scaffold		Annotation submitted by Vanderbilt University
+GCA_029618185.1	0030661546 AFU 25/06	29530033	510740	Scaffold		Annotation submitted by Vanderbilt University
+GCA_029618195.1	5.1TA	28296175	601832	Scaffold		Annotation submitted by Vanderbilt University
+GCA_029618205.1	070 01-70-BAL-1	28634364	538882	Scaffold		Annotation submitted by Vanderbilt University
+GCA_029618225.1	0040673067 AFU 30/06	28526429	413521	Scaffold		Annotation submitted by Vanderbilt University
+GCA_029618255.1	0040668669 AFU 30/06	27688059	500086	Scaffold		Annotation submitted by Vanderbilt University
+GCA_029618275.1	0040675686 AFU 30/06	27917847	469656	Scaffold		Annotation submitted by Vanderbilt University
+GCA_029618285.1	0040679185 AFU 30/06	29052170	590159	Scaffold		Annotation submitted by Vanderbilt University
+GCA_029618305.1	0040676010 AFU 30/06	28403650	428098	Scaffold		Annotation submitted by Vanderbilt University
+GCA_029618335.1	0040676907 AFU 25/06	29705101	429264	Scaffold		Annotation submitted by Vanderbilt University
+GCA_032627265.1	UTMN_AMR	28800470	4061509	Contig		
+GCA_037040925.1	DX103-11A	26807262	5110	Contig		
+GCA_040142845.1	ATCC 42202	28891284	4706161	Chromosome		Annotation submitted by Geisel School of Medicine at Dartmouth
+GCA_040142855.1	47-10	29164066	3780118	Chromosome		Annotation submitted by Geisel School of Medicine at Dartmouth
+GCA_040142865.1	47-4	29095063	2638439	Chromosome		Annotation submitted by Geisel School of Medicine at Dartmouth
+GCA_040142875.1	08-19-02-30	29063333	3646459	Chromosome		Annotation submitted by Geisel School of Medicine at Dartmouth
+GCA_040142885.1	ATCC 13073	28627188	3905879	Chromosome		Annotation submitted by Geisel School of Medicine at Dartmouth
+GCA_040142945.1	B5233	28837349	3948310	Chromosome		Annotation submitted by University of California, Riverside
+GCA_040142955.1	ATCC 46645	30526740	1959777	Chromosome		Annotation submitted by Geisel School of Medicine at Dartmouth
+GCA_040142975.1	H237	29197406	3846868	Chromosome		Annotation submitted by Geisel School of Medicine at Dartmouth
+GCA_040167795.1	W72310	28150788	3808109	Chromosome		Annotation submitted by University of California Riverside
+GCA_040167805.1	D141	28701068	2017413	Chromosome		Annotation submitted by Geisel School of Medicine at Dartmouth
+GCA_044589475.1	SCHI0087.S.22	28253551	437588	Contig		
+GCA_044589545.1	SCHI0081.S.1	28428795	391969	Contig		
+GCA_045820835.1	UD1	28501995	3648383	Contig		Annotation submitted by DOE Joint Genome Institute
+GCA_046867075.2	AfB8	28065029	210363	Contig		Annotation submitted by University of Guelph
+GCA_046867235.2	AfB2	28135400	221218	Contig		Annotation submitted by University of Guelph
+GCA_046867255.2	AfB7	27958471	214179	Contig		Annotation submitted by University of Guelph
+GCA_048595945.2	AfB6	27981507	264710	Contig		Annotation submitted by University of Guelph
+GCA_049901915.1	XC6	30576204	3806988	Contig		
+GCA_051911435.1	MWAF	27789320	286985	Contig		
+GCA_051942955.1	F2	28576124	421856	Scaffold		
+GCA_056582505.1	CUAFU23	28498435	1017895	Contig		
+GCA_056582525.1	CUAFU17	28185313	784815	Contig		
+GCA_056582545.1	CUAFU15	28084955	194766	Contig		
+GCA_056582585.1	CUAFU06	28282275	333742	Contig		
+GCA_057531195.1	E071	28487733	3767482	Contig		
+GCA_057538075.1	2020-C01-005	28602392	3773324	Contig		
+GCA_057539005.1	CGK-E173	28419892	3955988	Contig		
+GCA_057541815.1	B44	28478859	3767473	Contig		
+GCA_057542545.1	2019S132S-1	28327347	3941739	Contig		
+GCA_057543955.1	2019S123S-2	28429372	3961553	Contig		
+GCA_057547645.1	2018JS265-1	28306735	3765270	Contig		
+GCA_057549855.1	2019WS23-1-1	28504464	3745057	Contig		
+GCA_057551925.1	2018GuS4-2-10	28479022	3767639	Contig		
+GCA_057553775.1	S05-322	28866842	3870770	Contig		
+GCA_058218615.1	CMMS:342	28072194	476857	Contig		
+GCA_058218625.1	CMMS:344	28094666	540360	Contig		
+GCA_058218635.1	CMMS:343	28091863	540358	Contig		
+GCA_058218675.1	CMMS:340	28095152	545548	Contig		
+GCA_058218695.1	CMMS:341	28096576	553183	Contig		
+GCA_058972525.1	eAF1090	28300127	3891046	Chromosome		Annotation submitted by Geisel School of Medicine at Dartmouth
+GCA_058972625.1	eAF1436	28216997	3827124	Chromosome		Annotation submitted by Geisel School of Medicine at Dartmouth
+GCA_060227485.1	GXZY910	28048389	216146	Scaffold		
+GCA_060370275.1		28012703	352026	Scaffold		
+GCA_060370285.1		28089426	271636	Scaffold		
+GCA_060370295.1		28838804	318222	Scaffold		
+GCA_060370395.1		28145090	263625	Scaffold		
+GCA_060370405.1		27602407	300712	Contig		
+GCA_060370425.1		28086261	677936	Contig		
+GCA_060370535.1		28359090	294484	Contig		
+GCA_060370565.1		28078530	298142	Scaffold		
+GCA_060370595.1		28009842	513583	Scaffold		
+GCA_060370635.1		27960816	297441	Scaffold		
+GCA_060370645.1		28056938	426293	Scaffold		
+GCA_060370735.1		27607109	449035	Contig		
+GCA_060370775.1		28256259	367122	Scaffold		
+GCA_060370835.1		28123383	386962	Scaffold		
+GCA_060370855.1		27536669	457784	Contig		
+GCA_060370895.1		27739734	361706	Scaffold		
+GCA_060370905.1		28099391	391846	Contig		
+GCA_060370945.1		28053213	456112	Contig		
+GCA_060371035.1		29066685	87862	Scaffold		
+GCA_060371045.1		27952857	281018	Scaffold		
+GCA_060371115.1		28540838	382597	Scaffold		
+GCA_060371155.1		28216042	487086	Scaffold		
+GCA_060371185.1		27749065	425885	Contig		
+GCA_060371235.1		27876256	409818	Scaffold		
+GCA_060371295.1		28662214	472435	Contig		
+GCA_060371335.1		27945012	541032	Contig		
+GCA_060371365.1		27991463	512638	Contig		
+GCA_060371415.1		28563540	472790	Contig		
+GCA_060371425.1		27929942	380353	Contig		
+GCA_060371495.1		27756451	411197	Scaffold		
+GCA_060371575.1		27604316	411031	Contig		
+GCA_060371585.1		28258521	377254	Contig		
+GCA_060371605.1		27866123	281352	Contig		
+GCA_060371695.1		28216804	430622	Scaffold		
+GCA_060371735.1		27820792	434001	Scaffold		
+GCA_060371745.1		27736712	306795	Contig		
+GCA_949125165.1		28290784	2671326	Contig		
+GCA_949125185.1		28238457	2553088	Contig		
+GCA_949125545.1		28904936	3991407	Contig		
+GCA_988135765.1		28345700	182353	Contig		
+GCA_988205085.1		30704459	256687	Contig		
+GCA_000150145.1	A1163	29205420	391098	Scaffold		Annotation submitted by J. Craig Venter Institute
+GCA_000225625.2	AF10	28759120	156847	Contig		
+GCA_000225645.2	AF210	28902779	172994	Contig		
+GCA_000002655.1	Af293	29384958	2460113	Chromosome	reference genome	Annotation submitted by J. Craig Venter Institute
+GCA_001599455.1	JCM 10253	28388732	624428	Scaffold		
+GCA_001029325.1	Z5	29356075	93967	Scaffold		Annotation submitted by Youzhi Miao

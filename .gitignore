@@ -1,0 +1,7 @@
+target/
+data/genomes/
+data/raw/
+data/*.zip
+data/out/
+data/afum15.zip
+.DS_Store
