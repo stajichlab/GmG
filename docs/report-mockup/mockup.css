@@ -7,6 +7,8 @@
   --series-1: #2a78d6; --deemph: #c3c2b7;
   --ord-1: #184f95; --ord-2: #256abf; --ord-3: #3987e5; --ord-4: #86b6ef;   /* ordinal ramp, validated light + dark */
   --nomatch: #d9d8d1;
+  --ph-1: #2a78d6; --ph-2: #eb6834; --ph-3: #1baf7a; --ph-4: #eda100; --ph-5: #e87ba4; --ph-6: #008300; --ph-7: #6250d6; --ph-8: #e34948;
+  --ph-other: #a8a7a0;   /* phylum colours = the 8 categorical slots, fixed per phylum; all other phyla share this grey */
   --st-good: #0ca30c; --st-warn: #fab219; --st-serious: #ec835a; --st-crit: #d03b3b; --good-text: #006300;
 }
 @media (prefers-color-scheme: dark) {
@@ -16,6 +18,7 @@
     --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #898781;
     --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10);
     --series-1: #3987e5; --deemph: #4a4a47; --nomatch: #3a3a37; --good-text: #0ca30c;
+    --ph-1: #3987e5; --ph-2: #d95926; --ph-3: #199e70; --ph-4: #c98500; --ph-5: #d55181; --ph-6: #008300; --ph-7: #9085e9; --ph-8: #e66767; --ph-other: #6b6a66;
   }
 }
 :root[data-theme="dark"] {
@@ -24,6 +27,7 @@
   --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #898781;
   --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10);
   --series-1: #3987e5; --deemph: #4a4a47; --nomatch: #3a3a37; --good-text: #0ca30c;
+  --ph-1: #3987e5; --ph-2: #d95926; --ph-3: #199e70; --ph-4: #c98500; --ph-5: #d55181; --ph-6: #008300; --ph-7: #9085e9; --ph-8: #e66767; --ph-other: #6b6a66;
 }
 
 * { box-sizing: border-box; }
@@ -134,3 +138,7 @@ table.small { max-width: 480px; } table.small.full { max-width: none; }
   .grid2, .summary, .two { grid-template-columns: 1fr; }
   table.results tr { break-inside: avoid; }
 }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 0; flex: none; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 8px; font-size: 12.5px; color: var(--text-secondary); }
+.legend .dot { vertical-align: -0.5px; }
+.rk.on { border-left-color: var(--series-1); }

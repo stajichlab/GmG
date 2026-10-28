@@ -16,6 +16,25 @@ RANKS = ["phylum", "class", "order", "family", "genus", "species"]
 TH = {"min_ani": [0.7109, 0.7109, 0.7109, 0.7715, 0.7765, 0.9938], "min_cons": [0.5, 0.5, 0.6, 0.9, 0.5, 0.9]}  # known
 esc = html.escape
 
+# Phylum colours follow the ENTITY (the phylum), never its rank in a run: the 8 phyla with the most BFD genomes
+# take the 8 validated categorical slots in order; every other phylum shares one neutral grey (named in tooltips/tables).
+PHYLUM_SLOTS = ["Ascomycota", "Basidiomycota", "Mucoromycota", "Kickxellomycota", "Microsporidia",
+                "Mortierellomycota", "Chytridiomycota", "Glomeromycota"]
+
+
+def ph_color(name):
+    if name in PHYLUM_SLOTS:
+        return f"var(--ph-{PHYLUM_SLOTS.index(name) + 1})"
+    return "var(--nomatch)" if name in ("", "(not called)") else "var(--ph-other)"
+
+
+def ph_order(name):
+    return PHYLUM_SLOTS.index(name) if name in PHYLUM_SLOTS else (len(PHYLUM_SLOTS) if name not in ("", "(not called)") else len(PHYLUM_SLOTS) + 1)
+
+
+def ph_dot(name):
+    return f'<span class="dot" style="background:{ph_color(name)}" title="{esc(name or "phylum not called")}"></span>'
+
 
 def read_tsv(name):
     with open(os.path.join(SAMPLE, name)) as f:
@@ -121,7 +140,7 @@ def depth_chart():
     return f'<svg viewBox="0 0 {W} {H+6}" class="chart" role="img" aria-label="Deepest rank called per input">{"".join(out)}</svg>', table
 
 
-def hbars(items, title_col, width=420, row_h=26, label_w=150, max_label=22, unit=""):
+def hbars(items, title_col, width=420, row_h=26, label_w=150, max_label=22, unit="", colors=None):
     """Single-series horizontal bars, value at the tip. items = [(label, value)]."""
     if not items:
         return "", ""
@@ -135,13 +154,42 @@ def hbars(items, title_col, width=420, row_h=26, label_w=150, max_label=22, unit
         tip = f"{lab}: {v}{unit}"
         out.append(svg_text(label_w - 8, y + 14, short(lab, max_label), "t-sec", "end"))
         # 18px bar, 4px rounded data end, square at the baseline
-        out.append(f'<path class="tip bar" tabindex="0" data-tip="{esc(tip)}" d="M{label_w},{y+3} h{bw-4:.1f} a4,4 0 0 1 4,4 v10 a4,4 0 0 1 -4,4 h-{bw-4:.1f} z" fill="var(--series-1)"/>')
+        out.append(f'<path class="tip bar" tabindex="0" data-tip="{esc(tip)}" d="M{label_w},{y+3} h{bw-4:.1f} a4,4 0 0 1 4,4 v10 a4,4 0 0 1 -4,4 h-{bw-4:.1f} z" fill="{colors[i] if colors else 'var(--series-1)'}"/>')
         out.append(f'<rect class="tip hit" tabindex="-1" data-tip="{esc(tip)}" x="{label_w}" y="{y-1}" width="{plot_w+40}" height="{row_h-2}" fill="transparent"/>')
         out.append(svg_text(label_w + bw + 6, y + 14.5, f"{v}", "t-pri"))
     out.insert(0, f'<line x1="{label_w}" x2="{label_w}" y1="0" y2="{H}" class="axis"/>')
     table = f"<table><thead><tr><th>{esc(title_col)}</th><th>Inputs</th></tr></thead><tbody>" + "".join(
         f"<tr><td>{esc(l)}</td><td>{v}</td></tr>" for l, v in items) + "</tbody></table>"
     return f'<svg viewBox="0 0 {width} {H}" class="chart" role="img" aria-label="{esc(title_col)} counts">{"".join(out)}</svg>', table
+
+
+def genus_by_phylum(items, width=420, row_h=24, head_h=26, label_w=130):
+    """items = [(genus, phylum, n)]. Bars grouped under a phylum heading, coloured by phylum (heading + legend + tooltip + table
+    all name the phylum, so identity never rests on colour alone)."""
+    groups = collections.OrderedDict()
+    for g, ph, n in sorted(items, key=lambda t: (ph_order(t[1]), -t[2], t[0])):
+        groups.setdefault(ph or "(not called)", []).append((g, n))
+    vmax = max(n for _, _, n in items)
+    plot_w = width - label_w - 40
+    y, out, trs = 2, [], []
+    for ph, gl in groups.items():
+        out.append(f'<circle cx="{label_w-122+5}" cy="{y+11}" r="4.5" fill="{ph_color(ph)}"/>')
+        out.append(svg_text(label_w - 110, y + 15, ph if ph in PHYLUM_SLOTS or ph == "(not called)" else ph + " (grey: other phyla)", "t-sec", "start", 'style="font-weight:600"'))
+        y += head_h
+        for g, n in gl:
+            bw = max(plot_w * n / vmax, 8)
+            tip = f"{g} ({ph}): {n} inputs"
+            out.append(svg_text(label_w - 8, y + 14, short(g, 20), "t-sec", "end"))
+            out.append(f'<path class="tip bar" tabindex="0" data-tip="{esc(tip)}" d="M{label_w},{y+3} h{bw-4:.1f} a4,4 0 0 1 4,4 v10 a4,4 0 0 1 -4,4 h-{bw-4:.1f} z" fill="{ph_color(ph)}"/>')
+            out.append(f'<rect class="tip hit" tabindex="-1" data-tip="{esc(tip)}" x="{label_w}" y="{y-1}" width="{plot_w+36}" height="{row_h-2}" fill="transparent"/>')
+            out.append(svg_text(label_w + bw + 6, y + 14.5, n, "t-pri"))
+            trs.append(f"<tr><td>{ph_dot(ph)} {esc(ph)}</td><td>{esc(g)}</td><td>{n}</td></tr>")
+            y += row_h
+        y += 6
+    out.insert(0, f'<line x1="{label_w}" x2="{label_w}" y1="0" y2="{y}" class="axis"/>')
+    table = "<table><thead><tr><th>Phylum</th><th>Genus</th><th>Inputs</th></tr></thead><tbody>" + "".join(trs) + "</tbody></table>"
+    legend = '<div class="legend">' + "".join(f'<span>{ph_dot(ph)}{esc(ph)}</span>' for ph in groups if ph != "(not called)") + "</div>"
+    return f'<svg viewBox="0 0 {width} {y}" class="chart" role="img" aria-label="Genus counts grouped by phylum">{"".join(out)}</svg>', table, legend
 
 
 def ani_hist():
@@ -322,7 +370,7 @@ def ladder(r):
         name = r[f"call_{k}"] if called else ("not in reference" if gap else "withheld")
         tip = (f"{k}: {r[f'call_{k}']} · vote consistency {cons:.2f}" if called else (f"{k}: the reference metadata has no {k} for these genomes" if gap else f"{k}: not called"))
         cells.append(
-            f'<div class="rk {"on" if called else ("na" if gap else "off")} tip" tabindex="0" data-tip="{esc(tip)}"><div class="rk-n">{k}</div>'
+            f'<div class="rk {"on" if called else ("na" if gap else "off")} tip" tabindex="0" data-tip="{esc(tip)}"{(" style=\"border-left-color:" + ph_color(r["call_phylum"]) + "\"") if (k == "phylum" and called) else ""}><div class="rk-n">{k}</div>'
             f'<div class="rk-v">{esc(name)}</div><div class="rk-m"><span style="width:{100*cons if called else 0:.0f}%"></span></div></div>')
     return '<div class="ladder">' + "".join(cells) + "</div>"
 
@@ -344,7 +392,7 @@ def qc_panel(r):
 def card(r, why):
     qid = r["query_id"]
     st = r["status"]
-    head = f'<summary><span class="card-id">{esc(qid)}</span>{chip(st)}<span class="card-call">{esc(r["call_species"] or r["call_genus"] or "")}</span></summary>'
+    head = f'<summary><span class="card-id">{esc(qid)}</span>{chip(st)}{ph_dot(r["call_phylum"]) if r["call_phylum"] else ""}<span class="card-call">{esc(r["call_species"] or r["call_genus"] or "")}</span></summary>'
     if st == "error":
         return (f'<details class="card" id="q-{esc(qid)}" open>{head}<div class="card-b"><p class="why">This input could not be processed: '
                 f'<b>{esc(r["message"])}</b>. The run continued; this row stays in results.tsv with status <code>error</code>.</p></div></details>')
@@ -391,9 +439,14 @@ OPEN = {ex_species["query_id"], ex_reads["query_id"]}
 depth_svg, depth_tbl = depth_chart()
 ph_ct = collections.Counter(r["call_phylum"] or "(not called)" for r in rows if r["status"] != "error")
 ge_ct = collections.Counter(r["call_genus"] for r in rows if r["call_genus"])
-ph_svg, ph_tbl = hbars(ph_ct.most_common(), "Phylum", unit=" inputs")
-ge_items = ge_ct.most_common(8)
-ge_svg, ge_tbl = hbars(ge_items, "Genus", unit=" inputs")
+ph_items = sorted(ph_ct.items(), key=lambda kv: (-kv[1], kv[0]))
+ph_svg, ph_tbl = hbars(ph_items, "Phylum", unit=" inputs", colors=[ph_color(n) for n, _ in ph_items])
+genus_ph = {}
+for r in rows:
+    if r["call_genus"] and r["status"] != "error":
+        genus_ph.setdefault(r["call_genus"], collections.Counter())[r["call_phylum"] or "(not called)"] += 1
+ge_items = [(g, genus_ph[g].most_common(1)[0][0], n) for g, n in ge_ct.most_common(12)]
+ge_svg, ge_tbl, ge_legend = genus_by_phylum(ge_items)
 ani_svg, ani_tbl = ani_hist()
 heat_svg, heat_tbl = heatmap()
 pct = round(100 * classified / ok_total)
@@ -413,7 +466,8 @@ def trow(r):
     link = f'<a href="#q-{esc(r["query_id"])}">{esc(r["query_id"])}</a>' if has_card else esc(r["query_id"])
     best = r["best_rank"] or "—"
     flags = "".join(f'<span class="flag">{esc(x)}</span>' for x in r["qc_flags"].split(",") if x)
-    return (f'<tr data-status="{st}" data-q="{esc((r["query_id"]+" "+call).lower())}"><td data-v="{esc(r["query_id"])}">{link}</td><td data-v="{st}">{chip(st)}</td>'
+    return (f'<tr data-status="{st}" data-q="{esc((r["query_id"]+" "+call+" "+r["call_phylum"]).lower())}"><td data-v="{esc(r["query_id"])}">{link}</td><td data-v="{st}">{chip(st)}</td>'
+            f'<td data-v="{esc(r["call_phylum"])}">{ph_dot(r["call_phylum"]) if r["call_phylum"] else ""}{esc(r["call_phylum"]) or "—"}</td>'
             f'<td data-v="{RANKS.index(r["best_rank"]) if r["best_rank"] else -1}">{best}</td><td data-v="{esc(call)}">{esc(call) or "—"}</td>'
             f'<td data-v="{r["ani"] or 0}" class="num">{f(r["ani"],3) or "—"}</td><td>{flags}</td></tr>')
 
@@ -450,8 +504,8 @@ page = f"""<!doctype html>
 <figure class="fig">{figtools(depth_svg, depth_tbl)}</figure></section>
 
 <section class="grid2">
-  <div class="card2"><h2>What the run contains</h2><h3>Phylum</h3><figure class="fig">{figtools(ph_svg, ph_tbl)}</figure>
-  <h3>Genus (top {len(ge_items)})</h3><figure class="fig">{figtools(ge_svg, ge_tbl)}</figure></div>
+  <div class="card2"><h2>What the run contains</h2><h3>Phylum</h3><figure class="fig">{figtools(ph_svg, ph_tbl)}<figcaption>Colours are fixed per phylum (the eight largest phyla in the reference). Other phyla share grey; the table view names every phylum.</figcaption></figure>
+  <h3>Genus (top {len(ge_items)}), coloured by phylum</h3><figure class="fig">{figtools(ge_svg, ge_tbl)}{ge_legend}</figure></div>
   <div class="card2"><h2>How close the nearest reference is</h2>
   <p class="lede">Almost every input has a near-identical reference. Calls to species need ANI ≥ {TH['min_ani'][5]:.3f}; the few lower values are less well covered lineages.</p>
   <figure class="fig">{figtools(ani_svg, ani_tbl)}</figure>
@@ -466,7 +520,7 @@ page = f"""<!doctype html>
 <div class="filters"><label>Status <select id="f-status"><option value="">all</option><option value="ok">classified</option><option value="low_confidence">low confidence</option><option value="no_match">no match</option><option value="error">error</option></select></label>
 <label>Search <input id="f-q" type="search" placeholder="input or taxon"></label><span id="f-n" class="muted"></span>
 <a class="dl" href="sample/results.tsv" download>Download results.tsv</a></div>
-<div class="tscroll"><table class="results"><thead><tr><th data-sort>Input</th><th data-sort>Status</th><th data-sort>Deepest rank</th><th data-sort>Call</th><th data-sort class="num">ANI</th><th>QC flags</th></tr></thead>
+<div class="tscroll"><table class="results"><thead><tr><th data-sort>Input</th><th data-sort>Status</th><th data-sort>Phylum</th><th data-sort>Deepest rank</th><th data-sort>Call</th><th data-sort class="num">ANI</th><th>QC flags</th></tr></thead>
 <tbody>{table_html}</tbody></table></div>
 <p class="muted small">Only inputs with a detail card below are linked in this mockup; the real report has a card for every input, collapsed.</p></section>
 

@@ -20,13 +20,15 @@ Screenshots in `img/` (light and dark) show the main parts.
 7. **Relationships among inputs (heatmap).** Optional, up to ~60 inputs. Keep it, or replace by a small tree for larger sets?
 8. **Table of all inputs.** Columns, sorting, filter by status, search. Is anything missing (cluster, taxid, expected label for validation runs, sample group)?
 9. **Wording.** "classified", "low confidence", "no match", "vote consistency", "ANI". Plain enough for your readers? What would you call them?
-10. **Look and accessibility.** Dark mode (toggle top right), hover values, "Table view" under every chart, status icons that never rely on colour alone, print (browser print gives the page the PDF will follow).
+10. **Phylum colours.** Each phylum has one fixed colour (the eight largest phyla in the reference, in the validated categorical order: Ascomycota blue, Basidiomycota orange, Mucoromycota aqua, Kickxellomycota yellow, Microsporidia magenta, Mortierellomycota green, Chytridiomycota violet, Glomeromycota red); every other phylum shares grey. Genus bars are grouped under phylum headings and use their phylum's colour; the table has a coloured phylum dot per row. Is that enough, or do you want other phyla broken out?
+11. **Look and accessibility.** Dark mode (toggle top right), hover values, "Table view" under every chart, status icons that never rely on colour alone, print (browser print gives the page the PDF will follow).
 
 ## Design decisions (and why)
 
 * One report page, one run: summary, composition, closeness, optional relationships, a sortable table, one card per input, a "how to read this" section with the exact thresholds used.
 * **Every number traces to a TSV column** (`docs/results-schema.md`); the table view under each chart shows the numbers behind it. The report adds explanation, not new results.
 * **Say what was not called, and why.** The ladder stops where the evidence stops. Missing reference annotation is shown differently from weak evidence (it points at issue #30).
+* **Phylum colour follows the phylum, not its rank in a run** (so Ascomycota is blue in every report). Eight hues is the validated limit for telling categories apart (also for colour-blind readers); lighter/darker shades of one hue cannot be told apart reliably and would break the checks, so phyla beyond the eight share grey and are named in labels, tooltips and tables. The genus chart is grouped by phylum with headings, so matching genus to phylum never depends on colour alone.
 * Colour: one hue for magnitude (blue), a four-step single-hue ramp for ordered depth (species darkest), grey for removed/no-match, the reserved status colours only for status and always with an icon and label.
   The ramp was checked with the dataviz validator in light and dark mode; hover and keyboard focus give the same tooltip; everything is system fonts.
 * Inline SVG only (no JavaScript charts): the same drawing code can run in the CLI and in the browser (WASM). JavaScript is limited to sort/filter/theme/tooltips and can be left out of the PDF and Markdown outputs.
