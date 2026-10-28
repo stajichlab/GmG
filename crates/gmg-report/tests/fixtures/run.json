@@ -1,0 +1,324 @@
+{
+ "command": [
+  "gmg",
+  "run",
+  "mock_in",
+  "--index",
+  "bfd_s10000.v1.gmgi",
+  "-o",
+  "mock_out"
+ ],
+ "commit": "6e35dc46c",
+ "elapsed_seconds": 32.3,
+ "finished_utc": "2026-10-28T19:15:58Z",
+ "index": {
+  "bytes": 198294922,
+  "k": 21,
+  "n_genomes": 23669,
+  "path": "bfd_s10000.v1.gmgi",
+  "scaled": 10000,
+  "seed": 42
+ },
+ "inputs": [
+  {
+   "id": "A1163_0.5x",
+   "status": "ok",
+   "kind": "reads",
+   "path": "reads/A1163_0.5x.fastq.gz",
+   "size_bytes": 5353934
+  },
+  {
+   "id": "A1163_5x",
+   "status": "ok",
+   "kind": "reads",
+   "path": "reads/A1163_5x.fastq.gz",
+   "size_bytes": 53481598
+  },
+  {
+   "id": "GCA_000149035.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_000149035.1.fna",
+   "size_bytes": 52358695
+  },
+  {
+   "id": "GCA_000149205.2",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_000149205.2.fna",
+   "size_bytes": 30662782
+  },
+  {
+   "id": "GCA_000149845.2",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_000149845.2.fna",
+   "size_bytes": 11883665
+  },
+  {
+   "id": "GCA_000166975.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_000166975.1.fna",
+   "size_bytes": 11761636
+  },
+  {
+   "id": "GCA_000181695.2",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_000181695.2.fna",
+   "size_bytes": 9072421
+  },
+  {
+   "id": "GCA_000185945.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_000185945.1.fna",
+   "size_bytes": 18605432
+  },
+  {
+   "id": "GCA_000221225.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_000221225.1.fna",
+   "size_bytes": 28679728
+  },
+  {
+   "id": "GCA_000222895.2",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_000222895.2.fna",
+   "size_bytes": 40249969
+  },
+  {
+   "id": "GCA_000338975.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_000338975.1.fna",
+   "size_bytes": 36920425
+  },
+  {
+   "id": "GCA_000474925.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_000474925.1.fna",
+   "size_bytes": 32634189
+  },
+  {
+   "id": "GCA_000597665.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_000597665.1.fna",
+   "size_bytes": 119985646
+  },
+  {
+   "id": "GCA_000956085.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_000956085.1.fna",
+   "size_bytes": 40019774
+  },
+  {
+   "id": "GCA_000965245.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_000965245.1.fna",
+   "size_bytes": 37537012
+  },
+  {
+   "id": "GCA_001638945.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_001638945.1.fna",
+   "size_bytes": 37026638
+  },
+  {
+   "id": "GCA_004334915.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_004334915.1.fna",
+   "size_bytes": 12888443
+  },
+  {
+   "id": "GCA_006942135.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_006942135.1.fna",
+   "size_bytes": 15291522
+  },
+  {
+   "id": "GCA_006942155.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_006942155.1.fna",
+   "size_bytes": 10835026
+  },
+  {
+   "id": "GCA_013620985.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_013620985.1.fna",
+   "size_bytes": 16592688
+  },
+  {
+   "id": "GCA_016801405.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_016801405.1.fna",
+   "size_bytes": 37484850
+  },
+  {
+   "id": "GCA_020716765.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_020716765.1.fna",
+   "size_bytes": 148928646
+  },
+  {
+   "id": "GCA_030573535.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_030573535.1.fna",
+   "size_bytes": 11526973
+  },
+  {
+   "id": "GCA_062019161.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_062019161.1.fna",
+   "size_bytes": 30527319
+  },
+  {
+   "id": "GCA_900184105.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_900184105.1.fna",
+   "size_bytes": 41167525
+  },
+  {
+   "id": "GCA_900638725.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_900638725.1.fna",
+   "size_bytes": 128435198
+  },
+  {
+   "id": "GCA_964213375.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_964213375.1.fna",
+   "size_bytes": 56452779
+  },
+  {
+   "id": "GCA_964289775.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_964289775.1.fna",
+   "size_bytes": 142933724
+  },
+  {
+   "id": "GCA_977071195.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_977071195.1.fna",
+   "size_bytes": 41862230
+  },
+  {
+   "id": "GCA_977110955.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_977110955.1.fna",
+   "size_bytes": 28810759
+  },
+  {
+   "id": "GCA_981691435.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_981691435.1.fna",
+   "size_bytes": 35228564
+  },
+  {
+   "id": "GCA_982397245.1",
+   "status": "no_match",
+   "kind": "assembly",
+   "path": "genomes/GCA_982397245.1.fna",
+   "size_bytes": 6949399
+  },
+  {
+   "id": "GCA_984766385.1",
+   "status": "low_confidence",
+   "kind": "assembly",
+   "path": "genomes/GCA_984766385.1.fna",
+   "size_bytes": 12006759
+  },
+  {
+   "id": "GCA_985568095.1",
+   "status": "low_confidence",
+   "kind": "assembly",
+   "path": "genomes/GCA_985568095.1.fna",
+   "size_bytes": 11421185
+  },
+  {
+   "id": "GCA_986392275.1",
+   "status": "no_match",
+   "kind": "assembly",
+   "path": "genomes/GCA_986392275.1.fna",
+   "size_bytes": 7319848
+  },
+  {
+   "id": "GCA_987193425.1",
+   "status": "ok",
+   "kind": "assembly",
+   "path": "genomes/GCA_987193425.1.fna",
+   "size_bytes": 58241849
+  },
+  {
+   "id": "empty_file",
+   "status": "error",
+   "kind": "assembly",
+   "path": "genomes/empty_file.fa",
+   "size_bytes": 0
+  }
+ ],
+ "schema_version": 1,
+ "started_utc": "2026-10-28T19:15:26Z",
+ "status_counts": {
+  "error": 1,
+  "low_confidence": 2,
+  "no_match": 2,
+  "ok": 143
+ },
+ "thresholds": {
+  "name": "known",
+  "values": {
+   "margin": 0.9,
+   "min_ani": [
+    0.7109,
+    0.7109,
+    0.7109,
+    0.7715,
+    0.7765,
+    0.9938
+   ],
+   "min_consistency": [
+    0.5,
+    0.5,
+    0.6,
+    0.9,
+    0.5,
+    0.9
+   ],
+   "min_shared": [
+    5,
+    5,
+    5,
+    5,
+    5,
+    5
+   ],
+   "top_n": 10
+  }
+ },
+ "tool": "gmg",
+ "version": "0.0.1"
+}

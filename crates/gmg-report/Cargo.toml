@@ -1,0 +1,12 @@
+[package]
+name = "gmg-report"
+description = "GmG report engine: standalone HTML report with inline SVG charts from `gmg run` results (no I/O, wasm-friendly)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+serde_json = "1"
+
+[dev-dependencies]
+roxmltree = "0.20"

@@ -105,6 +105,19 @@ enum Cmd {
         /// reuse finished results from a previous run in the same output directory
         #[arg(long)]
         resume: bool,
+        /// do not write report.html
+        #[arg(long)]
+        no_report: bool,
+        /// detail cards in the report (inputs needing attention first)
+        #[arg(long, default_value_t = 400)]
+        report_cards: usize,
+    },
+    /// Write report.html from a finished `gmg run` directory
+    Report {
+        /// a directory written by `gmg run`
+        dir: PathBuf,
+        #[arg(long, default_value_t = 400)]
+        max_cards: usize,
     },
     /// Summarise an index
     Info { index: PathBuf },
@@ -613,6 +626,8 @@ fn main() -> Result<()> {
             max_reads,
             top,
             resume,
+            no_report,
+            report_cards,
         } => {
             run::run(run::RunArgs {
                 inputs,
@@ -624,7 +639,13 @@ fn main() -> Result<()> {
                 max_reads,
                 top,
                 resume,
+                report: !no_report,
+                max_cards: report_cards,
             })?;
+        }
+        Cmd::Report { dir, max_cards } => {
+            run::write_report(&dir, max_cards)?;
+            eprintln!("wrote {}", dir.join("report.html").display());
         }
         Cmd::Info { index } => {
             let ix = load_index(&index)?;

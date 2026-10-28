@@ -457,6 +457,7 @@ dependencies = [
  "anyhow",
  "clap",
  "gmg-core",
+ "gmg-report",
  "needletail",
  "rayon",
  "serde_json",
@@ -474,10 +475,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "gmg-report"
+version = "0.0.1"
+dependencies = [
+ "roxmltree",
+ "serde_json",
+]
+
+[[package]]
 name = "gmg-wasm"
 version = "0.0.1"
 dependencies = [
  "gmg-core",
+ "gmg-report",
+ "serde_json",
  "wasm-bindgen",
 ]
 
@@ -1038,6 +1049,12 @@ name = "roots"
 version = "0.0.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "082f11ffa03bbef6c2c6ea6bea1acafaade2fd9050ae0234ab44a2153742b058"
+
+[[package]]
+name = "roxmltree"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6c20b6793b5c2fa6553b250154b78d6d0db37e72700ae35fad9387a46f487c97"
 
 [[package]]
 name = "rustix"

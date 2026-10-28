@@ -73,3 +73,27 @@ impl Index {
         self.guess_hashes(&self.sketch(bytes, min_abund, max_records), top)
     }
 }
+
+/// Render the standalone HTML report from the files of a `gmg run`: `results.jsonl` text, `run.json` text and
+/// (optionally, empty string if absent) `relationships.json` text. Identical to the report the CLI writes, minus the
+/// "Download results.tsv" link.
+#[wasm_bindgen]
+pub fn render_report(
+    results_jsonl: &str,
+    run_json: &str,
+    relationships_json: &str,
+) -> Result<String, JsError> {
+    let results = gmg_report::parse_results_jsonl(results_jsonl);
+    let run: serde_json::Value =
+        serde_json::from_str(run_json).map_err(|e| JsError::new(&format!("run.json: {e}")))?;
+    let rel: Option<serde_json::Value> = if relationships_json.trim().is_empty() {
+        None
+    } else {
+        serde_json::from_str(relationships_json).ok()
+    };
+    let opts = gmg_report::Options {
+        tsv_link: None,
+        ..Default::default()
+    };
+    Ok(gmg_report::render_html(&results, &run, rel.as_ref(), &opts))
+}

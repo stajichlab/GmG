@@ -5,7 +5,7 @@
 
 use crate::{load_index, load_thresholds, query_hashes_from, sketch_with_stats, strip_ext, Stats};
 use anyhow::{bail, Context, Result};
-use gmg_core::{guess, guess_json, RefIndex, Thresholds, RANKS};
+use gmg_core::{containment, guess, guess_json, RefIndex, Thresholds, RANKS};
 use rayon::prelude::*;
 use serde_json::{json, Value};
 use std::collections::HashMap;
@@ -29,6 +29,9 @@ pub struct RunArgs {
     pub max_reads: Option<u64>,
     pub top: usize,
     pub resume: bool,
+    /// write report.html (default); `--no-report` turns it off
+    pub report: bool,
+    pub max_cards: usize,
 }
 
 struct Input {
@@ -176,14 +179,25 @@ fn qc_flags(kind: &str, st: &Stats, n_hashes: usize, top: Option<&Value>) -> Vec
     f
 }
 
-fn process(ix: &RefIndex, th: &Thresholds, inp: &Input, a: &RunArgs) -> Value {
+fn process(
+    ix: &RefIndex,
+    th: &Thresholds,
+    inp: &Input,
+    a: &RunArgs,
+    keep_hashes: bool,
+) -> (Value, Option<Vec<u64>>) {
     let size = fs::metadata(&inp.path).map(|m| m.len()).unwrap_or(0);
     let path = inp.path.display().to_string();
-    let attempt = || -> Result<Value> {
+    let attempt = || -> Result<(Value, Option<Vec<u64>>)> {
         let reads = inp.kind == "reads";
         let min_abund = a.min_abund.unwrap_or(if reads { 2 } else { 1 });
         let (sk, st) = sketch_with_stats(&inp.path, ix.ksize, ix.scaled, reads, a.max_reads)?
             .with_context(|| "no sequence records".to_string())?;
+        let hist = if reads {
+            abundance_hist(&sk, min_abund)
+        } else {
+            None
+        };
         let hashes = query_hashes_from(ix, sk, min_abund)?;
         let g = guess(ix, &hashes, &|_| false, th);
         let gj = guess_json(ix, &g, &path, a.top);
@@ -199,19 +213,76 @@ fn process(ix: &RefIndex, th: &Thresholds, inp: &Input, a: &RunArgs) -> Value {
             hashes.len(),
             gj.get("top").filter(|t| !t.is_null()),
         );
-        Ok(json!({
+        let mut qc = json!({"n_records": st.n_records, "total_bases": st.total_len, "n50": st.n50,
+                   "non_acgt_fraction": if st.total_len > 0 { st.non_acgt as f64 / st.total_len as f64 } else { 0.0 },
+                   "n_hashes": hashes.len(), "min_abund": min_abund});
+        if let Some(h) = hist {
+            qc["abundance_hist"] = h;
+        }
+        let rec = json!({
             "schema_version": SCHEMA_VERSION, "id": inp.id, "path": path, "size_bytes": size, "kind": inp.kind,
             "status": status, "best_rank": best.map(|i| RANKS[i]), "message": null,
-            "qc": {"n_records": st.n_records, "total_bases": st.total_len, "n50": st.n50,
-                   "non_acgt_fraction": if st.total_len > 0 { st.non_acgt as f64 / st.total_len as f64 } else { 0.0 },
-                   "n_hashes": hashes.len(), "min_abund": min_abund},
-            "qc_flags": flags, "guess": gj,
-        }))
+            "qc": qc, "qc_flags": flags, "guess": gj,
+        });
+        Ok((
+            rec,
+            if keep_hashes && !reads {
+                Some(hashes)
+            } else {
+                None
+            },
+        ))
     };
-    attempt().unwrap_or_else(|e| {
-        json!({"schema_version": SCHEMA_VERSION, "id": inp.id, "path": path, "size_bytes": size, "kind": inp.kind,
-               "status": "error", "best_rank": null, "message": format!("{e:#}"), "qc": null, "qc_flags": [], "guess": null})
-    })
+    match attempt() {
+        Ok((v, h)) => (v, h),
+        Err(e) => (
+            json!({"schema_version": SCHEMA_VERSION, "id": inp.id, "path": path, "size_bytes": size, "kind": inp.kind,
+               "status": "error", "best_rank": null, "message": format!("{e:#}"), "qc": null, "qc_flags": [], "guess": null}),
+            None,
+        ),
+    }
+}
+
+/// How many times each sketch hash of a read set was seen (1..=12, then 13+), the abundance cutoff, and the median
+/// abundance of the hashes kept (an estimate of k-mer coverage). Only for sketches that carry abundances.
+fn abundance_hist(sk: &gmg_core::SketchFile, min_abund: u32) -> Option<Value> {
+    let ab = sk.abunds.as_ref()?;
+    let mut counts = [0u64; 12];
+    let mut over = 0u64;
+    let mut kept: Vec<u32> = Vec::new();
+    for &a in ab {
+        match a {
+            1..=12 => counts[a as usize - 1] += 1,
+            _ => over += 1,
+        }
+        if a >= min_abund {
+            kept.push(a);
+        }
+    }
+    kept.sort_unstable();
+    let median = kept.get(kept.len() / 2).copied().unwrap_or(0);
+    Some(json!({"counts": counts, "over12": over, "min_abund": min_abund, "median_kept": median}))
+}
+
+/// Pairwise containment ANI (geometric mean of the two directions) between assemblies, for the report heatmap.
+fn relationships(k: u32, items: &[(String, String, Vec<u64>)]) -> Value {
+    // order by taxon label so related genomes sit next to each other (species blocks along the diagonal)
+    let mut items: Vec<&(String, String, Vec<u64>)> = items.iter().collect();
+    items.sort_by(|a, b| a.1.cmp(&b.1).then(a.0.cmp(&b.0)));
+    let n = items.len();
+    let mut m = vec![vec![1.0f64; n]; n];
+    for i in 0..n {
+        for j in (i + 1)..n {
+            let (a, b) = (&items[i].2, &items[j].2);
+            let v = (containment(a, b) * containment(b, a))
+                .sqrt()
+                .powf(1.0 / k as f64);
+            let v = (v * 10_000.0).round() / 10_000.0;
+            m[i][j] = v;
+            m[j][i] = v;
+        }
+    }
+    json!({"ids": items.iter().map(|t| t.0.clone()).collect::<Vec<_>>(), "labels": items.iter().map(|t| t.1.clone()).collect::<Vec<_>>(), "ani": m})
 }
 
 fn tsv_cell(v: &Value) -> String {
@@ -404,10 +475,12 @@ pub fn run(args: RunArgs) -> Result<()> {
     ));
     let counter = AtomicUsize::new(0);
     let total = todo.len();
-    let fresh: Vec<(String, Value)> = todo
+    let n_asm = inputs.iter().filter(|i| i.kind == "assembly").count();
+    let want_rel = (2..=60).contains(&n_asm);
+    let fresh: Vec<(String, Value, Option<Vec<u64>>)> = todo
         .par_iter()
         .map(|inp| {
-            let v = process(&ix, &th, inp, &args);
+            let (v, h) = process(&ix, &th, inp, &args, want_rel);
             {
                 let mut w = writer.lock().unwrap();
                 let _ = writeln!(w, "{v}");
@@ -420,17 +493,57 @@ pub fn run(args: RunArgs) -> Result<()> {
                 v["status"].as_str().unwrap_or(""),
                 v["best_rank"].as_str().unwrap_or("-")
             );
-            (inp.id.clone(), v)
+            (inp.id.clone(), v, h)
         })
         .collect();
+    let mut hash_by_id: HashMap<String, Vec<u64>> = HashMap::new();
     let mut by_id = done;
-    by_id.extend(fresh);
+    for (id, v, h) in fresh {
+        if let Some(h) = h {
+            hash_by_id.insert(id.clone(), h);
+        }
+        by_id.insert(id, v);
+    }
     let results: Vec<Value> = inputs.iter().filter_map(|i| by_id.remove(&i.id)).collect();
 
     let (h, rows) = results_tsv(&results);
     write_tsv(&args.out.join("results.tsv"), &h, &rows)?;
     let (h, rows) = hits_tsv(&results);
     write_tsv(&args.out.join("hits.tsv"), &h, &rows)?;
+
+    // pairwise ANI between assemblies (only when every assembly was sketched in this run and there are 2..=60 of them)
+    let rel_path = args.out.join("relationships.json");
+    let asm: Vec<&Value> = results
+        .iter()
+        .filter(|r| r["kind"] == "assembly" && r["status"] != "error")
+        .collect();
+    if want_rel
+        && asm.len() >= 2
+        && asm
+            .iter()
+            .all(|r| hash_by_id.contains_key(r["id"].as_str().unwrap_or("")))
+    {
+        let items: Vec<(String, String, Vec<u64>)> = asm
+            .iter()
+            .map(|r| {
+                let id = r["id"].as_str().unwrap_or("").to_string();
+                let g = &r["guess"]["calls"];
+                let label = g["species"]["taxon"]
+                    .as_str()
+                    .or(g["genus"]["taxon"].as_str())
+                    .unwrap_or(&id)
+                    .to_string();
+                let h = hash_by_id[&id].clone();
+                (id, label, h)
+            })
+            .collect();
+        fs::write(
+            &rel_path,
+            serde_json::to_string(&relationships(ix.ksize, &items))? + "\n",
+        )?;
+    } else if !args.resume || !want_rel {
+        let _ = fs::remove_file(&rel_path);
+    }
 
     let mut counts: HashMap<String, usize> = HashMap::new();
     for r in &results {
@@ -453,16 +566,48 @@ pub fn run(args: RunArgs) -> Result<()> {
         args.out.join("run.json"),
         serde_json::to_string_pretty(&manifest)? + "\n",
     )?;
+    if args.report {
+        write_report(&args.out, args.max_cards)?;
+    }
     let mut cs: Vec<_> = counts.iter().collect();
     cs.sort();
     eprintln!(
-        "done in {:.1}s: {}  ->  {}/{{results.tsv,hits.tsv,run.json,results.jsonl}}",
+        "done in {:.1}s: {}  ->  {}/{{results.tsv,hits.tsv,run.json,results.jsonl{}}}",
         t0.elapsed().as_secs_f64(),
         cs.iter()
             .map(|(k, v)| format!("{k}={v}"))
             .collect::<Vec<_>>()
             .join(" "),
-        args.out.display()
+        args.out.display(),
+        if args.report { ",report.html" } else { "" }
     );
+    Ok(())
+}
+
+/// Render report.html from the files of a finished run in `dir` (results.jsonl, run.json, optional relationships.json).
+pub fn write_report(dir: &Path, max_cards: usize) -> Result<()> {
+    let results = gmg_report::parse_results_jsonl(
+        &fs::read_to_string(dir.join("results.jsonl")).with_context(|| {
+            format!(
+                "reading {}/results.jsonl (is this a gmg run directory?)",
+                dir.display()
+            )
+        })?,
+    );
+    let run: Value = serde_json::from_str(
+        &fs::read_to_string(dir.join("run.json"))
+            .with_context(|| format!("reading {}/run.json", dir.display()))?,
+    )?;
+    let rel: Option<Value> = fs::read_to_string(dir.join("relationships.json"))
+        .ok()
+        .and_then(|t| serde_json::from_str(&t).ok());
+    let opts = gmg_report::Options {
+        max_cards,
+        ..Default::default()
+    };
+    fs::write(
+        dir.join("report.html"),
+        gmg_report::render_html(&results, &run, rel.as_ref(), &opts),
+    )?;
     Ok(())
 }

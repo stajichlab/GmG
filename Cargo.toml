@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/gmg-core", "crates/gmg-cli", "crates/gmg-wasm"]
+members = ["crates/gmg-core", "crates/gmg-cli", "crates/gmg-wasm", "crates/gmg-report"]
 
 [workspace.package]
 edition = "2021"

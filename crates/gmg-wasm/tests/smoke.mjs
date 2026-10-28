@@ -10,7 +10,7 @@ import assert from "node:assert/strict";
 
 const require = createRequire(import.meta.url);
 const here = path.dirname(new URL(import.meta.url).pathname);
-const { Index } = require(path.join(here, "../pkg-node/gmg_wasm.js"));
+const { Index, render_report } = require(path.join(here, "../pkg-node/gmg_wasm.js"));
 const gmg = path.join(here, "../../../target/release/gmg");
 
 let seed = 12345;
@@ -61,6 +61,12 @@ for (const file of ["ix.gmgi", "ix.v1"]) {   // both index formats
   assert.equal(wasm.calls.genus.taxon, "Fusarium");
   ix.free();
 }
+// the report renders in wasm exactly as in the CLI (fixture of a real run lives with the report engine tests)
+const fx = path.join(here, "../../gmg-report/tests/fixtures");
+const html = render_report(fs.readFileSync(path.join(fx, "results.jsonl"), "utf8"), fs.readFileSync(path.join(fx, "run.json"), "utf8"), fs.readFileSync(path.join(fx, "relationships.json"), "utf8"));
+assert.ok(html.startsWith("<!doctype html>") && html.includes("Classification report") && html.includes("Relationships among inputs"));
+assert.ok(!html.includes("Download results.tsv"), "no tsv link in the browser build");
+assert.throws(() => render_report("", "not json", ""));
 // bad input must throw, not abort
 assert.throws(() => new Index(new Uint8Array([1, 2, 3])));
 fs.rmSync(tmp, { recursive: true });
