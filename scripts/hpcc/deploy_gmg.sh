@@ -1,10 +1,10 @@
 #!/bin/bash
-# Run on the HPCC after `cargo build --release -p gmg-cli`. Never overwrite a binary that a job may be running
-# (that crashed running jobs with SIGSEGV/SIGBUS on 2026-10-28): install a versioned copy and swap the symlink.
+# On the HPCC, after `pixi run build` in the checkout (~/projects/GmG): install the binary as a versioned copy and swap the
+# `bin/gmg` symlink. Never overwrite a binary a running job may be using (that crashed jobs with SIGSEGV/SIGBUS on 2026-10-28).
 set -eu
 GR=/bigdata/stajichlab/shared/projects/GmG_runs
-src=$GR/src/GmG/target/release/gmg
-v=$(date +%Y%m%d-%H%M%S)
-cp $src $GR/bin/gmg-$v
+REPO=${GMG_REPO:-$HOME/projects/GmG}
+v=$(cd $REPO && git rev-parse --short HEAD)-$(date +%Y%m%d-%H%M%S)
+cp $REPO/target/release/gmg $GR/bin/gmg-$v
 ln -sfn gmg-$v $GR/bin/gmg.new && mv -Tf $GR/bin/gmg.new $GR/bin/gmg
 echo "deployed gmg-$v"

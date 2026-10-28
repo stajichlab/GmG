@@ -24,7 +24,12 @@ pub struct FracSketch {
 impl FracSketch {
     pub fn new(ksize: usize, scaled: u32, seed: u64) -> Self {
         assert!(ksize > 0 && scaled > 0);
-        Self { ksize, seed, max_hash: max_hash_for_scaled(scaled), hashes: Vec::new() }
+        Self {
+            ksize,
+            seed,
+            max_hash: max_hash_for_scaled(scaled),
+            hashes: Vec::new(),
+        }
     }
 
     /// Add one sequence (one FASTA record). Case-insensitive. k-mers containing anything but

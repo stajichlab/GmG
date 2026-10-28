@@ -9,7 +9,7 @@
 #   reps1 = best genome per species (BFD rule), reps3 = best 3 per species.
 #   Queries = genomes NOT in the reference set (leave-one-out semantics, all of them).
 set -uo pipefail
-source /bigdata/stajichlab/shared/projects/GmG_runs/src/GmG/scripts/hpcc/env.sh
+source $HOME/projects/GmG/scripts/hpcc/env.sh
 cd $GR/index
 for S in 20000 50000; do
   [ -s bfd_s${S}.gmgi ] || $GMG --threads 4 build --meta meta.tsv --sketches $GR/sketch --scaled $S -o bfd_s${S}.gmgi
@@ -27,6 +27,6 @@ for K in 1 3; do
 done
 cd $GR/bench/reps
 for K in 1 3; do for S in 10000 20000 50000; do
-  python3 $GR/src/GmG/scripts/analyze_bench.py summary_reps${K}_s${S} bench_loo_reps${K}_s${S}.tsv > /dev/null
+  python3 $GMG_REPO/scripts/analyze_bench.py summary_reps${K}_s${S} bench_loo_reps${K}_s${S}.tsv > /dev/null
 done; done
 ls -la $GR/index/reps*.gmgi

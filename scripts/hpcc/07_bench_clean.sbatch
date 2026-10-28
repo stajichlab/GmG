@@ -8,7 +8,7 @@
 # leave-out benchmarks with the suspected mislabeled genomes (reports/label_audit/exclude_ids.txt) removed as references;
 # the same ids are dropped from the queries in the analysis (GMG_EXCLUDE).
 set -uo pipefail
-source /bigdata/stajichlab/shared/projects/GmG_runs/src/GmG/scripts/hpcc/env.sh
+source $HOME/projects/GmG/scripts/hpcc/env.sh
 mkdir -p $GR/bench/clean
 cd $GR/bench/clean
 for S in 10000 2000; do
@@ -19,6 +19,6 @@ for S in 10000 2000; do
     [ -s $out ] || $GMG --threads 4 bench --index $GR/index/bfd_s${S}.gmgi --sketches $GR/sketch --ref-list $GR/index/clean_refs.txt \
         --mode $M $args --seed 1 -o $out
   done
-  GMG_EXCLUDE=$GR/index/exclude_ids.txt python3 $GR/src/GmG/scripts/analyze_bench.py summary_s${S} bench_*_s${S}.tsv > /dev/null
+  GMG_EXCLUDE=$GR/index/exclude_ids.txt python3 $GMG_REPO/scripts/analyze_bench.py summary_s${S} bench_*_s${S}.tsv > /dev/null
 done
 ls -la

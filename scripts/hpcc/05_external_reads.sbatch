@@ -10,7 +10,7 @@
 #   $GR/reads/sim/*.gsk         sketches of simulated reads (made locally with `gmg sketch --abund`)
 #   $GR/reads/cocci_r1.list     real Coccidioides R1 files, sketched here
 set -uo pipefail
-source /bigdata/stajichlab/shared/projects/GmG_runs/src/GmG/scripts/hpcc/env.sh
+source $HOME/projects/GmG/scripts/hpcc/env.sh
 mkdir -p $GR/external $GR/reads
 for S in 10000 1000; do
   TH=$GR/bench/summary_s${S}.thresholds.json; [ -s $TH ] || TH=$GR/bench/summary_s10000.thresholds.json

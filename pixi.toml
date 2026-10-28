@@ -1,0 +1,54 @@
+# GmG development environment. `pixi run <task>` needs nothing from Homebrew or rustup.
+#   pixi run test        cargo test (includes the sourmash-crate oracle test if data/genomes exists)
+#   pixi run build       release build of the `gmg` CLI -> target/release/gmg
+#   pixi run wasm        build gmg-wasm and generate JS bindings (nodejs + web targets) in crates/gmg-wasm/pkg-*
+#   pixi run wasm-test   run the Node smoke test against the wasm build
+#   pixi run -e bio ...  same plus sourmash / mash / skani / ncbi-datasets for reference comparisons
+[workspace]
+name = "gmg"
+channels = ["conda-forge", "bioconda"]
+platforms = ["osx-arm64", "linux-64"]
+
+[dependencies]
+rust = "1.99.*"
+rust-std-wasm32-unknown-unknown = "1.99.*"
+# must match the `wasm-bindgen` crate version in Cargo.lock
+wasm-bindgen-cli = "0.2.129.*"
+lld = "*"
+binaryen = "*"
+nodejs = ">=22"
+python = "3.12.*"
+pandas = "*"
+numpy = "*"
+scipy = "*"
+matplotlib-base = "*"
+python-duckdb = "*"
+
+[feature.bio.dependencies]
+sourmash = "4.9.4.*"
+mash = "2.3.*"
+skani = "0.3.2.*"
+ncbi-datasets-cli = "*"
+
+[environments]
+bio = ["bio"]
+
+[tasks]
+fmt = "cargo fmt --all -- --check"
+clippy = "cargo clippy --release --all-targets -- -D warnings"
+test = "cargo test --release"
+build = "cargo build --release -p gmg-cli"
+
+[tasks.wasm-build]
+cmd = "cargo build --release --target wasm32-unknown-unknown -p gmg-wasm"
+
+[tasks.wasm]
+depends-on = ["wasm-build"]
+cmd = """
+wasm-bindgen --target nodejs --out-dir crates/gmg-wasm/pkg-node target/wasm32-unknown-unknown/release/gmg_wasm.wasm &&
+wasm-bindgen --target web --out-dir crates/gmg-wasm/pkg-web target/wasm32-unknown-unknown/release/gmg_wasm.wasm
+"""
+
+[tasks.wasm-test]
+depends-on = ["wasm", "build"]
+cmd = "node crates/gmg-wasm/tests/smoke.mjs"

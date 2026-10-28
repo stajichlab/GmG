@@ -10,7 +10,7 @@ name = "gmg"
 path = "src/main.rs"
 
 [dependencies]
-gmg-core = { path = "../gmg-core" }
+gmg-core = { path = "../gmg-core", features = ["json"] }
 anyhow = "1"
 clap = { version = "4", features = ["derive"] }
 needletail = "0.7.3"
