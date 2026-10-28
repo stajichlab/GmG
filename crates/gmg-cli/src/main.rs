@@ -77,6 +77,12 @@ enum Cmd {
     },
     /// Summarise an index
     Info { index: PathBuf },
+    /// Rewrite an index in the compact v1 (delta + varint) format
+    Convert {
+        index: PathBuf,
+        #[arg(short, long)]
+        out: PathBuf,
+    },
     /// Leave-out benchmark of genomes that are in the index
     Bench {
         #[arg(long)]
@@ -328,6 +334,14 @@ fn main() -> Result<()> {
                            "calls": calls, "hits": hits})
                 );
             }
+        }
+        Cmd::Convert { index, out } => {
+            let ix = load_index(&index)?;
+            let mut w = BufWriter::new(File::create(&out)?);
+            ix.write_v1(&mut w)?;
+            w.flush()?;
+            let (a, b) = (std::fs::metadata(&index)?.len(), std::fs::metadata(&out)?.len());
+            eprintln!("{} -> {}: {} -> {} bytes ({:.2}x smaller)", index.display(), out.display(), a, b, a as f64 / b as f64);
         }
         Cmd::Info { index } => {
             let ix = load_index(&index)?;
