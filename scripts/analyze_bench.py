@@ -40,8 +40,8 @@ def load(paths):
     return pd.concat(frames, ignore_index=True)
 
 
-def counts():
-    meta = pd.read_csv(META, sep="\t", dtype=str, keep_default_na=False)
+def counts(meta_path=None):
+    meta = pd.read_csv(meta_path or META, sep="\t", dtype=str, keep_default_na=False)
     cols = dict(zip(RANKS, ["phylum", "class", "order", "family", "genus", "species"]))
     n = {r: meta[cols[r]].value_counts().to_dict() for r in RANKS}
     n_sp = {r: meta.groupby([cols[r], "species"]).size().to_dict() for r in RANKS}
@@ -49,11 +49,14 @@ def counts():
     return n, n_sp, n_ge
 
 
-NC, NSP, NGE = counts()
+NC = NSP = NGE = None
 EXCLUDE = set(open(os.environ['GMG_EXCLUDE']).read().split()) if os.environ.get('GMG_EXCLUDE') else set()
 
 
 def add_answerable(d):
+    global NC, NSP, NGE
+    if NC is None:
+        NC, NSP, NGE = counts()
     mode, sp, ge = d["mode"].values, d["species_true"].values, d["genus_true"].values
     for r in RANKS:
         tt = d[f"{r}_true"].values
@@ -162,4 +165,5 @@ def main():
     print("\n".join(md))
 
 
-main()
+if __name__ == "__main__":
+    main()

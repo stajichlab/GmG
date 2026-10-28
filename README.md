@@ -1,5 +1,7 @@
 # GmG: Guess My Genome
 
+[![CI](https://github.com/stajichlab/GmG/actions/workflows/ci.yml/badge.svg)](https://github.com/stajichlab/GmG/actions/workflows/ci.yml)
+
 Given a fungal genome (or reads), guess where it belongs: phylum, class, order, family, genus, species, plus an
 ANI-cluster, each with a confidence. Built for MATPredict routing, meant as a general tool.
 
@@ -14,6 +16,7 @@ Everything runs in a [pixi](https://pixi.sh) environment (Rust, wasm tooling, No
 pixi run test        # cargo test (the sourmash-crate oracle test needs data/genomes, see data/accessions.txt; skipped if absent)
 pixi run build       # target/release/gmg
 pixi run wasm-test   # builds gmg-wasm (nodejs + web bindings in crates/gmg-wasm/pkg-*) and checks it against the CLI
+pixi run pytest      # Python tests for the analysis scripts
 pixi run fmt         # rustfmt check
 pixi run clippy      # lints, warnings are errors
 pixi run -e bio ...  # adds sourmash 4.9.4, mash 2.3, skani 0.3.2, ncbi-datasets (same versions as the HPCC containers)
@@ -37,3 +40,13 @@ A checkout lives in `~/projects/GmG` (`gh repo clone stajichlab/GmG`); work is c
 Build with `pixi run build` in that checkout (login node, short compile) and install with `scripts/hpcc/deploy_gmg.sh`
 (versioned binary + symlink swap; never overwrite a running binary). Data and results are under
 `/bigdata/stajichlab/shared/projects/GmG_runs/`.
+
+## Releases and container
+
+Tagging `vX.Y.Z` runs `.github/workflows/release.yml`: `gmg` binaries (linux-64, osx-arm64), the wasm package and an OCI image,
+`ghcr.io/stajichlab/gmg:X.Y.Z` (and `:latest`). Every merge to `main` also publishes `:edge`. Image:
+
+```
+docker run --rm -v "$PWD:/data" ghcr.io/stajichlab/gmg:edge guess --index /data/bfd.gmgi /data/genome.fa
+apptainer pull gmg.sif docker://ghcr.io/stajichlab/gmg:edge      # on the HPCC (module load apptainer, on a compute node)
+```

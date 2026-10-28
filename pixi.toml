@@ -23,6 +23,12 @@ numpy = "*"
 scipy = "*"
 matplotlib-base = "*"
 python-duckdb = "*"
+pytest = "*"
+
+# a C compiler for crates with C code (zstd-sys via needletail); macOS uses the Xcode command line tools
+[target.linux-64.dependencies]
+c-compiler = "*"
+binutils = "*"
 
 [feature.bio.dependencies]
 sourmash = "4.9.4.*"
@@ -37,6 +43,7 @@ bio = ["bio"]
 fmt = "cargo fmt --all -- --check"
 clippy = "cargo clippy --release --all-targets -- -D warnings"
 test = "cargo test --release"
+pytest = "pytest -q tests/python"
 build = "cargo build --release -p gmg-cli"
 
 [tasks.wasm-build]

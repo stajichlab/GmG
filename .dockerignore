@@ -1,0 +1,11 @@
+target/
+.pixi/
+.git/
+data/genomes/
+data/raw/
+data/out/
+data/external/
+data/reads/
+crates/gmg-wasm/pkg-node/
+crates/gmg-wasm/pkg-web/
+reports/
