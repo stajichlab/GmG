@@ -70,6 +70,9 @@ enum Cmd {
         max_reads: Option<u64>,
         #[arg(long, default_value_t = 5)]
         top: usize,
+        /// JSON with min_shared[6], min_ani[6], min_consistency[6], margin, top_n (from scripts/calibrate.py)
+        #[arg(long)]
+        thresholds: Option<PathBuf>,
         queries: Vec<PathBuf>,
     },
     /// Summarise an index
@@ -178,6 +181,34 @@ fn read_meta(path: &Path) -> Result<Vec<GenomeMeta>> {
     Ok(out)
 }
 
+fn read_thresholds(path: &Path) -> Result<Thresholds> {
+    let v: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(path)?)?;
+    let mut th = Thresholds::default();
+    let arr = |k: &str| v.get(k).and_then(|a| a.as_array()).filter(|a| a.len() == 6);
+    if let Some(a) = arr("min_shared") {
+        for (i, x) in a.iter().enumerate() {
+            th.min_shared[i] = x.as_u64().context("min_shared")? as u32;
+        }
+    }
+    if let Some(a) = arr("min_ani") {
+        for (i, x) in a.iter().enumerate() {
+            th.min_ani[i] = x.as_f64().context("min_ani")?;
+        }
+    }
+    if let Some(a) = arr("min_consistency") {
+        for (i, x) in a.iter().enumerate() {
+            th.min_consistency[i] = x.as_f64().context("min_consistency")?;
+        }
+    }
+    if let Some(m) = v.get("margin").and_then(|m| m.as_f64()) {
+        th.margin = m;
+    }
+    if let Some(n) = v.get("top_n").and_then(|n| n.as_u64()) {
+        th.top_n = n as usize;
+    }
+    Ok(th)
+}
+
 fn main() -> Result<()> {
     let cli = Cli::parse();
     if let Some(t) = cli.threads {
@@ -263,9 +294,12 @@ fn main() -> Result<()> {
                 ix.n_postings()
             );
         }
-        Cmd::Guess { index, min_abund, max_reads, top, queries } => {
+        Cmd::Guess { index, min_abund, max_reads, top, thresholds, queries } => {
             let ix = load_index(&index)?;
-            let th = Thresholds::default();
+            let th = match thresholds {
+                Some(p) => read_thresholds(&p)?,
+                None => Thresholds::default(),
+            };
             for q in &queries {
                 let hashes = query_hashes(&ix, q, min_abund, max_reads)?;
                 let g = guess(&ix, &hashes, &|_| false, &th);

@@ -1,0 +1,4 @@
+Error: Download error: http2: server sent GOAWAY and closed the connection; LastStreamID=5, ErrCode=NO_ERROR, debug="server_shutting_down"
+
+Use datasets download genome accession <command> --help for detailed help about a command.
+
