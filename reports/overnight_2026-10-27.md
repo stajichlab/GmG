@@ -6,7 +6,7 @@ Everything below was run, not estimated, unless marked **[est]**. Code is on bra
 
 - **The tool works.** `gmg` (Rust) sketches a genome or reads, searches a reference index, and returns per-rank calls (phylum, class, order, family, genus, species) with a vote consistency and a containment-ANI. 23,669 BFD genomes are indexed.
 - **Held-out genomes (BFD, leave-one-out, raw labels):** phylum 98.5%, class 97.9%, order 97.4%, family 97.0%, genus 95.8%, species 92.8% correct (answerable queries; species is answerable for 76% of genomes because 5,576 BFD species have a single genome).
-- **Genomes not in BFD (145 NCBI assemblies, default thresholds):** for the 120 whose species is in BFD: phylum to genus 100% correct, species 94%. For 25 unnamed isolates: phylum 92%, genus 77% (vote).
+- **Genomes not in BFD (145 NCBI assemblies, calibrated thresholds):** for the 120 whose species is in BFD: phylum to genus 100% correct; species called for 80% of them, all correct (precision 1.00). For 25 unnamed isolates: phylum 92%, genus 77% (vote).
 - **Reads work down to 0.5x** of simulated Illumina-like reads (150 bp, 0.5% error): phylum/order/genus/species calls match the genome-level result. 12 real *Coccidioides* read sets (100k to 2M reads) are 12/12 correct at every rank.
 - **The browser payload can be small.** Accuracy is essentially unchanged from scaled=10000 to scaled=50000, so one representative per species at scaled=50000 is **25 MB** (3 per species: 29 MB) as compact v1; at scaled=20000, 61 MB (71 MB).
 - **Species labels are the limit, not the sketches.** Near-identical genomes (>99.5% ANI) carry a different species label 24% of the time in BFD (hybrid names, species complexes, synonyms). The right output is an ANI-cluster ID next to the label (section 6, not built yet).
@@ -97,6 +97,31 @@ Caveats: only 36+12 queries; substitution-only simulation (no indels, no contami
 - **Calibration is not final.** Default per-rank thresholds are placeholders; automatic calibration to a precision target failed to find thresholds for class-genus on the raw labels because of the label errors in section 5. A calibration on the cleaned benchmark is in progress (section 10).
 - **Not done:** `gmg cluster`; WASM build (library-level wasm32 build works; a full link was blocked by a local toolchain problem); PyO3 bindings; PopSketch trees/PCA; MATPredict integration (its `--taxid`/`--phylum` hint output); contamination/fragmented-assembly tests; indels/paired reads/mixed samples for reads; conversion of the scaled=20000/50000 full indexes to v1.
 
-## 10. Update after the cleaned benchmark
+## 10. Later in the night: clean benchmark, calibration, clusters
 
-(filled in below when the job finished)
+**Clean benchmark** (`reports/bench_clean_s10000.md`): the 43 suspect genomes (section 5) removed as references and as queries. Leave-one-out is unchanged (phylum .985, class .980, order .976, family .972, genus .960, species .929 on answerable queries). Leave-species-out: .961 / .947 / .936 / .920 / .891. Leave-genus-out: .833 / .755 / .698 / .593 (was .845 / .694 / .649 / .543 raw). Removing the hubs helps class by 6 points but most of the leave-genus-out gap is real: with no genus relatives left, a 21-mer DNA sketch places the class correctly only ~75% of the time. Protein-level (translated) sketches are the obvious way to reach further; not built.
+
+**Calibration** (target precision 0.95, `reports/calibration_known.md`, `calibration_novel.md`, `data/thresholds/*.json`; now the defaults in `Thresholds::default()`):
+| rank | min ANI | min vote consistency | coverage at 95% precision (reference has relatives) |
+|---|---|---|---|
+| phylum | 0.711 | 0.5 | 0.997 |
+| class | 0.711 | 0.5 | 0.996 |
+| order | 0.711 | 0.6 | 0.983 |
+| family | 0.772 | 0.9 | 0.946 |
+| genus | 0.777 | 0.5 | 0.977 |
+| species | 0.994 | 0.9 | 0.571 |
+For a query that may belong to a genus absent from the reference (`novel` pool) only phylum (ANI >= 0.789, 65% of such queries), class (>= 0.914, 27%) and order (>= 0.948, 18%) reach 95%; family, genus and species do not, at any threshold. The tool should say "unknown below genus" in that regime; whether a query is in that regime is not known to it, except through low ANI.
+
+**Clusters** (`gmg cluster`, greedy centroids in BFD-rule order, member containment-ANI >= threshold, and centroid no more than 1.6x the member's size; `reports/cluster_report_ani0.95.md`, `data/clusters/`): 23,669 genomes -> **6,104 clusters at 95% ANI** (7,450 species labels) and 9,184 at 99%. 68% of clusters are singletons (18% of genomes). In leave-one-out the best hit is in the query's own cluster for 98.2% of queries (whose cluster has >= 2 genomes), while the species label is right for 84.2%; of the label errors, 96.3% still land in the right cluster. The 45 clusters mixing species labels are mostly real complexes (*A. flavus/oryzae/parasiticus*, *F. oxysporum*, *Saccharomyces* hybrids, *Colletotrichum*, *Trichophyton*). **Without the size guard** one centroid (`GCA_019827475.1`, 2.2x the size of either of its apparent species) put *Aspergillus niger* and *Penicillium chrysogenum* in one cluster: a chimeric/mixed assembly. 69 genomes are > 1.6x the median size of their species (`reports/label_audit/size_outliers.tsv`): candidates for contamination (or real hybrids/polyploids). The cluster ID is stored in the index (`GenomeMeta.cluster`, `gmg guess` prints the top hit's cluster); the production index has not been rebuilt with the cluster column (needs `meta` + `clusters` joined and `gmg build`).
+
+**Re-scored with calibrated thresholds** (external genomes, scaled=10000): see section 1 and 7 (species: 80% called, 100% precise for named species in BFD; the other ranks unchanged). Reads: genus and above unchanged. **Species calls from simulated reads need abundance filtering**: with `--min-abund 1` species calls are made for 0-12% of queries (error hashes lower the containment ANI); with `--min-abund 2` 58-83% are called, all correct; the fraction falls with coverage (83% at 0.5x, 58% at 20x) because at 20x repeated errors also survive the filter. Read queries need their own calibration (coverage-aware); the genome-based thresholds are conservative for reads.
+
+## 11. Next steps (suggested order)
+
+1. Rebuild the production index with the cluster column (and v1 format); decide the T0 payload: 1 rep per cluster at scaled=20000-50000 is expected to be ~25-60 MB (not yet built: only per-species reps were measured).
+2. Reads: coverage-aware abundance filter and calibration; a real mixed/low-coverage data set; paired-end data.
+3. MATPredict hook: `gmg guess` JSON already has phylum/order/genus/species calls and the top hit's lineage and NCBI taxid; map to `--taxid`/`--phylum` and the routing modes once the order-level `taxonomic_scope` format is confirmed.
+4. WASM: library builds for `wasm32-unknown-unknown`; the full link needs the local toolchain fixed (see plan.md 14.2).
+5. Look at the audit lists (`reports/label_audit/`) and tell BFD maintainers; they are suspicions from sequence similarity only.
+6. Protein-level sketches for placement below ~80% ANI; test a lower k (e.g., 15-17) for deeper ranks.
+7. PopSketch layer (trees/PCA at scaled <= 1000 plus skani for near-clonal strains) on the same core.
