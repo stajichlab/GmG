@@ -46,7 +46,7 @@ enum Cmd {
     },
     /// Build a reference index from a metadata table and a directory of .gsk files
     Build {
-        /// TSV with header: id taxid phylum class order family genus species
+        /// TSV with header: id taxid phylum class order family genus species [cluster]
         #[arg(long)]
         meta: PathBuf,
         #[arg(long)]
@@ -77,6 +77,21 @@ enum Cmd {
     },
     /// Summarise an index
     Info { index: PathBuf },
+    /// Greedy ANI clustering of the genomes in an index (centroids picked in priority order)
+    Cluster {
+        #[arg(long)]
+        index: PathBuf,
+        #[arg(long)]
+        sketches: PathBuf,
+        /// a genome joins a centroid's cluster if its containment-ANI in the centroid is at least this
+        #[arg(long, default_value_t = 0.95)]
+        ani: f64,
+        /// file with genome ids, highest priority first (e.g. BFD rule: BUSCO, N50); others follow in index order
+        #[arg(long)]
+        order: Option<PathBuf>,
+        #[arg(short, long)]
+        out: PathBuf,
+    },
     /// Rewrite an index in the compact v1 (delta + varint) format
     Convert {
         index: PathBuf,
@@ -181,14 +196,14 @@ fn read_meta(path: &Path) -> Result<Vec<GenomeMeta>> {
             continue;
         }
         let f: Vec<&str> = line.split('\t').collect();
-        if f.len() != 8 {
-            bail!("{}:{}: expected 8 tab-separated columns, got {}", path.display(), i + 1, f.len());
+        if f.len() != 8 && f.len() != 9 {
+            bail!("{}:{}: expected 8 tab-separated columns (+ optional cluster), got {}", path.display(), i + 1, f.len());
         }
         let mut lineage: [String; 6] = Default::default();
         for r in 0..6 {
             lineage[r] = f[2 + r].to_string();
         }
-        out.push(GenomeMeta { id: f[0].to_string(), taxid: f[1].parse().unwrap_or(0), lineage, n_hashes: 0 });
+        out.push(GenomeMeta { id: f[0].to_string(), taxid: f[1].parse().unwrap_or(0), lineage, n_hashes: 0, cluster: f.get(8).map(|c| c.to_string()).unwrap_or_default() });
     }
     Ok(out)
 }
@@ -321,7 +336,7 @@ fn main() -> Result<()> {
                     .take(top)
                     .map(|&(gi, sh)| {
                         let m = &ix.genomes[gi as usize];
-                        json!({"id": m.id, "taxid": m.taxid, "shared": sh, "lineage": m.lineage})
+                        json!({"id": m.id, "taxid": m.taxid, "shared": sh, "lineage": m.lineage, "cluster": m.cluster})
                     })
                     .collect();
                 let calls: serde_json::Map<String, serde_json::Value> = RANKS
@@ -331,7 +346,7 @@ fn main() -> Result<()> {
                     .map(|((r, c), v)| (r.to_string(), json!({"taxon": c, "vote": v.taxon, "consistency": v.consistency})))
                     .collect();
                 let top_json = g.top.as_ref().map(|t| {
-                    json!({"id": ix.genomes[t.genome as usize].id, "shared": t.shared, "ani": t.ani,
+                    json!({"id": ix.genomes[t.genome as usize].id, "cluster": ix.genomes[t.genome as usize].cluster, "shared": t.shared, "ani": t.ani,
                            "containment_query": t.containment_query, "containment_ref": t.containment_ref})
                 });
                 println!(
@@ -340,6 +355,64 @@ fn main() -> Result<()> {
                            "calls": calls, "hits": hits})
                 );
             }
+        }
+        Cmd::Cluster { index, sketches, ani, order, out } => {
+            let ix = load_index(&index)?;
+            let n = ix.genomes.len();
+            let by_id: std::collections::HashMap<&str, u32> =
+                ix.genomes.iter().enumerate().map(|(i, g)| (g.id.as_str(), i as u32)).collect();
+            let mut prio: Vec<u32> = Vec::with_capacity(n);
+            let mut seen = vec![false; n];
+            if let Some(p) = order {
+                for l in std::fs::read_to_string(p)?.lines() {
+                    if let Some(&g) = by_id.get(l.trim()) {
+                        if !seen[g as usize] {
+                            seen[g as usize] = true;
+                            prio.push(g);
+                        }
+                    }
+                }
+            }
+            for g in 0..n as u32 {
+                if !seen[g as usize] {
+                    prio.push(g);
+                }
+            }
+            let k = ix.ksize as f64;
+            let mut centroid: Vec<Option<(u32, f64)>> = vec![None; n]; // (centroid genome, member ANI)
+            let mut n_clusters = 0usize;
+            for &g in &prio {
+                if centroid[g as usize].is_some() {
+                    continue;
+                }
+                let m = &ix.genomes[g as usize];
+                let sk = match read_sketch(&sketches.join(format!("{}.gsk", m.id))) {
+                    Ok(s) => s,
+                    Err(_) => {
+                        centroid[g as usize] = Some((g, 1.0));
+                        n_clusters += 1;
+                        continue;
+                    }
+                };
+                let q = if sk.scaled < ix.scaled { downsample(&sk.hashes, ix.scaled) } else { sk.hashes };
+                centroid[g as usize] = Some((g, 1.0));
+                n_clusters += 1;
+                for h in ix.search(&q, &|x| centroid[x as usize].is_some()) {
+                    let mem = &ix.genomes[h.genome as usize];
+                    let a = (h.shared as f64 / mem.n_hashes.max(1) as f64).powf(1.0 / k);
+                    if a >= ani {
+                        centroid[h.genome as usize] = Some((g, a));
+                    }
+                }
+            }
+            let mut w = BufWriter::new(File::create(&out)?);
+            writeln!(w, "id\tcluster\tis_centroid\tani_to_centroid\tspecies\tgenus")?;
+            for (i, g) in ix.genomes.iter().enumerate() {
+                let (c, a) = centroid[i].unwrap();
+                writeln!(w, "{}\t{}\t{}\t{:.4}\t{}\t{}", g.id, ix.genomes[c as usize].id, c as usize == i, a, g.lineage[5], g.lineage[4])?;
+            }
+            w.flush()?;
+            eprintln!("{n} genomes -> {n_clusters} clusters at ANI >= {ani} ({})", out.display());
         }
         Cmd::Convert { index, out } => {
             let ix = load_index(&index)?;

@@ -2,7 +2,7 @@
 """Pick per-species representatives with the BFD rule: highest BUSCO genome completeness, then highest N50, then ASMID.
 
 usage: pick_reps.py META.tsv BFD_TABLES_DIR OUT_PREFIX [K ...]
-writes OUT_PREFIX.reps<K>.txt (ids) and OUT_PREFIX.meta_reps<K>.tsv (meta rows) for each K (top K per species).
+writes OUT_PREFIX.order.txt (all ids, best first), OUT_PREFIX.reps<K>.txt (ids) and OUT_PREFIX.meta_reps<K>.tsv (meta rows) for each K (top K per species).
 Genomes with an empty species are each kept (they cannot be grouped).
 """
 import sys, duckdb, csv
@@ -17,6 +17,9 @@ q = c.execute(f"""
 qual = {r[0]: (r[1], r[2]) for r in q}
 rows = list(csv.reader(open(meta), delimiter="\t"))
 header, rows = rows[0], rows[1:]
+# priority order of all genomes (BFD rule) for `gmg cluster --order`
+allrows = sorted(rows, key=lambda r: (-qual.get(r[0], (-1, 0))[0], -qual.get(r[0], (-1, 0))[1], r[0]))
+open(f"{out}.order.txt", "w").write("\n".join(r[0] for r in allrows) + "\n")
 by_sp = {}
 for r in rows:
     by_sp.setdefault(r[7] or f"_nosp_{r[0]}", []).append(r)

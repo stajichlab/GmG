@@ -132,7 +132,7 @@ mod tests {
         l[0] = "Ascomycota".into();
         l[4] = genus.into();
         l[5] = species.into();
-        GenomeMeta { id: id.into(), taxid: 1, lineage: l, n_hashes: 0 }
+        GenomeMeta { id: id.into(), taxid: 1, lineage: l, n_hashes: 0, cluster: String::new() }
     }
 
     #[test]

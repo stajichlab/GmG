@@ -20,6 +20,8 @@ pub struct GenomeMeta {
     pub lineage: [String; 6],
     /// number of retained hashes of this genome (filled by the builder)
     pub n_hashes: u32,
+    /// ANI-cluster id (the centroid genome's id from `gmg cluster`); empty if not clustered
+    pub cluster: String,
 }
 
 pub struct RefIndex {
@@ -178,7 +180,7 @@ impl RefIndex {
     pub fn write<W: Write>(&self, w: &mut W) -> io::Result<()> {
         let mut meta = String::new();
         for g in &self.genomes {
-            meta.push_str(&format!("{}\t{}\t{}\t{}\n", g.id, g.taxid, g.n_hashes, g.lineage.join("\t")));
+            meta.push_str(&format!("{}\t{}\t{}\t{}\t{}\n", g.id, g.taxid, g.n_hashes, g.lineage.join("\t"), g.cluster));
         }
         w.write_all(MAGIC)?;
         w.write_all(&self.ksize.to_le_bytes())?;
@@ -199,7 +201,7 @@ impl RefIndex {
     pub fn write_v1<W: Write>(&self, w: &mut W) -> io::Result<()> {
         let mut meta = String::new();
         for g in &self.genomes {
-            meta.push_str(&format!("{}\t{}\t{}\t{}\n", g.id, g.taxid, g.n_hashes, g.lineage.join("\t")));
+            meta.push_str(&format!("{}\t{}\t{}\t{}\t{}\n", g.id, g.taxid, g.n_hashes, g.lineage.join("\t"), g.cluster));
         }
         w.write_all(MAGIC_V1)?;
         w.write_all(&self.ksize.to_le_bytes())?;
@@ -248,7 +250,8 @@ impl RefIndex {
         let mut genomes = Vec::with_capacity(n_genomes);
         for line in meta.lines() {
             let f: Vec<&str> = line.split('\t').collect();
-            if f.len() != 9 {
+            // 9 fields = indexes written before clusters existed; 10 = with the cluster column
+            if f.len() != 9 && f.len() != 10 {
                 return Err(bad("bad genome record"));
             }
             let mut lineage: [String; 6] = Default::default();
@@ -260,6 +263,7 @@ impl RefIndex {
                 taxid: f[1].parse().map_err(|_| bad("taxid"))?,
                 n_hashes: f[2].parse().map_err(|_| bad("n_hashes"))?,
                 lineage,
+                cluster: f.get(9).map(|c| c.to_string()).unwrap_or_default(),
             });
         }
         if genomes.len() != n_genomes {
@@ -357,7 +361,7 @@ mod tests {
         let mut lineage: [String; 6] = Default::default();
         lineage[4] = "G".into();
         lineage[5] = species.into();
-        GenomeMeta { id: id.into(), taxid: 1, lineage, n_hashes: 0 }
+        GenomeMeta { id: id.into(), taxid: 1, lineage, n_hashes: 0, cluster: String::new() }
     }
 
     fn small(buckets: usize) -> RefIndex {
