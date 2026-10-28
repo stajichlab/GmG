@@ -1,0 +1,146 @@
+id	taxid	phylum	class	order	family	genus	species	species_in_bfd	genus_in_bfd	release	n50	total_len
+GCA_986392275.1	210103	Ascomycota	Sordariomycetes	Diaporthales	Cryphonectriaceae	Cryphonectria		False	True	2026-09-09	250350	7221264
+GCA_062019161.1	162425	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-10-05	495895	30129104
+GCA_061311055.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-16	8981334	36984958
+GCA_061603605.1	36050	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-23	5531537	44419148
+GCA_977071255.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	158515	40862423
+GCA_982319345.1	559292	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces	Saccharomyces cerevisiae	True	True	2026-03-22	818688	12190865
+GCA_977071185.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	167662	40576945
+GCA_977071195.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	176621	40611171
+GCA_060702555.1	61369	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-09-01	123620	56536374
+GCA_918257225.2	1163648	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces	Saccharomyces kudriavzevii	True	True	2026-09-12	819894	11972268
+GCA_987193425.1	645133	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum	Colletotrichum graminicola	True	True	2026-09-08	6422679	57521198
+GCA_062043676.1	224912	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-07-05	4236063	63189236
+GCA_060702595.1	59765	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-09-01	4176325	56112191
+GCA_060231115.1	61366	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-08-18	286613	46481749
+GCA_977071145.1	242507	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	Pyricularia oryzae	True	True	2025-11-29	167649	40496828
+GCA_981691435.1	655819	Ascomycota	Sordariomycetes	Hypocreales	Cordycipitaceae	Beauveria	Beauveria bassiana	True	True	2026-03-23	4324062	34792393
+GCA_000750115.2	1077442	Ascomycota	Eurotiomycetes	Eurotiales	Trichocomaceae	Talaromyces	Talaromyces marneffei	True	True	2023-06-07	3334497	29022615
+GCA_002163515.1	580240	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces	Saccharomyces cerevisiae	True	True	2017-06-06	122157	12338538
+GCA_000227095.3	698492	Ascomycota	Saitoellomycetes	Saitoellales	Saitoellaceae	Saitoella	Saitoella complicata	True	True	2015-04-22	238718	14130614
+GCA_002127715.1	1157616	Ascomycota	Dothideomycetes	Mycosphaerellales	Teratosphaeriaceae	Hortaea	Hortaea werneckii	True	True	2017-05-11	153735	49743999
+GCA_000223565.1	981350	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Komagataella	Komagataella phaffii	True	True	2011-04-06	1320048	9367040
+GCA_013183815.1	1429090	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces	Saccharomyces pastorianus	True	True	2020-05-28	94456	13983424
+GCA_000590845.2	1445506	Ascomycota	Dipodascomycetes	Dipodascales		Yarrowia	Yarrowia lipolytica	True	True	2014-06-03	132034	20623809
+GCA_011393275.1	471861	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces	Saccharomyces cerevisiae	True	True	2020-03-18	83667	11700371
+GCA_964289775.1	62690	Ascomycota	Leotiomycetes	Helotiales	Erysiphaceae	Blumeria	Blumeria graminis	True	True	2024-10-22	12755952	141167024
+GCA_000586535.1	520522	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces	Saccharomyces pastorianus	True	True	2014-03-10	63323	22962716
+GCA_000775525.1	1094997	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Candida	Candida albicans	True	True	2014-11-10	152490	14453728
+GCA_000784635.1	237561	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Candida	Candida albicans	True	True	2014-11-17	136306	15213099
+GCA_006942155.1	294746	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Meyerozyma	Meyerozyma guilliermondii	True	True	2019-07-12	1721375	10700359
+GCA_013180795.1	1073566	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces	Saccharomyces pastorianus	True	True	2020-05-28	134355	22784621
+GCA_037948965.1	871575	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Ogataea	Ogataea parapolymorpha	True	True	2024-04-01	1299983	8927230
+GCA_017309835.1	1182532	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Candida	Candida albicans	True	True	2021-03-10	1642426	14754403
+GCA_000315255.1	1215603	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium fujikuroi	True	True	2013-01-02	435019	43812727
+GCA_000222895.2	1037527	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae	Epichloe	Epichloe gansuensis	True	True	2011-08-03	56094	39616189
+GCA_000170995.2	413071	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma	Trichoderma virens	True	True	2011-11-29	1836662	39022666
+GCA_006112615.1	861557	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Pyrenophora	Pyrenophora teres	True	True	2019-06-06	1730401	46316738
+GCA_000952835.1	1392242	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus	Aspergillus flavus	True	True	2015-03-13	70395	37027369
+GCA_030573535.1	331638	Ascomycota	Saccharomycetes	Saccharomycodales	Saccharomycodaceae	Hanseniaspora	Hanseniaspora occidentalis	True	True	2023-07-31	37564	11340894
+GCA_006942115.1	322104	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Scheffersomyces	Scheffersomyces stipitis	True	True	2019-07-12	773936	15538563
+GCA_947241705.1	226126	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces	Saccharomyces mikatae	True	True	2022-11-01	811203	12104871
+GCA_001746955.1	644223	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Komagataella	Komagataella phaffii	True	True	2016-09-21	2396528	9462757
+GCA_000171015.2	452589	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma	Trichoderma atroviride	True	True	2011-11-29	2007903	36143664
+GCA_905220315.1	1220494	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces	Saccharomyces cerevisiae	True	True	2021-02-16	310843	11938612
+GCA_000292645.1	999810	Ascomycota	Leotiomycetes	Helotiales	Sclerotiniaceae	Botrytis	Botrytis cinerea	True	True	2012-08-22	191219	41612944
+GCA_016801405.1	321614	Ascomycota	Dothideomycetes	Pleosporales	Phaeosphaeriaceae	Parastagonospora	Parastagonospora nodorum	True	True	2021-02-02	1308001	37020537
+GCA_000226195.2	877507	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae	Epichloe	Epichloe festucae	True	True	2016-08-02	59312	35149944
+GCA_000170175.2	443226	Ascomycota	Eurotiomycetes	Onygenales	Onygenaceae	Coccidioides	Coccidioides posadasii	True	True	2011-01-25	136654	27583241
+GCA_000956085.1	1403190	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus	Aspergillus parasiticus	True	True	2015-03-18	140138	39465951
+GCA_017310615.1	544711	Ascomycota	Eurotiomycetes	Onygenales	Ajellomycetaceae	Histoplasma	Histoplasma capsulatum	True	True	2021-03-09	7000705	37874276
+GCA_030570515.1	280587	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Metschnikowia	Metschnikowia bicuspidata	True	True	2023-07-31	117294	15743394
+GCA_937872485.1	284592	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Debaryomyces	Debaryomyces hansenii	True	True	2023-01-12	100645	11675309
+GCA_000145635.1	644352	Ascomycota	Sordariomycetes	Magnaporthales	Magnaporthaceae	Gaeumannomyces	Gaeumannomyces tritici	True	True	2010-08-25	48943	43618147
+GCA_000474925.1	1391915	Ascomycota	Sordariomycetes	Ophiostomatales	Ophiostomataceae	Sporothrix	Sporothrix schenckii	True	True	2013-10-21	525301	32228000
+GCA_000269785.2	1160506	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus	Aspergillus oryzae	True	True	2012-06-25	395582	36547279
+GCA_000182965.3	237561	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Candida	Candida albicans	True	True	2016-10-12	334280	14282666
+GCA_020647705.1	1331945	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma	Trichoderma virens	True	True	2021-10-27	6644895	41418917
+GCA_013620985.1	379508	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Lodderomyces	Lodderomyces elongisporus	True	True	2020-07-24	742134	16382369
+GCA_000006335.3	294747	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Candida	Candida tropicalis	True	True	2009-06-18	221103	14579835
+GCA_947243785.1	1165456	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces	Saccharomyces kudriavzevii	True	True	2022-11-01	908134	11759424
+GCA_000167675.2	431241	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma	Trichoderma reesei	True	True	2011-07-18	797352	33395713
+GCA_000149425.1	294746	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Meyerozyma	Meyerozyma guilliermondii	True	True	2007-05-08	313225	10609954
+GCA_000149205.2	227321	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus	Aspergillus nidulans	True	True	2012-03-01	282268	30242742
+GCA_000143125.1	655863	Ascomycota	Sordariomycetes	Ophiostomatales	Ophiostomataceae	Leptographium	Leptographium clavigerum	True	True	2010-02-04	164278	29521668
+GCA_000006275.3	332952	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus	Aspergillus flavus	True	True	2020-09-28	103582	36852131
+GCA_000313505.1	669874	Ascomycota	Pichiomycetes	Alaninales	Pachysolenaceae	Pachysolen	Pachysolen tannophilus	True	True	2012-05-16	81373	12237881
+GCA_000221225.1	759272	Ascomycota	Sordariomycetes	Sordariales	Chaetomiaceae	Thermochaetoides	Thermochaetoides thermophila	True	True	2011-07-22	513648	28322806
+GCA_900099495.1	1276529	Ascomycota	Dothideomycetes	Mycosphaerellales	Mycosphaerellaceae	Zymoseptoria	Zymoseptoria tritici	True	True	2017-06-06	2700053	39698711
+GCA_006942135.1	294747	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Candida	Candida tropicalis	True	True	2019-07-12	1066980	15100058
+GCA_000952015.1	498257	Ascomycota	Sordariomycetes	Glomerellales	Plectosphaerellaceae	Verticillium	Verticillium dahliae	True	True	2015-03-13	5894008	35973870
+GCA_013620965.1	619300	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Spathaspora	Spathaspora passalidarum	True	True	2020-07-24	1751630	13207614
+GCA_001515485.2	520522	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces	Saccharomyces pastorianus	True	True	2016-01-13	113674	22500926
+GCA_013390285.1	671987	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Exserohilum	Exserohilum turcicum	True	True	2020-07-06	2274269	43480261
+GCA_046127475.1	441960	Ascomycota	Eurotiomycetes	Eurotiales	Trichocomaceae	Talaromyces	Talaromyces marneffei	True	True	2024-12-17	4186281	28872128
+GCA_001046915.1	1279115	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Nakaseomyces	Nakaseomyces nivariensis	True	True	2013-08-29	248381	11557413
+GCA_900184105.1	1276537	Ascomycota	Dothideomycetes	Mycosphaerellales	Mycosphaerellaceae	Zymoseptoria	Zymoseptoria tritici	True	True	2017-10-31	2793411	40657500
+GCA_000259595.1	1124627	Ascomycota	Pichiomycetes	Pichiales	Pichiaceae	Brettanomyces	Brettanomyces bruxellensis	True	True	2012-04-27	65420	12676548
+GCA_017355575.1	447093	Ascomycota	Eurotiomycetes	Onygenales	Ajellomycetaceae	Histoplasma	Histoplasma capsulatum	True	True	2021-03-09	5585295	31073969
+GCA_000223465.1	590646	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma	Yamadazyma tenuis	True	True	2011-08-25	382504	10747050
+GCA_000338975.1	701091	Ascomycota	Dothideomycetes	Pleosporales	Pleosporaceae	Bipolaris	Bipolaris maydis	True	True	2013-02-21	1168586	36456735
+GCA_900465115.1	225342	Ascomycota	Dothideomycetes	Pleosporales	Leptosphaeriaceae	Plenodomus	Plenodomus lingam	True	True	2018-06-30	383462	43426637
+GCA_000149035.1	645133	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum	Colletotrichum graminicola	True	True	2010-10-12	228959	51604658
+GCA_900638725.1	1283759	Ascomycota	Leotiomycetes	Helotiales	Erysiphaceae	Blumeria	Blumeria hordei	True	True	2019-02-21	124032	126558930
+GCA_000965245.1	510516	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus	Aspergillus oryzae	True	True	2015-03-27	214617	37064308
+GCA_004334915.1	1136231	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Lodderomyces	Lodderomyces orthopsilosis	True	True	2019-03-08	1594233	12728315
+GCA_900184115.1	1276532	Ascomycota	Dothideomycetes	Mycosphaerellales	Mycosphaerellaceae	Zymoseptoria	Zymoseptoria tritici	True	True	2017-10-31	1847477	38628401
+GCA_900091695.1	1276538	Ascomycota	Dothideomycetes	Mycosphaerellales	Mycosphaerellaceae	Zymoseptoria	Zymoseptoria tritici	True	True	2017-05-12	2781580	37861420
+GCA_030567355.1	331639	Ascomycota	Saccharomycetes	Saccharomycodales	Saccharomycodaceae	Hanseniaspora	Hanseniaspora occidentalis	True	True	2023-07-31	49954	11515705
+GCA_000166975.1	226126	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces	Saccharomyces mikatae	True	True	2003-03-28	20026	11470251
+GCA_000146915.2	321614	Ascomycota	Dothideomycetes	Pleosporales	Phaeosphaeriaceae	Parastagonospora	Parastagonospora nodorum	True	True	2007-11-20	178897	37164226
+GCA_001417885.1	1003335	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Kluyveromyces	Kluyveromyces marxianus	True	True	2014-01-14	1421472	10920159
+GCA_003708635.2	1294638	Ascomycota	Dipodascomycetes	Dipodascales	Dipodascaceae	Magnusiomyces	Magnusiomyces tetraspermus	True	True	2018-11-20	82199	25936419
+GCA_918268175.1	1165456	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces	Saccharomyces kudriavzevii	True	True	2022-11-27	132895	11848514
+GCA_000149685.1	379508	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Lodderomyces	Lodderomyces elongisporus	True	True	2007-05-07	261145	15511671
+GCA_000149845.2	402676	Ascomycota	Schizosaccharomycetes	Schizosaccharomycetales	Schizosaccharomycetaceae	Schizosaccharomyces	Schizosaccharomyces japonicus	True	True	2013-08-16	1768158	11733154
+GCA_000184105.1	658429	Ascomycota	Leotiomycetes	Thelebolales	Thelebolaceae	Pseudogymnoascus	Pseudogymnoascus destructans	True	True	2010-12-30	22786	30652791
+GCA_000149555.1	334819	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium verticillioides	True	True	2008-11-21	392397	41791161
+GCA_000230395.2	380704	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus	Aspergillus niger	True	True	2011-10-12	1937564	34853277
+GCA_002006585.1	431241	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma	Trichoderma reesei	True	True	2017-02-24	5311445	34922528
+GCA_001857865.1	665079	Ascomycota	Leotiomycetes	Helotiales	Sclerotiniaceae	Sclerotinia	Sclerotinia sclerotiorum	True	True	2016-10-31	2387400	38906597
+GCA_986885625.1	2075521	Basidiomycota	Agaricomycetes	Agaricales	Entolomataceae	Entoloma		False	True	2026-09-01	486546	76432686
+GCA_059750275.1	2498619	Basidiomycota	Agaricomycetes	Polyporales	Polyporaceae	Lentinus		False	True	2026-08-03	3601686	52584492
+GCA_050613845.1	168172	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia	Puccinia striiformis	True	True	2025-05-29	4606998	75199855
+GCA_980750485.1	68759	Basidiomycota	Agaricomycetes	Cantharellales	Hydnaceae	Hydnum		False	True	2026-02-28	285017	53382899
+GCA_977065945.1	71694	Basidiomycota	Agaricomycetes	Agaricales	Psathyrellaceae	Coprinopsis		False	True	2025-11-28	1530580	54769206
+GCA_060154715.1	168172	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia	Puccinia striiformis	True	True	2026-08-17	3999834	76625775
+GCA_057662195.1	168172	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia	Puccinia striiformis	True	True	2026-05-20	4550042	76876019
+GCA_057814745.1	168172	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	Puccinia	Puccinia striiformis	True	True	2026-06-01	4658364	77155809
+GCA_061613165.1	189963	Basidiomycota	Tremellomycetes	Trichosporonales	Trichosporonaceae	Trichosporon	Trichosporon asahii	True	True	2026-09-23	4052870	25523718
+GCA_061372115.1	136831	Basidiomycota	Pucciniomycetes	Pucciniales	Coleosporiaceae	Cronartium	Cronartium quercuum	True	True	2026-09-17	5404143	86876455
+GCA_002215885.1	1295829	Basidiomycota	Tremellomycetes	Tremellales	Cryptococcaceae	Cryptococcus	Cryptococcus neoformans	True	True	2017-07-07	326904	18910907
+GCA_002215855.1	1230068	Basidiomycota	Tremellomycetes	Tremellales	Cryptococcaceae	Cryptococcus	Cryptococcus neoformans	True	True	2017-07-07	93455	18184845
+GCA_035658335.1	214684	Basidiomycota	Tremellomycetes	Tremellales	Cryptococcaceae	Cryptococcus	Cryptococcus deneoformans	True	True	2024-01-15	1439871	19211855
+GCA_000313545.1	1109443	Basidiomycota	Agaricomycetes	Sebacinales	Serendipitaceae	Serendipita	Serendipita indica	True	True	2012-01-25	34458	24979980
+GCA_000181695.2	425265	Basidiomycota	Malasseziomycetes	Malasseziales	Malasseziaceae	Malassezia	Malassezia globosa	True	True	2007-11-02	654612	8954998
+GCA_900149145.1	1230383	Basidiomycota	Malasseziomycetes	Malasseziales	Malasseziaceae	Malassezia	Malassezia sympodialis	True	True	2017-01-09	1353702	7747459
+GCA_002222215.1	1230080	Basidiomycota	Tremellomycetes	Tremellales	Cryptococcaceae	Cryptococcus	Cryptococcus neoformans	True	True	2017-07-20	160635	18811654
+GCA_003691605.1	425264	Basidiomycota	Malasseziomycetes	Malasseziales	Malasseziaceae	Malassezia	Malassezia restricta	True	True	2018-10-29	1107729	7263187
+GCA_000185945.1	367775	Basidiomycota	Tremellomycetes	Tremellales	Cryptococcaceae	Cryptococcus	Cryptococcus gattii	True	True	2011-01-12	1265488	18374760
+GCA_000334115.1	983506	Basidiomycota	Agaricomycetes	Cantharellales	Ceratobasidiaceae	Rhizoctonia	Rhizoctonia solani	True	True	2013-01-28	20319	36938120
+GCA_011801205.1	235443	Basidiomycota	Tremellomycetes	Tremellales	Cryptococcaceae	Cryptococcus	Cryptococcus neoformans	True	True	2020-03-31	1433473	19089897
+GCA_000293215.1	1186058	Basidiomycota	Tremellomycetes	Trichosporonales	Trichosporonaceae	Trichosporon	Trichosporon asahii	True	True	2013-01-23	151096	24507743
+GCA_000835765.1	1296101	Basidiomycota	Tremellomycetes	Tremellales	Cryptococcaceae	Cryptococcus	Cryptococcus deuterogattii	True	True	2015-02-17	385972	17478748
+GCA_000241205.2	764103	Basidiomycota	Mixiomycetes	Mixiales	Mixiaceae	Mixia	Mixia osmundae	True	True	2011-11-25	292896	13393708
+GCA_000827335.1	870435	Basidiomycota	Agaricomycetes	Boletales	Pisolithaceae	Pisolithus	Pisolithus tinctorius	True	True	2015-02-03	22153	71007534
+GCA_985568215.1	3417506	Microsporidia			Amblyosporidae			False	False	2026-06-17	1668023	16946571
+GCA_986199775.1	3417528	Microsporidia			Nosematidae	Vairimorpha		False	True	2026-07-04	432190	6713675
+GCA_984766385.1	3417509	Microsporidia			Amblyosporidae			False	False	2026-06-22	1477805	11856551
+GCA_985568095.1	3417511	Microsporidia			Amblyosporidae			False	False	2026-07-04	1135273	11278429
+GCA_062043556.1	3104263	Entomophthoromycota	Entomophthoromycetes	Entomophthorales	Ancylistaceae	Ancylistes		False	False	2026-09-26	87372	111952910
+GCA_982397245.1	109871	Chytridiomycota	Chytridiomycetes	Rhizophydiales		Batrachochytrium		False	True	2026-04-10	129243	6848931
+GCA_021556705.1	1357716	Chytridiomycota	Chytridiomycetes	Rhizophydiales		Batrachochytrium		False	True	2022-01-23	100537	36867569
+GCA_000149865.1	403673	Chytridiomycota	Chytridiomycetes	Rhizophydiales		Batrachochytrium	Batrachochytrium dendrobatidis	True	True	2006-10-25	221037	23722384
+GCA_021556655.1	1357716	Chytridiomycota	Chytridiomycetes	Rhizophydiales		Batrachochytrium		False	True	2022-01-23	27733	27675237
+GCA_020716725.1	588596	Glomeromycota	Glomeromycetes	Glomerales	Glomeraceae	Rhizophagus		False	True	2021-11-02	2312895	147209168
+GCA_958305195.1	2562287	Glomeromycota	Glomeromycetes	Entrophosporales	Entrophosporaceae	Entrophospora		False	True	2023-07-18	20944	96025353
+GCA_000597665.1	1432141	Glomeromycota	Glomeromycetes	Glomerales	Glomeraceae	Rhizophagus	Rhizophagus irregularis	True	True	2014-02-10	20171	117099916
+GCA_020716685.1	588596	Glomeromycota	Glomeromycetes	Glomerales	Glomeraceae	Rhizophagus		False	True	2021-11-02	947003	146830121
+GCA_020716765.1	588596	Glomeromycota	Glomeromycetes	Glomerales	Glomeraceae	Rhizophagus		False	True	2021-11-02	987390	147088061
+GCA_988225255.1	688661	Mucoromycota	Mucoromycetes	Mucorales	Lichtheimiaceae	Lichtheimia		False	True	2026-09-09	148168	32844234
+GCA_062034329.1	936053	Mucoromycota	Mucoromycetes	Mucorales	Rhizopodaceae	Rhizopus		False	True	2026-10-12	32509	35986056
+GCA_977110955.1	58291	Mucoromycota	Mucoromycetes	Mucorales	Rhizopodaceae	Rhizopus		False	True	2025-12-07	4723566	28452767
+GCA_964213375.1	58291	Mucoromycota	Mucoromycetes	Mucorales	Rhizopodaceae	Rhizopus		False	True	2024-08-27	1370944	55743399
+GCA_001638945.1	747725	Mucoromycota	Mucoromycetes	Mucorales	Mucoraceae	Mucor	Mucor lusitanicus	True	True	2016-05-06	4318338	36567582
+GCA_000240685.2	685557	Mortierellomycota	Mortierellomycetes	Mortierellales	Mortierellaceae	Mortierella	Mortierella alpina	True	True	2011-12-29	171448	38042092
+GCA_060697205.1	1500003	Blastocladiomycota	Physodermatomycetes	Physodermatales	Physodermataceae	Paraphysoderma		False	True	2026-09-01	671976	27509606

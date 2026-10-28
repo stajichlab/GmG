@@ -5,3 +5,13 @@ data/*.zip
 data/out/
 data/afum15.zip
 .DS_Store
+data/external/*.zip
+data/external/*.dmp
+data/external/*.tar.gz
+data/external/*.prt
+data/external/fungi_all.tsv
+data/external/raw/
+data/external/genomes/
+data/external/sketch/
+data/reads/sim/
+data/reads/fq/

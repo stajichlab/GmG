@@ -61,6 +61,29 @@ impl FracSketch {
         self.hashes.dedup();
         self.hashes
     }
+
+    /// Sorted unique hashes with the number of times each was seen (for reads).
+    pub fn finish_with_abundance(mut self) -> (Vec<u64>, Vec<u32>) {
+        self.hashes.sort_unstable();
+        let mut hs: Vec<u64> = Vec::new();
+        let mut ab: Vec<u32> = Vec::new();
+        for h in self.hashes {
+            if hs.last() == Some(&h) {
+                *ab.last_mut().unwrap() += 1;
+            } else {
+                hs.push(h);
+                ab.push(1);
+            }
+        }
+        (hs, ab)
+    }
+}
+
+/// Reduce a sorted sketch made at scale `from` to the coarser scale `to` (to >= from), as
+/// sourmash's `downsample` does: keep hashes <= max_hash(to).
+pub fn downsample(hashes: &[u64], to_scaled: u32) -> Vec<u64> {
+    let mh = max_hash_for_scaled(to_scaled);
+    hashes[..hashes.partition_point(|&h| h <= mh)].to_vec()
 }
 
 fn complement(b: u8) -> u8 {
@@ -129,6 +152,29 @@ mod tests {
         b.add_sequence(b"ACGT");
         b.add_sequence(b"ACGT");
         assert_eq!(a.finish(), b.finish());
+    }
+
+    #[test]
+    fn abundance_counts_repeats() {
+        let mut a = FracSketch::new(4, 1, DEFAULT_SEED);
+        a.add_sequence(b"ACGTACGT");
+        a.add_sequence(b"ACGT");
+        let plain = {
+            let mut b = FracSketch::new(4, 1, DEFAULT_SEED);
+            b.add_sequence(b"ACGTACGT");
+            b.add_sequence(b"ACGT");
+            b.finish()
+        };
+        let (h, ab) = a.finish_with_abundance();
+        assert_eq!(h, plain);
+        assert_eq!(ab.iter().sum::<u32>(), 6); // 5 windows in ACGTACGT + 1
+    }
+
+    #[test]
+    fn downsample_keeps_low_hashes() {
+        let mh = max_hash_for_scaled(2);
+        let v = vec![1, mh / 2, mh, mh + 1];
+        assert_eq!(downsample(&v, 4), vec![1, mh / 2]);
     }
 
     #[test]
