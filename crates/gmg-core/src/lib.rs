@@ -7,11 +7,17 @@
 //! in `tests/oracle.rs`).
 
 mod call;
+mod fastx;
 mod index;
+#[cfg(feature = "json")]
+mod json;
 mod sketch;
 mod skfile;
 
 pub use call::{guess, guess_from_hits, Guess, RankVote, Thresholds, TopHit};
+pub use fastx::sketch_fastx;
 pub use index::{GenomeMeta, Hit, IndexBuilder, RefIndex, RANKS};
+#[cfg(feature = "json")]
+pub use json::guess_json;
 pub use sketch::{containment, downsample, jaccard, max_hash_for_scaled, FracSketch, DEFAULT_SEED};
 pub use skfile::SketchFile;

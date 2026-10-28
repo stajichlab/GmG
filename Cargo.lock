@@ -452,7 +452,16 @@ version = "0.0.1"
 dependencies = [
  "murmurhash3",
  "needletail",
+ "serde_json",
  "sourmash",
+]
+
+[[package]]
+name = "gmg-wasm"
+version = "0.0.1"
+dependencies = [
+ "gmg-core",
+ "wasm-bindgen",
 ]
 
 [[package]]

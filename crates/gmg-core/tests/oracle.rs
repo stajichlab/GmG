@@ -21,7 +21,8 @@ fn matches_sourmash_crate() {
             continue;
         };
         let mut ours = FracSketch::new(21, 1000, DEFAULT_SEED);
-        let mut theirs = KmerMinHash::new(1000, 21, HashFunctions::Murmur64Dna, DEFAULT_SEED, false, 0);
+        let mut theirs =
+            KmerMinHash::new(1000, 21, HashFunctions::Murmur64Dna, DEFAULT_SEED, false, 0);
         let mut r = parse_fastx_file(&path).unwrap();
         while let Some(rec) = r.next() {
             let seq = rec.unwrap().seq().to_vec();

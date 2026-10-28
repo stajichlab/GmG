@@ -54,7 +54,13 @@ pub struct IndexBuilder {
 
 impl IndexBuilder {
     pub fn new(ksize: u32, scaled: u32, seed: u64) -> Self {
-        Self { ksize, scaled, seed, genomes: vec![], sketches: vec![] }
+        Self {
+            ksize,
+            scaled,
+            seed,
+            genomes: vec![],
+            sketches: vec![],
+        }
     }
 
     /// `hashes` must be sorted and unique (as returned by `FracSketch::finish`).
@@ -74,7 +80,11 @@ impl IndexBuilder {
         let mut postings: Vec<u32> = Vec::new();
         for b in 0..buckets {
             let lo = b * width;
-            let hi = if b + 1 == buckets { u64::MAX } else { (b + 1) * width - 1 };
+            let hi = if b + 1 == buckets {
+                u64::MAX
+            } else {
+                (b + 1) * width - 1
+            };
             let mut pairs: Vec<(u64, u32)> = Vec::new();
             for (g, s) in self.sketches.iter().enumerate() {
                 let a = s.partition_point(|&h| h < lo);
@@ -97,7 +107,15 @@ impl IndexBuilder {
                 offsets.push(postings.len() as u64);
             }
         }
-        RefIndex::assemble(self.ksize, self.scaled, self.seed, self.genomes, hashes, offsets, postings)
+        RefIndex::assemble(
+            self.ksize,
+            self.scaled,
+            self.seed,
+            self.genomes,
+            hashes,
+            offsets,
+            postings,
+        )
     }
 }
 
@@ -113,8 +131,8 @@ impl RefIndex {
     ) -> Self {
         let mut taxa: [Vec<String>; 6] = Default::default();
         let mut maps: Vec<HashMap<String, u32>> = vec![HashMap::new(); 6];
-        for r in 0..6 {
-            taxa[r].push(String::new());
+        for t in taxa.iter_mut() {
+            t.push(String::new());
         }
         let mut lineage_ids = Vec::with_capacity(genomes.len());
         for g in &genomes {
@@ -133,7 +151,17 @@ impl RefIndex {
             }
             lineage_ids.push(ids);
         }
-        Self { ksize, scaled, seed, genomes, lineage_ids, taxa, hashes, offsets, postings }
+        Self {
+            ksize,
+            scaled,
+            seed,
+            genomes,
+            lineage_ids,
+            taxa,
+            hashes,
+            offsets,
+            postings,
+        }
     }
 
     pub fn n_unique_hashes(&self) -> usize {
@@ -171,8 +199,13 @@ impl RefIndex {
                 counts[g as usize] += 1;
             }
         }
-        let mut hits: Vec<Hit> =
-            touched.into_iter().map(|g| Hit { genome: g, shared: counts[g as usize] }).collect();
+        let mut hits: Vec<Hit> = touched
+            .into_iter()
+            .map(|g| Hit {
+                genome: g,
+                shared: counts[g as usize],
+            })
+            .collect();
         hits.sort_unstable_by(|a, b| b.shared.cmp(&a.shared).then(a.genome.cmp(&b.genome)));
         hits
     }
@@ -180,7 +213,14 @@ impl RefIndex {
     pub fn write<W: Write>(&self, w: &mut W) -> io::Result<()> {
         let mut meta = String::new();
         for g in &self.genomes {
-            meta.push_str(&format!("{}\t{}\t{}\t{}\t{}\n", g.id, g.taxid, g.n_hashes, g.lineage.join("\t"), g.cluster));
+            meta.push_str(&format!(
+                "{}\t{}\t{}\t{}\t{}\n",
+                g.id,
+                g.taxid,
+                g.n_hashes,
+                g.lineage.join("\t"),
+                g.cluster
+            ));
         }
         w.write_all(MAGIC)?;
         w.write_all(&self.ksize.to_le_bytes())?;
@@ -201,7 +241,14 @@ impl RefIndex {
     pub fn write_v1<W: Write>(&self, w: &mut W) -> io::Result<()> {
         let mut meta = String::new();
         for g in &self.genomes {
-            meta.push_str(&format!("{}\t{}\t{}\t{}\t{}\n", g.id, g.taxid, g.n_hashes, g.lineage.join("\t"), g.cluster));
+            meta.push_str(&format!(
+                "{}\t{}\t{}\t{}\t{}\n",
+                g.id,
+                g.taxid,
+                g.n_hashes,
+                g.lineage.join("\t"),
+                g.cluster
+            ));
         }
         w.write_all(MAGIC_V1)?;
         w.write_all(&self.ksize.to_le_bytes())?;
@@ -282,22 +329,28 @@ impl RefIndex {
             for _ in 0..nh {
                 prev += get_varint(&rest, &mut pos).ok_or_else(|| bad("truncated index"))?;
                 hashes.push(prev);
-                let len = get_varint(&rest, &mut pos).ok_or_else(|| bad("truncated index"))? as usize;
+                let len =
+                    get_varint(&rest, &mut pos).ok_or_else(|| bad("truncated index"))? as usize;
                 let mut g = 0u32;
                 for j in 0..len {
-                    let v = get_varint(&rest, &mut pos).ok_or_else(|| bad("truncated index"))? as u32;
+                    let v =
+                        get_varint(&rest, &mut pos).ok_or_else(|| bad("truncated index"))? as u32;
                     g = if j == 0 { v } else { g + v };
                     postings.push(g);
                 }
                 offsets.push(postings.len() as u64);
             }
-            return Ok(Self::assemble(ksize, scaled, seed, genomes, hashes, offsets, postings));
+            return Ok(Self::assemble(
+                ksize, scaled, seed, genomes, hashes, offsets, postings,
+            ));
         }
         let hashes = rd_u64_vec(r, nh)?;
         let offsets = rd_u64_vec(r, nh + 1)?;
         let np = rd_u64(r)? as usize;
         let postings = rd_u32_vec(r, np)?;
-        Ok(Self::assemble(ksize, scaled, seed, genomes, hashes, offsets, postings))
+        Ok(Self::assemble(
+            ksize, scaled, seed, genomes, hashes, offsets, postings,
+        ))
     }
 }
 
@@ -340,7 +393,10 @@ mod tests {
         assert_eq!(back.genomes, ix.genomes);
         assert_eq!(back.n_unique_hashes(), ix.n_unique_hashes());
         assert_eq!(back.n_postings(), ix.n_postings());
-        assert_eq!(back.search(&[10, 20, 30], &|_| false), ix.search(&[10, 20, 30], &|_| false));
+        assert_eq!(
+            back.search(&[10, 20, 30], &|_| false),
+            ix.search(&[10, 20, 30], &|_| false)
+        );
         let mut c = Vec::new();
         back.write(&mut c).unwrap();
         assert_eq!(a, c);
@@ -361,7 +417,13 @@ mod tests {
         let mut lineage: [String; 6] = Default::default();
         lineage[4] = "G".into();
         lineage[5] = species.into();
-        GenomeMeta { id: id.into(), taxid: 1, lineage, n_hashes: 0, cluster: String::new() }
+        GenomeMeta {
+            id: id.into(),
+            taxid: 1,
+            lineage,
+            n_hashes: 0,
+            cluster: String::new(),
+        }
     }
 
     fn small(buckets: usize) -> RefIndex {
@@ -377,11 +439,35 @@ mod tests {
         for buckets in [1, 3, 8] {
             let ix = small(buckets);
             let hits = ix.search(&[10, 20, 30, 99], &|_| false);
-            assert_eq!(hits[0], Hit { genome: 0, shared: 3 });
-            assert_eq!(hits[1], Hit { genome: 1, shared: 2 });
-            assert_eq!(hits[2], Hit { genome: 2, shared: 1 });
+            assert_eq!(
+                hits[0],
+                Hit {
+                    genome: 0,
+                    shared: 3
+                }
+            );
+            assert_eq!(
+                hits[1],
+                Hit {
+                    genome: 1,
+                    shared: 2
+                }
+            );
+            assert_eq!(
+                hits[2],
+                Hit {
+                    genome: 2,
+                    shared: 1
+                }
+            );
             let hits = ix.search(&[10, 20, 30], &|g| g == 0);
-            assert_eq!(hits[0], Hit { genome: 1, shared: 2 });
+            assert_eq!(
+                hits[0],
+                Hit {
+                    genome: 1,
+                    shared: 2
+                }
+            );
         }
     }
 
@@ -392,7 +478,10 @@ mod tests {
         ix.write(&mut buf).unwrap();
         let back = RefIndex::read(&mut &buf[..]).unwrap();
         assert_eq!(back.genomes, ix.genomes);
-        assert_eq!(back.search(&[10, 20], &|_| false), ix.search(&[10, 20], &|_| false));
+        assert_eq!(
+            back.search(&[10, 20], &|_| false),
+            ix.search(&[10, 20], &|_| false)
+        );
         assert_eq!(back.lineage_ids[0][5], back.lineage_ids[2][5]);
         assert_ne!(back.lineage_ids[0][5], back.lineage_ids[1][5]);
         assert_eq!(back.lineage_ids[0][0], 0);

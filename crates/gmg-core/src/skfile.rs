@@ -30,12 +30,22 @@ pub(crate) fn rd_u64<R: Read>(r: &mut R) -> io::Result<u64> {
 pub(crate) fn rd_u64_vec<R: Read>(r: &mut R, n: usize) -> io::Result<Vec<u64>> {
     let mut buf = vec![0u8; n * 8];
     r.read_exact(&mut buf)?;
-    Ok(buf.chunks_exact(8).map(|c| u64::from_le_bytes(c.try_into().unwrap())).collect())
+    Ok(buf
+        .as_chunks::<8>()
+        .0
+        .iter()
+        .map(|c| u64::from_le_bytes(*c))
+        .collect())
 }
 pub(crate) fn rd_u32_vec<R: Read>(r: &mut R, n: usize) -> io::Result<Vec<u32>> {
     let mut buf = vec![0u8; n * 4];
     r.read_exact(&mut buf)?;
-    Ok(buf.chunks_exact(4).map(|c| u32::from_le_bytes(c.try_into().unwrap())).collect())
+    Ok(buf
+        .as_chunks::<4>()
+        .0
+        .iter()
+        .map(|c| u32::from_le_bytes(*c))
+        .collect())
 }
 pub(crate) fn wr_u64_slice<W: Write>(w: &mut W, v: &[u64]) -> io::Result<()> {
     let mut buf = Vec::with_capacity(v.len() * 8);
@@ -76,7 +86,10 @@ impl SketchFile {
         let mut m = [0u8; 8];
         r.read_exact(&mut m)?;
         if &m != MAGIC {
-            return Err(io::Error::new(io::ErrorKind::InvalidData, "not a GmG sketch file"));
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "not a GmG sketch file",
+            ));
         }
         let ksize = rd_u32(r)?;
         let scaled = rd_u32(r)?;
@@ -84,13 +97,25 @@ impl SketchFile {
         let nl = rd_u32(r)? as usize;
         let mut nb = vec![0u8; nl];
         r.read_exact(&mut nb)?;
-        let name = String::from_utf8(nb).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
+        let name =
+            String::from_utf8(nb).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
         let n = rd_u64(r)? as usize;
         let hashes = rd_u64_vec(r, n)?;
         let mut f = [0u8; 1];
         r.read_exact(&mut f)?;
-        let abunds = if f[0] == 1 { Some(rd_u32_vec(r, n)?) } else { None };
-        Ok(Self { ksize, scaled, seed, name, hashes, abunds })
+        let abunds = if f[0] == 1 {
+            Some(rd_u32_vec(r, n)?)
+        } else {
+            None
+        };
+        Ok(Self {
+            ksize,
+            scaled,
+            seed,
+            name,
+            hashes,
+            abunds,
+        })
     }
 }
 
