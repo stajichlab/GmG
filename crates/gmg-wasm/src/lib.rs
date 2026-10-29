@@ -19,8 +19,9 @@ pub struct Index {
 impl Index {
     /// Load an index file (as written by `gmg build` / `gmg convert`).
     #[wasm_bindgen(constructor)]
-    pub fn new(bytes: &[u8]) -> Result<Index, JsError> {
-        let ix = RefIndex::read(&mut &bytes[..]).map_err(|e| JsError::new(&e.to_string()))?;
+    pub fn new(bytes: Vec<u8>) -> Result<Index, JsError> {
+        // owned: a packed (v3) index keeps this buffer as its data, so the file is held once in memory
+        let ix = RefIndex::read_owned(bytes).map_err(|e| JsError::new(&e.to_string()))?;
         Ok(Index {
             ix,
             th: Thresholds::default(),

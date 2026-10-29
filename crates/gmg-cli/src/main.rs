@@ -220,12 +220,15 @@ enum Cmd {
     },
     /// Rewrite an index in the compact v1 (delta + varint) format
     #[command(
-        after_long_help = "EXAMPLES\n  gmg convert bfd.gmgi -o bfd.v1.gmgi      the compact format (about 3x smaller)"
+        after_long_help = "EXAMPLES\n  gmg convert bfd.gmgi -o bfd-packed.gmgi      the packed format: about 3x smaller than raw, loads fast, memory stays near the file size"
     )]
     Convert {
         index: PathBuf,
         #[arg(short, long)]
         out: PathBuf,
+        /// v3 (default): packed, loads fast and stays small in memory; v1: delta-coded, expanded at load
+        #[arg(long, default_value = "v3", value_parser = ["v1", "v3"])]
+        format: String,
     },
     /// Leave-out benchmark of genomes that are in the index
     Bench {
@@ -443,8 +446,8 @@ pub(crate) fn sha256_file(path: &Path) -> Result<String> {
 }
 
 pub(crate) fn load_index(path: &Path) -> Result<RefIndex> {
-    let f = File::open(path).with_context(|| format!("opening {}", path.display()))?;
-    Ok(RefIndex::read(&mut BufReader::with_capacity(1 << 20, f))?)
+    let bytes = std::fs::read(path).with_context(|| format!("opening {}", path.display()))?;
+    RefIndex::read_owned(bytes).with_context(|| format!("reading index {}", path.display()))
 }
 
 /// Metadata table with a header. Required columns: id taxid phylum class order family genus species. Optional: cluster,
@@ -773,7 +776,7 @@ fn main() -> Result<()> {
             max_size_ratio,
             out,
         } => {
-            let ix = load_index(&index)?;
+            let ix = load_index(&index)?.into_memory()?;
             let n = ix.genomes.len();
             let by_id: std::collections::HashMap<&str, u32> = ix
                 .genomes
@@ -856,17 +859,26 @@ fn main() -> Result<()> {
             w.flush()?;
             eprintln!("{n} genomes -> {n_clusters} clusters at ANI >= {ani} ({}); {n_too_big} (centroid, genome) pairs above the ANI cutoff were refused by the size ratio", out.display());
         }
-        Cmd::Convert { index, out } => {
+        Cmd::Convert { index, out, format } => {
             let mut ix = load_index(&index)?;
             if let Some(m) = &ix.manifest {
                 if let Ok(mut v) = serde_json::from_str::<serde_json::Value>(m) {
-                    v["format"] = "GMGIDX02".into();
+                    v["format"] = if format == "v1" {
+                        "GMGIDX02"
+                    } else {
+                        "GMGIDX03"
+                    }
+                    .into();
                     v["converted_utc"] = run::utc_now().into();
                     ix.set_manifest(v.to_string());
                 }
             }
             let mut w = BufWriter::new(File::create(&out)?);
-            ix.write_v1(&mut w)?;
+            if format == "v1" {
+                ix.write_v1(&mut w)?;
+            } else {
+                ix.write_v3(&mut w)?;
+            }
             w.flush()?;
             let (a, b) = (
                 std::fs::metadata(&index)?.len(),
@@ -938,6 +950,14 @@ fn main() -> Result<()> {
             let ix = load_index(&index)?;
             let size = std::fs::metadata(&index)?.len();
             println!("file\t{}\t{} bytes", index.display(), size);
+            println!(
+                "layout\t{}",
+                if ix.is_packed() {
+                    "packed (format v3)"
+                } else {
+                    "expanded at load (format v0/v1)"
+                }
+            );
             println!("k\t{}\nscaled\t{}\nseed\t{}", ix.ksize, ix.scaled, ix.seed);
             println!("genomes\t{}", ix.genomes.len());
             match &ix.manifest {
@@ -978,7 +998,7 @@ fn main() -> Result<()> {
             shard_index,
             out,
         } => {
-            let ix = load_index(&index)?;
+            let ix = load_index(&index)?.into_memory()?;
             if !["loo", "los", "log"].contains(&mode.as_str()) {
                 bail!("--mode must be loo, los or log");
             }

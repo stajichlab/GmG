@@ -3,14 +3,20 @@
 //! In memory and on disk the map is three parallel arrays: sorted unique `hashes`,
 //! `offsets` (len = hashes + 1) and `postings` (genome ids, ascending within a hash).
 //! A search of one query sketch is one binary search per query hash.
+//!
+//! Format v3 (`GMGIDX03`) keeps the map packed (see `packed.rs`): loading copies the file and reads a small block
+//! directory, and a query decodes only the blocks it touches, so memory stays near the file size.
 
+use crate::packed::Packed;
 use crate::skfile::{rd_u32, rd_u32_vec, rd_u64, rd_u64_vec, wr_u32_slice, wr_u64_slice};
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::io::{self, Read, Write};
 
 pub const RANKS: [&str; 6] = ["phylum", "class", "order", "family", "genus", "species"];
 const MAGIC: &[u8; 8] = b"GMGIDX01";
 const MAGIC_V1: &[u8; 8] = b"GMGIDX02"; // delta + LEB128 varint coded postings
+const MAGIC_V3: &[u8; 8] = b"GMGIDX03"; // the same coding, packed in blocks with a directory (loaded as is)
 
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct GenomeMeta {
@@ -28,6 +34,9 @@ pub struct GenomeMeta {
     pub label: String,
 }
 
+/// hashes, offsets and postings, borrowed or expanded
+type Arrays<'a> = (Cow<'a, [u64]>, Cow<'a, [u64]>, Cow<'a, [u32]>);
+
 pub struct RefIndex {
     pub ksize: u32,
     pub scaled: u32,
@@ -44,6 +53,8 @@ pub struct RefIndex {
     hashes: Vec<u64>,
     offsets: Vec<u64>,
     postings: Vec<u32>,
+    /// set instead of the three arrays when loaded from a v3 file
+    packed: Option<Packed>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -180,6 +191,7 @@ impl RefIndex {
             hashes,
             offsets,
             postings,
+            packed: None,
         }
     }
 
@@ -234,19 +246,45 @@ impl RefIndex {
     }
 
     pub fn n_unique_hashes(&self) -> usize {
-        self.hashes.len()
+        match &self.packed {
+            Some(p) => p.n_hashes as usize,
+            None => self.hashes.len(),
+        }
     }
     pub fn n_postings(&self) -> usize {
-        self.postings.len()
+        match &self.packed {
+            Some(p) => p.n_postings as usize,
+            None => self.postings.len(),
+        }
     }
 
-    /// For each phylum, the number of `query` hashes found only in genomes of that phylum (sorted, unique query).
-    /// Hashes shared across phyla or only with genomes of unknown phylum are not counted. Returns (phylum name, count)
-    /// sorted by count descending; a single-organism input has one dominant phylum, a mixture has two.
-    pub fn phylum_exclusive(&self, query: &[u64]) -> Vec<(String, u32)> {
-        let mut counts = vec![0u32; self.taxa[0].len().max(1)];
+    /// True when the postings are kept packed (loaded from a v3 file).
+    pub fn is_packed(&self) -> bool {
+        self.packed.is_some()
+    }
+
+    /// Expand a packed index into the in-memory arrays (about 3x the memory, faster for very many queries: bench, cluster).
+    /// An index that is already expanded is returned unchanged; a corrupt packed stream is an error.
+    pub fn into_memory(mut self) -> io::Result<RefIndex> {
+        if let Some(p) = self.packed.take() {
+            let (h, o, g) = p.expand().ok_or_else(|| {
+                io::Error::new(io::ErrorKind::InvalidData, "corrupt index (postings)")
+            })?;
+            self.hashes = h;
+            self.offsets = o;
+            self.postings = g;
+        }
+        Ok(self)
+    }
+
+    /// Call `f` with the genome ids of every hash of `query` (sorted, unique) that is in the index.
+    fn visit(&self, query: &[u64], f: &mut dyn FnMut(&[u32])) {
+        if let Some(p) = &self.packed {
+            return p.visit(query, f);
+        }
         let mut lo = 0usize;
         for &q in query {
+            // query is sorted, so the search window only moves forward
             let pos = match self.hashes[lo..].binary_search(&q) {
                 Ok(p) => lo + p,
                 Err(p) => {
@@ -256,10 +294,25 @@ impl RefIndex {
             };
             lo = pos + 1;
             let (a, z) = (self.offsets[pos] as usize, self.offsets[pos + 1] as usize);
+            f(&self.postings[a..z]);
+        }
+    }
+
+    /// For each phylum, the number of `query` hashes found only in genomes of that phylum (sorted, unique query).
+    /// Hashes shared across phyla or only with genomes of unknown phylum are not counted. Returns (phylum name, count)
+    /// sorted by count descending; a single-organism input has one dominant phylum, a mixture has two.
+    pub fn phylum_exclusive(&self, query: &[u64]) -> Vec<(String, u32)> {
+        let mut counts = vec![0u32; self.taxa[0].len().max(1)];
+        let n = self.lineage_ids.len();
+        self.visit(query, &mut |gs| {
             let mut ph = None;
             let mut single = true;
-            for &g in &self.postings[a..z] {
-                let id = self.lineage_ids[g as usize][0];
+            for &g in gs {
+                let id = if (g as usize) < n {
+                    self.lineage_ids[g as usize][0]
+                } else {
+                    0
+                };
                 if id == 0 || ph.is_some_and(|p| p != id) {
                     single = false;
                     break;
@@ -269,7 +322,7 @@ impl RefIndex {
             if let (true, Some(id)) = (single, ph) {
                 counts[id as usize] += 1;
             }
-        }
+        });
         let mut v: Vec<(String, u32)> = counts
             .iter()
             .enumerate()
@@ -286,20 +339,9 @@ impl RefIndex {
     pub fn search(&self, query: &[u64], skip: &dyn Fn(u32) -> bool) -> Vec<Hit> {
         let mut counts = vec![0u32; self.genomes.len()];
         let mut touched: Vec<u32> = Vec::new();
-        let mut lo = 0usize;
-        for &q in query {
-            // query is sorted, so the search window only moves forward
-            let pos = match self.hashes[lo..].binary_search(&q) {
-                Ok(p) => lo + p,
-                Err(p) => {
-                    lo += p;
-                    continue;
-                }
-            };
-            lo = pos + 1;
-            let (a, z) = (self.offsets[pos] as usize, self.offsets[pos + 1] as usize);
-            for &g in &self.postings[a..z] {
-                if skip(g) {
+        self.visit(query, &mut |gs| {
+            for &g in gs {
+                if (g as usize) >= counts.len() || skip(g) {
                     continue;
                 }
                 if counts[g as usize] == 0 {
@@ -307,7 +349,7 @@ impl RefIndex {
                 }
                 counts[g as usize] += 1;
             }
-        }
+        });
         let mut hits: Vec<Hit> = touched
             .into_iter()
             .map(|g| Hit {
@@ -319,7 +361,8 @@ impl RefIndex {
         hits
     }
 
-    pub fn write<W: Write>(&self, w: &mut W) -> io::Result<()> {
+    /// The metadata section of the file: manifest line, then one tab-separated line per genome.
+    fn meta_text(&self) -> String {
         let mut meta = self.manifest_line();
         for g in &self.genomes {
             meta.push_str(&format!(
@@ -333,6 +376,56 @@ impl RefIndex {
                 g.label.replace(['\t', '\n', '\r'], " ")
             ));
         }
+        meta
+    }
+
+    /// The three arrays, expanded on the fly when the index is packed.
+    fn arrays(&self) -> io::Result<Arrays<'_>> {
+        match &self.packed {
+            None => Ok((
+                Cow::Borrowed(&self.hashes),
+                Cow::Borrowed(&self.offsets),
+                Cow::Borrowed(&self.postings),
+            )),
+            Some(p) => {
+                let (h, o, g) = p.expand().ok_or_else(|| {
+                    io::Error::new(io::ErrorKind::InvalidData, "corrupt index (postings)")
+                })?;
+                Ok((Cow::Owned(h), Cow::Owned(o), Cow::Owned(g)))
+            }
+        }
+    }
+
+    /// Write format v3 (packed). Loads fast and stays small in memory; `gmg convert` writes it.
+    pub fn write_v3<W: Write>(&self, w: &mut W) -> io::Result<()> {
+        let meta = self.meta_text();
+        let encoded;
+        let packed = match &self.packed {
+            Some(p) => p,
+            None => {
+                encoded = Packed::encode(&self.hashes, &self.offsets, &self.postings);
+                &encoded
+            }
+        };
+        w.write_all(MAGIC_V3)?;
+        w.write_all(&self.ksize.to_le_bytes())?;
+        w.write_all(&self.scaled.to_le_bytes())?;
+        w.write_all(&self.seed.to_le_bytes())?;
+        w.write_all(&(self.genomes.len() as u32).to_le_bytes())?;
+        w.write_all(&(meta.len() as u64).to_le_bytes())?;
+        w.write_all(meta.as_bytes())?;
+        w.write_all(&packed.n_hashes.to_le_bytes())?;
+        w.write_all(&packed.n_postings.to_le_bytes())?;
+        w.write_all(&(packed.first.len() as u64).to_le_bytes())?;
+        wr_u64_slice(w, &packed.first)?;
+        wr_u64_slice(w, &packed.off)?;
+        w.write_all(&(packed.data.len() as u64).to_le_bytes())?;
+        w.write_all(&packed.data)
+    }
+
+    pub fn write<W: Write>(&self, w: &mut W) -> io::Result<()> {
+        let (hashes, offsets, postings) = self.arrays()?;
+        let meta = self.meta_text();
         w.write_all(MAGIC)?;
         w.write_all(&self.ksize.to_le_bytes())?;
         w.write_all(&self.scaled.to_le_bytes())?;
@@ -340,29 +433,18 @@ impl RefIndex {
         w.write_all(&(self.genomes.len() as u32).to_le_bytes())?;
         w.write_all(&(meta.len() as u64).to_le_bytes())?;
         w.write_all(meta.as_bytes())?;
-        w.write_all(&(self.hashes.len() as u64).to_le_bytes())?;
-        wr_u64_slice(w, &self.hashes)?;
-        wr_u64_slice(w, &self.offsets)?;
-        w.write_all(&(self.postings.len() as u64).to_le_bytes())?;
-        wr_u32_slice(w, &self.postings)
+        w.write_all(&(hashes.len() as u64).to_le_bytes())?;
+        wr_u64_slice(w, &hashes)?;
+        wr_u64_slice(w, &offsets)?;
+        w.write_all(&(postings.len() as u64).to_le_bytes())?;
+        wr_u32_slice(w, &postings)
     }
 
     /// Write the compact v1 format: hashes as deltas, posting lists as (length, id deltas), all LEB128.
     /// `read` accepts both formats.
     pub fn write_v1<W: Write>(&self, w: &mut W) -> io::Result<()> {
-        let mut meta = self.manifest_line();
-        for g in &self.genomes {
-            meta.push_str(&format!(
-                "{}\t{}\t{}\t{}\t{}\t{}\t{}\n",
-                g.id,
-                g.taxid,
-                g.n_hashes,
-                g.lineage.join("\t"),
-                g.cluster,
-                g.rank_taxids.map(|t| t.to_string()).join("\t"),
-                g.label.replace(['\t', '\n', '\r'], " ")
-            ));
-        }
+        let meta = self.meta_text();
+        let (hashes, offsets, postings) = self.arrays()?;
         w.write_all(MAGIC_V1)?;
         w.write_all(&self.ksize.to_le_bytes())?;
         w.write_all(&self.scaled.to_le_bytes())?;
@@ -370,16 +452,16 @@ impl RefIndex {
         w.write_all(&(self.genomes.len() as u32).to_le_bytes())?;
         w.write_all(&(meta.len() as u64).to_le_bytes())?;
         w.write_all(meta.as_bytes())?;
-        w.write_all(&(self.hashes.len() as u64).to_le_bytes())?;
+        w.write_all(&(hashes.len() as u64).to_le_bytes())?;
         let mut buf: Vec<u8> = Vec::with_capacity(1 << 20);
         let mut prev = 0u64;
-        for (i, &h) in self.hashes.iter().enumerate() {
+        for (i, &h) in hashes.iter().enumerate() {
             put_varint(&mut buf, h - prev);
             prev = h;
-            let (a, z) = (self.offsets[i] as usize, self.offsets[i + 1] as usize);
+            let (a, z) = (offsets[i] as usize, offsets[i + 1] as usize);
             put_varint(&mut buf, (z - a) as u64);
             let mut pg = 0u32;
-            for (j, &g) in self.postings[a..z].iter().enumerate() {
+            for (j, &g) in postings[a..z].iter().enumerate() {
                 put_varint(&mut buf, if j == 0 { g as u64 } else { (g - pg) as u64 });
                 pg = g;
             }
@@ -392,11 +474,41 @@ impl RefIndex {
     }
 
     pub fn read<R: Read>(r: &mut R) -> io::Result<Self> {
+        Ok(Self::read_impl(r, false)?.0)
+    }
+
+    /// Load from an owned buffer. A v3 file keeps the buffer as its packed data (no second copy: the header is
+    /// dropped in place); older formats are decoded as in `read`.
+    pub fn read_owned(mut bytes: Vec<u8>) -> io::Result<Self> {
+        if bytes.len() < 8 || &bytes[..8] != MAGIC_V3 {
+            return Self::read(&mut &bytes[..]);
+        }
+        let mut cur = io::Cursor::new(&bytes[..]);
+        let (mut ix, dl) = Self::read_impl(&mut cur, true)?;
+        let pos = cur.position() as usize;
+        if bytes.len() < pos.saturating_add(dl) {
+            return Err(io::Error::new(
+                io::ErrorKind::UnexpectedEof,
+                "file is truncated",
+            ));
+        }
+        bytes.truncate(pos + dl);
+        bytes.drain(..pos);
+        if let Some(p) = ix.packed.as_mut() {
+            p.data = bytes;
+            p.check()?;
+        }
+        Ok(ix)
+    }
+
+    /// `skip_data`: leave the v3 data section unread and return its length (for `read_owned`).
+    fn read_impl<R: Read>(r: &mut R, skip_data: bool) -> io::Result<(Self, usize)> {
         let bad = |m: &str| io::Error::new(io::ErrorKind::InvalidData, m.to_string());
         let mut m = [0u8; 8];
         r.read_exact(&mut m)?;
         let v1 = &m == MAGIC_V1;
-        if &m != MAGIC && !v1 {
+        let v3 = &m == MAGIC_V3;
+        if &m != MAGIC && !v1 && !v3 {
             return Err(bad("not a GmG index"));
         }
         let ksize = rd_u32(r)?;
@@ -444,6 +556,40 @@ impl RefIndex {
             return Err(bad("genome count mismatch"));
         }
         let nh = usize::try_from(rd_u64(r)?).map_err(|_| bad("implausible length"))?;
+        if v3 {
+            let np = rd_u64(r)?;
+            let nb = usize::try_from(rd_u64(r)?).map_err(|_| bad("implausible length"))?;
+            let first = rd_u64_vec(r, nb)?;
+            let off = rd_u64_vec(r, nb)?;
+            let dl = usize::try_from(rd_u64(r)?).map_err(|_| bad("implausible length"))?;
+            let data = if skip_data {
+                Vec::new()
+            } else {
+                crate::skfile::rd_bytes(r, dl)?
+            };
+            let packed = Packed {
+                n_hashes: nh as u64,
+                n_postings: np,
+                first,
+                off,
+                data,
+            };
+            if !skip_data {
+                packed.check()?;
+            }
+            let mut ix = Self::assemble(
+                ksize,
+                scaled,
+                seed,
+                genomes,
+                Vec::new(),
+                vec![0],
+                Vec::new(),
+            );
+            ix.packed = Some(packed);
+            ix.manifest = manifest;
+            return Ok((ix, dl));
+        }
         if v1 {
             let mut rest = Vec::new();
             r.read_to_end(&mut rest)?;
@@ -481,7 +627,7 @@ impl RefIndex {
             validate(genomes.len(), &hashes, &offsets, &postings)?;
             let mut ix = Self::assemble(ksize, scaled, seed, genomes, hashes, offsets, postings);
             ix.manifest = manifest;
-            return Ok(ix);
+            return Ok((ix, 0));
         }
         let hashes = rd_u64_vec(r, nh)?;
         let offsets = rd_u64_vec(
@@ -493,7 +639,7 @@ impl RefIndex {
         validate(genomes.len(), &hashes, &offsets, &postings)?;
         let mut ix = Self::assemble(ksize, scaled, seed, genomes, hashes, offsets, postings);
         ix.manifest = manifest;
-        Ok(ix)
+        Ok((ix, 0))
     }
 }
 
@@ -517,7 +663,7 @@ fn validate(n_genomes: usize, hashes: &[u64], offsets: &[u64], postings: &[u32])
     Ok(())
 }
 
-fn put_varint(buf: &mut Vec<u8>, mut v: u64) {
+pub(crate) fn put_varint(buf: &mut Vec<u8>, mut v: u64) {
     while v >= 0x80 {
         buf.push((v as u8) | 0x80);
         v >>= 7;
@@ -525,7 +671,7 @@ fn put_varint(buf: &mut Vec<u8>, mut v: u64) {
     buf.push(v as u8);
 }
 
-fn get_varint(buf: &[u8], pos: &mut usize) -> Option<u64> {
+pub(crate) fn get_varint(buf: &[u8], pos: &mut usize) -> Option<u64> {
     let (mut v, mut shift) = (0u64, 0u32);
     loop {
         let b = *buf.get(*pos)?;
@@ -707,6 +853,86 @@ mod tests {
             let g = back.taxa[4].iter().position(|t| t == "Fusarium").unwrap();
             assert_eq!(back.taxon_taxids[4][g], 5506);
         }
+    }
+
+    #[test]
+    fn packed_v3_answers_exactly_like_the_expanded_index() {
+        // 40 genomes x ~900 hashes drawn from a shared pool so lists have 1..many genomes; > 3 blocks of 256 hashes
+        let mut rng = 0x9E3779B97F4A7C15u64;
+        let mut next = move || {
+            rng ^= rng << 13;
+            rng ^= rng >> 7;
+            rng ^= rng << 17;
+            rng
+        };
+        let mut b = IndexBuilder::new(21, 1, 42);
+        let pool: Vec<u64> = (0..2500).map(|_| next() >> 3).collect();
+        for i in 0..40 {
+            let mut h: Vec<u64> = (0..900).map(|_| pool[(next() % 2500) as usize]).collect();
+            h.sort_unstable();
+            h.dedup();
+            b.add(meta(&format!("g{i}"), "s"), h);
+        }
+        let ix = b.build(4);
+        assert!(ix.n_unique_hashes() > 3 * 256);
+        let mut buf = Vec::new();
+        ix.write_v3(&mut buf).unwrap();
+        let packed = RefIndex::read(&mut &buf[..]).unwrap();
+        assert!(packed.is_packed() && !ix.is_packed());
+        assert_eq!(packed.n_unique_hashes(), ix.n_unique_hashes());
+        assert_eq!(packed.n_postings(), ix.n_postings());
+        // queries: present hashes, absent hashes, below the smallest and above the largest, several sizes
+        for size in [1usize, 5, 300, 2000] {
+            let mut q: Vec<u64> = (0..size)
+                .map(|i| match i % 4 {
+                    0 => pool[(next() % 2500) as usize],
+                    1 => next() >> 3,
+                    2 => i as u64,
+                    _ => u64::MAX - i as u64,
+                })
+                .collect();
+            q.sort_unstable();
+            q.dedup();
+            assert_eq!(
+                packed.search(&q, &|_| false),
+                ix.search(&q, &|_| false),
+                "size {size}"
+            );
+            assert_eq!(
+                packed.search(&q, &|g| g % 3 == 0),
+                ix.search(&q, &|g| g % 3 == 0)
+            );
+            assert_eq!(packed.phylum_exclusive(&q), ix.phylum_exclusive(&q));
+        }
+        // expanding gives back the arrays: writing v1 from either is identical, and v3 survives a rewrite
+        let (mut a, mut c) = (Vec::new(), Vec::new());
+        ix.write_v1(&mut a).unwrap();
+        packed.write_v1(&mut c).unwrap();
+        assert_eq!(a, c);
+        let mut again = Vec::new();
+        packed.write_v3(&mut again).unwrap();
+        assert_eq!(again, buf);
+        // the owned loader gives the same index without a second copy
+        let owned = RefIndex::read_owned(buf.clone()).unwrap();
+        assert!(owned.is_packed());
+        let q = [pool[1], pool[2], pool[3]];
+        assert_eq!(owned.search(&q, &|_| false), ix.search(&q, &|_| false));
+        let mem = RefIndex::read(&mut &buf[..])
+            .unwrap()
+            .into_memory()
+            .unwrap();
+        assert!(!mem.is_packed());
+        assert_eq!(
+            mem.search(&[pool[0]], &|_| false),
+            ix.search(&[pool[0]], &|_| false)
+        );
+        // and the packed file is no bigger than v1 (plus the small directory)
+        assert!(
+            buf.len() < a.len() + a.len() / 20 + 4096,
+            "{} vs {}",
+            buf.len(),
+            a.len()
+        );
     }
 
     #[test]

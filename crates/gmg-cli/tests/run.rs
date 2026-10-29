@@ -604,9 +604,43 @@ fn index_manifest_is_recorded_shown_and_kept_by_convert() {
     ok(&["convert", ix.to_str().unwrap(), "-o", v1.to_str().unwrap()]);
     let info1 = String::from_utf8(ok(&["info", v1.to_str().unwrap()]).stdout).unwrap();
     assert!(
-        info1.contains("manifest.format\tGMGIDX02") && info1.contains("manifest.converted_utc\t"),
+        info1.contains("manifest.format\tGMGIDX03")
+            && info1.contains("manifest.converted_utc\t")
+            && info1.contains("packed (format v3)"),
         "{info1}"
     );
+    // the older compact format is still available and gives the same answers
+    let old = d.join("ix.old.gmgi");
+    ok(&[
+        "convert",
+        ix.to_str().unwrap(),
+        "-o",
+        old.to_str().unwrap(),
+        "--format",
+        "v1",
+    ]);
+    assert!(
+        String::from_utf8(ok(&["info", old.to_str().unwrap()]).stdout)
+            .unwrap()
+            .contains("manifest.format\tGMGIDX02")
+    );
+    let g = |index: &std::path::Path| {
+        let q = d.join("q.fa");
+        fs::write(&q, fasta("q", &genomes[1])).unwrap();
+        String::from_utf8(
+            ok(&[
+                "guess",
+                "--index",
+                index.to_str().unwrap(),
+                q.to_str().unwrap(),
+            ])
+            .stdout,
+        )
+        .unwrap()
+        .replace(d.to_str().unwrap(), "")
+    };
+    assert_eq!(g(&v1), g(&old));
+    assert_eq!(g(&v1), g(&ix));
     let inp = d.join("in");
     fs::create_dir_all(&inp).unwrap();
     fs::write(inp.join("a.fa"), fasta("a", &genomes[0])).unwrap();

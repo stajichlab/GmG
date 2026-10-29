@@ -6,7 +6,7 @@ An index (`.gmgi`) carries a one-line JSON **manifest** written by `gmg build` (
 |---|---|
 | `gmg`, `commit` | tool version and git commit that built it |
 | `built_utc` | build time |
-| `format` | `GMGIDX01` (raw) or `GMGIDX02` (compact, after `gmg convert`); `converted_utc` is added by convert |
+| `format` | `GMGIDX01` (raw), `GMGIDX02` (compact v1) or `GMGIDX03` (packed v3, the default of `gmg convert`: loads in ~0.1 s and stays near the file size in memory; `--format v1` writes the older one); `converted_utc` is added by convert |
 | `k`, `scaled`, `seed` | sketch parameters; queries with a different k or seed are refused, a coarser query `scaled` is refused, a finer one is downsampled |
 | `genomes`, `skipped` | genomes indexed, and metadata rows without a usable sketch |
 | `meta_sha256`, `meta_name` | checksum and name of the metadata table the index was built from |

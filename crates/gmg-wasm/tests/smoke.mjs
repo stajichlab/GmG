@@ -41,10 +41,11 @@ fs.writeFileSync(path.join(tmp, "query.fa"), queryFa);
 const run = (...args) => execFileSync(gmg, args, { encoding: "utf8", stdio: ["ignore", "pipe", "inherit"] });
 run("sketch", "-k", "21", "-s", "10", "-o", path.join(tmp, "sk"), ...genomes.map((_, i) => path.join(tmp, `g${i}.fa`)));
 run("build", "--meta", path.join(tmp, "meta.tsv"), "--sketches", path.join(tmp, "sk"), "-o", path.join(tmp, "ix.gmgi"));
-run("convert", path.join(tmp, "ix.gmgi"), "-o", path.join(tmp, "ix.v1"));
+run("convert", path.join(tmp, "ix.gmgi"), "-o", path.join(tmp, "ix.v1"), "--format", "v1");
+run("convert", path.join(tmp, "ix.gmgi"), "-o", path.join(tmp, "ix.v3"));
 const cli = JSON.parse(run("guess", "--index", path.join(tmp, "ix.gmgi"), path.join(tmp, "query.fa")));
 
-for (const file of ["ix.gmgi", "ix.v1"]) {   // both index formats
+for (const file of ["ix.gmgi", "ix.v1", "ix.v3"]) {   // all three index formats (raw, compact v1, packed v3)
   const ix = new Index(new Uint8Array(fs.readFileSync(path.join(tmp, file))));
   assert.equal(ix.ksize(), 21);
   assert.equal(ix.scaled(), 10);
@@ -70,4 +71,4 @@ assert.throws(() => render_report("", "not json", ""));
 // bad input must throw, not abort
 assert.throws(() => new Index(new Uint8Array([1, 2, 3])));
 fs.rmSync(tmp, { recursive: true });
-console.log("gmg-wasm smoke test OK: wasm and native CLI agree (v0 and v1 index)");
+console.log("gmg-wasm smoke test OK: wasm and native CLI agree (raw, v1 and packed v3 index)");
