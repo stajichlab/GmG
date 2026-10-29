@@ -17,7 +17,7 @@ use std::sync::Mutex;
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
 /// Bump when a column of results.tsv / hits.tsv or a key of results.jsonl / run.json changes meaning.
-pub const SCHEMA_VERSION: u32 = 2; // 2: tentative_genus column; balanced default thresholds
+pub const SCHEMA_VERSION: u32 = 3; // 2: tentative_genus column; balanced default thresholds. 3: error_code column, plain error messages
 
 /// Species ANI cutoff for read sets (#32): repeated sequencing errors lower the containment ANI of a read set, so the
 /// assembly cutoff (0.9938) leaves 8-15% of correct species unnamed. With *C. immitis* left out of the reference its reads
@@ -200,6 +200,12 @@ fn process(
         let min_abund = a.min_abund.unwrap_or(if reads { 2 } else { 1 });
         let (sk, st) = sketch_with_stats(&inp.path, ix.ksize, ix.scaled, reads, a.max_reads)?
             .with_context(|| "no sequence records".to_string())?;
+        if st.total_len == 0 {
+            bail!("no sequence records");
+        }
+        if st.total_len < ix.ksize as u64 {
+            bail!("input is too short for one k-mer window");
+        }
         let hist = if reads {
             abundance_hist(&sk, min_abund)
         } else {
@@ -257,11 +263,15 @@ fn process(
     };
     match attempt() {
         Ok((v, h)) => (v, h),
-        Err(e) => (
-            json!({"schema_version": SCHEMA_VERSION, "id": inp.id, "path": path, "size_bytes": size, "kind": inp.kind,
-               "status": "error", "best_rank": null, "message": format!("{e:#}"), "qc": null, "qc_flags": [], "guess": null}),
-            None,
-        ),
+        Err(e) => {
+            let ie = crate::errors::classify(&inp.path, size, &e);
+            (
+                json!({"schema_version": SCHEMA_VERSION, "id": inp.id, "path": path, "size_bytes": size, "kind": inp.kind,
+                   "status": "error", "best_rank": null, "error_code": ie.code, "message": ie.message,
+                   "error_action": ie.action, "qc": null, "qc_flags": [], "guess": null}),
+                None,
+            )
+        }
     }
 }
 
@@ -352,6 +362,7 @@ fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
         "n50",
         "qc_flags",
         "message",
+        "error_code",
         "schema_version",
     ] {
         header.push(c.to_string());
@@ -405,6 +416,7 @@ fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
                 })
                 .unwrap_or_default(),
             tsv_cell(&r["message"]),
+            tsv_cell(&r["error_code"]),
             SCHEMA_VERSION.to_string(),
         ]);
         rows.push(row);

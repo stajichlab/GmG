@@ -43,3 +43,6 @@ Re-ran the 1,257 independent genomes, 558 Coccidioides read sets x3 depths and 3
 
 ## 2026-10-28 reads species cutoff (#32)
 Absent-species check (index without C. immitis): immitis reads match posadasii at ANI ~0.978, falsely named in 0.6% at 0.99. Reads now use species ANI 0.99 (assemblies 0.9938). Cocci species called 91/93/88% -> 95/96/96%, precision unchanged; RNA species called 61/59/54% -> 68/68/63%. Reports *_reads099.*, cocci_absent_species.md.
+
+## 2026-10-28 error codes (#55)
+Failed inputs now carry error_code (empty_file, no_sequence_records, not_sequence_file, bad_gzip, unreadable, too_short, parse_error), a path-free message and an action in the report card. results.tsv schema_version 3.
