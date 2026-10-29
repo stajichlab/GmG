@@ -4,10 +4,13 @@
 //! Design: `docs/report-mockup/` (issue #22). Every number in the report is a column of results.tsv.
 
 mod charts;
+mod figs;
+mod markdown;
 mod model;
 mod page;
 mod svg;
 
+pub use markdown::Markdown;
 pub use model::{file_names_only, Rec};
 
 use serde_json::Value;
@@ -46,6 +49,16 @@ pub fn render_html(
     opts: &Options,
 ) -> String {
     page::render(results, run, relationships, opts)
+}
+
+/// The same report as Markdown plus standalone SVG figures (`figures/<name>`), for GitHub or notebooks.
+pub fn render_markdown(
+    results: &[Value],
+    run: &Value,
+    relationships: Option<&Value>,
+    opts: &Options,
+) -> Markdown {
+    markdown::render(results, run, relationships, opts)
 }
 
 /// Parse `results.jsonl` text (one JSON object per line; blank/invalid lines are skipped).

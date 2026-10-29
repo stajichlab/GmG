@@ -272,3 +272,51 @@ fn tiny_unclassified_input_says_too_little_data() {
     assert!(html.contains("1.5 Mb and 148 sketch hashes"), "numbers");
     assert!(html.contains("says nothing about the organism"));
 }
+
+#[test]
+fn markdown_report_has_valid_figures_and_every_input() {
+    let (results, run, rel) = fixture();
+    let m = gmg_report::render_markdown(&results, &run, Some(&rel), &Options::default());
+    assert!(m.md.starts_with("# GmG classification report"));
+    // every figure referenced exists, is valid standalone SVG with its colours defined
+    let names: HashSet<&str> = m.figures.iter().map(|(n, _)| n.as_str()).collect();
+    for part in m.md.split("](figures/").skip(1) {
+        let n = part.split(')').next().unwrap();
+        assert!(names.contains(n), "figure {n} referenced but not produced");
+    }
+    assert!(names.len() >= 4);
+    for (n, svg) in &m.figures {
+        roxmltree::Document::parse(svg).unwrap_or_else(|e| panic!("{n}: {e}"));
+        assert!(
+            svg.contains("xmlns=\"http://www.w3.org/2000/svg\"") && svg.contains("--ph-1:"),
+            "{n}"
+        );
+        assert!(!svg.contains("NaN"), "{n}");
+    }
+    // one table row per input, no local paths, no HTML leaking in
+    let rows =
+        m.md.split("## All inputs")
+            .nth(1)
+            .unwrap()
+            .split("## Methods")
+            .next()
+            .unwrap();
+    let n_rows = rows
+        .lines()
+        .filter(|l| l.starts_with("| ") && !l.starts_with("| input") && !l.starts_with("|---"))
+        .count();
+    assert_eq!(n_rows, results.len());
+    assert!(!m.md.contains("/Users/") && !m.md.contains("<svg") && !m.md.contains("<script"));
+    assert!(m.md.contains("## Methods") && m.md.contains("| genus |"));
+}
+
+#[test]
+fn markdown_report_of_nothing_or_only_errors_still_renders() {
+    let (_, run, _) = fixture();
+    let m = gmg_report::render_markdown(&[], &run, None, &Options::default());
+    assert!(m.md.contains("No input could be classified"));
+    let err = json!({"id": "bad", "path": "bad.fa", "kind": "assembly", "status": "error", "error_code": "empty_file",
+        "message": "The file is empty (0 bytes).", "error_action": "Re-download or re-copy it.", "qc": null, "qc_flags": [], "guess": null});
+    let m = gmg_report::render_markdown(&[err], &run, None, &Options::default());
+    assert!(m.md.contains("`empty_file`") && m.md.contains("Re-download or re-copy it."));
+}

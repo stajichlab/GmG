@@ -42,6 +42,8 @@ pub struct RunArgs {
     /// write report.html (default); `--no-report` turns it off
     pub report: bool,
     pub max_cards: usize,
+    /// html (default), md or all
+    pub report_format: String,
 }
 
 struct Input {
@@ -719,7 +721,7 @@ pub fn run(args: RunArgs) -> Result<()> {
         serde_json::to_string_pretty(&manifest)? + "\n",
     )?;
     if args.report {
-        write_report(&args.out, args.max_cards)?;
+        write_report(&args.out, args.max_cards, &args.report_format)?;
     }
     let mut cs: Vec<_> = counts.iter().collect();
     cs.sort();
@@ -737,7 +739,7 @@ pub fn run(args: RunArgs) -> Result<()> {
 }
 
 /// Render report.html from the files of a finished run in `dir` (results.jsonl, run.json, optional relationships.json).
-pub fn write_report(dir: &Path, max_cards: usize) -> Result<()> {
+pub fn write_report(dir: &Path, max_cards: usize, format: &str) -> Result<()> {
     let results = gmg_report::parse_results_jsonl(
         &fs::read_to_string(dir.join("results.jsonl")).with_context(|| {
             format!(
@@ -757,9 +759,19 @@ pub fn write_report(dir: &Path, max_cards: usize) -> Result<()> {
         max_cards,
         ..Default::default()
     };
-    fs::write(
-        dir.join("report.html"),
-        gmg_report::render_html(&results, &run, rel.as_ref(), &opts),
-    )?;
+    if matches!(format, "html" | "all") {
+        fs::write(
+            dir.join("report.html"),
+            gmg_report::render_html(&results, &run, rel.as_ref(), &opts),
+        )?;
+    }
+    if matches!(format, "md" | "all") {
+        let m = gmg_report::render_markdown(&results, &run, rel.as_ref(), &opts);
+        fs::create_dir_all(dir.join("figures"))?;
+        for (name, svg) in &m.figures {
+            fs::write(dir.join("figures").join(name), svg)?;
+        }
+        fs::write(dir.join("report.md"), m.md)?;
+    }
     Ok(())
 }
