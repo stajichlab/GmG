@@ -256,3 +256,19 @@ fn tentative_genus_is_shown_as_tentative_everywhere() {
         roxmltree::Document::parse(s).unwrap();
     }
 }
+
+#[test]
+fn tiny_unclassified_input_says_too_little_data() {
+    let (results, run, _) = fixture();
+    let rec = json!({
+        "id": "frag1", "path": "frag1.fa", "kind": "assembly", "status": "no_match", "best_rank": "",
+        "qc": {"total_bases": 1.5e6, "n50": 4000, "n_hashes": 148}, "qc_flags": ["short_genome", "few_hashes", "fragmented"],
+        "guess": {"calls": {}, "top": null, "hits": []}
+    });
+    let mut all = results;
+    all.push(rec);
+    let html = render_html(&all, &run, None, &Options::default());
+    assert!(html.contains("Too little data."), "explanation");
+    assert!(html.contains("1.5 Mb and 148 sketch hashes"), "numbers");
+    assert!(html.contains("says nothing about the organism"));
+}
