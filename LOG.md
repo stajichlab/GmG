@@ -70,3 +70,6 @@ Per-command examples in --help (tested: every example parses), top-level quick s
 
 ## 2026-10-28 output formats (#26)
 guess --format table|tsv|json, Guess::withheld (first failed rank + number), withheld column (schema v5), global -q/-v, golden guess.tsv / guess.table.txt. Real non-fungal negative controls: job 16_negative_controls (E. coli, B. subtilis, phiX174, Arabidopsis, Chlamydomonas, C. elegans, P. falciparum). Taxids per call remain #30.
+
+## 2026-10-28 input QC (#29, part of #59)
+Size flags use the called phylum's 1st-99th percentile of reference genome size (fallback 0.5-99.5 of all; none when the reference has < 50 genomes); qc.size_range_mb / size_range_basis in results.jsonl; report shows Typical size and the too-little-data note quotes it. docs/qc.md has the BFD size distribution behind the thresholds. Fixed 5/150 Mb rule dropped (flagged half of Microsporidia, all rusts).

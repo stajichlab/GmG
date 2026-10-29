@@ -358,15 +358,37 @@ fn thresholds_json(th: &Thresholds) -> Value {
            "tentative_genus_min_ani": th.tentative_genus_min_ani})
 }
 
-/// Provisional QC flags (issue #29 will refine them); they explain results, they never change a call.
-fn qc_flags(kind: &str, st: &Stats, n_hashes: usize, top: Option<&Value>) -> Vec<&'static str> {
+/// Expected genome size range (Mb) of the called phylum, from the reference (`RefIndex::size_range_mb`), by phylum name.
+type SizeRanges = HashMap<String, Option<(f64, f64, String)>>;
+
+fn size_ranges(ix: &RefIndex) -> SizeRanges {
+    let mut m: SizeRanges = HashMap::new();
+    m.insert(String::new(), ix.size_range_mb(None));
+    for ph in ix.taxa[0].iter().skip(1) {
+        m.insert(ph.clone(), ix.size_range_mb(Some(ph)));
+    }
+    m
+}
+
+/// QC flags explain a result, they never change a call (docs/qc.md has the rationale for every threshold).
+fn qc_flags(
+    kind: &str,
+    st: &Stats,
+    n_hashes: usize,
+    top: Option<&Value>,
+    size: Option<(f64, &(f64, f64, String))>,
+) -> Vec<&'static str> {
     let mut f = Vec::new();
     if kind == "assembly" {
-        if st.total_len < 5_000_000 {
-            f.push("short_genome");
-        }
-        if st.total_len > 150_000_000 {
-            f.push("long_genome");
+        // size: the sketch-based estimate against the 1st-99th percentile of the called phylum in the reference
+        // (0.5th-99.5th of all genomes when no phylum is called or the phylum is small)
+        if let Some((est, (lo, hi, _))) = size {
+            if est < *lo {
+                f.push("short_genome");
+            }
+            if est > *hi {
+                f.push("long_genome");
+            }
         }
         if st.n50 < 10_000 {
             f.push("fragmented");
@@ -401,6 +423,7 @@ fn process(
     inp: &Input,
     a: &RunArgs,
     keep_hashes: bool,
+    ranges: &SizeRanges,
 ) -> (Value, Option<Vec<u64>>) {
     let size = input_size(inp);
     let path = inp.path.display().to_string();
@@ -435,17 +458,35 @@ fn process(
         gj["withheld"] = crate::withheld_json(&g, th);
         let (best, status) = crate::status_of(&g);
         let split = ix.phylum_exclusive(&hashes);
+        let est_mb = hashes.len() as f64 * ix.scaled as f64 / 1e6;
+        let range = if reads {
+            None
+        } else {
+            g.calls[0]
+                .as_deref()
+                .and_then(|ph| ranges.get(ph))
+                .filter(|r| r.is_some())
+                .or_else(|| ranges.get(""))
+                .and_then(|r| r.as_ref())
+        };
         let flags = qc_flags(
             inp.kind,
             &st,
             hashes.len(),
             gj.get("top").filter(|t| !t.is_null()),
+            range.map(|r| (est_mb, r)),
         );
         let mut qc = json!({"n_records": st.n_records, "total_bases": st.total_len, "n50": st.n50,
                    "non_acgt_fraction": if st.total_len > 0 { st.non_acgt as f64 / st.total_len as f64 } else { 0.0 },
                    "n_hashes": hashes.len(), "min_abund": min_abund});
         if let Some(h) = hist {
             qc["abundance_hist"] = h;
+        }
+        if let Some((lo, hi, basis)) = range {
+            qc["size_est_mb"] = json!((est_mb * 100.0).round() / 100.0);
+            qc["size_range_mb"] =
+                json!([(lo * 100.0).round() / 100.0, (hi * 100.0).round() / 100.0]);
+            qc["size_range_basis"] = json!(basis);
         }
         qc["phylum_split"] = json!(split
             .iter()
@@ -757,6 +798,7 @@ pub fn run(args: RunArgs) -> Result<()> {
     let writer = Mutex::new(BufWriter::new(
         OpenOptions::new().append(true).open(&jsonl)?,
     ));
+    let ranges = size_ranges(&ix);
     let counter = AtomicUsize::new(0);
     let t_work = Instant::now();
     let total = todo.len();
@@ -765,7 +807,7 @@ pub fn run(args: RunArgs) -> Result<()> {
     let fresh: Vec<(String, Value, Option<Vec<u64>>)> = todo
         .par_iter()
         .map(|inp| {
-            let (v, h) = process(&ix, &th, inp, &args, want_rel);
+            let (v, h) = process(&ix, &th, inp, &args, want_rel, &ranges);
             {
                 let mut w = writer.lock().unwrap();
                 let _ = writeln!(w, "{v}");

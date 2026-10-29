@@ -179,6 +179,44 @@ impl RefIndex {
         self.manifest = Some(json);
     }
 
+    /// Expected genome size (Mb, estimated from the sketch: hashes x scaled) of reference genomes, as the 1st-99th percentile
+    /// of the called phylum when it has at least `MIN_FOR_RANGE` genomes, else the 0.5th-99.5th percentile of all genomes.
+    /// None when the reference is too small to say. Returns (low, high, basis).
+    pub fn size_range_mb(&self, phylum: Option<&str>) -> Option<(f64, f64, String)> {
+        const MIN_FOR_RANGE: usize = 50;
+        let mb = |g: &GenomeMeta| g.n_hashes as f64 * self.scaled as f64 / 1e6;
+        let pct = |v: &mut Vec<f64>, p: f64| {
+            v.sort_by(|a, b| a.total_cmp(b));
+            v[((p * v.len() as f64) as usize).min(v.len() - 1)]
+        };
+        if let Some(ph) = phylum.filter(|p| !p.is_empty()) {
+            let mut v: Vec<f64> = self
+                .genomes
+                .iter()
+                .filter(|g| g.lineage[0] == ph)
+                .map(mb)
+                .collect();
+            if v.len() >= MIN_FOR_RANGE {
+                let n = v.len();
+                return Some((
+                    pct(&mut v, 0.01),
+                    pct(&mut v, 0.99),
+                    format!("{ph} (n = {n})"),
+                ));
+            }
+        }
+        let mut v: Vec<f64> = self.genomes.iter().map(mb).collect();
+        if v.len() < MIN_FOR_RANGE {
+            return None;
+        }
+        let n = v.len();
+        Some((
+            pct(&mut v, 0.005),
+            pct(&mut v, 0.995),
+            format!("all reference genomes (n = {n})"),
+        ))
+    }
+
     pub fn n_unique_hashes(&self) -> usize {
         self.hashes.len()
     }
@@ -525,6 +563,43 @@ mod tests {
             v,
             vec![("Ascomycota".into(), 30), ("Basidiomycota".into(), 20)]
         );
+    }
+
+    #[test]
+    fn size_range_uses_the_phylum_when_it_is_large_enough_else_everything() {
+        let meta = |i: usize, ph: &str| {
+            let mut l: [String; 6] = Default::default();
+            l[0] = ph.into();
+            GenomeMeta {
+                id: format!("g{i}"),
+                taxid: 1,
+                lineage: l,
+                n_hashes: 0,
+                cluster: String::new(),
+            }
+        };
+        let mut b = IndexBuilder::new(21, 1000, 42);
+        // 60 Ascomycota of 1000..1059 hashes (1.0-1.06 Mb at scaled 1000), 5 Basidiomycota of 9000 hashes
+        for i in 0..60 {
+            b.add(meta(i, "Ascomycota"), (0..1000 + i as u64).collect());
+        }
+        for i in 60..65 {
+            b.add(meta(i, "Basidiomycota"), (0..9000).collect());
+        }
+        let ix = b.build(4);
+        let (lo, hi, basis) = ix.size_range_mb(Some("Ascomycota")).unwrap();
+        assert!(
+            (1.0..=1.01).contains(&lo) && (1.05..=1.06).contains(&hi),
+            "{lo} {hi}"
+        );
+        assert!(basis.starts_with("Ascomycota (n = 60"));
+        // too few Basidiomycota: falls back to all genomes
+        let (_, hi_all, basis) = ix.size_range_mb(Some("Basidiomycota")).unwrap();
+        assert!(
+            basis.starts_with("all reference genomes") && hi_all >= 9.0,
+            "{hi_all}"
+        );
+        assert!(ix.size_range_mb(None).is_some());
     }
 
     #[test]

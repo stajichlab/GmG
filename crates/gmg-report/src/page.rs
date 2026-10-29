@@ -194,10 +194,18 @@ fn qc_panel(r: &Rec) -> String {
             .collect::<String>()
     };
     format!(
-        r#"<div class="qc"><div><span class="muted">Bases</span><b>{}</b></div><div><span class="muted">N50</span><b>{}</b></div><div><span class="muted">Sketch hashes</span><b>{}</b></div><div><span class="muted">QC flags</span>{flags}</div></div>"#,
+        r#"<div class="qc"><div><span class="muted">Bases</span><b>{}</b></div><div><span class="muted">N50</span><b>{}</b></div><div><span class="muted">Sketch hashes</span><b>{}</b></div>{}<div><span class="muted">QC flags</span>{flags}</div></div>"#,
         esc(&bases),
         esc(&n50),
-        r.n_hashes
+        r.n_hashes,
+        r.size_range
+            .as_ref()
+            .map(|(lo, hi, basis)| format!(
+                r#"<div><span class="muted">Typical size</span><b>{} Mb</b><span class="muted small">{}</span></div>"#,
+                mb_range(*lo, *hi),
+                esc(basis)
+            ))
+            .unwrap_or_default()
     )
 }
 
@@ -296,6 +304,15 @@ fn card(r: &Rec, th: &Th, open: bool) -> String {
 }
 
 /// Explanation for an unresolved input that is simply too small or fragmented to classify, if the QC says so.
+/// `25–60` for genome-sized ranges, `0.15–0.25` below 10 Mb.
+fn mb_range(lo: f64, hi: f64) -> String {
+    if hi < 10.0 {
+        format!("{lo:.2}–{hi:.2}")
+    } else {
+        format!("{lo:.0}–{hi:.0}")
+    }
+}
+
 pub(crate) fn little_data_note(r: &Rec) -> Option<String> {
     if r.status != "no_match" && r.status != "low_confidence" {
         return None;
@@ -312,8 +329,13 @@ pub(crate) fn little_data_note(r: &Rec) -> Option<String> {
     } else {
         format!("{:.0} kb", r.total_bases / 1e3)
     };
+    let typical = r
+        .size_range
+        .as_ref()
+        .map(|(lo, hi, basis)| format!(" Typical for {basis}: {} Mb.", mb_range(*lo, *hi)))
+        .unwrap_or_default();
     Some(format!(
-        "{size} and {} sketch hashes ({}): too little of a genome to classify. This says nothing about the organism; a more complete assembly or more reads may resolve it.",
+        "{size} and {} sketch hashes ({}): too little of a genome to classify.{typical} This says nothing about the organism; a more complete assembly or more reads may resolve it.",
         r.n_hashes,
         r.flags.join(", ")
     ))
