@@ -439,3 +439,36 @@ pub fn query_hashes_from(
         h
     })
 }
+
+/// Label of an assembly in the relationship heatmap: its species call, else its genus call, else its id.
+pub fn relationship_label(r: &Value) -> String {
+    let g = &r["guess"]["calls"];
+    g["species"]["taxon"]
+        .as_str()
+        .or(g["genus"]["taxon"].as_str())
+        .or(r["id"].as_str())
+        .unwrap_or("")
+        .to_string()
+}
+
+/// Pairwise ANI between assemblies (id, label, hashes): the `relationships.json` of a run, ordered by label so related
+/// genomes sit next to each other.
+pub fn relationships(k: u32, items: &[(String, String, Vec<u64>)]) -> Value {
+    // order by taxon label so related genomes sit next to each other (species blocks along the diagonal)
+    let mut items: Vec<&(String, String, Vec<u64>)> = items.iter().collect();
+    items.sort_by(|a, b| a.1.cmp(&b.1).then(a.0.cmp(&b.0)));
+    let n = items.len();
+    let mut m = vec![vec![1.0f64; n]; n];
+    for i in 0..n {
+        for j in (i + 1)..n {
+            let (a, b) = (&items[i].2, &items[j].2);
+            let v = (crate::containment(a, b) * crate::containment(b, a))
+                .sqrt()
+                .powf(1.0 / k as f64);
+            let v = (v * 10_000.0).round() / 10_000.0;
+            m[i][j] = v;
+            m[j][i] = v;
+        }
+    }
+    json!({"ids": items.iter().map(|t| t.0.clone()).collect::<Vec<_>>(), "labels": items.iter().map(|t| t.1.clone()).collect::<Vec<_>>(), "ani": m})
+}

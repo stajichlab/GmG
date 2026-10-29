@@ -6,10 +6,10 @@
 use crate::{load_index, load_thresholds, sketch_paths, strip_ext};
 use anyhow::{bail, Context, Result};
 use gmg_core::classify::{
-    classify, error_record, hits_tsv, results_tsv, size_ranges, Item, SizeRanges,
-    READS_SPECIES_MIN_ANI, SCHEMA_VERSION,
+    classify, error_record, hits_tsv, relationship_label, relationships, results_tsv, size_ranges,
+    Item, SizeRanges, READS_SPECIES_MIN_ANI, SCHEMA_VERSION,
 };
-use gmg_core::{containment, RefIndex, Thresholds};
+use gmg_core::{RefIndex, Thresholds};
 use rayon::prelude::*;
 use serde_json::{json, Value};
 use std::collections::HashMap;
@@ -421,25 +421,6 @@ fn process(
 }
 
 /// Pairwise containment ANI (geometric mean of the two directions) between assemblies, for the report heatmap.
-fn relationships(k: u32, items: &[(String, String, Vec<u64>)]) -> Value {
-    // order by taxon label so related genomes sit next to each other (species blocks along the diagonal)
-    let mut items: Vec<&(String, String, Vec<u64>)> = items.iter().collect();
-    items.sort_by(|a, b| a.1.cmp(&b.1).then(a.0.cmp(&b.0)));
-    let n = items.len();
-    let mut m = vec![vec![1.0f64; n]; n];
-    for i in 0..n {
-        for j in (i + 1)..n {
-            let (a, b) = (&items[i].2, &items[j].2);
-            let v = (containment(a, b) * containment(b, a))
-                .sqrt()
-                .powf(1.0 / k as f64);
-            let v = (v * 10_000.0).round() / 10_000.0;
-            m[i][j] = v;
-            m[j][i] = v;
-        }
-    }
-    json!({"ids": items.iter().map(|t| t.0.clone()).collect::<Vec<_>>(), "labels": items.iter().map(|t| t.1.clone()).collect::<Vec<_>>(), "ani": m})
-}
 
 fn write_tsv(path: &Path, header: &[String], rows: &[Vec<String>]) -> Result<()> {
     let mut w = BufWriter::new(File::create(path)?);
@@ -584,12 +565,7 @@ pub fn run(args: RunArgs) -> Result<()> {
             .iter()
             .map(|r| {
                 let id = r["id"].as_str().unwrap_or("").to_string();
-                let g = &r["guess"]["calls"];
-                let label = g["species"]["taxon"]
-                    .as_str()
-                    .or(g["genus"]["taxon"].as_str())
-                    .unwrap_or(&id)
-                    .to_string();
+                let label = relationship_label(r);
                 let h = hash_by_id[&id].clone();
                 (id, label, h)
             })
