@@ -2,6 +2,9 @@ name: web app (GitHub Pages)
 
 # Builds the browser app (web/ + the wasm package) and publishes it. The representatives index of the newest `index-*`
 # release is bundled so the app works at once and offline after the first load; the full index is loaded from a file.
+#
+# Off until the repository owner turns it on: Settings > Pages > Source = GitHub Actions, and a repository variable
+# PAGES_ENABLED = true (Settings > Secrets and variables > Actions > Variables). Run it by hand with workflow_dispatch.
 on:
   push:
     branches: [main]
@@ -22,6 +25,7 @@ env:
 
 jobs:
   build:
+    if: github.event_name == 'workflow_dispatch' || vars.PAGES_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -48,6 +52,7 @@ jobs:
 
   deploy:
     needs: build
+    if: github.event_name == 'workflow_dispatch' || vars.PAGES_ENABLED == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

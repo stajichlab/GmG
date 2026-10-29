@@ -26,7 +26,7 @@ python3 -m http.server -d _site 8000            # the worker needs http(s); file
 
 `.github/workflows/pages.yml` builds the site on every push to `main` that touches the web app or the Rust code, bundles the
 representatives index of the newest `index-*` release and deploys to GitHub Pages (repository setting: Pages source =
-GitHub Actions). The full index (200 MB) is not bundled: load it from a file.
+GitHub Actions) and the repository variable `PAGES_ENABLED=true`; until then the workflow only runs by hand. The full index (200 MB) is not bundled: load it from a file.
 
 Memory: the browser holds the index once (about its file size plus the sketch of the current file): ~180 MB for the
 representatives index, ~460 MB for the full index (`reports/performance_2026-10-28.md`).
