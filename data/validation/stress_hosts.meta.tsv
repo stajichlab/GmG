@@ -1,0 +1,25 @@
+id	taxid	phylum	class	order	family	genus	species	species_in_bfd	genus_in_bfd	release	level	n50	total_len
+GCA_061603715.1	36050	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-23	Chromosome	8530277	44668586
+GCA_062042565.1	352851	Ascomycota	Leotiomycetes	Helotiales	Sclerotiniaceae	Sclerotinia		False	True	2026-10-15	Chromosome	2907466	48638711
+GCA_062042546.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	4439038	54041319
+GCA_061346435.1	523103	Ascomycota	Eurotiomycetes	Onygenales	Arthrodermataceae	Trichophyton		False	True	2026-09-17	Chromosome	5018406	23461531
+GCA_062042533.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	5707294	54418416
+GCA_062042542.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	5805152	53660449
+GCA_059330095.1	318829	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		False	True	2026-07-13	Chromosome	5928839	44918736
+GCA_057913135.1	5062	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		False	True	2026-05-15	Chromosome	4812697	37927775
+GCA_062053534.1	710243	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-22	Chromosome	1312170	50404813
+GCA_062042548.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	5719862	54766504
+GCA_061611825.1	1955774	Ascomycota	Eurotiomycetes	Onygenales	Ajellomycetaceae	Emergomyces		False	True	2026-09-23	Chromosome	4469582	33353734
+GCA_061335555.1	5518	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		False	True	2026-09-17	Chromosome	9473585	38184862
+GCA_060702595.1	59765	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	True	True	2026-09-01	Chromosome	4176325	56112191
+GCA_062042531.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	5124492	54415048
+GCA_982436715.1	5580	Ascomycota	Dothideomycetes	Dothideales	Saccotheciaceae	Aureobasidium		False	True	2026-05-19	Chromosome	2367765	30168053
+GCA_062042541.1	500171	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		False	True	2026-10-15	Chromosome	5755471	53376171
+GCA_987567215.1	557305	Basidiomycota	Agaricomycetes	Agaricales	Hygrophoraceae	Hygrocybe		False	True	2026-09-09	Chromosome	684565	42978895
+GCA_987566535.1	264965	Basidiomycota	Agaricomycetes	Agaricales	Agaricaceae	Agaricus		False	True	2026-09-02	Chromosome	578897	38549964
+GCA_987114515.1	304747	Basidiomycota	Agaricomycetes	Agaricales	Cortinariaceae	Calonarius		False	True	2026-08-28	Chromosome	766748	50087202
+GCA_061140395.1	120017	Basidiomycota	Ustilaginomycetes	Ustilaginales	Ustilaginaceae	Ustilago		False	True	2026-09-09	Chromosome	1002192	28416558
+GCA_965649415.1	71936	Basidiomycota	Agaricomycetes	Agaricales	Entolomataceae	Clitopilus		False	True	2025-07-30	Chromosome	759812	38391105
+GCA_988143915.1	118794	Basidiomycota	Agaricomycetes	Russulales	Russulaceae	Lactarius		False	True	2026-09-02	Chromosome	728436	59264247
+GCA_988265185.1	230822	Basidiomycota	Agaricomycetes	Agaricales	Psathyrellaceae	Psathyrella		False	True	2026-09-14	Chromosome	1304126	40971153
+GCA_980750485.1	68759	Basidiomycota	Agaricomycetes	Cantharellales	Hydnaceae	Hydnum		False	True	2026-02-28	Chromosome	285017	53382899
