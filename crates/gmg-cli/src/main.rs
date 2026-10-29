@@ -87,7 +87,7 @@ enum Cmd {
     /// Classify every genome / read set in a folder: writes results.tsv, hits.tsv and run.json
     Run {
         /// directories (searched recursively) and/or files: FASTA (.fa .fna .fasta .fas .ffn) or FASTQ (.fq .fastq), optionally .gz
-        #[arg(required_unless_present = "list")]
+        #[arg(required_unless_present_any = ["list", "sample_sheet"])]
         inputs: Vec<PathBuf>,
         #[arg(long)]
         index: PathBuf,
@@ -109,6 +109,12 @@ enum Cmd {
         /// text file with one input path per line (in addition to the positional inputs)
         #[arg(long)]
         list: Option<PathBuf>,
+        /// record the SHA-256 of every input file in run.json (slow for large inputs)
+        #[arg(long)]
+        checksums: bool,
+        /// TSV with columns id, path (relative to the sheet) and optional expected; rows with the same id are one sample (R1/R2, lanes)
+        #[arg(long)]
+        sample_sheet: Option<PathBuf>,
         /// do not merge read files of one sample (R1/R2, lanes) into a single input
         #[arg(long)]
         no_group: bool,
@@ -701,9 +707,13 @@ fn main() -> Result<()> {
             report_cards,
             report_format,
             list,
+            checksums,
+            sample_sheet,
             no_group,
         } => {
             run::run(run::RunArgs {
+                sample_sheet,
+                checksums,
                 report_format,
                 list,
                 group: !no_group,

@@ -17,7 +17,7 @@ use std::sync::Mutex;
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
 /// Bump when a column of results.tsv / hits.tsv or a key of results.jsonl / run.json changes meaning.
-pub const SCHEMA_VERSION: u32 = 3; // 2: tentative_genus column; balanced default thresholds. 3: error_code column, plain error messages
+pub const SCHEMA_VERSION: u32 = 4; // 4: expected, expected_match columns (sample sheet). 2: tentative_genus column; balanced default thresholds. 3: error_code column, plain error messages
 
 /// Species ANI cutoff for read sets (#32): repeated sequencing errors lower the containment ANI of a read set, so the
 /// assembly cutoff (0.9938) leaves 8-15% of correct species unnamed. With *C. immitis* left out of the reference its reads
@@ -31,6 +31,10 @@ pub struct RunArgs {
     pub list: Option<PathBuf>,
     /// merge read files of one sample (R1/R2, lanes)
     pub group: bool,
+    /// record the SHA-256 of every input file in run.json (slow for large inputs)
+    pub checksums: bool,
+    /// TSV naming inputs (id, path, expected)
+    pub sample_sheet: Option<PathBuf>,
     pub index: PathBuf,
     pub out: PathBuf,
     pub thresholds: Option<String>,
@@ -52,6 +56,10 @@ struct Input {
     files: Vec<PathBuf>,
     id: String,
     kind: &'static str, // "assembly" | "reads"
+    /// from a sample sheet: the label the user expects (carried to results.tsv for validation)
+    expected: Option<String>,
+    /// named by a sample sheet: never merged automatically
+    explicit: bool,
 }
 
 const FASTA_EXT: [&str; 5] = ["fa", "fna", "fasta", "fas", "ffn"];
@@ -132,7 +140,7 @@ fn group_reads(inputs: Vec<Input>) -> Vec<Input> {
     let mut groups: HashMap<(PathBuf, String), Vec<Input>> = HashMap::new();
     let mut out: Vec<Input> = Vec::new();
     for i in inputs {
-        if i.kind != "reads" {
+        if i.kind != "reads" || i.explicit {
             out.push(i);
             continue;
         }
@@ -156,11 +164,88 @@ fn group_reads(inputs: Vec<Input>) -> Vec<Input> {
                 files,
                 id: key.1.clone(),
                 kind: "reads",
+                expected: None,
+                explicit: false,
             });
         }
     }
     out.sort_by(|a, b| a.id.cmp(&b.id));
     out
+}
+
+/// Sample sheet: TSV with a header and columns `id`, `path` (relative to the sheet) and optionally `expected`.
+/// Rows with the same id are the files (R1/R2, lanes) of one sample.
+fn read_sheet(sheet: &Path, forced: &str) -> Result<Vec<Input>> {
+    let text =
+        fs::read_to_string(sheet).with_context(|| "reading the --sample-sheet file".to_string())?;
+    let base = sheet.parent().map(Path::to_path_buf).unwrap_or_default();
+    let mut lines = text
+        .lines()
+        .filter(|l| !l.trim().is_empty() && !l.starts_with('#'));
+    let header: Vec<&str> = lines
+        .next()
+        .unwrap_or("")
+        .split('\t')
+        .map(str::trim)
+        .collect();
+    let col = |n: &str| header.iter().position(|h| h.eq_ignore_ascii_case(n));
+    let (Some(ci), Some(cp)) = (col("id"), col("path")) else {
+        bail!("sample sheet needs a header with columns 'id' and 'path' (and optionally 'expected'), separated by tabs");
+    };
+    let ce = col("expected");
+    let mut out: Vec<Input> = Vec::new();
+    for (n, line) in lines.enumerate() {
+        let f: Vec<&str> = line.split('\t').map(str::trim).collect();
+        let (Some(id), Some(path)) = (
+            f.get(ci).filter(|x| !x.is_empty()),
+            f.get(cp).filter(|x| !x.is_empty()),
+        ) else {
+            bail!("sample sheet row {}: id and path are required", n + 2);
+        };
+        let path = {
+            let p = PathBuf::from(path);
+            if p.is_absolute() {
+                p
+            } else {
+                base.join(p)
+            }
+        };
+        if !path.is_file() {
+            bail!(
+                "sample sheet row {}: file not found: {}",
+                n + 2,
+                path.display()
+            );
+        }
+        let Some(kind) = kind_of(&path, forced) else {
+            bail!(
+                "sample sheet row {}: {} does not look like FASTA/FASTQ",
+                n + 2,
+                path.display()
+            );
+        };
+        let expected = ce
+            .and_then(|c| f.get(c))
+            .filter(|x| !x.is_empty())
+            .map(|x| x.to_string());
+        match out.iter_mut().find(|i| i.id == *id) {
+            Some(i) => {
+                if i.kind != kind {
+                    bail!("sample sheet: '{id}' mixes assemblies and reads");
+                }
+                i.files.push(path);
+            }
+            None => out.push(Input {
+                files: vec![path.clone()],
+                path,
+                id: id.to_string(),
+                kind,
+                expected,
+                explicit: true,
+            }),
+        }
+    }
+    Ok(out)
 }
 
 fn discover(args: &RunArgs) -> Result<Vec<Input>> {
@@ -208,6 +293,8 @@ fn discover(args: &RunArgs) -> Result<Vec<Input>> {
             path: p,
             id,
             kind,
+            expected: None,
+            explicit: false,
         });
     }
     if args.group {
@@ -219,6 +306,18 @@ fn discover(args: &RunArgs) -> Result<Vec<Input>> {
                 merged.iter().map(|i| i.files.len()).sum::<usize>(),
                 merged.len()
             );
+        }
+    }
+    if let Some(sheet) = &args.sample_sheet {
+        for e in read_sheet(sheet, &args.kind)? {
+            if let Some(prev) = inputs.iter().find(|i| i.id == e.id) {
+                bail!(
+                    "sample sheet id '{}' is also used by {}; ids must be unique",
+                    e.id,
+                    prev.path.display()
+                );
+            }
+            inputs.push(e);
         }
     }
     if inputs.is_empty() {
@@ -360,6 +459,9 @@ fn process(
             "status": status, "best_rank": best.map(|i| RANKS[i]), "message": null,
             "qc": qc, "qc_flags": flags, "guess": gj,
         });
+        if let Some(e) = &inp.expected {
+            rec["expected"] = json!(e);
+        }
         if inp.files.len() > 1 {
             rec["files"] = json!(inp
                 .files
@@ -481,6 +583,8 @@ fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
         "qc_flags",
         "message",
         "error_code",
+        "expected",
+        "expected_match",
         "schema_version",
     ] {
         header.push(c.to_string());
@@ -535,11 +639,26 @@ fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
                 .unwrap_or_default(),
             tsv_cell(&r["message"]),
             tsv_cell(&r["error_code"]),
+            tsv_cell(&r["expected"]),
+            expected_match(r),
             SCHEMA_VERSION.to_string(),
         ]);
         rows.push(row);
     }
     (header, rows)
+}
+
+/// `yes` when the expected label is the call at some rank (case-insensitive), `no` when it is not, blank when none was given.
+fn expected_match(r: &Value) -> String {
+    let Some(e) = r["expected"].as_str().filter(|e| !e.is_empty()) else {
+        return String::new();
+    };
+    let hit = RANKS.iter().any(|k| {
+        r["guess"]["calls"][k]["taxon"]
+            .as_str()
+            .is_some_and(|t| t.eq_ignore_ascii_case(e))
+    });
+    if hit { "yes" } else { "no" }.to_string()
 }
 
 fn hits_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
@@ -570,6 +689,16 @@ fn hits_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
         }
     }
     (header, rows)
+}
+
+/// `75` -> `1m15s`, `4000` -> `1h06m`.
+fn fmt_secs(s: f64) -> String {
+    let s = s.round() as u64;
+    match s {
+        0..=59 => format!("{s}s"),
+        60..=3599 => format!("{}m{:02}s", s / 60, s % 60),
+        _ => format!("{}h{:02}m", s / 3600, s % 3600 / 60),
+    }
 }
 
 pub fn run(args: RunArgs) -> Result<()> {
@@ -627,6 +756,7 @@ pub fn run(args: RunArgs) -> Result<()> {
         OpenOptions::new().append(true).open(&jsonl)?,
     ));
     let counter = AtomicUsize::new(0);
+    let t_work = Instant::now();
     let total = todo.len();
     let n_asm = inputs.iter().filter(|i| i.kind == "assembly").count();
     let want_rel = (2..=60).contains(&n_asm);
@@ -640,11 +770,14 @@ pub fn run(args: RunArgs) -> Result<()> {
                 let _ = w.flush();
             }
             let n = counter.fetch_add(1, Ordering::SeqCst) + 1;
+            let el = t_work.elapsed().as_secs_f64();
             eprintln!(
-                "[{n}/{total}] {}  {}  {}",
+                "[{n}/{total}] {}  {}  {}  ({}, ETA {})",
                 inp.id,
                 v["status"].as_str().unwrap_or(""),
-                v["best_rank"].as_str().unwrap_or("-")
+                v["best_rank"].as_str().unwrap_or("-"),
+                fmt_secs(el),
+                fmt_secs(el / n as f64 * (total - n) as f64)
             );
             (inp.id.clone(), v, h)
         })
@@ -713,8 +846,17 @@ pub fn run(args: RunArgs) -> Result<()> {
                   "manifest": ix.manifest.as_deref().and_then(|m| serde_json::from_str::<Value>(m).ok())},
         "thresholds": {"name": th_name, "values": thresholds_json(&th), "reads_species_min_ani": READS_SPECIES_MIN_ANI},
         "status_counts": counts,
-        "inputs": results.iter().map(|r| json!({"id": r["id"], "path": r["path"], "size_bytes": r["size_bytes"],
-                                                "kind": r["kind"], "status": r["status"]})).collect::<Vec<_>>(),
+        "inputs": results.iter().map(|r| {
+            let mut v = json!({"id": r["id"], "path": r["path"], "size_bytes": r["size_bytes"],
+                                                "kind": r["kind"], "status": r["status"]});
+            if args.checksums {
+                if let Some(i) = inputs.iter().find(|i| r["id"] == i.id.as_str()) {
+                    let sums: Vec<String> = i.files.iter().filter_map(|f| crate::sha256_file(f).ok()).collect();
+                    v["sha256"] = if sums.len() == 1 { json!(sums[0]) } else { json!(sums) };
+                }
+            }
+            v
+        }).collect::<Vec<_>>(),
     });
     fs::write(
         args.out.join("run.json"),
