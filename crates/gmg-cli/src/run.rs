@@ -17,7 +17,7 @@ use std::sync::Mutex;
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
 /// Bump when a column of results.tsv / hits.tsv or a key of results.jsonl / run.json changes meaning.
-pub const SCHEMA_VERSION: u32 = 5; // 5: withheld column. 4: expected, expected_match columns (sample sheet). 2: tentative_genus column; balanced default thresholds. 3: error_code column, plain error messages
+pub const SCHEMA_VERSION: u32 = 6; // 6: taxid_<rank> columns, top_hit_label. 5: withheld column. 4: expected, expected_match columns (sample sheet). 2: tentative_genus column; balanced default thresholds. 3: error_code column, plain error messages
 
 /// Species ANI cutoff for read sets (#32): repeated sequencing errors lower the containment ANI of a read set, so the
 /// assembly cutoff (0.9938) leaves 8-15% of correct species unnamed. With *C. immitis* left out of the reference its reads
@@ -603,6 +603,9 @@ fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
     for r in RANKS {
         header.push(format!("call_{r}"));
     }
+    for r in RANKS {
+        header.push(format!("taxid_{r}"));
+    }
     header.push("tentative_genus".to_string());
     for r in RANKS {
         header.push(format!("conf_{r}"));
@@ -610,6 +613,7 @@ fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
     for c in [
         "top_hit",
         "top_hit_species",
+        "top_hit_label",
         "top_hit_taxid",
         "ani",
         "containment_query",
@@ -644,6 +648,9 @@ fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
         for k in RANKS {
             row.push(tsv_cell(&g["calls"][k]["taxon"]));
         }
+        for k in RANKS {
+            row.push(tsv_cell(&g["calls"][k]["taxid"]));
+        }
         row.push(tsv_cell(&g["tentative_genus"]["taxon"]));
         for k in RANKS {
             row.push(if g.is_null() {
@@ -659,6 +666,7 @@ fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
         row.extend([
             tsv_cell(&top["id"]),
             tsv_cell(&top_hit["lineage"][5]),
+            tsv_cell(&top_hit["label"]),
             tsv_cell(&top_hit["taxid"]),
             fmt(&top["ani"]),
             fmt(&top["containment_query"]),

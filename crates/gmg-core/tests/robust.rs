@@ -22,6 +22,7 @@ fn meta(id: &str, genus: &str) -> GenomeMeta {
         lineage: l,
         n_hashes: 0,
         cluster: String::new(),
+        ..Default::default()
     }
 }
 

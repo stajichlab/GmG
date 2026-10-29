@@ -995,3 +995,81 @@ fn size_flags_come_from_the_reference_size_range_of_the_called_phylum() {
         "qc panel shows the typical size"
     );
 }
+
+#[test]
+fn per_rank_taxids_and_original_labels_reach_the_results() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, _ix, _) = build_reference(d);
+    // the same reference with NCBI taxids per rank and the original label, as scripts/normalize_taxonomy.py writes it
+    let lineage = [
+        ("Aspergillus alpha", 5052, "Aspergillus", 5052),
+        ("Aspergillus beta", 5053, "Aspergillus", 5052),
+        ("Fusarium gamma", 5507, "Fusarium", 5506),
+        ("Fusarium delta", 5508, "Fusarium", 5506),
+        ("Agaricus eps", 5340, "Agaricus", 5341),
+        ("Agaricus zeta", 5342, "Agaricus", 5341),
+    ];
+    let mut meta = String::from("id\ttaxid\tphylum\tclass\torder\tfamily\tgenus\tspecies\tcluster\tphylum_taxid\tclass_taxid\torder_taxid\tfamily_taxid\tgenus_taxid\tspecies_taxid\tlabel\n");
+    for (i, (sp, st, genus, gt)) in lineage.iter().enumerate() {
+        let (ph, pt) = if i < 4 {
+            ("Ascomycota", 4890)
+        } else {
+            ("Basidiomycota", 5204)
+        };
+        meta.push_str(&format!("g{i}\t{st}\t{ph}\tC\tO\tF\t{genus}\t{sp}\t\t{pt}\t0\t0\t0\t{gt}\t{st}\toriginal label {i}\n"));
+    }
+    let meta_path = d.join("meta_ncbi.tsv");
+    fs::write(&meta_path, meta).unwrap();
+    let ix2 = d.join("ix2.gmgi");
+    ok(&[
+        "build",
+        "--meta",
+        meta_path.to_str().unwrap(),
+        "--sketches",
+        d.join("sk").to_str().unwrap(),
+        "-o",
+        ix2.to_str().unwrap(),
+    ]);
+    let inp = d.join("in");
+    fs::create_dir_all(&inp).unwrap();
+    fs::write(inp.join("q.fa"), fasta("q", &genomes[2])).unwrap();
+    let out = d.join("out");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        ix2.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+        "--no-report",
+    ]);
+    let (h, rows) = read_tsv(&out.join("results.tsv"));
+    let r = &rows[0];
+    assert_eq!(r[col(&h, "call_species")], "Fusarium gamma");
+    assert_eq!(r[col(&h, "taxid_phylum")], "4890");
+    assert_eq!(r[col(&h, "taxid_genus")], "5506");
+    assert_eq!(r[col(&h, "taxid_species")], "5507");
+    assert_eq!(
+        r[col(&h, "taxid_class")],
+        "",
+        "a rank without a taxid stays blank"
+    );
+    assert_eq!(r[col(&h, "top_hit_label")], "original label 2");
+    // a header without the required columns is a plain error
+    let bad = d.join("bad.tsv");
+    fs::write(&bad, "id\ttaxid\nx\t1\n").unwrap();
+    let o = gmg(&[
+        "build",
+        "--meta",
+        bad.to_str().unwrap(),
+        "--sketches",
+        d.join("sk").to_str().unwrap(),
+        "-o",
+        d.join("b.gmgi").to_str().unwrap(),
+    ]);
+    assert!(
+        !o.status.success()
+            && String::from_utf8_lossy(&o.stderr).contains("header lacks the column")
+    );
+}
