@@ -3,6 +3,9 @@
 You need `gmg` (a release binary, the container `ghcr.io/stajichlab/gmg`, or `pixi run build`) and a reference index
 (`bfd-*.gmgi`; see [index-distribution.md](index-distribution.md)). `gmg info INDEX` shows what an index is made of.
 
+No genomes at hand? `scripts/fetch_examples.sh examples_data` downloads six small public assemblies from NCBI (see
+[../examples/README.md](../examples/README.md)); use `examples_data/` below.
+
 ## 1. Genomes
 
 ```

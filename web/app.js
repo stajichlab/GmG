@@ -91,6 +91,36 @@ $("drop").addEventListener("drop", async (e) => {
   addFiles(files);
 });
 
+// ---------------------------------------------------------------- example genomes
+// examples/examples.tsv (shared with scripts/fetch_examples.sh): id, accession, name, expected, note, url. NCBI's FTP server sends
+// CORS headers, so the browser downloads the gzipped FASTA directly; the worker already reads .gz.
+async function loadExamples() {
+  try {
+    const r = await fetch("examples/examples.tsv", { cache: "no-cache" });
+    if (!r.ok) return;
+    const [head, ...lines] = (await r.text()).trim().split("\n").map((l) => l.split("\t"));
+    const rows = lines.map((c) => Object.fromEntries(head.map((h, i) => [h, c[i]])));
+    $("example-buttons").replaceChildren(...rows.map((ex) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "btn"; b.textContent = ex.name; b.title = `${ex.accession}: ${ex.note}`;
+      b.onclick = () => addExample(ex, b);
+      return b;
+    }));
+    $("examples").hidden = false;
+  } catch { /* examples are optional */ }
+}
+async function addExample(ex, btn) {
+  btn.disabled = true;
+  setStatus($("queue-status"), `Downloading ${ex.name} (${ex.accession}) from NCBI…`);
+  try {
+    const r = await fetch(ex.url);
+    if (!r.ok) throw new Error(`NCBI answered ${r.status}`);
+    addFiles([new File([await r.blob()], `${ex.accession}.fna.gz`)]);
+  } catch (err) {
+    setStatus($("queue-status"), `Could not download ${ex.name}: ${err.message}. Check your connection, or use scripts/fetch_examples.sh.`, true);
+  } finally { btn.disabled = false; }
+}
+
 // ---------------------------------------------------------------- running
 $("th").onchange = () => worker.postMessage({ type: "thresholds", name: $("th").value });
 $("run").onclick = () => {
@@ -229,3 +259,4 @@ $("print").onclick = () => {
 };
 
 loadManifest();
+loadExamples();

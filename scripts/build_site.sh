@@ -5,8 +5,9 @@
 set -euo pipefail
 out=${1:?output directory}; shift || true
 root=$(cd "$(dirname "$0")/.." && pwd)
-rm -rf "$out"; mkdir -p "$out/pkg" "$out/index"
+rm -rf "$out"; mkdir -p "$out/pkg" "$out/index" "$out/examples"
 cp "$root"/web/index.html "$root"/web/style.css "$root"/web/app.js "$root"/web/worker.js "$out/"
+cp "$root"/examples/examples.tsv "$out/examples/"
 cp "$root"/crates/gmg-wasm/pkg-web/gmg_wasm.js "$root"/crates/gmg-wasm/pkg-web/gmg_wasm_bg.wasm "$out/pkg/"
 python3 - "$out" "$@" <<'PY'
 import json, os, shutil, sys
