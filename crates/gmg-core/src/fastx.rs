@@ -3,7 +3,83 @@
 //! The browser hands over whole files as bytes; the native CLI uses `needletail` (which also reads gzip) instead.
 //! FASTA records may span lines; FASTQ records are the usual four lines. Format is detected from the first byte.
 
-use crate::sketch::FracSketch;
+use crate::sketch::{FracSketch, DEFAULT_SEED};
+use crate::skfile::SketchFile;
+
+/// Per-input counts gathered while reading the sequence (used for QC flags).
+#[derive(Clone, Debug, Default)]
+pub struct SeqStats {
+    pub n_records: u64,
+    pub total_len: u64,
+    /// bases other than A/C/G/T (case-insensitive)
+    pub non_acgt: u64,
+    pub n50: u64,
+}
+
+/// Sketch a FASTA/FASTQ held in memory and collect the stats `gmg run` records: `abund` tracks abundances (reads),
+/// otherwise record lengths are kept for the N50. `max_records` stops early (0 = no limit). None if no record was read.
+pub fn sketch_fastx_stats(
+    bytes: &[u8],
+    ksize: u32,
+    scaled: u32,
+    abund: bool,
+    max_records: u64,
+) -> Option<(SketchFile, SeqStats)> {
+    let mut sk = FracSketch::new(ksize as usize, scaled, DEFAULT_SEED);
+    let (mut n, mut total, mut non_acgt) = (0u64, 0u64, 0u64);
+    let mut lens: Vec<u64> = Vec::new();
+    let mut each = |seq: &[u8]| -> bool {
+        sk.add_sequence(seq);
+        n += 1;
+        total += seq.len() as u64;
+        non_acgt += seq
+            .iter()
+            .filter(|b| !matches!(b.to_ascii_uppercase(), b'A' | b'C' | b'G' | b'T'))
+            .count() as u64;
+        if !abund {
+            lens.push(seq.len() as u64);
+        }
+        max_records == 0 || n < max_records
+    };
+    match bytes.first() {
+        Some(b'@') => fastq(bytes, &mut each),
+        _ => fasta(bytes, &mut each),
+    }
+    if n == 0 {
+        return None;
+    }
+    lens.sort_unstable_by(|a, b| b.cmp(a));
+    let (mut acc, mut n50) = (0u64, 0u64);
+    for l in &lens {
+        acc += l;
+        if acc * 2 >= total {
+            n50 = *l;
+            break;
+        }
+    }
+    let (hashes, abunds) = if abund {
+        let (h, a) = sk.finish_with_abundance();
+        (h, Some(a))
+    } else {
+        (sk.finish(), None)
+    };
+    Some((
+        SketchFile {
+            ksize,
+            scaled,
+            seed: DEFAULT_SEED,
+            name: String::new(),
+            hashes,
+            abunds,
+        },
+        SeqStats {
+            n_records: n,
+            total_len: total,
+            non_acgt,
+            n50,
+        },
+    ))
+}
 
 /// Sketch every record in `bytes` and return sorted unique hashes, keeping only hashes seen at least `min_abund`
 /// times (use 1 for assemblies, 2 for reads). `max_records` stops early (reads subsample); 0 = no limit.
