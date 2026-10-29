@@ -3,7 +3,7 @@
 //! Each finished input is appended to `results.jsonl` immediately, so a killed run can be resumed (`--resume`);
 //! the TSV files and the manifest are generated from that file at the end. Schema version: see `SCHEMA_VERSION`.
 
-use crate::{load_index, load_thresholds, query_hashes_from, sketch_with_stats, strip_ext, Stats};
+use crate::{load_index, load_thresholds, query_hashes_from, sketch_paths, strip_ext, Stats};
 use anyhow::{bail, Context, Result};
 use gmg_core::{containment, guess, guess_json, RefIndex, Thresholds, RANKS};
 use rayon::prelude::*;
@@ -27,6 +27,10 @@ pub const READS_SPECIES_MIN_ANI: f64 = 0.99;
 
 pub struct RunArgs {
     pub inputs: Vec<PathBuf>,
+    /// file with one input path per line
+    pub list: Option<PathBuf>,
+    /// merge read files of one sample (R1/R2, lanes)
+    pub group: bool,
     pub index: PathBuf,
     pub out: PathBuf,
     pub thresholds: Option<String>,
@@ -41,7 +45,9 @@ pub struct RunArgs {
 }
 
 struct Input {
+    /// one file, or the files of one read sample (R1/R2, lanes) merged into one sketch; `path` is the first
     path: PathBuf,
+    files: Vec<PathBuf>,
     id: String,
     kind: &'static str, // "assembly" | "reads"
 }
@@ -88,9 +94,86 @@ fn walk(dir: &Path, out: &mut Vec<PathBuf>) -> Result<()> {
     Ok(())
 }
 
+/// Sample key of a read file: the stem without the read-direction (`_R1`, `_R2`, `_R1_001`, `.1`/`_1`/`_2`) and lane (`_L001`) parts.
+fn sample_key(stem: &str) -> String {
+    let mut parts: Vec<&str> = stem.split('_').collect();
+    // drop lane tokens such as L001
+    parts.retain(|t| {
+        !(t.len() == 4 && t.starts_with('L') && t[1..].chars().all(|c| c.is_ascii_digit()))
+    });
+    // a trailing 3-digit chunk after R1/R2 (Illumina `_R1_001`)
+    if parts.len() >= 2 {
+        let last = parts[parts.len() - 1];
+        let prev = parts[parts.len() - 2];
+        if last.len() == 3
+            && last.chars().all(|c| c.is_ascii_digit())
+            && matches!(prev, "R1" | "R2")
+        {
+            parts.truncate(parts.len() - 2);
+            return parts.join("_");
+        }
+    }
+    if let Some(last) = parts.last().copied() {
+        if matches!(last, "R1" | "R2" | "1" | "2") && parts.len() > 1 {
+            parts.pop();
+        } else if let Some(b) = last.strip_suffix(".1").or_else(|| last.strip_suffix(".2")) {
+            let n = parts.len();
+            parts[n - 1] = b;
+        }
+    }
+    parts.join("_")
+}
+
+/// Merge read files of one sample into a single input (same directory, same key, kind reads). A lone file keeps its own id.
+fn group_reads(inputs: Vec<Input>) -> Vec<Input> {
+    let mut order: Vec<(PathBuf, String)> = Vec::new();
+    let mut groups: HashMap<(PathBuf, String), Vec<Input>> = HashMap::new();
+    let mut out: Vec<Input> = Vec::new();
+    for i in inputs {
+        if i.kind != "reads" {
+            out.push(i);
+            continue;
+        }
+        let key = (
+            i.path.parent().map(|p| p.to_path_buf()).unwrap_or_default(),
+            sample_key(&i.id),
+        );
+        if !groups.contains_key(&key) {
+            order.push(key.clone());
+        }
+        groups.entry(key).or_default().push(i);
+    }
+    for key in order {
+        let mut g = groups.remove(&key).unwrap();
+        if g.len() == 1 {
+            out.push(g.pop().unwrap());
+        } else {
+            let files: Vec<PathBuf> = g.iter().map(|i| i.path.clone()).collect();
+            out.push(Input {
+                path: files[0].clone(),
+                files,
+                id: key.1.clone(),
+                kind: "reads",
+            });
+        }
+    }
+    out.sort_by(|a, b| a.id.cmp(&b.id));
+    out
+}
+
 fn discover(args: &RunArgs) -> Result<Vec<Input>> {
     let mut files = Vec::new();
-    for p in &args.inputs {
+    let mut given: Vec<PathBuf> = args.inputs.clone();
+    if let Some(l) = &args.list {
+        let text = fs::read_to_string(l).with_context(|| "reading the --list file".to_string())?;
+        given.extend(
+            text.lines()
+                .map(str::trim)
+                .filter(|l| !l.is_empty() && !l.starts_with('#'))
+                .map(PathBuf::from),
+        );
+    }
+    for p in &given {
         if p.is_dir() {
             walk(p, &mut files)?;
         } else if p.is_file() {
@@ -118,7 +201,23 @@ fn discover(args: &RunArgs) -> Result<Vec<Input>> {
                 p.display()
             );
         }
-        inputs.push(Input { path: p, id, kind });
+        inputs.push(Input {
+            files: vec![p.clone()],
+            path: p,
+            id,
+            kind,
+        });
+    }
+    if args.group {
+        inputs = group_reads(inputs);
+        let merged: Vec<&Input> = inputs.iter().filter(|i| i.files.len() > 1).collect();
+        if !merged.is_empty() {
+            eprintln!(
+                "merged {} read files into {} samples (R1/R2 and lanes; --no-group keeps them separate)",
+                merged.iter().map(|i| i.files.len()).sum::<usize>(),
+                merged.len()
+            );
+        }
     }
     if inputs.is_empty() {
         bail!("no FASTA/FASTQ files found in the given inputs (extensions: fa fna fasta fas ffn fq fastq, optionally .gz)");
@@ -186,6 +285,13 @@ fn qc_flags(kind: &str, st: &Stats, n_hashes: usize, top: Option<&Value>) -> Vec
     f
 }
 
+fn input_size(i: &Input) -> u64 {
+    i.files
+        .iter()
+        .map(|f| fs::metadata(f).map(|m| m.len()).unwrap_or(0))
+        .sum()
+}
+
 fn process(
     ix: &RefIndex,
     th: &Thresholds,
@@ -193,12 +299,12 @@ fn process(
     a: &RunArgs,
     keep_hashes: bool,
 ) -> (Value, Option<Vec<u64>>) {
-    let size = fs::metadata(&inp.path).map(|m| m.len()).unwrap_or(0);
+    let size = input_size(inp);
     let path = inp.path.display().to_string();
     let attempt = || -> Result<(Value, Option<Vec<u64>>)> {
         let reads = inp.kind == "reads";
         let min_abund = a.min_abund.unwrap_or(if reads { 2 } else { 1 });
-        let (sk, st) = sketch_with_stats(&inp.path, ix.ksize, ix.scaled, reads, a.max_reads)?
+        let (sk, st) = sketch_paths(&inp.files, ix.ksize, ix.scaled, reads, a.max_reads)?
             .with_context(|| "no sequence records".to_string())?;
         if st.total_len == 0 {
             bail!("no sequence records");
@@ -247,11 +353,18 @@ fn process(
             .take(3)
             .map(|(p, c)| json!({"phylum": p, "hashes": c}))
             .collect::<Vec<_>>());
-        let rec = json!({
+        let mut rec = json!({
             "schema_version": SCHEMA_VERSION, "id": inp.id, "path": path, "size_bytes": size, "kind": inp.kind,
             "status": status, "best_rank": best.map(|i| RANKS[i]), "message": null,
             "qc": qc, "qc_flags": flags, "guess": gj,
         });
+        if inp.files.len() > 1 {
+            rec["files"] = json!(inp
+                .files
+                .iter()
+                .filter_map(|f| f.file_name().map(|n| n.to_string_lossy().into_owned()))
+                .collect::<Vec<_>>());
+        }
         Ok((
             rec,
             if keep_hashes && !reads {
@@ -480,8 +593,7 @@ pub fn run(args: RunArgs) -> Result<()> {
         .iter()
         .filter(|i| {
             !done.get(&i.id).is_some_and(|v| {
-                v["path"] == i.path.display().to_string()
-                    && v["size_bytes"] == fs::metadata(&i.path).map(|m| m.len()).unwrap_or(0)
+                v["path"] == i.path.display().to_string() && v["size_bytes"] == input_size(i)
             })
         })
         .collect();

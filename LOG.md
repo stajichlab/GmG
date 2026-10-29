@@ -46,3 +46,6 @@ Absent-species check (index without C. immitis): immitis reads match posadasii a
 
 ## 2026-10-28 error codes (#55)
 Failed inputs now carry error_code (empty_file, no_sequence_records, not_sequence_file, bad_gzip, unreadable, too_short, parse_error), a path-free message and an action in the report card. results.tsv schema_version 3.
+
+## 2026-10-28 grouped reads and --list (#27)
+R1/R2 and lane-split FASTQ of one sample are merged into a single sketch/row (test: identical to the concatenated file); --list FILE; --no-group. Not done: stdin, --max-bases.

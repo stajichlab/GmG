@@ -81,7 +81,7 @@ enum Cmd {
     /// Classify every genome / read set in a folder: writes results.tsv, hits.tsv and run.json
     Run {
         /// directories (searched recursively) and/or files: FASTA (.fa .fna .fasta .fas .ffn) or FASTQ (.fq .fastq), optionally .gz
-        #[arg(required = true)]
+        #[arg(required_unless_present = "list")]
         inputs: Vec<PathBuf>,
         #[arg(long)]
         index: PathBuf,
@@ -100,6 +100,12 @@ enum Cmd {
         /// reads: stop after this many reads per file
         #[arg(long)]
         max_reads: Option<u64>,
+        /// text file with one input path per line (in addition to the positional inputs)
+        #[arg(long)]
+        list: Option<PathBuf>,
+        /// do not merge read files of one sample (R1/R2, lanes) into a single input
+        #[arg(long)]
+        no_group: bool,
         /// reference hits per input in hits.tsv
         #[arg(long, default_value_t = 5)]
         top: usize,
@@ -227,25 +233,42 @@ pub(crate) fn sketch_with_stats(
     abund: bool,
     max_reads: Option<u64>,
 ) -> Result<Option<(SketchFile, Stats)>> {
-    let mut r = parse_fastx_file(path).with_context(|| format!("opening {}", path.display()))?;
+    sketch_paths(&[path.to_path_buf()], k, scaled, abund, max_reads)
+}
+
+/// Sketch several files into ONE sketch (paired reads, lanes). `max_reads` applies to each file.
+pub(crate) fn sketch_paths(
+    paths: &[PathBuf],
+    k: u32,
+    scaled: u32,
+    abund: bool,
+    max_reads: Option<u64>,
+) -> Result<Option<(SketchFile, Stats)>> {
+    let path = &paths[0];
     let mut sk = FracSketch::new(k as usize, scaled, DEFAULT_SEED);
     let (mut n, mut total, mut non_acgt) = (0u64, 0u64, 0u64);
     let mut lens: Vec<u64> = Vec::new();
-    while let Some(rec) = r.next() {
-        let rec = rec.with_context(|| format!("parsing {}", path.display()))?;
-        let seq = rec.seq();
-        sk.add_sequence(&seq);
-        n += 1;
-        total += seq.len() as u64;
-        non_acgt += seq
-            .iter()
-            .filter(|b| !matches!(b.to_ascii_uppercase(), b'A' | b'C' | b'G' | b'T'))
-            .count() as u64;
-        if !abund {
-            lens.push(seq.len() as u64);
-        }
-        if max_reads.is_some_and(|m| n >= m) {
-            break;
+    for path in paths {
+        let mut r =
+            parse_fastx_file(path).with_context(|| format!("opening {}", path.display()))?;
+        let mut file_n = 0u64;
+        while let Some(rec) = r.next() {
+            let rec = rec.with_context(|| format!("parsing {}", path.display()))?;
+            let seq = rec.seq();
+            sk.add_sequence(&seq);
+            n += 1;
+            file_n += 1;
+            total += seq.len() as u64;
+            non_acgt += seq
+                .iter()
+                .filter(|b| !matches!(b.to_ascii_uppercase(), b'A' | b'C' | b'G' | b'T'))
+                .count() as u64;
+            if !abund {
+                lens.push(seq.len() as u64);
+            }
+            if max_reads.is_some_and(|m| file_n >= m) {
+                break;
+            }
         }
     }
     if n == 0 {
@@ -637,8 +660,12 @@ fn main() -> Result<()> {
             resume,
             no_report,
             report_cards,
+            list,
+            no_group,
         } => {
             run::run(run::RunArgs {
+                list,
+                group: !no_group,
                 inputs,
                 index,
                 out,
