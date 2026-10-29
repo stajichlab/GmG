@@ -124,8 +124,8 @@ enum Cmd {
         /// detail cards in the report (inputs needing attention first)
         #[arg(long, default_value_t = 400)]
         report_cards: usize,
-        /// report format: html (default), md (report.md + figures/*.svg) or all
-        #[arg(long, default_value = "html", value_parser = ["html", "md", "all"])]
+        /// report format: html (default), md (report.md + figures/*.svg), pdf (report.pdf) or all
+        #[arg(long, default_value = "html", value_parser = ["html", "md", "pdf", "all"])]
         report_format: String,
     },
     /// Write report.html from a finished `gmg run` directory
@@ -134,8 +134,8 @@ enum Cmd {
         dir: PathBuf,
         #[arg(long, default_value_t = 400)]
         max_cards: usize,
-        /// html (default), md (report.md + figures/*.svg) or all
-        #[arg(long, default_value = "html", value_parser = ["html", "md", "all"])]
+        /// html (default), md (report.md + figures/*.svg), pdf (report.pdf) or all
+        #[arg(long, default_value = "html", value_parser = ["html", "md", "pdf", "all"])]
         format: String,
     },
     /// Summarise an index

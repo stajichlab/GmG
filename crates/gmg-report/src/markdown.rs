@@ -16,20 +16,42 @@ pub struct Markdown {
 const TOKENS: &str = ":root{--ph-1:#2a78d6;--ph-2:#eb6834;--ph-3:#1baf7a;--ph-4:#eda100;--ph-5:#e87ba4;--ph-6:#008300;--ph-7:#6250d6;--ph-8:#e34948;--ph-other:#a8a7a0;\
 --text-primary:#0b0b0b;--text-secondary:#52514e;--text-muted:#898781;--grid:#e1e0d9;--axis:#c3c2b7;--series-1:#2a78d6;--deemph:#c3c2b7;--nomatch:#d9d8d1;\
 --ord-1:#184f95;--ord-2:#256abf;--ord-3:#3987e5;--ord-4:#86b6ef;--page:#fff;--surface-1:#fcfcfb;--border:rgba(11,11,11,.1);\
---st-good:#0ca30c;--st-warn:#fab219;--st-serious:#ec835a;--st-crit:#d03b3b;--good-text:#006300}\
-svg text{font:12px system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}.t-pri{fill:var(--text-primary)}.t-sec{fill:var(--text-secondary)}.t-mut{fill:var(--text-muted)}.t-fill{font-weight:600}\
-.grid{stroke:var(--grid);stroke-width:1}.axis{stroke:var(--axis);stroke-width:1}.thr{stroke:var(--text-secondary);stroke-width:1}";
+--st-good:#0ca30c;--st-warn:#fab219;--st-serious:#ec835a;--st-crit:#d03b3b;--good-text:#006300}";
+/// Chart text and line classes, with the colours written out.
+const RULES: &str = "svg text{font:12px Inter,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}.t-pri{fill:#0b0b0b}.t-sec{fill:#52514e}.t-mut{fill:#898781}.t-fill{font-weight:600}\
+.grid{stroke:#e1e0d9;stroke-width:1}.axis{stroke:#c3c2b7;stroke-width:1}.thr{stroke:#52514e;stroke-width:1}";
 
-/// Make a report chart usable as a file: namespace, the colour tokens it refers to, a white background.
-pub(crate) fn standalone_svg(svg: &str) -> String {
+/// Make a report chart usable as a file: namespace, white background, and every `var(--token)` replaced by its colour
+/// (renderers such as PDF converters do not implement CSS variables).
+pub fn standalone_svg(svg: &str) -> String {
     let Some(end) = svg.find('>') else {
         return svg.to_string();
     };
     let (open, rest) = svg.split_at(end + 1);
     let open = open.replacen("<svg ", "<svg xmlns=\"http://www.w3.org/2000/svg\" ", 1);
+    let mut body = rest.to_string();
+    for (name, value) in token_values() {
+        body = body.replace(&format!("var(--{name})"), value);
+    }
     format!(
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n{open}<style>{TOKENS}</style><rect width=\"100%\" height=\"100%\" fill=\"#fff\"/>{rest}"
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n{open}<style>{RULES}</style><rect width=\"100%\" height=\"100%\" fill=\"#fff\"/>{body}"
     )
+}
+
+/// `(name, value)` of every colour token in `TOKENS`.
+fn token_values() -> Vec<(&'static str, &'static str)> {
+    let inner = TOKENS
+        .split_once(":root{")
+        .and_then(|(_, r)| r.split_once('}'))
+        .map(|(t, _)| t)
+        .unwrap_or("");
+    inner
+        .split(';')
+        .filter_map(|d| {
+            let d = d.trim().strip_prefix("--")?;
+            d.split_once(':')
+        })
+        .collect()
 }
 
 fn cell(s: &str) -> String {

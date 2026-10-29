@@ -765,13 +765,20 @@ pub fn write_report(dir: &Path, max_cards: usize, format: &str) -> Result<()> {
             gmg_report::render_html(&results, &run, rel.as_ref(), &opts),
         )?;
     }
-    if matches!(format, "md" | "all") {
+    if matches!(format, "md" | "pdf" | "all") {
         let m = gmg_report::render_markdown(&results, &run, rel.as_ref(), &opts);
-        fs::create_dir_all(dir.join("figures"))?;
-        for (name, svg) in &m.figures {
-            fs::write(dir.join("figures").join(name), svg)?;
+        if matches!(format, "md" | "all") {
+            fs::create_dir_all(dir.join("figures"))?;
+            for (name, svg) in &m.figures {
+                fs::write(dir.join("figures").join(name), svg)?;
+            }
+            fs::write(dir.join("report.md"), &m.md)?;
         }
-        fs::write(dir.join("report.md"), m.md)?;
+        if matches!(format, "pdf" | "all") {
+            let pdf =
+                gmg_pdf::render_pdf(&m, &opts.title).map_err(|e| anyhow::anyhow!("PDF: {e}"))?;
+            fs::write(dir.join("report.pdf"), pdf)?;
+        }
     }
     Ok(())
 }
