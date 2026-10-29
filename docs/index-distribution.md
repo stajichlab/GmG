@@ -14,12 +14,14 @@ An index (`.gmgi`) carries a one-line JSON **manifest** written by `gmg build` (
 
 Indexes built before manifests existed print `manifest (none ...)`; rebuild (`gmg build`, minutes on the HPCC) to get one.
 
-## Proposed release layout (needs a decision on hosting)
+## Releases (GitHub release assets)
 
-Indexes are data, released separately from code (`v*` tags are code). Suggested: a GitHub release per index version with tag `index-YYYY.MM`, assets:
+Indexes are data, released separately from code (`v*` tags are code): one GitHub release per index version, tag `index-YYYY.MM`, not marked as the latest release. First release: [index-2026.10](https://github.com/stajichlab/GmG/releases/tag/index-2026.10). Assets:
 
-* `bfd-s10000.v2.gmgi`: full reference, ~200 MB (23.7k genomes, ANI clusters included once `gmg cluster` output is merged into the metadata);
-* `bfd-reps-s20000.v2.gmgi`: representatives only, for browsers and laptops (target <= 100 MB);
+* `bfd-YYYY.MM-s10000.gmgi`: full reference, ~200 MB (23.7k genomes, ANI clusters at 0.95 in the `cluster` column);
+* `bfd-reps-YYYY.MM-s20000.gmgi`: representatives only (best genome per species), for browsers and laptops, ~60 MB; fewer species calls (see the release notes);
 * `SHA256SUMS` and `MANIFEST.json` (the `gmg info` output of each file).
 
 `scripts/make_index_release.sh INDEX...` writes `SHA256SUMS` and `MANIFEST.txt` next to the files. Release assets are limited to 2 GB each, which these indexes are far below.
+
+Building a release: `scripts/hpcc/15_release_index.sbatch` (HPCC) writes the two indexes, `SHA256SUMS` and `MANIFEST.txt`; `gh release create index-YYYY.MM <files> --latest=false` publishes them.
