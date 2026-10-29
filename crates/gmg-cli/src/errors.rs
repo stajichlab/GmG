@@ -25,6 +25,13 @@ fn e(code: &'static str, message: &str, action: &'static str) -> InputError {
 /// `bases` is the number of bases read when the file parsed but no usable k-mer window was found.
 pub fn classify(path: &Path, size: u64, err: &Error) -> InputError {
     let text = format!("{err:#}");
+    if text.contains("internal error") {
+        return e(
+            "internal_error",
+            "GmG hit an unexpected problem with this file.",
+            "Please report it (https://github.com/stajichlab/GmG/issues) with the file if you can share it.",
+        );
+    }
     if size == 0 {
         return e(
             "empty_file",

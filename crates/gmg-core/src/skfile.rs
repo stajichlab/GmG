@@ -27,9 +27,35 @@ pub(crate) fn rd_u64<R: Read>(r: &mut R) -> io::Result<u64> {
     r.read_exact(&mut b)?;
     Ok(u64::from_le_bytes(b))
 }
+/// Read exactly `len` bytes without trusting `len` for the allocation: a hostile header cannot make us allocate more
+/// than the file actually holds.
+/// k must fit a 64-bit k-mer and scaled must be at least 1.
+pub(crate) fn check_params(ksize: u32, scaled: u32) -> io::Result<()> {
+    if !(1..=32).contains(&ksize) || scaled == 0 {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "invalid k-mer size or scaled value",
+        ));
+    }
+    Ok(())
+}
+
+pub(crate) fn rd_bytes<R: Read>(r: &mut R, len: usize) -> io::Result<Vec<u8>> {
+    let mut buf = Vec::new();
+    r.take(len as u64).read_to_end(&mut buf)?;
+    if buf.len() != len {
+        return Err(io::Error::new(
+            io::ErrorKind::UnexpectedEof,
+            "file is truncated",
+        ));
+    }
+    Ok(buf)
+}
+fn too_big() -> io::Error {
+    io::Error::new(io::ErrorKind::InvalidData, "implausible length in header")
+}
 pub(crate) fn rd_u64_vec<R: Read>(r: &mut R, n: usize) -> io::Result<Vec<u64>> {
-    let mut buf = vec![0u8; n * 8];
-    r.read_exact(&mut buf)?;
+    let buf = rd_bytes(r, n.checked_mul(8).ok_or_else(too_big)?)?;
     Ok(buf
         .as_chunks::<8>()
         .0
@@ -38,8 +64,7 @@ pub(crate) fn rd_u64_vec<R: Read>(r: &mut R, n: usize) -> io::Result<Vec<u64>> {
         .collect())
 }
 pub(crate) fn rd_u32_vec<R: Read>(r: &mut R, n: usize) -> io::Result<Vec<u32>> {
-    let mut buf = vec![0u8; n * 4];
-    r.read_exact(&mut buf)?;
+    let buf = rd_bytes(r, n.checked_mul(4).ok_or_else(too_big)?)?;
     Ok(buf
         .as_chunks::<4>()
         .0
@@ -94,9 +119,9 @@ impl SketchFile {
         let ksize = rd_u32(r)?;
         let scaled = rd_u32(r)?;
         let seed = rd_u64(r)?;
+        check_params(ksize, scaled)?;
         let nl = rd_u32(r)? as usize;
-        let mut nb = vec![0u8; nl];
-        r.read_exact(&mut nb)?;
+        let nb = rd_bytes(r, nl)?;
         let name =
             String::from_utf8(nb).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
         let n = rd_u64(r)? as usize;

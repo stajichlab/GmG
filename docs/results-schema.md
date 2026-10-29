@@ -37,7 +37,7 @@ Empty cell = not applicable / not called. TSV cells never contain tabs or newlin
 | `n_hashes`, `total_bases`, `n50` | sketch size after filtering, input bases, N50 (assemblies) |
 | `qc_flags` | comma-separated, see below |
 | `message` | plain one-sentence reason when `status` is `error` (never a path) |
-| `error_code` | `empty_file`, `no_sequence_records`, `not_sequence_file`, `bad_gzip`, `unreadable`, `too_short`, `parse_error`; blank unless `status` is `error`. `results.jsonl` also has `error_action`, what to do about it |
+| `error_code` | `empty_file`, `no_sequence_records`, `not_sequence_file`, `bad_gzip`, `unreadable`, `too_short`, `parse_error`, `internal_error`; blank unless `status` is `error`. `results.jsonl` also has `error_action`, what to do about it |
 | `schema_version` | 3 |
 
 ### Thresholds

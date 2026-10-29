@@ -329,12 +329,12 @@ impl RefIndex {
         let ksize = rd_u32(r)?;
         let scaled = rd_u32(r)?;
         let seed = rd_u64(r)?;
+        crate::skfile::check_params(ksize, scaled)?;
         let n_genomes = rd_u32(r)? as usize;
-        let meta_len = rd_u64(r)? as usize;
-        let mut mb = vec![0u8; meta_len];
-        r.read_exact(&mut mb)?;
+        let meta_len = usize::try_from(rd_u64(r)?).map_err(|_| bad("implausible length"))?;
+        let mb = crate::skfile::rd_bytes(r, meta_len)?;
         let meta = String::from_utf8(mb).map_err(|_| bad("meta not utf-8"))?;
-        let mut genomes = Vec::with_capacity(n_genomes);
+        let mut genomes = Vec::with_capacity(n_genomes.min(1 << 20));
         for line in meta.lines() {
             let f: Vec<&str> = line.split('\t').collect();
             // 9 fields = indexes written before clusters existed; 10 = with the cluster column
@@ -356,42 +356,78 @@ impl RefIndex {
         if genomes.len() != n_genomes {
             return Err(bad("genome count mismatch"));
         }
-        let nh = rd_u64(r)? as usize;
+        let nh = usize::try_from(rd_u64(r)?).map_err(|_| bad("implausible length"))?;
         if v1 {
             let mut rest = Vec::new();
             r.read_to_end(&mut rest)?;
             let mut pos = 0usize;
+            if nh > rest.len() {
+                return Err(bad("truncated index"));
+            }
             let mut hashes = Vec::with_capacity(nh);
             let mut offsets = Vec::with_capacity(nh + 1);
             let mut postings: Vec<u32> = Vec::new();
             offsets.push(0u64);
             let mut prev = 0u64;
             for _ in 0..nh {
-                prev += get_varint(&rest, &mut pos).ok_or_else(|| bad("truncated index"))?;
+                prev = prev
+                    .checked_add(get_varint(&rest, &mut pos).ok_or_else(|| bad("truncated index"))?)
+                    .ok_or_else(|| bad("corrupt index"))?;
                 hashes.push(prev);
                 let len =
                     get_varint(&rest, &mut pos).ok_or_else(|| bad("truncated index"))? as usize;
                 let mut g = 0u32;
                 for j in 0..len {
-                    let v =
-                        get_varint(&rest, &mut pos).ok_or_else(|| bad("truncated index"))? as u32;
-                    g = if j == 0 { v } else { g + v };
+                    let v = u32::try_from(
+                        get_varint(&rest, &mut pos).ok_or_else(|| bad("truncated index"))?,
+                    )
+                    .map_err(|_| bad("corrupt index"))?;
+                    g = if j == 0 {
+                        v
+                    } else {
+                        g.checked_add(v).ok_or_else(|| bad("corrupt index"))?
+                    };
                     postings.push(g);
                 }
                 offsets.push(postings.len() as u64);
             }
+            validate(genomes.len(), &hashes, &offsets, &postings)?;
             return Ok(Self::assemble(
                 ksize, scaled, seed, genomes, hashes, offsets, postings,
             ));
         }
         let hashes = rd_u64_vec(r, nh)?;
-        let offsets = rd_u64_vec(r, nh + 1)?;
-        let np = rd_u64(r)? as usize;
+        let offsets = rd_u64_vec(
+            r,
+            nh.checked_add(1).ok_or_else(|| bad("implausible length"))?,
+        )?;
+        let np = usize::try_from(rd_u64(r)?).map_err(|_| bad("implausible length"))?;
         let postings = rd_u32_vec(r, np)?;
+        validate(genomes.len(), &hashes, &offsets, &postings)?;
         Ok(Self::assemble(
             ksize, scaled, seed, genomes, hashes, offsets, postings,
         ))
     }
+}
+
+/// Structural checks so a corrupt or hostile index fails to load instead of panicking during a search.
+fn validate(n_genomes: usize, hashes: &[u64], offsets: &[u64], postings: &[u32]) -> io::Result<()> {
+    let bad = |m: &str| io::Error::new(io::ErrorKind::InvalidData, m.to_string());
+    if offsets.len() != hashes.len() + 1 || offsets.first() != Some(&0) {
+        return Err(bad("corrupt index (offsets)"));
+    }
+    if offsets.last().copied() != Some(postings.len() as u64)
+        || offsets.windows(2).any(|w| w[0] > w[1])
+    {
+        return Err(bad("corrupt index (offsets)"));
+    }
+    if hashes.windows(2).any(|w| w[0] >= w[1]) {
+        return Err(bad("corrupt index (hashes not sorted)"));
+    }
+    if postings.iter().any(|&g| g as usize >= n_genomes) {
+        return Err(bad("corrupt index (genome id out of range)"));
+    }
+    Ok(())
 }
 
 fn put_varint(buf: &mut Vec<u8>, mut v: u64) {
