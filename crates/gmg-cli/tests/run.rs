@@ -379,3 +379,119 @@ fn failed_inputs_get_plain_error_codes() {
         fs::set_permissions(&f, fs::Permissions::from_mode(0o644)).unwrap();
     }
 }
+
+fn fastq(prefix: &str, g: &[u8], start: usize, n: usize, len: usize, step: usize) -> String {
+    let mut s = String::new();
+    for i in 0..n {
+        let a = (start + i * step) % (g.len() - len);
+        s.push_str(&format!("@{prefix}{i}\n"));
+        s.push_str(std::str::from_utf8(&g[a..a + len]).unwrap());
+        s.push_str(&format!("\n+\n{}\n", "I".repeat(len)));
+    }
+    s
+}
+
+#[test]
+fn paired_and_lane_split_reads_equal_the_concatenated_file() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, _) = build_reference(d);
+    let g = &genomes[2];
+    // sample A: R1/R2 x two lanes; sample B: the same reads concatenated in one file
+    let parts = [
+        ("A_S1_L001_R1_001", fastq("a", g, 0, 3000, 100, 61)),
+        ("A_S1_L001_R2_001", fastq("b", g, 30, 3000, 100, 61)),
+        ("A_S1_L002_R1_001", fastq("c", g, 7, 3000, 100, 59)),
+        ("A_S1_L002_R2_001", fastq("d", g, 40, 3000, 100, 59)),
+    ];
+    let inp = d.join("in");
+    fs::create_dir_all(&inp).unwrap();
+    let mut all = String::new();
+    for (n, t) in &parts {
+        fs::write(inp.join(format!("{n}.fastq")), t).unwrap();
+        all.push_str(t);
+    }
+    fs::write(inp.join("whole.fastq"), &all).unwrap();
+    // a lone R1 file keeps its own id
+    fs::write(
+        inp.join("solo_R1_001.fastq"),
+        fastq("e", g, 0, 3000, 100, 61),
+    )
+    .unwrap();
+    let out = d.join("out");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+        "--no-report",
+        "--min-abund",
+        "1",
+    ]);
+    let (h, rows) = read_tsv(&out.join("results.tsv"));
+    let get = |id: &str| {
+        rows.iter()
+            .find(|r| r[0] == id)
+            .unwrap_or_else(|| {
+                panic!(
+                    "no row {id}: {:?}",
+                    rows.iter().map(|r| &r[0]).collect::<Vec<_>>()
+                )
+            })
+            .clone()
+    };
+    let (a, w) = (get("A_S1"), get("whole"));
+    for c in [
+        "status",
+        "call_species",
+        "n_hashes",
+        "shared",
+        "total_bases",
+        "top_hit",
+    ] {
+        assert_eq!(a[col(&h, c)], w[col(&h, c)], "{c}");
+    }
+    assert_eq!(a[col(&h, "call_species")], "Fusarium gamma");
+    assert_eq!(get("solo_R1_001")[col(&h, "status")], "ok");
+    assert_eq!(rows.len(), 3, "4 lane/pair files -> 1 sample");
+    let jl = fs::read_to_string(out.join("results.jsonl")).unwrap();
+    assert!(
+        jl.contains("\"files\":[\"A_S1_L001_R1_001.fastq\""),
+        "grouped sample lists its files"
+    );
+
+    // --no-group keeps the five files separate; --list reads paths from a file
+    let list = d.join("list.txt");
+    fs::write(
+        &list,
+        format!("# samples\n{}\n", inp.join("whole.fastq").display()),
+    )
+    .unwrap();
+    let out2 = d.join("out2");
+    ok(&[
+        "run",
+        "--list",
+        list.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out2.to_str().unwrap(),
+        "--no-report",
+    ]);
+    let (_, r2) = read_tsv(&out2.join("results.tsv"));
+    assert_eq!(r2.len(), 1);
+    let out3 = d.join("out3");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--no-group",
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out3.to_str().unwrap(),
+        "--no-report",
+    ]);
+    assert_eq!(read_tsv(&out3.join("results.tsv")).1.len(), 6);
+}
