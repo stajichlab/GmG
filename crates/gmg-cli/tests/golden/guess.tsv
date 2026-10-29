@@ -1,0 +1,5 @@
+query	status	best_rank	call_phylum	call_class	call_order	call_family	call_genus	call_species	tentative_genus	withheld	top_hit	top_hit_species	top_hit_taxid	ani
+<dir>/exact_fusarium.fa	ok	species	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium gamma			g2	Fusarium gamma	102	1.0000
+<dir>/mutant_agaricus.fa	ok	genus	Basidiomycota	Agaricomycetes	Agaricales	Agaricaceae	Agaricus			species: ani_below_cutoff (ANI 0.9846 < 0.9938)	g4	Agaricus eps	104	0.9846
+<dir>/divergent_agaricus.fa	low_confidence	family	Basidiomycota	Agaricomycetes	Agaricales	Agaricaceae			Agaricus	genus: ani_below_cutoff (ANI 0.8870 < 0.9000)	g5	Agaricus zeta	105	0.8870
+<dir>/unrelated.fa	no_match									phylum: no_hits (no reference genome shares a sketch hash with the input)				

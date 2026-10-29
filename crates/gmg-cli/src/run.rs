@@ -17,7 +17,7 @@ use std::sync::Mutex;
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
 /// Bump when a column of results.tsv / hits.tsv or a key of results.jsonl / run.json changes meaning.
-pub const SCHEMA_VERSION: u32 = 4; // 4: expected, expected_match columns (sample sheet). 2: tentative_genus column; balanced default thresholds. 3: error_code column, plain error messages
+pub const SCHEMA_VERSION: u32 = 5; // 5: withheld column. 4: expected, expected_match columns (sample sheet). 2: tentative_genus column; balanced default thresholds. 3: error_code column, plain error messages
 
 /// Species ANI cutoff for read sets (#32): repeated sequencing errors lower the containment ANI of a read set, so the
 /// assembly cutoff (0.9938) leaves 8-15% of correct species unnamed. With *C. immitis* left out of the reference its reads
@@ -33,6 +33,8 @@ pub struct RunArgs {
     pub group: bool,
     /// record the SHA-256 of every input file in run.json (slow for large inputs)
     pub checksums: bool,
+    pub quiet: bool,
+    pub verbose: bool,
     /// TSV naming inputs (id, path, expected)
     pub sample_sheet: Option<PathBuf>,
     pub index: PathBuf,
@@ -300,7 +302,7 @@ fn discover(args: &RunArgs) -> Result<Vec<Input>> {
     if args.group {
         inputs = group_reads(inputs);
         let merged: Vec<&Input> = inputs.iter().filter(|i| i.files.len() > 1).collect();
-        if !merged.is_empty() {
+        if !merged.is_empty() && !args.quiet {
             eprintln!(
                 "merged {} read files into {} samples (R1/R2 and lanes; --no-group keeps them separate)",
                 merged.iter().map(|i| i.files.len()).sum::<usize>(),
@@ -429,13 +431,9 @@ fn process(
             th
         };
         let g = guess(ix, &hashes, &|_| false, th);
-        let gj = guess_json(ix, &g, &path, a.top);
-        let best = g.calls.iter().rposition(|c| c.is_some());
-        let status = match best {
-            None => "no_match",
-            Some(i) if i >= 4 => "ok",
-            Some(_) => "low_confidence",
-        };
+        let mut gj = guess_json(ix, &g, &path, a.top);
+        gj["withheld"] = crate::withheld_json(&g, th);
+        let (best, status) = crate::status_of(&g);
         let split = ix.phylum_exclusive(&hashes);
         let flags = qc_flags(
             inp.kind,
@@ -583,6 +581,7 @@ fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
         "qc_flags",
         "message",
         "error_code",
+        "withheld",
         "expected",
         "expected_match",
         "schema_version",
@@ -639,6 +638,7 @@ fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
                 .unwrap_or_default(),
             tsv_cell(&r["message"]),
             tsv_cell(&r["error_code"]),
+            crate::withheld_text(&r["guess"]["withheld"]),
             tsv_cell(&r["expected"]),
             expected_match(r),
             SCHEMA_VERSION.to_string(),
@@ -738,10 +738,12 @@ pub fn run(args: RunArgs) -> Result<()> {
         .map(|i| i.id.clone())
         .collect();
     done.retain(|id, _| kept.contains(id));
-    eprintln!(
+    if !args.quiet {
+        eprintln!(
         "gmg run: {} inputs ({} to process, {} reused from a previous run); index {} genomes, k={}, scaled={}; thresholds: {}",
         inputs.len(), todo.len(), done.len(), ix.genomes.len(), ix.ksize, ix.scaled, th_name
     );
+    }
 
     // rewrite results.jsonl with the reused results, then append as inputs finish
     {
@@ -771,14 +773,22 @@ pub fn run(args: RunArgs) -> Result<()> {
             }
             let n = counter.fetch_add(1, Ordering::SeqCst) + 1;
             let el = t_work.elapsed().as_secs_f64();
-            eprintln!(
-                "[{n}/{total}] {}  {}  {}  ({}, ETA {})",
-                inp.id,
-                v["status"].as_str().unwrap_or(""),
-                v["best_rank"].as_str().unwrap_or("-"),
-                fmt_secs(el),
-                fmt_secs(el / n as f64 * (total - n) as f64)
-            );
+            if !args.quiet {
+                eprintln!(
+                    "[{n}/{total}] {}  {}  {}  ({}, ETA {})",
+                    inp.id,
+                    v["status"].as_str().unwrap_or(""),
+                    v["best_rank"].as_str().unwrap_or("-"),
+                    fmt_secs(el),
+                    fmt_secs(el / n as f64 * (total - n) as f64)
+                );
+                if args.verbose {
+                    let w = crate::withheld_text(&v["guess"]["withheld"]);
+                    if !w.is_empty() {
+                        eprintln!("      withheld {w}");
+                    }
+                }
+            }
             (inp.id.clone(), v, h)
         })
         .collect();
@@ -867,16 +877,18 @@ pub fn run(args: RunArgs) -> Result<()> {
     }
     let mut cs: Vec<_> = counts.iter().collect();
     cs.sort();
-    eprintln!(
-        "done in {:.1}s: {}  ->  {}/{{results.tsv,hits.tsv,run.json,results.jsonl{}}}",
-        t0.elapsed().as_secs_f64(),
-        cs.iter()
-            .map(|(k, v)| format!("{k}={v}"))
-            .collect::<Vec<_>>()
-            .join(" "),
-        args.out.display(),
-        if args.report { ",report.html" } else { "" }
-    );
+    if !args.quiet {
+        eprintln!(
+            "done in {:.1}s: {}  ->  {}/{{results.tsv,hits.tsv,run.json,results.jsonl{}}}",
+            t0.elapsed().as_secs_f64(),
+            cs.iter()
+                .map(|(k, v)| format!("{k}={v}"))
+                .collect::<Vec<_>>()
+                .join(" "),
+            args.out.display(),
+            if args.report { ",report.html" } else { "" }
+        );
+    }
     Ok(())
 }
 

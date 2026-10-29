@@ -1,0 +1,4 @@
+<dir>/exact_fusarium.fa  Fusarium gamma  (species, ANI 1.0000)
+<dir>/mutant_agaricus.fa  Agaricus  (genus, ANI 0.9846; species withheld: ANI 0.9846 < 0.9938)
+<dir>/divergent_agaricus.fa  Agaricaceae  (family, ANI 0.8870; genus withheld: ANI 0.8870 < 0.9000; tentative genus Agaricus)
+<dir>/unrelated.fa  no call  (no_match; phylum withheld: no reference genome shares a sketch hash with the input)

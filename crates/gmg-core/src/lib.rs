@@ -14,7 +14,7 @@ mod json;
 mod sketch;
 mod skfile;
 
-pub use call::{guess, guess_from_hits, Guess, RankVote, Tentative, Thresholds, TopHit};
+pub use call::{guess, guess_from_hits, Guess, RankVote, Tentative, Thresholds, TopHit, Withheld};
 pub use fastx::sketch_fastx;
 pub use index::{GenomeMeta, Hit, IndexBuilder, RefIndex, RANKS};
 #[cfg(feature = "json")]
