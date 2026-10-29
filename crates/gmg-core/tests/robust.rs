@@ -26,17 +26,17 @@ fn meta(id: &str, genus: &str) -> GenomeMeta {
     }
 }
 
-fn index_bytes(v1: bool) -> Vec<u8> {
+fn index_bytes(v: u8) -> Vec<u8> {
     let mut b = IndexBuilder::new(21, 1, 42);
     b.add(meta("a", "Aspergillus"), (0..300).map(|x| x * 7).collect());
     b.add(meta("b", "Fusarium"), (100..400).map(|x| x * 7).collect());
     b.add(meta("c", "Fusarium"), (350..600).map(|x| x * 7).collect());
     let ix = b.build(4);
     let mut buf = Vec::new();
-    if v1 {
-        ix.write_v1(&mut buf).unwrap();
-    } else {
-        ix.write(&mut buf).unwrap();
+    match v {
+        1 => ix.write_v1(&mut buf).unwrap(),
+        3 => ix.write_v3(&mut buf).unwrap(),
+        _ => ix.write(&mut buf).unwrap(),
     }
     buf
 }
@@ -55,8 +55,8 @@ fn exercise(bytes: &[u8]) {
 #[test]
 fn mutated_and_truncated_indexes_never_panic() {
     let mut rng = Rng(0x2545F4914F6CDD1D);
-    for v1 in [false, true] {
-        let good = index_bytes(v1);
+    for v in [0u8, 1, 3] {
+        let good = index_bytes(v);
         assert!(RefIndex::read(&mut &good[..]).is_ok());
         // every truncation point
         for n in 0..good.len() {

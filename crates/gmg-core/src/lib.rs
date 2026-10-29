@@ -11,6 +11,7 @@ mod fastx;
 mod index;
 #[cfg(feature = "json")]
 mod json;
+mod packed;
 mod sketch;
 mod skfile;
 

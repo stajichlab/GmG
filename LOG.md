@@ -76,3 +76,6 @@ Size flags use the called phylum's 1st-99th percentile of reference genome size 
 
 ## 2026-10-29 taxonomy normalization (#30)
 BFD labels turned out to match NCBI closely (species string differs for 0.9%, family/genus for 6/9 genomes). The gain: per-rank NCBI taxids stored in the index (17-field meta lines) and returned as taxid_<rank> in results.tsv/JSON (schema v6), original label kept (top_hit_label), build reads a header-based metadata table, scripts/normalize_taxonomy.py + recorded taxdump md5 in the manifest. Production rebuild: scripts/hpcc/15_release_index.sbatch VER=2026.10.1.
+
+## 2026-10-29 packed index v3 (#36)
+GMGIDX03: postings stay delta/varint coded with a block directory; read_owned avoids the second copy; info 1.14 s/776 MB -> 0.09 s/220 MB, WASM full index 2087 MB -> 463 MB peak, load 3.1 s -> 0.15 s; gmg convert default v3 (--format v1), bench/cluster expand in memory. reports/performance_2026-10-28.md has the table.

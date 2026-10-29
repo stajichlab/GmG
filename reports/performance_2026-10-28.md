@@ -38,3 +38,27 @@ proportional to the query's hashes, both measured far below anything users will 
   weighting, error-prone hashes, stopping rule) is an algorithm-design task.
 
 These are the places where a deeper model for design review is worth it; classification speed is not.
+
+## Update 2026-10-29: packed index format (v3, #36)
+
+`gmg convert` now writes `GMGIDX03` by default: the postings stay delta/varint coded and a block directory (256 hashes
+per block) lets a query decode only the blocks it touches. Loading copies the file (no expansion); `gmg bench` and
+`gmg cluster` expand it in memory because they run tens of thousands of queries. Same answers as the older formats
+(tests: identical search results, write round trips, mutation/truncation fuzz).
+
+| full index (199 MB), measured | before (v1, expanded at load) | after (v3, packed) |
+|---|---|---|
+| `gmg info`, native | 1.14 s, 776 MB resident | **0.09 s, 220 MB** |
+| classify 5 genomes (115 MB), 1 thread | 4.5 s, 837 MB (machine busy: compare the two) | 3.4 s, **315 MB** |
+| load in WASM (node) | 3.1 s | **0.15 s** |
+| peak resident in WASM (node), full index | 1,730 MB (2,087 MB with the double copy) | **463 MB** |
+| peak resident in WASM, representatives index (61 MB) | 451 MB | **178 MB** |
+| 2M reads, representatives index, native | 4.2-4.9 s, 301 MB | 3.8-5.5 s, **73 MB** (same within noise) |
+
+The WASM numbers also reflect `Index::new(Vec<u8>)` taking ownership of the buffer (`RefIndex::read_owned`), so the file
+is held once. A query against the packed full index takes ~10-40 ms in WASM (decoding ~one block per query hash); a read
+set that touches most of the index decodes it all once (~200 ms).
+
+Not done: `mmap` for the native CLI (the file is read into memory; `mmap` would also share pages between processes),
+measuring in a real browser (node's WASM engine is the same V8 but without the tab memory limits), and the HPCC reads
+slowdown.
