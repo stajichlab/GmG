@@ -74,7 +74,7 @@ impl IndexBuilder {
     pub fn build(self, buckets: usize) -> RefIndex {
         let max_hash = crate::max_hash_for_scaled(self.scaled);
         let buckets = buckets.max(1) as u64;
-        let width = max_hash / buckets + 1;
+        let width = (max_hash / buckets).saturating_add(1);
         let mut hashes = Vec::new();
         let mut offsets = vec![0u64];
         let mut postings: Vec<u32> = Vec::new();
@@ -169,6 +169,46 @@ impl RefIndex {
     }
     pub fn n_postings(&self) -> usize {
         self.postings.len()
+    }
+
+    /// For each phylum, the number of `query` hashes found only in genomes of that phylum (sorted, unique query).
+    /// Hashes shared across phyla or only with genomes of unknown phylum are not counted. Returns (phylum name, count)
+    /// sorted by count descending; a single-organism input has one dominant phylum, a mixture has two.
+    pub fn phylum_exclusive(&self, query: &[u64]) -> Vec<(String, u32)> {
+        let mut counts = vec![0u32; self.taxa[0].len().max(1)];
+        let mut lo = 0usize;
+        for &q in query {
+            let pos = match self.hashes[lo..].binary_search(&q) {
+                Ok(p) => lo + p,
+                Err(p) => {
+                    lo += p;
+                    continue;
+                }
+            };
+            lo = pos + 1;
+            let (a, z) = (self.offsets[pos] as usize, self.offsets[pos + 1] as usize);
+            let mut ph = None;
+            let mut single = true;
+            for &g in &self.postings[a..z] {
+                let id = self.lineage_ids[g as usize][0];
+                if id == 0 || ph.is_some_and(|p| p != id) {
+                    single = false;
+                    break;
+                }
+                ph = Some(id);
+            }
+            if let (true, Some(id)) = (single, ph) {
+                counts[id as usize] += 1;
+            }
+        }
+        let mut v: Vec<(String, u32)> = counts
+            .iter()
+            .enumerate()
+            .filter(|(_, &c)| c > 0)
+            .map(|(i, &c)| (self.taxa[0][i].clone(), c))
+            .collect();
+        v.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
+        v
     }
 
     /// Count shared hashes between `query` (sorted, unique) and every genome. Genomes for
@@ -400,6 +440,35 @@ mod tests {
         let mut c = Vec::new();
         back.write(&mut c).unwrap();
         assert_eq!(a, c);
+    }
+
+    #[test]
+    fn phylum_exclusive_separates_a_mixture() {
+        let meta = |id: &str, ph: &str| {
+            let mut l: [String; 6] = Default::default();
+            l[0] = ph.into();
+            GenomeMeta {
+                id: id.into(),
+                taxid: 1,
+                lineage: l,
+                n_hashes: 0,
+                cluster: String::new(),
+            }
+        };
+        let mut b = IndexBuilder::new(21, 1, 42);
+        b.add(meta("a", "Ascomycota"), (0..100).collect());
+        b.add(meta("b", "Basidiomycota"), (1000..1100).collect());
+        b.add(meta("c", "Basidiomycota"), (50..150).collect()); // 50..100 shared across phyla
+        let ix = b.build(4);
+        let mut q: Vec<u64> = (0..30).collect();
+        q.extend(1000..1020);
+        q.extend(60..70);
+        q.sort_unstable();
+        let v = ix.phylum_exclusive(&q);
+        assert_eq!(
+            v,
+            vec![("Ascomycota".into(), 30), ("Basidiomycota".into(), 20)]
+        );
     }
 
     #[test]

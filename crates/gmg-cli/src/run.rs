@@ -208,6 +208,7 @@ fn process(
             Some(i) if i >= 4 => "ok",
             Some(_) => "low_confidence",
         };
+        let split = ix.phylum_exclusive(&hashes);
         let flags = qc_flags(
             inp.kind,
             &st,
@@ -220,6 +221,11 @@ fn process(
         if let Some(h) = hist {
             qc["abundance_hist"] = h;
         }
+        qc["phylum_split"] = json!(split
+            .iter()
+            .take(3)
+            .map(|(p, c)| json!({"phylum": p, "hashes": c}))
+            .collect::<Vec<_>>());
         let rec = json!({
             "schema_version": SCHEMA_VERSION, "id": inp.id, "path": path, "size_bytes": size, "kind": inp.kind,
             "status": status, "best_rank": best.map(|i| RANKS[i]), "message": null,
