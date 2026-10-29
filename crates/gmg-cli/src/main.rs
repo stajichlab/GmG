@@ -77,7 +77,7 @@ enum Cmd {
         after_long_help = "EXAMPLES\n  gmg build --meta meta.tsv --sketches sketches/ -o bfd.gmgi\n  gmg build --meta meta.tsv --sketches sketches/ --scaled 10000 -o bfd-s10000.gmgi --taxonomy-version \"NCBI 2026-10\"\n\nmeta.tsv columns: id taxid phylum class order family genus species [cluster]"
     )]
     Build {
-        /// TSV with header: id taxid phylum class order family genus species [cluster]
+        /// TSV with a header: id taxid phylum class order family genus species, optional cluster, <rank>_taxid x6, label (scripts/normalize_taxonomy.py writes all of them)
         #[arg(long)]
         meta: PathBuf,
         #[arg(long)]
@@ -447,32 +447,60 @@ pub(crate) fn load_index(path: &Path) -> Result<RefIndex> {
     Ok(RefIndex::read(&mut BufReader::with_capacity(1 << 20, f))?)
 }
 
+/// Metadata table with a header. Required columns: id taxid phylum class order family genus species. Optional: cluster,
+/// phylum_taxid .. species_taxid (NCBI taxid of each rank) and label (the original label). Columns are found by name.
 fn read_meta(path: &Path) -> Result<Vec<GenomeMeta>> {
     let text = std::fs::read_to_string(path)?;
+    let mut lines = text
+        .lines()
+        .enumerate()
+        .filter(|(_, l)| !l.trim().is_empty());
+    let Some((_, head)) = lines.next() else {
+        bail!("{}: empty metadata table", path.display());
+    };
+    let names: Vec<&str> = head.split('\t').map(str::trim).collect();
+    let col = |n: &str| names.iter().position(|h| h.eq_ignore_ascii_case(n));
+    let req = |n: &str| {
+        col(n).with_context(|| format!("{}: header lacks the column '{n}' (needs: id taxid phylum class order family genus species)", path.display()))
+    };
+    let (c_id, c_taxid) = (req("id")?, req("taxid")?);
+    let mut c_rank = [0usize; 6];
+    for (r, name) in RANKS.iter().enumerate() {
+        c_rank[r] = req(name)?;
+    }
+    let c_cluster = col("cluster");
+    let c_rank_taxid: Vec<Option<usize>> =
+        RANKS.iter().map(|r| col(&format!("{r}_taxid"))).collect();
+    let c_label = col("label");
     let mut out = Vec::new();
-    for (i, line) in text.lines().enumerate() {
-        if i == 0 || line.trim().is_empty() {
-            continue;
-        }
+    for (i, line) in lines {
         let f: Vec<&str> = line.split('\t').collect();
-        if f.len() != 8 && f.len() != 9 {
+        if f.len() < names.len().min(8) {
             bail!(
-                "{}:{}: expected 8 tab-separated columns (+ optional cluster), got {}",
+                "{}:{}: expected {} tab-separated columns, got {}",
                 path.display(),
                 i + 1,
+                names.len(),
                 f.len()
             );
         }
+        let get = |c: usize| f.get(c).copied().unwrap_or("").trim();
         let mut lineage: [String; 6] = Default::default();
+        let mut rank_taxids = [0u32; 6];
         for r in 0..6 {
-            lineage[r] = f[2 + r].to_string();
+            lineage[r] = get(c_rank[r]).to_string();
+            rank_taxids[r] = c_rank_taxid[r]
+                .map(|c| get(c).parse().unwrap_or(0))
+                .unwrap_or(0);
         }
         out.push(GenomeMeta {
-            id: f[0].to_string(),
-            taxid: f[1].parse().unwrap_or(0),
+            id: get(c_id).to_string(),
+            taxid: get(c_taxid).parse().unwrap_or(0),
             lineage,
             n_hashes: 0,
-            cluster: f.get(8).map(|c| c.to_string()).unwrap_or_default(),
+            cluster: c_cluster.map(|c| get(c).to_string()).unwrap_or_default(),
+            rank_taxids,
+            label: c_label.map(|c| get(c).to_string()).unwrap_or_default(),
         });
     }
     Ok(out)

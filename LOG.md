@@ -73,3 +73,6 @@ guess --format table|tsv|json, Guess::withheld (first failed rank + number), wit
 
 ## 2026-10-28 input QC (#29, part of #59)
 Size flags use the called phylum's 1st-99th percentile of reference genome size (fallback 0.5-99.5 of all; none when the reference has < 50 genomes); qc.size_range_mb / size_range_basis in results.jsonl; report shows Typical size and the too-little-data note quotes it. docs/qc.md has the BFD size distribution behind the thresholds. Fixed 5/150 Mb rule dropped (flagged half of Microsporidia, all rusts).
+
+## 2026-10-29 taxonomy normalization (#30)
+BFD labels turned out to match NCBI closely (species string differs for 0.9%, family/genus for 6/9 genomes). The gain: per-rank NCBI taxids stored in the index (17-field meta lines) and returned as taxid_<rank> in results.tsv/JSON (schema v6), original label kept (top_hit_label), build reads a header-based metadata table, scripts/normalize_taxonomy.py + recorded taxdump md5 in the manifest. Production rebuild: scripts/hpcc/15_release_index.sbatch VER=2026.10.1.

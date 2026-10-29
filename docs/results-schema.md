@@ -38,10 +38,12 @@ Empty cell = not applicable / not called. TSV cells never contain tabs or newlin
 | `qc_flags` | comma-separated, see below |
 | `message` | plain one-sentence reason when `status` is `error` (never a path) |
 | `error_code` | `empty_file`, `no_sequence_records`, `not_sequence_file`, `bad_gzip`, `unreadable`, `too_short`, `parse_error`, `internal_error`; blank unless `status` is `error`. `results.jsonl` also has `error_action`, what to do about it |
+| `taxid_phylum` .. `taxid_species` | the NCBI taxid of each called taxon (docs/taxonomy.md); blank for a rank that was not called or has no NCBI taxon |
+| `top_hit_label` | the original label of the top-hit genome in the source collection, next to the NCBI `top_hit_species` |
 | `withheld` | why the first uncalled rank was not called, e.g. `genus: ani_below_cutoff (ANI 0.8870 < 0.9000)`; codes: `no_hits`, `too_few_shared_hashes`, `ani_below_cutoff`, `low_agreement`; blank when a species was called |
 | `expected` | the label from the sample sheet, if one was given |
 | `expected_match` | `yes` if `expected` equals the call at some rank (case-insensitive), `no` if not, blank without an `expected` |
-| `schema_version` | 5 |
+| `schema_version` | 6 |
 
 ### Thresholds
 

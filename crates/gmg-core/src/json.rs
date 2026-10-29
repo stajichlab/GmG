@@ -10,22 +10,30 @@ pub fn guess_json(index: &RefIndex, g: &Guess, query: &str, top: usize) -> Value
         .take(top)
         .map(|&(gi, sh)| {
             let m = &index.genomes[gi as usize];
-            json!({"id": m.id, "taxid": m.taxid, "shared": sh, "lineage": m.lineage, "cluster": m.cluster})
+            json!({"id": m.id, "taxid": m.taxid, "shared": sh, "lineage": m.lineage, "cluster": m.cluster, "label": m.label})
         })
         .collect();
     let calls: Map<String, Value> = RANKS
         .iter()
+        .enumerate()
         .zip(&g.calls)
         .zip(&g.votes)
-        .map(|((r, c), v)| {
+        .map(|(((ri, r), c), v)| {
+            // NCBI taxid of the called taxon (null when the reference carries none)
+            let taxid = c.as_ref().and_then(|_| {
+                let name = v.taxon.as_ref()?;
+                let id = index.taxa[ri].iter().position(|t| t == name)?;
+                Some(index.taxon_taxids[ri][id]).filter(|t| *t != 0)
+            });
             (
                 r.to_string(),
-                json!({"taxon": c, "vote": v.taxon, "consistency": v.consistency}),
+                json!({"taxon": c, "taxid": taxid, "vote": v.taxon, "consistency": v.consistency}),
             )
         })
         .collect();
     let top_json = g.top.as_ref().map(|t| {
         json!({"id": index.genomes[t.genome as usize].id, "cluster": index.genomes[t.genome as usize].cluster,
+               "label": index.genomes[t.genome as usize].label,
                "shared": t.shared, "ani": t.ani, "containment_query": t.containment_query,
                "containment_ref": t.containment_ref})
     });

@@ -272,6 +272,7 @@ mod tests {
             lineage: l,
             n_hashes: 0,
             cluster: String::new(),
+            ..Default::default()
         }
     }
 

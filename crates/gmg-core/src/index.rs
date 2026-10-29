@@ -12,7 +12,7 @@ pub const RANKS: [&str; 6] = ["phylum", "class", "order", "family", "genus", "sp
 const MAGIC: &[u8; 8] = b"GMGIDX01";
 const MAGIC_V1: &[u8; 8] = b"GMGIDX02"; // delta + LEB128 varint coded postings
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct GenomeMeta {
     pub id: String,
     pub taxid: u32,
@@ -22,6 +22,10 @@ pub struct GenomeMeta {
     pub n_hashes: u32,
     /// ANI-cluster id (the centroid genome's id from `gmg cluster`); empty if not clustered
     pub cluster: String,
+    /// NCBI taxid of the taxon at each rank (0 = unknown); `lineage` holds the names
+    pub rank_taxids: [u32; 6],
+    /// the original label of the genome in the source collection (e.g. BFD species string), kept next to the NCBI lineage
+    pub label: String,
 }
 
 pub struct RefIndex {
@@ -33,6 +37,8 @@ pub struct RefIndex {
     pub lineage_ids: Vec<[u32; 6]>,
     /// interned taxon names per rank (index = id, 0 = "")
     pub taxa: [Vec<String>; 6],
+    /// NCBI taxid of each interned taxon (parallel to `taxa`; 0 = unknown)
+    pub taxon_taxids: [Vec<u32>; 6],
     /// optional provenance record (one line of JSON) stored in the index: how and from what it was built
     pub manifest: Option<String>,
     hashes: Vec<u64>,
@@ -133,8 +139,12 @@ impl RefIndex {
     ) -> Self {
         let mut taxa: [Vec<String>; 6] = Default::default();
         let mut maps: Vec<HashMap<String, u32>> = vec![HashMap::new(); 6];
+        let mut taxon_taxids: [Vec<u32>; 6] = Default::default();
         for t in taxa.iter_mut() {
             t.push(String::new());
+        }
+        for t in taxon_taxids.iter_mut() {
+            t.push(0);
         }
         let mut lineage_ids = Vec::with_capacity(genomes.len());
         for g in &genomes {
@@ -148,6 +158,11 @@ impl RefIndex {
                 let id = *maps[r].entry(name.clone()).or_insert(next);
                 if id == next {
                     taxa[r].push(name.clone());
+                    taxon_taxids[r].push(0);
+                }
+                // homonyms share a taxon here; the first non-zero taxid wins
+                if taxon_taxids[r][id as usize] == 0 {
+                    taxon_taxids[r][id as usize] = g.rank_taxids[r];
                 }
                 ids[r] = id;
             }
@@ -160,6 +175,7 @@ impl RefIndex {
             genomes,
             lineage_ids,
             taxa,
+            taxon_taxids,
             manifest: None,
             hashes,
             offsets,
@@ -307,12 +323,14 @@ impl RefIndex {
         let mut meta = self.manifest_line();
         for g in &self.genomes {
             meta.push_str(&format!(
-                "{}\t{}\t{}\t{}\t{}\n",
+                "{}\t{}\t{}\t{}\t{}\t{}\t{}\n",
                 g.id,
                 g.taxid,
                 g.n_hashes,
                 g.lineage.join("\t"),
-                g.cluster
+                g.cluster,
+                g.rank_taxids.map(|t| t.to_string()).join("\t"),
+                g.label.replace(['\t', '\n', '\r'], " ")
             ));
         }
         w.write_all(MAGIC)?;
@@ -335,12 +353,14 @@ impl RefIndex {
         let mut meta = self.manifest_line();
         for g in &self.genomes {
             meta.push_str(&format!(
-                "{}\t{}\t{}\t{}\t{}\n",
+                "{}\t{}\t{}\t{}\t{}\t{}\t{}\n",
                 g.id,
                 g.taxid,
                 g.n_hashes,
                 g.lineage.join("\t"),
-                g.cluster
+                g.cluster,
+                g.rank_taxids.map(|t| t.to_string()).join("\t"),
+                g.label.replace(['\t', '\n', '\r'], " ")
             ));
         }
         w.write_all(MAGIC_V1)?;
@@ -395,13 +415,20 @@ impl RefIndex {
                 continue;
             }
             let f: Vec<&str> = line.split('\t').collect();
-            // 9 fields = indexes written before clusters existed; 10 = with the cluster column
-            if f.len() != 9 && f.len() != 10 {
+            // 9 fields = indexes written before clusters existed; 10 = with the cluster column;
+            // 17 = also the NCBI taxid of every rank and the original label
+            if f.len() != 9 && f.len() != 10 && f.len() != 17 {
                 return Err(bad("bad genome record"));
             }
             let mut lineage: [String; 6] = Default::default();
             for r in 0..6 {
                 lineage[r] = f[3 + r].to_string();
+            }
+            let mut rank_taxids = [0u32; 6];
+            if f.len() == 17 {
+                for r in 0..6 {
+                    rank_taxids[r] = f[10 + r].parse().map_err(|_| bad("rank taxid"))?;
+                }
             }
             genomes.push(GenomeMeta {
                 id: f[0].to_string(),
@@ -409,6 +436,8 @@ impl RefIndex {
                 n_hashes: f[2].parse().map_err(|_| bad("n_hashes"))?,
                 lineage,
                 cluster: f.get(9).map(|c| c.to_string()).unwrap_or_default(),
+                rank_taxids,
+                label: f.get(16).map(|c| c.to_string()).unwrap_or_default(),
             });
         }
         if genomes.len() != n_genomes {
@@ -547,6 +576,7 @@ mod tests {
                 lineage: l,
                 n_hashes: 0,
                 cluster: String::new(),
+                ..Default::default()
             }
         };
         let mut b = IndexBuilder::new(21, 1, 42);
@@ -576,6 +606,7 @@ mod tests {
                 lineage: l,
                 n_hashes: 0,
                 cluster: String::new(),
+                ..Default::default()
             }
         };
         let mut b = IndexBuilder::new(21, 1000, 42);
@@ -621,6 +652,64 @@ mod tests {
     }
 
     #[test]
+    fn rank_taxids_and_labels_survive_both_formats_and_follow_the_taxon() {
+        let mut b = IndexBuilder::new(21, 1, 42);
+        let mk = |id: &str, genus: &str, gt: u32, species: &str, st: u32, label: &str| {
+            let mut l: [String; 6] = Default::default();
+            l[0] = "Ascomycota".into();
+            l[4] = genus.into();
+            l[5] = species.into();
+            GenomeMeta {
+                id: id.into(),
+                taxid: st,
+                lineage: l,
+                rank_taxids: [4890, 0, 0, 0, gt, st],
+                label: label.into(),
+                ..Default::default()
+            }
+        };
+        b.add(
+            mk(
+                "a",
+                "Fusarium",
+                5506,
+                "Fusarium oxysporum",
+                5507,
+                "F. oxysporum f. sp. x",
+            ),
+            (0..50).collect(),
+        );
+        b.add(
+            mk(
+                "b",
+                "Fusarium",
+                5506,
+                "Fusarium solani",
+                169388,
+                "Fusarium solani",
+            ),
+            (40..90).collect(),
+        );
+        let ix = b.build(2);
+        let g = ix.taxa[4].iter().position(|t| t == "Fusarium").unwrap();
+        assert_eq!(ix.taxon_taxids[4][g], 5506);
+        for v1 in [false, true] {
+            let mut buf = Vec::new();
+            if v1 {
+                ix.write_v1(&mut buf).unwrap();
+            } else {
+                ix.write(&mut buf).unwrap();
+            }
+            let back = RefIndex::read(&mut &buf[..]).unwrap();
+            assert_eq!(back.genomes, ix.genomes);
+            assert_eq!(back.genomes[0].rank_taxids[5], 5507);
+            assert_eq!(back.genomes[0].label, "F. oxysporum f. sp. x");
+            let g = back.taxa[4].iter().position(|t| t == "Fusarium").unwrap();
+            assert_eq!(back.taxon_taxids[4][g], 5506);
+        }
+    }
+
+    #[test]
     fn varint_edges() {
         for v in [0u64, 1, 127, 128, 300, u32::MAX as u64, u64::MAX] {
             let mut b = Vec::new();
@@ -641,6 +730,7 @@ mod tests {
             lineage,
             n_hashes: 0,
             cluster: String::new(),
+            ..Default::default()
         }
     }
 
