@@ -5,6 +5,7 @@ use gmg_core::{
     DEFAULT_SEED, RANKS,
 };
 use needletail::parse_fastx_file;
+mod errors;
 mod run;
 
 use rayon::prelude::*;

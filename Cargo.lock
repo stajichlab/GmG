@@ -456,6 +456,7 @@ version = "0.0.1"
 dependencies = [
  "anyhow",
  "clap",
+ "flate2",
  "gmg-core",
  "gmg-report",
  "needletail",

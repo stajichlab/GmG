@@ -301,3 +301,81 @@ fn divergent_input_gets_a_tentative_genus_not_a_genus_call() {
     assert_eq!(rows2[0][col(&h2, "call_genus")], "Agaricus");
     assert_eq!(rows2[0][col(&h2, "tentative_genus")], "");
 }
+
+#[test]
+fn failed_inputs_get_plain_error_codes() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (_, ix, _) = build_reference(d);
+    let inp = d.join("in");
+    fs::create_dir_all(&inp).unwrap();
+    fs::write(inp.join("empty.fa"), b"").unwrap();
+    fs::write(inp.join("header_only.fa"), b">only_a_header\n").unwrap();
+    fs::write(
+        inp.join("notseq.fa"),
+        b"this is a text file, not a genome\n",
+    )
+    .unwrap();
+    fs::write(
+        inp.join("bad.fa.gz"),
+        [
+            0x1f, 0x8b, 8, 0, 0, 0, 0, 0, 0, 3, 0xde, 0xad, 0xbe, 0xef, 1, 2, 3, 4,
+        ],
+    )
+    .unwrap();
+    fs::write(inp.join("tiny.fa"), b">t\nACGTACGT\n").unwrap();
+    let out = d.join("out");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+    ]);
+    let (h, rows) = read_tsv(&out.join("results.tsv"));
+    let code = |id: &str| {
+        let r = rows.iter().find(|r| r[0] == id).unwrap();
+        assert_eq!(r[col(&h, "status")], "error", "{id}");
+        let m = &r[col(&h, "message")];
+        assert!(
+            !m.contains('/') && !m.is_empty(),
+            "{id}: plain message, no path: {m}"
+        );
+        r[col(&h, "error_code")].clone()
+    };
+    assert_eq!(code("empty"), "empty_file");
+    assert_eq!(code("header_only"), "no_sequence_records");
+    assert_eq!(code("notseq"), "not_sequence_file");
+    assert_eq!(code("bad"), "bad_gzip");
+    assert_eq!(code("tiny"), "too_short");
+    let report = fs::read_to_string(out.join("report.html")).unwrap();
+    assert!(
+        report.contains("<code>empty_file</code>") && report.contains("Re-download or re-copy it.")
+    );
+    assert!(!report.contains(d.to_str().unwrap()));
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let f = inp.join("locked.fa");
+        fs::write(&f, b">x\nACGT\n").unwrap();
+        fs::set_permissions(&f, fs::Permissions::from_mode(0o000)).unwrap();
+        // running as root can still read it; only assert when the OS really denies access
+        if fs::File::open(&f).is_err() {
+            let out2 = d.join("out2");
+            ok(&[
+                "run",
+                f.to_str().unwrap(),
+                "--index",
+                ix.to_str().unwrap(),
+                "-o",
+                out2.to_str().unwrap(),
+                "--no-report",
+            ]);
+            let (h2, r2) = read_tsv(&out2.join("results.tsv"));
+            assert_eq!(r2[0][col(&h2, "error_code")], "unreadable");
+        }
+        fs::set_permissions(&f, fs::Permissions::from_mode(0o644)).unwrap();
+    }
+}

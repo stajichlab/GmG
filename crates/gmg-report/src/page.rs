@@ -225,8 +225,18 @@ fn card(r: &Rec, th: &Th, open: bool) -> String {
     );
     if r.status == "error" {
         return format!(
-            r#"<details class="card" id="q-{id}" open>{head}<div class="card-b"><p class="why">This input could not be processed: <b>{}</b>. The run continued; this row stays in results.tsv with status <code>error</code>.</p></div></details>"#,
-            esc(&r.message)
+            r#"<details class="card" id="q-{id}" open>{head}<div class="card-b"><p class="why">This input could not be processed{}: <b>{}</b>{} The run continued; this row stays in results.tsv with status <code>error</code>.</p></div></details>"#,
+            if r.error_code.is_empty() {
+                String::new()
+            } else {
+                format!(" (<code>{}</code>)", esc(&r.error_code))
+            },
+            esc(&r.message),
+            if r.error_action.is_empty() {
+                ".".to_string()
+            } else {
+                format!(" {}", esc(&r.error_action))
+            }
         );
     }
     let bars = charts::tophit_bars(r);

@@ -48,6 +48,8 @@ pub struct Rec {
     pub status: String,
     pub best_rank: Option<usize>,
     pub message: String,
+    pub error_code: String,
+    pub error_action: String,
     pub total_bases: f64,
     pub n50: f64,
     pub n_hashes: u64,
@@ -136,6 +138,8 @@ impl Rec {
                 .as_str()
                 .and_then(|b| RANKS.iter().position(|r| *r == b)),
             message: file_names_only(&s(&v["message"])),
+            error_code: s(&v["error_code"]),
+            error_action: s(&v["error_action"]),
             total_bases: v["qc"]["total_bases"].as_f64().unwrap_or(0.0),
             n50: v["qc"]["n50"].as_f64().unwrap_or(0.0),
             n_hashes: v["qc"]["n_hashes"].as_u64().unwrap_or(0),
