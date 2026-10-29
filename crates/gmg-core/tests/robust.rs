@@ -44,8 +44,12 @@ fn index_bytes(v: u8) -> Vec<u8> {
 /// Loading must not panic; if it loads, a search and a guess must not panic either.
 fn exercise(bytes: &[u8]) {
     let r = catch_unwind(|| {
+        let q: Vec<u64> = (0..50).map(|x| x * 7).collect();
         if let Ok(ix) = RefIndex::read(&mut &bytes[..]) {
-            let q: Vec<u64> = (0..50).map(|x| x * 7).collect();
+            let _ = guess(&ix, &q, &|_| false, &Thresholds::default());
+        }
+        // the owned loader keeps v3 packed and decodes on demand: a corrupt stream must end the walk, not panic
+        if let Ok(ix) = RefIndex::read_owned(bytes.to_vec()) {
             let _ = guess(&ix, &q, &|_| false, &Thresholds::default());
         }
     });
@@ -134,5 +138,42 @@ fn mutated_sketch_files_never_panic() {
             let _ = SketchFile::read(&mut &b[..]);
         })
         .is_ok());
+    }
+}
+
+/// FASTA/FASTQ text from anywhere (empty, binary, CRLF, truncated records, one huge line, lone headers, NULs) must sketch or
+/// return nothing, never panic.
+#[test]
+fn hostile_sequence_text_never_panics() {
+    let mut rng = Rng(0x9E3779B97F4A7C15);
+    let mut cases: Vec<Vec<u8>> = vec![
+        b"".to_vec(),
+        b">".to_vec(),
+        b">\n".to_vec(),
+        b"@".to_vec(),
+        b"@r\nACGT\n+\n".to_vec(),
+        b"@r\nACGT\n+\nIII".to_vec(),
+        b">a\r\nACGTACGTACGTACGTACGTACGTAC\r\n>b\r\n\r\n".to_vec(),
+        b"ACGTACGTACGTACGTACGTACGTACGTACGT".to_vec(),
+        vec![0u8; 4096],
+        vec![b'>'; 10_000],
+        b">x\n\0\0ACGT\xff\xfe\n".to_vec(),
+    ];
+    let mut huge = b">h\n".to_vec();
+    huge.extend((0..3_000_000).map(|i| b"ACGT"[i % 4]));
+    cases.push(huge);
+    for len in [1usize, 7, 64, 1000, 20_000] {
+        cases.push((0..len).map(|_| rng.next() as u8).collect());
+        let mut fa = b">r\n".to_vec();
+        fa.extend((0..len).map(|_| b"ACGTN\n\r>@"[(rng.next() % 9) as usize]));
+        cases.push(fa);
+    }
+    for (i, c) in cases.iter().enumerate() {
+        let r = catch_unwind(|| {
+            let _ = gmg_core::sketch_fastx(c, 21, 10, 42, 1, 0);
+            let _ = gmg_core::sketch_fastx_stats(c, 21, 10, false, 0);
+            let _ = gmg_core::sketch_fastx_stats(c, 21, 10, true, 5);
+        });
+        assert!(r.is_ok(), "panicked on case {i} ({} bytes)", c.len());
     }
 }
