@@ -495,3 +495,86 @@ fn paired_and_lane_split_reads_equal_the_concatenated_file() {
     ]);
     assert_eq!(read_tsv(&out3.join("results.tsv")).1.len(), 6);
 }
+
+#[test]
+fn odd_but_legal_and_hostile_inputs_do_not_crash_a_run() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, mut rng) = build_reference(d);
+    let inp = d.join("in");
+    fs::create_dir_all(&inp).unwrap();
+    let g = &genomes[2];
+    let lf = fasta("lf", g);
+    // same genome with CRLF endings, and with endings mixed line by line
+    fs::write(inp.join("crlf.fa"), lf.replace('\n', "\r\n")).unwrap();
+    let mixed: String = lf
+        .split_inclusive('\n')
+        .enumerate()
+        .map(|(i, l)| {
+            if i % 2 == 0 {
+                l.replace('\n', "\r\n")
+            } else {
+                l.to_string()
+            }
+        })
+        .collect();
+    fs::write(inp.join("mixed.fa"), mixed).unwrap();
+    fs::write(inp.join("lf.fa"), &lf).unwrap();
+    // one 200 kb line (no wrapping) and a long one-line header
+    let long: String = format!(
+        ">{}\n{}\n",
+        "x".repeat(100_000),
+        std::str::from_utf8(g).unwrap()
+    );
+    fs::write(inp.join("longline.fa"), long).unwrap();
+    // binary garbage, a text file, a FASTQ cut in the middle of a record, a lone '>'
+    let junk: Vec<u8> = (0..5000).map(|_| (rng.next() & 0xff) as u8).collect();
+    fs::write(inp.join("binary.fa"), &junk).unwrap();
+    let mut gt = vec![b'>'];
+    gt.extend(&junk);
+    fs::write(inp.join("gt_binary.fa"), gt).unwrap();
+    fs::write(
+        inp.join("cut.fastq"),
+        "@r1\nACGTACGTACGTACGTACGTACGT\n+\nIIIIIIIIIIIIIIIIIIIIIIII\n@r2\nACGTAC",
+    )
+    .unwrap();
+    fs::write(inp.join("gt.fa"), ">").unwrap();
+    let out = d.join("out");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+    ]);
+    let (h, rows) = read_tsv(&out.join("results.tsv"));
+    assert_eq!(rows.len(), 8, "every input has a row");
+    let get = |id: &str| rows.iter().find(|r| r[0] == id).unwrap().clone();
+    for id in ["lf", "crlf", "mixed", "longline"] {
+        assert_eq!(get(id)[col(&h, "status")], "ok", "{id}");
+        assert_eq!(get(id)[col(&h, "call_species")], "Fusarium gamma", "{id}");
+        assert_eq!(
+            get(id)[col(&h, "n_hashes")],
+            get("lf")[col(&h, "n_hashes")],
+            "{id}: line endings must not change the sketch"
+        );
+    }
+    for id in ["binary", "gt_binary", "cut", "gt"] {
+        let r = get(id);
+        assert!(
+            matches!(
+                r[col(&h, "status")].as_str(),
+                "error" | "ok" | "no_match" | "low_confidence"
+            ),
+            "{id}"
+        );
+        if r[col(&h, "status")] == "error" {
+            assert!(
+                !r[col(&h, "error_code")].is_empty(),
+                "{id}: has an error code"
+            );
+        }
+    }
+    assert_eq!(get("binary")[col(&h, "error_code")], "not_sequence_file");
+}

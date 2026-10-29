@@ -374,7 +374,10 @@ fn process(
             },
         ))
     };
-    match attempt() {
+    // a bug or an unforeseen file must cost one row, never the whole run
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(attempt))
+        .unwrap_or_else(|_| Err(anyhow::anyhow!("internal error while processing this file")));
+    match result {
         Ok((v, h)) => (v, h),
         Err(e) => {
             let ie = crate::errors::classify(&inp.path, size, &e);

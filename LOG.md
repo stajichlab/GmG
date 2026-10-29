@@ -49,3 +49,6 @@ Failed inputs now carry error_code (empty_file, no_sequence_records, not_sequenc
 
 ## 2026-10-28 grouped reads and --list (#27)
 R1/R2 and lane-split FASTQ of one sample are merged into a single sketch/row (test: identical to the concatenated file); --list FILE; --no-group. Not done: stdin, --max-bases.
+
+## 2026-10-28 robustness (#34)
+Index/sketch readers no longer allocate from header lengths (bounded reads, k in 1..=32, scaled>=1), validate offsets/hashes/genome ids and use checked arithmetic; a mutation/truncation test (gmg-core/tests/robust.rs) aborted the old loader (4 EB allocation) and passes now. gmg run turns a panic into an internal_error row. CLI tests: CRLF/mixed endings give the same sketch, 100 kb header line, binary, cut FASTQ, lone '>'.
