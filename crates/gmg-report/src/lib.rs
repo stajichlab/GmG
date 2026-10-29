@@ -10,7 +10,7 @@ mod model;
 mod page;
 mod svg;
 
-pub use markdown::Markdown;
+pub use markdown::{standalone_svg, Markdown};
 pub use model::{file_names_only, Rec};
 
 use serde_json::Value;

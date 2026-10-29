@@ -288,8 +288,8 @@ fn markdown_report_has_valid_figures_and_every_input() {
     for (n, svg) in &m.figures {
         roxmltree::Document::parse(svg).unwrap_or_else(|e| panic!("{n}: {e}"));
         assert!(
-            svg.contains("xmlns=\"http://www.w3.org/2000/svg\"") && svg.contains("--ph-1:"),
-            "{n}"
+            svg.contains("xmlns=\"http://www.w3.org/2000/svg\"") && !svg.contains("var(--"),
+            "{n}: namespace present and colour tokens resolved"
         );
         assert!(!svg.contains("NaN"), "{n}");
     }

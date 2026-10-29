@@ -58,3 +58,6 @@ Index files carry a JSON manifest (tool version/commit, build time, format, k/sc
 
 ## 2026-10-28 Markdown report (#23, part)
 report.md + figures/*.svg via gmg-report::render_markdown (summary figures shared with the HTML page through figs.rs); --report-format html|md|all on run, --format on report. Tests: figures valid SVG and all referenced, one row per input, no local paths. PDF still open (pure-Rust spike next).
+
+## 2026-10-28 PDF report (#23)
+crates/gmg-pdf: pure-Rust PDF (krilla + usvg) from the Markdown report; Inter embedded (OFL). --report-format pdf|all. Tests: opens, extractable text (lopdf 0.46; 0.34 cannot parse the ToUnicode map, poppler pdftotext reads it), embedded font descriptors, size bounds, <= 12 pages for 100 inputs. Figures: CSS variables resolved in standalone SVG (usvg has no var()).
