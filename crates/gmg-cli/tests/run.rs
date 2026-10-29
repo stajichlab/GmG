@@ -1109,6 +1109,61 @@ fn per_rank_taxids_and_original_labels_reach_the_results() {
 }
 
 #[test]
+fn exclusion_hides_the_query_its_species_or_its_genus_from_the_reference() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, _) = build_reference(d);
+    let data = d.join("data");
+    fs::create_dir_all(&data).unwrap();
+    // the query is reference genome g2 (Fusarium gamma; its genus mate is g3)
+    fs::write(data.join("q.fa"), fasta("q", &genomes[2])).unwrap();
+    let sheet = d.join("sheet.tsv");
+    fs::write(
+        &sheet,
+        "id\tpath\tref\texpected\nq\tdata/q.fa\tg2\tFusarium gamma\n",
+    )
+    .unwrap();
+    fs::write(d.join("ids.txt"), "# comment\ng2\n").unwrap();
+    let run = |extra: &[&str]| -> serde_json::Value {
+        let out = d.join(format!("out{}", extra.join("")));
+        let mut a = vec![
+            "run",
+            "--sample-sheet",
+            sheet.to_str().unwrap(),
+            "--index",
+            ix.to_str().unwrap(),
+            "-o",
+            out.to_str().unwrap(),
+            "--no-report",
+        ];
+        a.extend_from_slice(extra);
+        ok(&a);
+        let line = fs::read_to_string(out.join("results.jsonl")).unwrap();
+        serde_json::from_str(line.lines().next().unwrap()).unwrap()
+    };
+    let plain = run(&[]);
+    assert_eq!(plain["guess"]["calls"]["species"]["taxon"], "Fusarium gamma");
+    assert!(plain.get("excluded").is_none());
+    for (extra, n) in [
+        (vec!["--exclude-level", "self"], 1),
+        (vec!["--exclude-level", "species"], 1),
+        (vec!["--exclude-level", "genus"], 2),
+        (
+            vec!["--exclude-ids", d.join("ids.txt").to_str().unwrap()],
+            1,
+        ),
+    ] {
+        let r = run(&extra);
+        assert_eq!(r["excluded"]["n_genomes"], n, "{extra:?}");
+        assert_ne!(
+            r["guess"]["calls"]["species"]["taxon"], "Fusarium gamma",
+            "{extra:?}"
+        );
+        assert_eq!(r["status"], "no_match", "{extra:?}");
+    }
+}
+
+#[test]
 fn decoy_genomes_make_non_fungal_inputs_say_so() {
     let dir = tempfile::tempdir().unwrap();
     let d = dir.path();

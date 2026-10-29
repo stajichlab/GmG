@@ -119,7 +119,15 @@ impl Index {
             return fail("");
         };
         match classify(
-            &self.ix, &self.th, &self.ctx, &item, sk, &st, min_abund, top,
+            &self.ix,
+            &self.th,
+            &self.ctx,
+            &item,
+            sk,
+            &st,
+            min_abund,
+            top,
+            &|_| false,
         ) {
             Ok((rec, hashes)) => {
                 if !reads {

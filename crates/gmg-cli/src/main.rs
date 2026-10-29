@@ -175,6 +175,13 @@ enum Cmd {
         /// report format: html (default), md (report.md + figures/*.svg), pdf (report.pdf) or all
         #[arg(long, default_value = "html", value_parser = ["html", "md", "pdf", "all"])]
         report_format: String,
+        /// hide these reference genome ids (one per line, first column) from every query
+        #[arg(long, value_name = "FILE")]
+        exclude_ids: Option<PathBuf>,
+        /// validation of queries that are in the reference: hide each query's own genome (sample sheet column `ref`,
+        /// default the sample id), or all genomes of its species or genus (from `ref`, else the `expected` column)
+        #[arg(long, value_name = "LEVEL", value_parser = ["self", "species", "genus"])]
+        exclude_level: Option<String>,
     },
     /// Write report.html from a finished `gmg run` directory
     #[command(
@@ -879,6 +886,8 @@ fn main() -> Result<()> {
             no_report,
             report_cards,
             report_format,
+            exclude_ids,
+            exclude_level,
             list,
             checksums,
             sample_sheet,
@@ -890,6 +899,8 @@ fn main() -> Result<()> {
                 sample_sheet,
                 checksums,
                 report_format,
+                exclude_ids,
+                exclude_level: exclude_level.map(|l| l.parse().expect("validated by clap")),
                 list,
                 group: !no_group,
                 inputs,

@@ -70,6 +70,7 @@ pub fn classify(
     st: &SeqStats,
     min_abund: u32,
     top: usize,
+    skip: &dyn Fn(u32) -> bool,
 ) -> Result<(Value, Vec<u64>), String> {
     let reads = item.kind == "reads";
     if st.total_len == 0 {
@@ -93,7 +94,7 @@ pub fn classify(
     } else {
         th
     };
-    let g = guess(ix, &hashes, &|_| false, th);
+    let g = guess(ix, &hashes, skip, th);
     let mut gj = guess_json(ix, &g, item.path, top);
     gj["withheld"] = withheld_json(&g, th);
     let (best, status) = status_of(&g);
@@ -511,4 +512,70 @@ pub fn relationships(k: u32, items: &[(String, String, Vec<u64>)]) -> Value {
         }
     }
     json!({"ids": items.iter().map(|t| t.0.clone()).collect::<Vec<_>>(), "labels": items.iter().map(|t| t.1.clone()).collect::<Vec<_>>(), "ani": m})
+}
+
+/// How much of the reference a query may not see (validation of queries that are themselves in the reference).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ExcludeLevel {
+    /// only the query's own reference genome
+    SelfOnly,
+    /// every reference genome of the query's species
+    Species,
+    /// every reference genome of the query's genus
+    Genus,
+}
+
+impl std::str::FromStr for ExcludeLevel {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, String> {
+        match s {
+            "self" => Ok(Self::SelfOnly),
+            "species" => Ok(Self::Species),
+            "genus" => Ok(Self::Genus),
+            _ => Err(format!(
+                "unknown exclusion level '{s}' (self, species or genus)"
+            )),
+        }
+    }
+}
+
+/// Reference genomes to hide from one query: the ids in `ids`, plus (when `level` is given) the query's own genome
+/// (`ref_id`), or every genome sharing its species or genus. The species/genus come from the reference genome `ref_id`
+/// when it is in the index, otherwise from `expected` ("Genus species" or a genus). Returns a flag per genome.
+pub fn exclusion_mask(
+    ix: &RefIndex,
+    ids: &std::collections::HashSet<String>,
+    level: Option<ExcludeLevel>,
+    ref_id: Option<&str>,
+    expected: Option<&str>,
+) -> Vec<bool> {
+    let mut mask: Vec<bool> = ix.genomes.iter().map(|g| ids.contains(&g.id)).collect();
+    let Some(level) = level else { return mask };
+    let own = ref_id.and_then(|r| ix.genomes.iter().position(|g| g.id == r));
+    if let Some(i) = own {
+        mask[i] = true;
+    }
+    if level == ExcludeLevel::SelfOnly {
+        return mask;
+    }
+    let rank = if level == ExcludeLevel::Species { 5 } else { 4 };
+    let target: Option<String> = match own {
+        Some(i) => Some(ix.genomes[i].lineage[rank].clone()).filter(|t| !t.is_empty()),
+        None => expected.map(|e| {
+            let e = e.trim();
+            if rank == 4 {
+                e.split_whitespace().next().unwrap_or(e).to_string()
+            } else {
+                e.to_string()
+            }
+        }),
+    };
+    if let Some(t) = target {
+        for (i, g) in ix.genomes.iter().enumerate() {
+            if g.lineage[rank] == t {
+                mask[i] = true;
+            }
+        }
+    }
+    mask
 }
