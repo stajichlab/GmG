@@ -64,3 +64,6 @@ crates/gmg-pdf: pure-Rust PDF (krilla + usvg) from the Markdown report; Inter em
 
 ## 2026-10-28 gmg run leftovers (#19)
 ETA in the progress line, --checksums (sha256 in run.json inputs), --sample-sheet (id, path, expected; repeated ids = one sample), expected/expected_match columns (schema v4), test that run == guess per file.
+
+## 2026-10-28 CLI docs (#35)
+Per-command examples in --help (tested: every example parses), top-level quick start and exit codes, gmg completions SHELL and gmg man, docs/tutorial.md, golden results.tsv test on the tutorial workflow (UPDATE_GOLDEN=1 regenerates).

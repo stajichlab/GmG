@@ -1,5 +1,5 @@
 use anyhow::{bail, Context, Result};
-use clap::{Parser, Subcommand};
+use clap::{CommandFactory, Parser, Subcommand};
 use gmg_core::{
     downsample, guess, FracSketch, GenomeMeta, IndexBuilder, RefIndex, SketchFile, Thresholds,
     DEFAULT_SEED, RANKS,
@@ -14,7 +14,23 @@ use std::io::{BufReader, BufWriter, Write};
 use std::path::{Path, PathBuf};
 
 #[derive(Parser)]
-#[command(name = "gmg", version = concat!(env!("CARGO_PKG_VERSION"), " (", env!("GMG_GIT"), ")"), about = "Guess My Genome")]
+#[command(
+    name = "gmg",
+    version = concat!(env!("CARGO_PKG_VERSION"), " (", env!("GMG_GIT"), ")"),
+    about = "Guess My Genome: guess the fungal taxonomy of genomes or reads from sketches",
+    after_long_help = "\
+QUICK START
+  gmg run my_genomes/ --index bfd-s10000.gmgi -o results/      classify a folder, write results.tsv + report.html
+  gmg run reads/ --index bfd-s10000.gmgi -o results/ --report-format all   FASTQ too; also report.md and report.pdf
+  gmg guess --index bfd-s10000.gmgi genome.fa.gz               one genome, JSON on stdout
+
+EXIT CODES
+  0  the command finished (inputs that could not be read are rows with status=error, not failures)
+  1  the command could not run (index missing or unreadable, no input found, output not writable)
+  2  usage error (unknown option, missing argument)
+
+Per-command examples: gmg <command> --help.  Tutorial: docs/tutorial.md.  Shell completions: gmg completions bash|zsh|fish."
+)]
 struct Cli {
     /// worker threads (default: all cores)
     #[arg(long, global = true)]
@@ -26,6 +42,9 @@ struct Cli {
 #[derive(Subcommand)]
 enum Cmd {
     /// Sketch FASTA/FASTQ files (optionally gzipped) into .gsk files
+    #[command(
+        after_long_help = "EXAMPLES\n  gmg sketch -s 1000 -o sketches/ genomes/*.fa.gz        one .gsk per genome\n  gmg sketch --abund --max-reads 2000000 -s 10000 -o sk/ reads_R1.fastq.gz"
+    )]
     Sketch {
         #[arg(short, long, default_value_t = 21)]
         ksize: u32,
@@ -48,6 +67,9 @@ enum Cmd {
         inputs: Vec<PathBuf>,
     },
     /// Build a reference index from a metadata table and a directory of .gsk files
+    #[command(
+        after_long_help = "EXAMPLES\n  gmg build --meta meta.tsv --sketches sketches/ -o bfd.gmgi\n  gmg build --meta meta.tsv --sketches sketches/ --scaled 10000 -o bfd-s10000.gmgi --taxonomy-version \"NCBI 2026-10\"\n\nmeta.tsv columns: id taxid phylum class order family genus species [cluster]"
+    )]
     Build {
         /// TSV with header: id taxid phylum class order family genus species [cluster]
         #[arg(long)]
@@ -69,6 +91,9 @@ enum Cmd {
         note: String,
     },
     /// Guess the taxonomy of one or more queries (.gsk, FASTA or FASTQ)
+    #[command(
+        after_long_help = "EXAMPLES\n  gmg guess --index bfd.gmgi genome.fa.gz\n  gmg guess --index bfd.gmgi --thresholds novel query.fa        stricter set for a possibly new genus"
+    )]
     Guess {
         #[arg(long)]
         index: PathBuf,
@@ -85,6 +110,9 @@ enum Cmd {
         queries: Vec<PathBuf>,
     },
     /// Classify every genome / read set in a folder: writes results.tsv, hits.tsv and run.json
+    #[command(
+        after_long_help = "EXAMPLES\n  gmg run genomes/ --index bfd.gmgi -o out/\n  gmg run reads/ --index bfd.gmgi -o out/ --max-reads 500000       R1/R2 and lanes of a sample are merged\n  gmg run --sample-sheet samples.tsv --index bfd.gmgi -o out/ --report-format all\n  gmg run genomes/ --index bfd.gmgi -o out/ --resume               continue after an interruption\n\nWrites results.tsv (one row per input), hits.tsv, results.jsonl, run.json and report.html (docs/results-schema.md)."
+    )]
     Run {
         /// directories (searched recursively) and/or files: FASTA (.fa .fna .fasta .fas .ffn) or FASTQ (.fq .fastq), optionally .gz
         #[arg(required_unless_present_any = ["list", "sample_sheet"])]
@@ -135,6 +163,9 @@ enum Cmd {
         report_format: String,
     },
     /// Write report.html from a finished `gmg run` directory
+    #[command(
+        after_long_help = "EXAMPLES\n  gmg report out/                   rewrite out/report.html\n  gmg report out/ --format all      html, Markdown (+ figures/) and PDF"
+    )]
     Report {
         /// a directory written by `gmg run`
         dir: PathBuf,
@@ -144,9 +175,22 @@ enum Cmd {
         #[arg(long, default_value = "html", value_parser = ["html", "md", "pdf", "all"])]
         format: String,
     },
+    /// Print a shell completion script (bash, zsh, fish, elvish, powershell)
+    Completions {
+        #[arg(value_enum)]
+        shell: clap_complete::Shell,
+    },
+    /// Print the gmg(1) manual page (roff) to stdout
+    Man,
     /// Summarise an index
+    #[command(
+        after_long_help = "EXAMPLES\n  gmg info bfd.gmgi        sketch parameters, genome count, taxa per rank and the build manifest"
+    )]
     Info { index: PathBuf },
     /// Greedy ANI clustering of the genomes in an index (centroids picked in priority order)
+    #[command(
+        after_long_help = "EXAMPLES\n  gmg cluster --index bfd.gmgi --sketches sketches/ --ani 0.95 -o clusters.tsv"
+    )]
     Cluster {
         #[arg(long)]
         index: PathBuf,
@@ -166,6 +210,9 @@ enum Cmd {
         out: PathBuf,
     },
     /// Rewrite an index in the compact v1 (delta + varint) format
+    #[command(
+        after_long_help = "EXAMPLES\n  gmg convert bfd.gmgi -o bfd.v1.gmgi      the compact format (about 3x smaller)"
+    )]
     Convert {
         index: PathBuf,
         #[arg(short, long)]
@@ -738,6 +785,12 @@ fn main() -> Result<()> {
             run::write_report(&dir, max_cards, &format)?;
             eprintln!("wrote the {format} report in {}", dir.display());
         }
+        Cmd::Completions { shell } => {
+            clap_complete::generate(shell, &mut Cli::command(), "gmg", &mut std::io::stdout());
+        }
+        Cmd::Man => {
+            clap_mangen::Man::new(Cli::command()).render(&mut std::io::stdout())?;
+        }
         Cmd::Info { index } => {
             let ix = load_index(&index)?;
             let size = std::fs::metadata(&index)?.len();
@@ -954,4 +1007,70 @@ pub(crate) fn query_hashes_from(ix: &RefIndex, sk: SketchFile, min_abund: u32) -
     } else {
         h
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Split on spaces, keeping "double quoted" words together.
+    fn shell_words(s: &str) -> Vec<String> {
+        let (mut out, mut cur, mut q) = (Vec::new(), String::new(), false);
+        for c in s.chars() {
+            match c {
+                '"' => q = !q,
+                ' ' if !q => {
+                    if !cur.is_empty() {
+                        out.push(std::mem::take(&mut cur));
+                    }
+                }
+                _ => cur.push(c),
+            }
+        }
+        if !cur.is_empty() {
+            out.push(cur);
+        }
+        out
+    }
+
+    /// Every `gmg ...` example in the help texts must parse with the real option definitions, so the documentation cannot drift.
+    #[test]
+    fn help_examples_parse() {
+        let cmd = Cli::command();
+        let mut texts = vec![cmd
+            .get_after_long_help()
+            .map(|s| s.to_string())
+            .unwrap_or_default()];
+        for sub in cmd.get_subcommands() {
+            texts.push(
+                sub.get_after_long_help()
+                    .map(|s| s.to_string())
+                    .unwrap_or_default(),
+            );
+        }
+        let mut n = 0;
+        for t in texts {
+            for line in t.lines() {
+                let l = line.trim();
+                if !l.starts_with("gmg ")
+                    || l.starts_with("gmg <")
+                    || l.contains("completions bash")
+                {
+                    continue;
+                }
+                // drop the trailing description (two or more spaces) and expand the one shell glob
+                let cmdline = l
+                    .split("  ")
+                    .next()
+                    .unwrap()
+                    .replace("genomes/*.fa.gz", "genomes/a.fa.gz");
+                let args = shell_words(&cmdline);
+                if let Err(e) = Cli::try_parse_from(&args) {
+                    panic!("help example does not parse: {cmdline}\\n{e}");
+                }
+                n += 1;
+            }
+        }
+        assert!(n >= 15, "found only {n} examples");
+    }
 }

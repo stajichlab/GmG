@@ -16,7 +16,8 @@ column -t -s$'\t' results/results.tsv | less -S                 # one row per in
 ```
 
 `results/report.html` is the report (open it in a browser); `results.tsv` has one row per input with the calls from phylum to species, confidence, QC flags and status; `run.json` records how the
-run was made. Columns are documented in [docs/results-schema.md](docs/results-schema.md). Other commands: `gmg sketch / build / guess / info / convert / cluster / bench`.
+run was made. Columns are documented in [docs/results-schema.md](docs/results-schema.md). Other commands: `gmg sketch / build / guess / info / convert / cluster / bench / completions / man`.
+Step by step: [docs/tutorial.md](docs/tutorial.md); every command has examples in `gmg <command> --help`.
 
 ## Develop (no Homebrew or rustup needed)
 

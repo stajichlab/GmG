@@ -1,0 +1,6 @@
+query_id	kind	status	best_rank	call_phylum	call_class	call_order	call_family	call_genus	call_species	tentative_genus	conf_phylum	conf_class	conf_order	conf_family	conf_genus	conf_species	top_hit	top_hit_species	top_hit_taxid	ani	containment_query	containment_ref	shared	cluster	n_hashes	total_bases	n50	qc_flags	message	error_code	expected	expected_match	schema_version
+divergent_agaricus	assembly	low_confidence	family	Basidiomycota	Agaricomycetes	Agaricales	Agaricaceae			Agaricus	1.000	1.000	1.000	1.000	1.000	1.000	g5	Agaricus zeta	105	0.8870	0.0806	0.0804	1619		20079	200000	200000	short_genome					4
+empty	assembly	error																											The file is empty (0 bytes).	empty_file			4
+exact_fusarium	assembly	ok	species	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium gamma		1.000	1.000	1.000	1.000	1.000	1.000	g2	Fusarium gamma	102	1.0000	1.0000	1.0000	19802		19802	200000	200000	short_genome,identical_to_reference					4
+mutant_agaricus	assembly	ok	genus	Basidiomycota	Agaricomycetes	Agaricales	Agaricaceae	Agaricus			1.000	1.000	1.000	1.000	1.000	1.000	g4	Agaricus eps	104	0.9846	0.7218	0.7248	14463		20038	200000	200000	short_genome					4
+unrelated	assembly	no_match									0.000	0.000	0.000	0.000	0.000	0.000									14971	150000	150000	short_genome					4
