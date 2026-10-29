@@ -151,10 +151,6 @@ fn thresholds_json(th: &Thresholds) -> Value {
 }
 
 /// Provisional QC flags (issue #29 will refine them); they explain results, they never change a call.
-/// Provisional `mixed_lineage` rule (#64): the second phylum owns at least this many exclusive hashes and share of the first's.
-const MIXED_MIN_HASHES: u32 = 50;
-const MIXED_MIN_RATIO: f64 = 0.10;
-
 fn qc_flags(kind: &str, st: &Stats, n_hashes: usize, top: Option<&Value>) -> Vec<&'static str> {
     let mut f = Vec::new();
     if kind == "assembly" {
@@ -213,18 +209,12 @@ fn process(
             Some(_) => "low_confidence",
         };
         let split = ix.phylum_exclusive(&hashes);
-        let mut flags = qc_flags(
+        let flags = qc_flags(
             inp.kind,
             &st,
             hashes.len(),
             gj.get("top").filter(|t| !t.is_null()),
         );
-        if split.len() >= 2
-            && split[1].1 >= MIXED_MIN_HASHES
-            && split[1].1 as f64 >= MIXED_MIN_RATIO * split[0].1 as f64
-        {
-            flags.push("mixed_lineage");
-        }
         let mut qc = json!({"n_records": st.n_records, "total_bases": st.total_len, "n50": st.n50,
                    "non_acgt_fraction": if st.total_len > 0 { st.non_acgt as f64 / st.total_len as f64 } else { 0.0 },
                    "n_hashes": hashes.len(), "min_abund": min_abund});
