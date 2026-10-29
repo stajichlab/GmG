@@ -70,6 +70,7 @@ all inputs are always in `results.tsv`. The same code renders the report in the 
 
 `run.json` `thresholds.reads_species_min_ani` (0.99): read sets use this species ANI cutoff instead of the assembly one when the latter is higher (but not when species calls are switched off), because sequencing errors lower the containment ANI of reads.
 Read files of one sample are merged into one input and one row: files in the same directory whose names differ only by `_R1`/`_R2` (optionally `_001`), `_1`/`_2`, `.1`/`.2` or a lane token `_L00N`; the row id is the shared stem and `results.jsonl` has `files` (names). `--max-reads` applies to each file. A lone file keeps its own id. `--no-group` turns this off; `--list FILE` adds inputs from a file with one path per line (`#` comments allowed).
+`--report-format md` (or `all`) on `gmg run`, and `gmg report DIR --format md`, also write `report.md` and `figures/*.svg` (standalone SVG, colours embedded; renders on GitHub or in a notebook). The Markdown has the same numbers as `report.html`: summary, figures, inputs needing attention, one table row per input (up to 5,000), methods and thresholds. PDF is not implemented yet (#23).
 `qc.phylum_split`: up to three `{phylum, hashes}` entries, the query hashes found only in genomes of that phylum (informational; it is too noisy to flag mixtures, see `reports/validation/stress_tests.md`);
 `qc.abundance_hist` (reads only): `{counts: [seen 1..12 times], over12, min_abund, median_kept}`, the hashes of a read set by how often they were seen;
 `median_kept` estimates k-mer coverage.

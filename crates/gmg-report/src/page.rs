@@ -26,7 +26,7 @@ fn icon(status: &str) -> &'static str {
     }
 }
 
-fn status_label(s: &str) -> &'static str {
+pub(crate) fn status_label(s: &str) -> &'static str {
     match s {
         "ok" => "classified",
         "low_confidence" => "low confidence",
@@ -76,7 +76,7 @@ impl Th {
 }
 
 /// Why was the first uncalled rank not called? Mirrors the calling logic. Returns (rank index, sentence).
-fn reasons(r: &Rec, th: &Th) -> Vec<(usize, String)> {
+pub(crate) fn reasons(r: &Rec, th: &Th) -> Vec<(usize, String)> {
     let best = r.best_rank.map(|b| b as i32).unwrap_or(-1);
     let ani = r.ani().unwrap_or(0.0);
     for (i, k) in RANKS.iter().enumerate() {
@@ -296,7 +296,7 @@ fn card(r: &Rec, th: &Th, open: bool) -> String {
 }
 
 /// Explanation for an unresolved input that is simply too small or fragmented to classify, if the QC says so.
-fn little_data_note(r: &Rec) -> Option<String> {
+pub(crate) fn little_data_note(r: &Rec) -> Option<String> {
     if r.status != "no_match" && r.status != "low_confidence" {
         return None;
     }
@@ -434,117 +434,16 @@ pub fn render(
         0
     };
 
-    let depth_chart = charts::depth_chart(&depth);
-    let ph_items = charts::count_by(recs.iter().filter(|r| r.status != "error").map(|r| {
-        if r.phylum().is_empty() {
-            "(not called)"
-        } else {
-            r.phylum()
-        }
-    }));
-    let ph_colors: Vec<String> = ph_items.iter().map(|(n, _)| charts::ph_color(n)).collect();
-    let ph_chart = charts::hbars(&ph_items, "Phylum", Some(&ph_colors));
-    let mut genus_ph: std::collections::BTreeMap<
-        String,
-        std::collections::BTreeMap<String, usize>,
-    > = Default::default();
-    for r in recs
-        .iter()
-        .filter(|r| r.status != "error" && !r.call(4).is_empty())
-    {
-        *genus_ph
-            .entry(r.call(4).to_string())
-            .or_default()
-            .entry(if r.phylum().is_empty() {
-                "(not called)".into()
-            } else {
-                r.phylum().to_string()
-            })
-            .or_default() += 1;
-    }
-    let mut genus_items: Vec<(String, String, usize)> = genus_ph
-        .into_iter()
-        .map(|(g, m)| {
-            let n: usize = m.values().sum();
-            let ph = m
-                .iter()
-                .max_by(|a, b| a.1.cmp(b.1).then(b.0.cmp(a.0)))
-                .map(|(p, _)| p.clone())
-                .unwrap_or_default();
-            (g, ph, n)
-        })
-        .collect();
-    genus_items.sort_by(|a, b| b.2.cmp(&a.2).then(a.0.cmp(&b.0)));
-    genus_items.truncate(12);
-    let (genus_chart, genus_legend) = charts::genus_by_phylum(&genus_items);
-
-    let mut anis: Vec<f64> = recs
-        .iter()
-        .filter(|r| r.kind == "assembly")
-        .filter_map(|r| r.ani())
-        .collect();
-    if anis.is_empty() {
-        anis = recs.iter().filter_map(|r| r.ani()).collect();
-    }
-    let ani_chart = charts::ani_hist(&anis, th.min_ani[4], th.min_ani[5]);
-    let mut low: Vec<&Rec> = recs
-        .iter()
-        .filter(|r| r.status != "error" && r.ani().is_some())
-        .collect();
-    low.sort_by(|a, b| {
-        a.ani()
-            .partial_cmp(&b.ani())
-            .unwrap_or(std::cmp::Ordering::Equal)
-    });
-    let low_tbl: String = if low.is_empty() {
-        String::new()
-    } else {
-        let rows: String = low
-            .iter()
-            .take(5)
-            .map(|r| {
-                format!(
-                    r#"<tr><td class="mono">{}</td><td>{}</td><td class="num">{:.3}</td></tr>"#,
-                    esc(&short(&r.id, 22)),
-                    if r.call_name().is_empty() {
-                        "no call".into()
-                    } else {
-                        esc(r.call_name())
-                    },
-                    r.ani().unwrap_or(0.0)
-                )
-            })
-            .collect();
-        format!(
-            r#"<h3>Lowest ANI to a reference: look at these first</h3><table class="small full"><thead><tr><th>Input</th><th>Call</th><th class="num">ANI</th></tr></thead><tbody>{rows}</tbody></table>"#
-        )
-    };
-
-    let heat = relationships.and_then(|rel| {
-        let ids: Vec<String> = rel["ids"]
-            .as_array()?
-            .iter()
-            .map(|v| v.as_str().unwrap_or("").to_string())
-            .collect();
-        let labels: Vec<String> = rel["labels"]
-            .as_array()?
-            .iter()
-            .map(|v| v.as_str().unwrap_or("").to_string())
-            .collect();
-        let ani: Vec<Vec<f64>> = rel["ani"]
-            .as_array()?
-            .iter()
-            .map(|row| {
-                row.as_array()
-                    .map(|r| r.iter().map(|x| x.as_f64().unwrap_or(0.0)).collect())
-                    .unwrap_or_default()
-            })
-            .collect();
-        if ids.len() < 2 || ids.len() != ani.len() || ani.iter().any(|r| r.len() != ids.len()) {
-            return None;
-        }
-        Some((charts::heatmap(&ids, &labels, &ani), ids.len()))
-    });
+    let crate::figs::Figures {
+        depth_chart,
+        ph_chart,
+        genus_chart,
+        genus_legend,
+        n_genus,
+        ani_chart,
+        low_tbl,
+        heat,
+    } = crate::figs::figures(&recs, &depth, &th, relationships);
 
     // cards: problems first, capped
     let order = priority_order(&recs);
@@ -708,7 +607,7 @@ pub fn render(
         t_err = stat("errors", errors, Some("error")),
         ph_fig = figtools(&ph_chart),
         genus_fig = figtools(&genus_chart),
-        n_genus = genus_items.len(),
+        n_genus = n_genus,
         ani_fig = figtools(&ani_chart),
         sp_thr = if th.min_ani[5] > 1.0 {
             "never (this threshold set does not call species)".to_string()

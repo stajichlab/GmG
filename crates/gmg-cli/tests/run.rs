@@ -198,6 +198,15 @@ fn run_folder_end_to_end() {
         "no local path in the report"
     );
     assert!(out.join("relationships.json").exists());
+    // the Markdown report is produced from the same run on request
+    ok(&["report", out.to_str().unwrap(), "--format", "md"]);
+    let md = fs::read_to_string(out.join("report.md")).unwrap();
+    assert!(md.contains("## All inputs") && md.contains("exact"));
+    assert!(out.join("figures/depth.svg").exists());
+    assert!(
+        !md.contains(d.to_str().unwrap()),
+        "no local path in the markdown"
+    );
     fs::remove_file(out.join("report.html")).unwrap();
     ok(&["report", out.to_str().unwrap()]);
     assert!(out.join("report.html").exists());

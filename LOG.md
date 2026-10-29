@@ -55,3 +55,6 @@ Index/sketch readers no longer allocate from header lengths (bounded reads, k in
 
 ## 2026-10-28 index manifest (#28)
 Index files carry a JSON manifest (tool version/commit, build time, format, k/scaled/seed, meta checksum, taxonomy version, note), shown by gmg info and copied into run.json; convert keeps it. docs/index-distribution.md proposes release layout (hosting is the owner's decision); scripts/make_index_release.sh writes SHA256SUMS/MANIFEST.txt.
+
+## 2026-10-28 Markdown report (#23, part)
+report.md + figures/*.svg via gmg-report::render_markdown (summary figures shared with the HTML page through figs.rs); --report-format html|md|all on run, --format on report. Tests: figures valid SVG and all referenced, one row per input, no local paths. PDF still open (pure-Rust spike next).

@@ -124,6 +124,9 @@ enum Cmd {
         /// detail cards in the report (inputs needing attention first)
         #[arg(long, default_value_t = 400)]
         report_cards: usize,
+        /// report format: html (default), md (report.md + figures/*.svg) or all
+        #[arg(long, default_value = "html", value_parser = ["html", "md", "all"])]
+        report_format: String,
     },
     /// Write report.html from a finished `gmg run` directory
     Report {
@@ -131,6 +134,9 @@ enum Cmd {
         dir: PathBuf,
         #[arg(long, default_value_t = 400)]
         max_cards: usize,
+        /// html (default), md (report.md + figures/*.svg) or all
+        #[arg(long, default_value = "html", value_parser = ["html", "md", "all"])]
+        format: String,
     },
     /// Summarise an index
     Info { index: PathBuf },
@@ -693,10 +699,12 @@ fn main() -> Result<()> {
             resume,
             no_report,
             report_cards,
+            report_format,
             list,
             no_group,
         } => {
             run::run(run::RunArgs {
+                report_format,
                 list,
                 group: !no_group,
                 inputs,
@@ -712,9 +720,13 @@ fn main() -> Result<()> {
                 max_cards: report_cards,
             })?;
         }
-        Cmd::Report { dir, max_cards } => {
-            run::write_report(&dir, max_cards)?;
-            eprintln!("wrote {}", dir.join("report.html").display());
+        Cmd::Report {
+            dir,
+            max_cards,
+            format,
+        } => {
+            run::write_report(&dir, max_cards, &format)?;
+            eprintln!("wrote the {format} report in {}", dir.display());
         }
         Cmd::Info { index } => {
             let ix = load_index(&index)?;
