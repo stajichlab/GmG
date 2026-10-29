@@ -420,8 +420,6 @@ fn process(
     }
 }
 
-/// Pairwise containment ANI (geometric mean of the two directions) between assemblies, for the report heatmap.
-
 fn write_tsv(path: &Path, header: &[String], rows: &[Vec<String>]) -> Result<()> {
     let mut w = BufWriter::new(File::create(path)?);
     writeln!(w, "{}", header.join("\t"))?;

@@ -71,6 +71,7 @@ impl Index {
     /// (also for failures: status `error` with a code and message). `kind`: `assembly`, `reads` or `auto` (FASTQ when the
     /// first byte is `@`). `min_abund` 0 = default (1 assemblies, 2 reads); `max_records` 0 = all. gzip must already be
     /// decompressed.
+    #[allow(clippy::too_many_arguments)]
     pub fn classify(
         &self,
         id: &str,
