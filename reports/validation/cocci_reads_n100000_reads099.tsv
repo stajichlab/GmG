@@ -1,0 +1,13 @@
+group	rank	n	called	precision	recall
+all	phylum	558	0.9964	1.0000	0.9964
+all	class	558	0.9964	0.9964	0.9928
+all	order	558	0.9964	0.9964	0.9928
+all	family	558	0.9964	0.9946	0.9910
+all	genus	558	0.9964	0.9946	0.9910
+all	species	558	0.9498	0.9943	0.9444
+n50_bin=<10 kb	phylum	558	0.9964	1.0000	0.9964
+n50_bin=<10 kb	class	558	0.9964	0.9964	0.9928
+n50_bin=<10 kb	order	558	0.9964	0.9964	0.9928
+n50_bin=<10 kb	family	558	0.9964	0.9946	0.9910
+n50_bin=<10 kb	genus	558	0.9964	0.9946	0.9910
+n50_bin=<10 kb	species	558	0.9498	0.9943	0.9444

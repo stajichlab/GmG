@@ -40,3 +40,6 @@ Chronological record of what was done, why, and what was decided. Newest at the 
 
 ## 2026-10-28 balanced-default validation re-runs
 Re-ran the 1,257 independent genomes, 558 Coccidioides read sets x3 depths and 345 RNA-seq sets x3 depths with the balanced default (HPCC jobs 31307410-12, binary 6668896). Absent-genus false genus names 13/22 -> 3/22, independent genus precision .971 -> .988 (called .900 -> .839), 78 tentative genera; Coccidioides unchanged; RNA genus called .985 -> .939 at 2M. Reports `reports/validation/*_balanced.*`; permissive baselines kept.
+
+## 2026-10-28 reads species cutoff (#32)
+Absent-species check (index without C. immitis): immitis reads match posadasii at ANI ~0.978, falsely named in 0.6% at 0.99. Reads now use species ANI 0.99 (assemblies 0.9938). Cocci species called 91/93/88% -> 95/96/96%, precision unchanged; RNA species called 61/59/54% -> 68/68/63%. Reports *_reads099.*, cocci_absent_species.md.

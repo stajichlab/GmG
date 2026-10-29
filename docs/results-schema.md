@@ -67,6 +67,7 @@ all inputs are always in `results.tsv`. The same code renders the report in the 
 
 ## results.jsonl additions
 
+`run.json` `thresholds.reads_species_min_ani` (0.99): read sets use this species ANI cutoff instead of the assembly one when the latter is higher (but not when species calls are switched off), because sequencing errors lower the containment ANI of reads.
 `qc.phylum_split`: up to three `{phylum, hashes}` entries, the query hashes found only in genomes of that phylum (informational; it is too noisy to flag mixtures, see `reports/validation/stress_tests.md`);
 `qc.abundance_hist` (reads only): `{counts: [seen 1..12 times], over12, min_abund, median_kept}`, the hashes of a read set by how often they were seen;
 `median_kept` estimates k-mer coverage.
