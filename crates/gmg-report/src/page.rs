@@ -231,7 +231,9 @@ fn card(r: &Rec, th: &Th, open: bool) -> String {
     }
     let bars = charts::tophit_bars(r);
     let reasons = reasons(r, th);
-    let ev = if r.status == "no_match" {
+    let ev = if let Some(note) = little_data_note(r) {
+        format!("<li><b>Too little data.</b> {note}</li>")
+    } else if r.status == "no_match" {
         "<li><b>No rank called.</b> The nearest reference shares too little with this input to support even a phylum call. Not a fungus, or a lineage the reference does not cover.</li>".to_string()
     } else {
         reasons
@@ -281,6 +283,30 @@ fn card(r: &Rec, th: &Th, open: bool) -> String {
         f(top.ani, 4),
         top.shared
     )
+}
+
+/// Explanation for an unresolved input that is simply too small or fragmented to classify, if the QC says so.
+fn little_data_note(r: &Rec) -> Option<String> {
+    if r.status != "no_match" && r.status != "low_confidence" {
+        return None;
+    }
+    let small = r
+        .flags
+        .iter()
+        .any(|f| matches!(f.as_str(), "short_genome" | "few_hashes" | "fragmented"));
+    if !small {
+        return None;
+    }
+    let size = if r.total_bases >= 1e6 {
+        format!("{:.1} Mb", r.total_bases / 1e6)
+    } else {
+        format!("{:.0} kb", r.total_bases / 1e3)
+    };
+    Some(format!(
+        "{size} and {} sketch hashes ({}): too little of a genome to classify. This says nothing about the organism; a more complete assembly or more reads may resolve it.",
+        r.n_hashes,
+        r.flags.join(", ")
+    ))
 }
 
 fn capitalize(s: &str) -> String {
