@@ -61,3 +61,6 @@ report.md + figures/*.svg via gmg-report::render_markdown (summary figures share
 
 ## 2026-10-28 PDF report (#23)
 crates/gmg-pdf: pure-Rust PDF (krilla + usvg) from the Markdown report; Inter embedded (OFL). --report-format pdf|all. Tests: opens, extractable text (lopdf 0.46; 0.34 cannot parse the ToUnicode map, poppler pdftotext reads it), embedded font descriptors, size bounds, <= 12 pages for 100 inputs. Figures: CSS variables resolved in standalone SVG (usvg has no var()).
+
+## 2026-10-28 gmg run leftovers (#19)
+ETA in the progress line, --checksums (sha256 in run.json inputs), --sample-sheet (id, path, expected; repeated ids = one sample), expected/expected_match columns (schema v4), test that run == guess per file.

@@ -624,3 +624,117 @@ fn index_manifest_is_recorded_shown_and_kept_by_convert() {
         serde_json::from_str(&fs::read_to_string(out.join("run.json")).unwrap()).unwrap();
     assert_eq!(run["index"]["manifest"]["k"], 21);
 }
+
+#[test]
+fn run_agrees_with_guess_and_can_record_checksums() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, mut rng) = build_reference(d);
+    let inp = d.join("in");
+    fs::create_dir_all(&inp).unwrap();
+    fs::write(inp.join("exact.fa"), fasta("exact", &genomes[2])).unwrap();
+    fs::write(
+        inp.join("mutant.fa"),
+        fasta("mutant", &rng.mutate(&genomes[4], 50)),
+    )
+    .unwrap();
+    let out = d.join("out");
+    let o = ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+        "--no-report",
+        "--checksums",
+    ]);
+    assert!(
+        String::from_utf8_lossy(&o.stderr).contains("ETA"),
+        "progress shows an ETA"
+    );
+    let results: Vec<serde_json::Value> = fs::read_to_string(out.join("results.jsonl"))
+        .unwrap()
+        .lines()
+        .map(|l| serde_json::from_str(l).unwrap())
+        .collect();
+    for name in ["exact", "mutant"] {
+        let file = inp.join(format!("{name}.fa"));
+        let g = ok(&[
+            "guess",
+            "--index",
+            ix.to_str().unwrap(),
+            file.to_str().unwrap(),
+        ]);
+        let guess: serde_json::Value =
+            serde_json::from_str(String::from_utf8(g.stdout).unwrap().lines().next().unwrap())
+                .unwrap();
+        let row = results.iter().find(|r| r["id"] == name).unwrap();
+        assert_eq!(row["guess"]["calls"], guess["calls"], "{name}: calls");
+        assert_eq!(row["guess"]["top"], guess["top"], "{name}: top hit");
+    }
+    let run: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(out.join("run.json")).unwrap()).unwrap();
+    let sum = run["inputs"][0]["sha256"].as_str().unwrap();
+    assert_eq!(sum.len(), 64);
+}
+
+#[test]
+fn sample_sheet_names_inputs_pairs_files_and_records_expected_labels() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, _) = build_reference(d);
+    let g = &genomes[2];
+    let data = d.join("data");
+    fs::create_dir_all(&data).unwrap();
+    // names that no automatic rule would pair
+    fs::write(data.join("forward.fastq"), fastq("a", g, 0, 3000, 100, 61)).unwrap();
+    fs::write(data.join("reverse.fastq"), fastq("b", g, 30, 3000, 100, 61)).unwrap();
+    fs::write(data.join("asm.fa"), fasta("asm", &genomes[0])).unwrap();
+    let sheet = d.join("sheet.tsv");
+    fs::write(
+        &sheet,
+        "id\tpath\texpected\nstrainA\tdata/forward.fastq\tFusarium gamma\nstrainA\tdata/reverse.fastq\t\nstrainB\tdata/asm.fa\tFusarium\n",
+    )
+    .unwrap();
+    let out = d.join("out");
+    ok(&[
+        "run",
+        "--sample-sheet",
+        sheet.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+        "--no-report",
+        "--min-abund",
+        "1",
+    ]);
+    let (h, rows) = read_tsv(&out.join("results.tsv"));
+    assert_eq!(rows.len(), 2);
+    let a = rows.iter().find(|r| r[0] == "strainA").unwrap();
+    let b = rows.iter().find(|r| r[0] == "strainB").unwrap();
+    assert_eq!(a[col(&h, "call_species")], "Fusarium gamma");
+    assert_eq!(
+        (
+            a[col(&h, "expected")].as_str(),
+            a[col(&h, "expected_match")].as_str()
+        ),
+        ("Fusarium gamma", "yes")
+    );
+    // strainB is Aspergillus alpha; the sheet expected Fusarium, so the mismatch is visible
+    assert_eq!(b[col(&h, "expected_match")], "no");
+    // a bad sheet is a usage error with a plain message
+    let bad = d.join("bad.tsv");
+    fs::write(&bad, "name\tfile\nx\ty\n").unwrap();
+    let o = gmg(&[
+        "run",
+        "--sample-sheet",
+        bad.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        d.join("o2").to_str().unwrap(),
+    ]);
+    assert!(!o.status.success() && String::from_utf8_lossy(&o.stderr).contains("'id' and 'path'"));
+}
