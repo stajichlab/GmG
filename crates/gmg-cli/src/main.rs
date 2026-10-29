@@ -1,5 +1,6 @@
 use anyhow::{bail, Context, Result};
 use clap::{CommandFactory, Parser, Subcommand};
+pub(crate) use gmg_core::classify::{status_of, withheld_json, withheld_text};
 use gmg_core::{
     downsample, guess, FracSketch, GenomeMeta, IndexBuilder, RefIndex, SketchFile, Thresholds,
     DEFAULT_SEED, RANKS,
@@ -293,14 +294,7 @@ fn id_of(path: &Path) -> String {
     )
 }
 
-/// Per-input counts gathered while sketching (used for QC flags).
-pub(crate) struct Stats {
-    pub n_records: u64,
-    pub total_len: u64,
-    /// bases other than A/C/G/T (case-insensitive)
-    pub non_acgt: u64,
-    pub n50: u64,
-}
+pub(crate) type Stats = gmg_core::SeqStats;
 
 /// Sketch one file and collect basic stats. Returns None if it has no sequence records.
 pub(crate) fn sketch_with_stats(
@@ -408,33 +402,6 @@ fn write_sketch(path: &Path, s: &SketchFile) -> Result<()> {
 fn read_sketch(path: &Path) -> Result<SketchFile> {
     let f = File::open(path).with_context(|| format!("opening {}", path.display()))?;
     Ok(SketchFile::read(&mut BufReader::new(f))?)
-}
-
-/// Why the first uncalled rank was withheld, as JSON (`null` when a species was called).
-pub(crate) fn withheld_json(g: &gmg_core::Guess, th: &Thresholds) -> serde_json::Value {
-    match g.withheld(th) {
-        Some(w) => serde_json::json!({"rank": RANKS[w.rank], "code": w.code, "detail": w.detail}),
-        None => serde_json::Value::Null,
-    }
-}
-
-/// `genus: ani_below_cutoff (ANI 0.8870 < 0.9000)`, or an empty string.
-pub(crate) fn withheld_text(v: &serde_json::Value) -> String {
-    match (v["rank"].as_str(), v["code"].as_str(), v["detail"].as_str()) {
-        (Some(r), Some(c), Some(d)) => format!("{r}: {c} ({d})"),
-        _ => String::new(),
-    }
-}
-
-/// `no_match` / `low_confidence` / `ok` from the deepest rank called.
-pub(crate) fn status_of(g: &gmg_core::Guess) -> (Option<usize>, &'static str) {
-    let best = g.calls.iter().rposition(|c| c.is_some());
-    let status = match best {
-        None => "no_match",
-        Some(i) if i >= 4 => "ok",
-        Some(_) => "low_confidence",
-    };
-    (best, status)
 }
 
 pub(crate) fn sha256_file(path: &Path) -> Result<String> {
@@ -1141,35 +1108,7 @@ fn query_hashes(
 
 /// Check a sketch against the index (k, seed, scaled), drop hashes seen fewer than `min_abund` times, downsample to the index.
 pub(crate) fn query_hashes_from(ix: &RefIndex, sk: SketchFile, min_abund: u32) -> Result<Vec<u64>> {
-    if sk.ksize != ix.ksize || sk.seed != ix.seed {
-        bail!(
-            "{}: k/seed ({}/{}) do not match the index ({}/{})",
-            sk.name,
-            sk.ksize,
-            sk.seed,
-            ix.ksize,
-            ix.seed
-        );
-    }
-    if sk.scaled > ix.scaled {
-        bail!(
-            "{}: query scaled {} is coarser than the index scaled {}",
-            sk.name,
-            sk.scaled,
-            ix.scaled
-        );
-    }
-    let mut pairs: Vec<(u64, u32)> = match &sk.abunds {
-        Some(a) => sk.hashes.iter().copied().zip(a.iter().copied()).collect(),
-        None => sk.hashes.iter().map(|&h| (h, 1)).collect(),
-    };
-    pairs.retain(|&(_, a)| a >= min_abund);
-    let h: Vec<u64> = pairs.into_iter().map(|(h, _)| h).collect();
-    Ok(if sk.scaled < ix.scaled {
-        downsample(&h, ix.scaled)
-    } else {
-        h
-    })
+    gmg_core::classify::query_hashes_from(ix, sk, min_abund).map_err(anyhow::Error::msg)
 }
 
 #[cfg(test)]

@@ -79,3 +79,6 @@ BFD labels turned out to match NCBI closely (species string differs for 0.9%, fa
 
 ## 2026-10-29 packed index v3 (#36)
 GMGIDX03: postings stay delta/varint coded with a block directory; read_owned avoids the second copy; info 1.14 s/776 MB -> 0.09 s/220 MB, WASM full index 2087 MB -> 463 MB peak, load 3.1 s -> 0.15 s; gmg convert default v3 (--format v1), bench/cluster expand in memory. reports/performance_2026-10-28.md has the table.
+
+## 2026-10-29 web app (#24)
+gmg-core::classify builds the result record and TSVs (CLI and wasm share it); wasm: Index.classify/relationships/run_json, make_results_tsv/make_hits_tsv; parity test (21 inputs identical to gmg run). web/ (index.html, worker.js, app.js, style.css), scripts/build_site.sh, .github/workflows/pages.yml (bundles the reps index of the newest index release), docs/web.md. Checked in headless Chromium: index load, 4 inputs incl. FASTQ.gz, table, downloads, report, no console errors.

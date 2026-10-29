@@ -1,0 +1,62 @@
+name: web app (GitHub Pages)
+
+# Builds the browser app (web/ + the wasm package) and publishes it. The representatives index of the newest `index-*`
+# release is bundled so the app works at once and offline after the first load; the full index is loaded from a file.
+#
+# Off until the repository owner turns it on: Settings > Pages > Source = GitHub Actions, and a repository variable
+# PAGES_ENABLED = true (Settings > Secrets and variables > Actions > Variables). Run it by hand with workflow_dispatch.
+on:
+  push:
+    branches: [main]
+    paths: ["web/**", "crates/**", "scripts/build_site.sh", ".github/workflows/pages.yml", "pixi.toml", "pixi.lock"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  PIXI_VERSION: v0.83.0
+
+jobs:
+  build:
+    if: github.event_name == 'workflow_dispatch' || vars.PAGES_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: prefix-dev/setup-pixi@v0.11.2
+        with:
+          pixi-version: ${{ env.PIXI_VERSION }}
+          locked: true
+          cache: true
+      - run: pixi run wasm
+      - name: Fetch the representatives index of the newest index release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh release list --limit 30 --json tagName -q '.[].tagName' | grep '^index-' | sort -r | head -1)
+          echo "index release: $tag"
+          mkdir -p idx
+          gh release download "$tag" --pattern 'bfd-reps-*.gmgi' --dir idx
+          ls -la idx
+      - run: scripts/build_site.sh _site idx/*.gmgi
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    if: github.event_name == 'workflow_dispatch' || vars.PAGES_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

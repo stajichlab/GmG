@@ -58,4 +58,4 @@ wasm-bindgen --target web --out-dir crates/gmg-wasm/pkg-web target/wasm32-unknow
 
 [tasks.wasm-test]
 depends-on = ["wasm", "build"]
-cmd = "node crates/gmg-wasm/tests/smoke.mjs"
+cmd = "node crates/gmg-wasm/tests/smoke.mjs && node crates/gmg-wasm/tests/parity.mjs"

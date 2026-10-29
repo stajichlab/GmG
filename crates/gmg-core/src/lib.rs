@@ -7,6 +7,8 @@
 //! in `tests/oracle.rs`).
 
 mod call;
+#[cfg(feature = "json")]
+pub mod classify;
 mod fastx;
 mod index;
 #[cfg(feature = "json")]
@@ -16,7 +18,7 @@ mod sketch;
 mod skfile;
 
 pub use call::{guess, guess_from_hits, Guess, RankVote, Tentative, Thresholds, TopHit, Withheld};
-pub use fastx::sketch_fastx;
+pub use fastx::{sketch_fastx, sketch_fastx_stats, SeqStats};
 pub use index::{GenomeMeta, Hit, IndexBuilder, RefIndex, RANKS};
 #[cfg(feature = "json")]
 pub use json::guess_json;
