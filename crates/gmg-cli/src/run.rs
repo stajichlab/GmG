@@ -6,8 +6,8 @@
 use crate::{load_index, load_thresholds, sketch_paths, strip_ext};
 use anyhow::{bail, Context, Result};
 use gmg_core::classify::{
-    classify, error_record, hits_tsv, relationship_label, relationships, results_tsv, size_ranges,
-    Item, SizeRanges, READS_SPECIES_MIN_ANI, SCHEMA_VERSION,
+    classify, error_record, hits_tsv, relationship_label, relationships, results_tsv,
+    Context as RefContext, Item, READS_SPECIES_MIN_ANI, SCHEMA_VERSION,
 };
 use gmg_core::{RefIndex, Thresholds};
 use rayon::prelude::*;
@@ -366,7 +366,7 @@ fn process(
     inp: &Input,
     a: &RunArgs,
     keep_hashes: bool,
-    ranges: &SizeRanges,
+    ctx: &RefContext,
 ) -> (Value, Option<Vec<u64>>) {
     let size = input_size(inp);
     let path = inp.path.display().to_string();
@@ -381,8 +381,8 @@ fn process(
             size_bytes: size,
             kind: inp.kind,
         };
-        let (mut rec, hashes) = classify(ix, th, ranges, &item, sk, &st, min_abund, a.top)
-            .map_err(anyhow::Error::msg)?;
+        let (mut rec, hashes) =
+            classify(ix, th, ctx, &item, sk, &st, min_abund, a.top).map_err(anyhow::Error::msg)?;
         if let Some(e) = &inp.expected {
             rec["expected"] = json!(e);
         }
@@ -496,7 +496,7 @@ pub fn run(args: RunArgs) -> Result<()> {
     let writer = Mutex::new(BufWriter::new(
         OpenOptions::new().append(true).open(&jsonl)?,
     ));
-    let ranges = size_ranges(&ix);
+    let ctx = RefContext::new(&ix);
     let counter = AtomicUsize::new(0);
     let t_work = Instant::now();
     let total = todo.len();
@@ -505,7 +505,7 @@ pub fn run(args: RunArgs) -> Result<()> {
     let fresh: Vec<(String, Value, Option<Vec<u64>>)> = todo
         .par_iter()
         .map(|inp| {
-            let (v, h) = process(&ix, &th, inp, &args, want_rel, &ranges);
+            let (v, h) = process(&ix, &th, inp, &args, want_rel, &ctx);
             {
                 let mut w = writer.lock().unwrap();
                 let _ = writeln!(w, "{v}");

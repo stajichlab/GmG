@@ -1,0 +1,9 @@
+id	taxid	phylum	class	order	family	genus	species
+GCF_000001735.4	3702						Arabidopsis thaliana TAIR10.1
+GCF_902167145.1	4577						Zea mays B73 NAM-5.0
+GCF_000002595.2	3055						Chlamydomonas reinhardtii v5.5
+GCF_000002985.6	6239						Caenorhabditis elegans WBcel235
+GCF_000001215.4	7227						Drosophila melanogaster Release 6
+GCF_000001635.27	10090						Mus musculus GRCm39
+GCF_000142945.1	4787						Phytophthora infestans T30-4
+GCA_000143045.1	2052682						Globisporangium (Pythium) ultimum DAOM BR144

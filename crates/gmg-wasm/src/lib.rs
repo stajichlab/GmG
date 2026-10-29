@@ -8,7 +8,7 @@
 
 use gmg_core::classify::{
     bytes_error, classify, error_record, hits_tsv, relationship_label, relationships, results_tsv,
-    size_ranges, Item, SizeRanges, READS_SPECIES_MIN_ANI, SCHEMA_VERSION,
+    Context, Item, READS_SPECIES_MIN_ANI, SCHEMA_VERSION,
 };
 use gmg_core::{guess, guess_json, sketch_fastx, sketch_fastx_stats, RefIndex, Thresholds};
 use std::cell::RefCell;
@@ -20,7 +20,7 @@ pub struct Index {
     ix: RefIndex,
     th: Thresholds,
     th_name: String,
-    ranges: SizeRanges,
+    ctx: Context,
     /// hashes of the assemblies classified in this session (for the relationship heatmap)
     session: RefCell<HashMap<String, Vec<u64>>>,
 }
@@ -32,12 +32,12 @@ impl Index {
     pub fn new(bytes: Vec<u8>) -> Result<Index, JsError> {
         // owned: a packed (v3) index keeps this buffer as its data, so the file is held once in memory
         let ix = RefIndex::read_owned(bytes).map_err(|e| JsError::new(&e.to_string()))?;
-        let ranges = size_ranges(&ix);
+        let ctx = Context::new(&ix);
         Ok(Index {
             ix,
             th: Thresholds::default(),
             th_name: "known".to_string(),
-            ranges,
+            ctx,
             session: RefCell::new(HashMap::new()),
         })
     }
@@ -119,14 +119,7 @@ impl Index {
             return fail("");
         };
         match classify(
-            &self.ix,
-            &self.th,
-            &self.ranges,
-            &item,
-            sk,
-            &st,
-            min_abund,
-            top,
+            &self.ix, &self.th, &self.ctx, &item, sk, &st, min_abund, top,
         ) {
             Ok((rec, hashes)) => {
                 if !reads {

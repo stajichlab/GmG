@@ -20,6 +20,34 @@ pub use crate::fastx::SeqStats;
 /// Expected genome size range (Mb) of the called phylum, from the reference (`RefIndex::size_range_mb`), by phylum name.
 pub type SizeRanges = HashMap<String, Option<(f64, f64, String)>>;
 
+/// Per-reference facts used when classifying: expected genome size ranges, and the phyla that are not fungi
+/// (decoy genomes added to the reference, listed in the manifest as `non_fungal_phyla`).
+pub struct Context {
+    pub ranges: SizeRanges,
+    pub non_fungal: Vec<String>,
+}
+
+impl Context {
+    pub fn new(ix: &RefIndex) -> Context {
+        let non_fungal = ix
+            .manifest
+            .as_deref()
+            .and_then(|m| serde_json::from_str::<Value>(m).ok())
+            .and_then(|v| {
+                v["non_fungal_phyla"].as_array().map(|a| {
+                    a.iter()
+                        .filter_map(|x| x.as_str().map(String::from))
+                        .collect()
+                })
+            })
+            .unwrap_or_default();
+        Context {
+            ranges: size_ranges(ix),
+            non_fungal,
+        }
+    }
+}
+
 /// What identifies an input in its record.
 pub struct Item<'a> {
     pub id: &'a str,
@@ -36,7 +64,7 @@ pub struct Item<'a> {
 pub fn classify(
     ix: &RefIndex,
     th: &Thresholds,
-    ranges: &SizeRanges,
+    ctx: &Context,
     item: &Item,
     sk: SketchFile,
     st: &SeqStats,
@@ -76,18 +104,30 @@ pub fn classify(
     } else {
         g.calls[0]
             .as_deref()
-            .and_then(|ph| ranges.get(ph))
+            .and_then(|ph| ctx.ranges.get(ph))
             .filter(|r| r.is_some())
-            .or_else(|| ranges.get(""))
+            .or_else(|| ctx.ranges.get(""))
             .and_then(|r| r.as_ref())
     };
-    let flags = qc_flags(
+    // the input looks like a non-fungal decoy: its phylum call, or failing that its best hit, is one of the listed phyla
+    let not_fungal = !ctx.non_fungal.is_empty()
+        && (g.calls[0]
+            .as_deref()
+            .is_some_and(|p| ctx.non_fungal.iter().any(|n| n == p))
+            || g.top.as_ref().is_some_and(|t| {
+                let ph = &ix.genomes[t.genome as usize].lineage[0];
+                ctx.non_fungal.iter().any(|n| n == ph)
+            }));
+    let mut flags = qc_flags(
         item.kind,
         st,
         hashes.len(),
         gj.get("top").filter(|t| !t.is_null()),
         range.map(|r| (est_mb, r)),
     );
+    if not_fungal {
+        flags.push("not_fungal");
+    }
     let mut qc = json!({"n_records": st.n_records, "total_bases": st.total_len, "n50": st.n50,
                "non_acgt_fraction": if st.total_len > 0 { st.non_acgt as f64 / st.total_len as f64 } else { 0.0 },
                "n_hashes": hashes.len(), "min_abund": min_abund});

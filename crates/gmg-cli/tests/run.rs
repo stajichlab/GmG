@@ -1107,3 +1107,108 @@ fn per_rank_taxids_and_original_labels_reach_the_results() {
             && String::from_utf8_lossy(&o.stderr).contains("header lacks the column")
     );
 }
+
+#[test]
+fn decoy_genomes_make_non_fungal_inputs_say_so() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, _ix, mut rng) = build_reference(d);
+    // two non-fungal decoys added to the same reference, listed in the manifest
+    let plant = rng.genome(300_000);
+    let worm = rng.genome(250_000);
+    let refs = d.join("refs");
+    fs::write(refs.join("plant.fa"), fasta("plant", &plant)).unwrap();
+    fs::write(refs.join("worm.fa"), fasta("worm", &worm)).unwrap();
+    ok(&[
+        "sketch",
+        "-k",
+        "21",
+        "-s",
+        "10",
+        "-o",
+        d.join("sk").to_str().unwrap(),
+        refs.join("plant.fa").to_str().unwrap(),
+        refs.join("worm.fa").to_str().unwrap(),
+    ]);
+    let mut meta = fs::read_to_string(d.join("meta.tsv")).unwrap();
+    meta.push_str("plant\t3702\tStreptophyta\tMagnoliopsida\tBrassicales\tBrassicaceae\tArabidopsis\tArabidopsis thaliana\n");
+    meta.push_str("worm\t6239\tNematoda\tChromadorea\tRhabditida\tRhabditidae\tCaenorhabditis\tCaenorhabditis elegans\n");
+    let meta_path = d.join("meta_decoys.tsv");
+    fs::write(&meta_path, meta).unwrap();
+    let ix = d.join("ix_decoys.gmgi");
+    ok(&[
+        "build",
+        "--meta",
+        meta_path.to_str().unwrap(),
+        "--sketches",
+        d.join("sk").to_str().unwrap(),
+        "-o",
+        ix.to_str().unwrap(),
+        "--non-fungal-phyla",
+        "Streptophyta, Nematoda",
+    ]);
+    assert!(
+        String::from_utf8(ok(&["info", ix.to_str().unwrap()]).stdout)
+            .unwrap()
+            .contains("non_fungal_phyla")
+    );
+    let inp = d.join("in");
+    fs::create_dir_all(&inp).unwrap();
+    fs::write(
+        inp.join("plant_relative.fa"),
+        fasta("p", &rng.mutate(&plant, 30)),
+    )
+    .unwrap(); // ~90% ANI: genus-level distance
+    fs::write(inp.join("worm_copy.fa"), fasta("w", &worm)).unwrap();
+    fs::write(inp.join("fungus.fa"), fasta("f", &genomes[2])).unwrap();
+    fs::write(inp.join("unrelated.fa"), fasta("u", &rng.genome(150_000))).unwrap();
+    let out = d.join("out");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+        "-q",
+    ]);
+    let (h, rows) = read_tsv(&out.join("results.tsv"));
+    let get = |id: &str| rows.iter().find(|r| r[0] == id).unwrap().clone();
+    let flags = |id: &str| get(id)[col(&h, "qc_flags")].clone();
+    assert!(
+        flags("plant_relative").contains("not_fungal")
+            && get("plant_relative")[col(&h, "call_phylum")] == "Streptophyta"
+    );
+    assert!(
+        flags("worm_copy").contains("not_fungal")
+            && get("worm_copy")[col(&h, "call_species")] == "Caenorhabditis elegans"
+    );
+    assert!(
+        !flags("fungus").contains("not_fungal"),
+        "a fungus is not flagged: {}",
+        flags("fungus")
+    );
+    assert_eq!(get("fungus")[col(&h, "call_species")], "Fusarium gamma");
+    assert!(
+        !flags("unrelated").contains("not_fungal"),
+        "no match is not a decoy match"
+    );
+    let html = fs::read_to_string(out.join("report.html")).unwrap();
+    assert!(html.contains("Probably not a fungus"));
+    // an index without the manifest list never flags
+    let out2 = d.join("out2");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        d.join("ix.gmgi").to_str().unwrap(),
+        "-o",
+        out2.to_str().unwrap(),
+        "-q",
+        "--no-report",
+    ]);
+    let (h2, r2) = read_tsv(&out2.join("results.tsv"));
+    assert!(r2
+        .iter()
+        .all(|r| !r[col(&h2, "qc_flags")].contains("not_fungal")));
+}

@@ -2,7 +2,7 @@
 //! Same numbers as the HTML page (they share `figs`); no scripts, no dark mode, one table row per input.
 use crate::charts::Depth;
 use crate::model::{Rec, RANKS};
-use crate::page::{little_data_note, reasons, status_label, Th};
+use crate::page::{little_data_note, reasons, status_label, Th, NOT_FUNGAL_NOTE};
 use crate::Options;
 use serde_json::Value;
 
@@ -133,11 +133,16 @@ pub fn render(
     }
 
     // inputs that need attention
-    let attention: Vec<&Rec> = recs.iter().filter(|r| r.status != "ok").collect();
+    let attention: Vec<&Rec> = recs
+        .iter()
+        .filter(|r| r.status != "ok" || r.flags.iter().any(|f| f == "not_fungal"))
+        .collect();
     if !attention.is_empty() {
         md.push_str("## Needs attention\n\n");
         for r in attention.iter().take(opts.max_cards) {
-            let why = if r.status == "error" {
+            let why = if r.flags.iter().any(|f| f == "not_fungal") {
+                format!("Probably not a fungus. {NOT_FUNGAL_NOTE}")
+            } else if r.status == "error" {
                 format!("`{}`: {} {}", r.error_code, r.message, r.error_action)
             } else if let Some(note) = little_data_note(r) {
                 note

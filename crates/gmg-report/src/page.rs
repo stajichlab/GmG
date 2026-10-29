@@ -249,6 +249,11 @@ fn card(r: &Rec, th: &Th, open: bool) -> String {
     }
     let bars = charts::tophit_bars(r);
     let reasons = reasons(r, th);
+    let nf = if r.flags.iter().any(|f| f == "not_fungal") {
+        format!("<li><b>Probably not a fungus.</b> {}</li>", NOT_FUNGAL_NOTE)
+    } else {
+        String::new()
+    };
     let ev = if let Some(note) = little_data_note(r) {
         format!("<li><b>Too little data.</b> {note}</li>")
     } else if r.status == "no_match" {
@@ -265,6 +270,7 @@ fn card(r: &Rec, th: &Th, open: bool) -> String {
             })
             .collect::<String>()
     };
+    let ev = format!("{nf}{ev}");
     let ev_html = if ev.is_empty() {
         r#"<p class="why ok">Every rank down to species passed its threshold.</p>"#.to_string()
     } else {
@@ -304,6 +310,9 @@ fn card(r: &Rec, th: &Th, open: bool) -> String {
 }
 
 /// Explanation for an unresolved input that is simply too small or fragmented to classify, if the QC says so.
+/// Shown for inputs whose best matches are the non-fungal decoy genomes of the reference.
+pub(crate) const NOT_FUNGAL_NOTE: &str = "The closest reference genomes are non-fungal decoys (plants, animals, oomycetes), so any fungal rank is not meaningful: this input is most likely not a fungus.";
+
 /// `25–60` for genome-sized ranges, `0.15–0.25` below 10 Mb.
 fn mb_range(lo: f64, hi: f64) -> String {
     if hi < 10.0 {

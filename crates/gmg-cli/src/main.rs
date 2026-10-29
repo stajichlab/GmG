@@ -96,6 +96,10 @@ enum Cmd {
         /// free-text note recorded in the index manifest
         #[arg(long, default_value = "")]
         note: String,
+        /// comma-separated phyla of non-fungal decoy genomes in the reference (e.g. "Streptophyta,Chordata"); inputs that
+        /// match them get the `not_fungal` QC flag
+        #[arg(long, default_value = "")]
+        non_fungal_phyla: String,
     },
     /// Guess the taxonomy of one or more queries (.gsk, FASTA or FASTQ)
     #[command(
@@ -570,6 +574,7 @@ fn main() -> Result<()> {
             buckets,
             taxonomy_version,
             note,
+            non_fungal_phyla,
         } => {
             let metas = read_meta(&meta)?;
             let loaded: Vec<(GenomeMeta, Option<SketchFile>)> = metas
@@ -627,6 +632,7 @@ fn main() -> Result<()> {
                     "genomes": used, "skipped": missing,
                     "meta_sha256": sha256_file(&meta)?, "meta_name": meta.file_name().map(|n| n.to_string_lossy().into_owned()),
                     "taxonomy_version": taxonomy_version, "note": note,
+                    "non_fungal_phyla": non_fungal_phyla.split(',').map(str::trim).filter(|p| !p.is_empty()).collect::<Vec<_>>(),
                 })
                 .to_string(),
             );
