@@ -738,3 +738,73 @@ fn sample_sheet_names_inputs_pairs_files_and_records_expected_labels() {
     ]);
     assert!(!o.status.success() && String::from_utf8_lossy(&o.stderr).contains("'id' and 'path'"));
 }
+
+/// The documented workflow (docs/tutorial.md) on the tiny fixture must keep producing the same results.tsv.
+/// Regenerate with `UPDATE_GOLDEN=1 cargo test -p gmg-cli --test run golden`.
+#[test]
+fn golden_results_tsv_for_the_tutorial_workflow() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, mut rng) = build_reference(d);
+    let inp = d.join("genomes");
+    fs::create_dir_all(&inp).unwrap();
+    fs::write(inp.join("exact_fusarium.fa"), fasta("a", &genomes[2])).unwrap();
+    fs::write(
+        inp.join("mutant_agaricus.fa"),
+        fasta("b", &rng.mutate(&genomes[4], 20)),
+    )
+    .unwrap();
+    fs::write(
+        inp.join("divergent_agaricus.fa"),
+        fasta("c", &rng.mutate(&genomes[5], 150)),
+    )
+    .unwrap();
+    fs::write(inp.join("unrelated.fa"), fasta("d", &rng.genome(150_000))).unwrap();
+    fs::write(inp.join("empty.fa"), b"").unwrap();
+    let out = d.join("results");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+        "--no-report",
+    ]);
+    // drop the path column (machine specific); everything else is deterministic
+    let text = fs::read_to_string(out.join("results.tsv")).unwrap();
+    let mut norm = String::new();
+    for line in text.lines() {
+        let f: Vec<&str> = line.split('\t').collect();
+        norm.push_str(&[&f[..1], &f[2..]].concat().join("\t"));
+        norm.push('\n');
+    }
+    let golden = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/golden/results.tsv");
+    if std::env::var("UPDATE_GOLDEN").is_ok() {
+        fs::write(&golden, &norm).unwrap();
+    }
+    let want =
+        fs::read_to_string(&golden).expect("tests/golden/results.tsv (UPDATE_GOLDEN=1 creates it)");
+    assert_eq!(
+        norm, want,
+        "results.tsv changed; if intended, regenerate with UPDATE_GOLDEN=1"
+    );
+}
+
+#[test]
+fn completions_and_man_page_are_generated() {
+    for shell in ["bash", "zsh", "fish"] {
+        let o = ok(&["completions", shell]);
+        let t = String::from_utf8_lossy(&o.stdout);
+        assert!(
+            t.contains("gmg") && t.contains("report"),
+            "{shell} completion"
+        );
+    }
+    let man = String::from_utf8(ok(&["man"]).stdout).unwrap();
+    assert!(
+        man.starts_with(".ie") || man.contains(".TH gmg"),
+        "roff header"
+    );
+    assert!(man.contains("gmg-run") || man.contains("run"));
+}
