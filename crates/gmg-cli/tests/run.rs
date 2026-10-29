@@ -808,3 +808,101 @@ fn completions_and_man_page_are_generated() {
     );
     assert!(man.contains("gmg-run") || man.contains("run"));
 }
+
+fn golden_check(name: &str, got: &str) {
+    let golden = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/golden")
+        .join(name);
+    if std::env::var("UPDATE_GOLDEN").is_ok() {
+        fs::write(&golden, got).unwrap();
+    }
+    let want = fs::read_to_string(&golden)
+        .unwrap_or_else(|_| panic!("tests/golden/{name} (UPDATE_GOLDEN=1 creates it)"));
+    assert_eq!(
+        got, want,
+        "{name} changed; if intended, regenerate with UPDATE_GOLDEN=1"
+    );
+}
+
+#[test]
+fn guess_formats_json_tsv_and_table_are_stable() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, mut rng) = build_reference(d);
+    let q: Vec<(String, Vec<u8>)> = vec![
+        ("exact_fusarium.fa".into(), genomes[2].clone()),
+        ("mutant_agaricus.fa".into(), rng.mutate(&genomes[4], 20)),
+        ("divergent_agaricus.fa".into(), rng.mutate(&genomes[5], 150)),
+        ("unrelated.fa".into(), rng.genome(150_000)),
+    ];
+    let mut paths = Vec::new();
+    for (n, g) in &q {
+        let p = d.join(n);
+        fs::write(&p, fasta(n, g)).unwrap();
+        paths.push(p.to_str().unwrap().to_string());
+    }
+    let run = |fmt: &str| {
+        let mut args = vec!["guess", "--index", ix.to_str().unwrap(), "--format", fmt];
+        args.extend(paths.iter().map(|s| s.as_str()));
+        String::from_utf8(ok(&args).stdout)
+            .unwrap()
+            .replace(d.to_str().unwrap(), "<dir>")
+    };
+    golden_check("guess.tsv", &run("tsv"));
+    golden_check("guess.table.txt", &run("table"));
+    // json: one object per line with the documented keys
+    let json = run("json");
+    let first: serde_json::Value = serde_json::from_str(json.lines().next().unwrap()).unwrap();
+    for k in [
+        "query",
+        "status",
+        "best_rank",
+        "calls",
+        "withheld",
+        "tentative_genus",
+        "top",
+        "hits",
+    ] {
+        assert!(first.get(k).is_some(), "json has {k}");
+    }
+    assert_eq!(json.lines().count(), 4);
+    let third: serde_json::Value = serde_json::from_str(json.lines().nth(2).unwrap()).unwrap();
+    assert_eq!(third["withheld"]["rank"], "genus");
+    assert_eq!(third["withheld"]["code"], "ani_below_cutoff");
+}
+
+#[test]
+fn quiet_and_verbose_control_progress_lines() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, mut rng) = build_reference(d);
+    let inp = d.join("in");
+    fs::create_dir_all(&inp).unwrap();
+    fs::write(
+        inp.join("divergent.fa"),
+        fasta("x", &rng.mutate(&genomes[4], 150)),
+    )
+    .unwrap();
+    let go = |extra: &[&str]| {
+        let mut a = vec![
+            "run",
+            inp.to_str().unwrap(),
+            "--index",
+            ix.to_str().unwrap(),
+            "--no-report",
+            "-o",
+        ];
+        let out = d.join(format!("o{}", extra.join("")));
+        let outs = out.to_str().unwrap().to_string();
+        a.push(&outs);
+        a.extend(extra);
+        String::from_utf8_lossy(&ok(&a).stderr).to_string()
+    };
+    assert_eq!(go(&["-q"]).trim(), "", "quiet prints nothing");
+    let v = go(&["-v"]);
+    assert!(v.contains("withheld genus: ani_below_cutoff"), "{v}");
+    assert!(
+        !go(&[]).contains("withheld"),
+        "default does not print the reason"
+    );
+}

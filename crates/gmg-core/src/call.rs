@@ -79,6 +79,58 @@ pub struct Guess {
     pub tentative_genus: Option<Tentative>,
 }
 
+/// Why a rank was not called: the first rank whose vote exists but failed its threshold (or no hit at all).
+#[derive(Clone, Debug, PartialEq)]
+pub struct Withheld {
+    /// index into `RANKS`
+    pub rank: usize,
+    /// `no_hits`, `too_few_shared_hashes`, `ani_below_cutoff` or `low_agreement`
+    pub code: &'static str,
+    /// plain text with the numbers, e.g. `ANI 0.8870 < 0.9000`
+    pub detail: String,
+}
+
+impl Guess {
+    /// The reason the first uncalled rank was withheld; None when a species was called (or no rank has a taxon to call).
+    pub fn withheld(&self, th: &Thresholds) -> Option<Withheld> {
+        let Some(top) = &self.top else {
+            return Some(Withheld {
+                rank: 0,
+                code: "no_hits",
+                detail: "no reference genome shares a sketch hash with the input".into(),
+            });
+        };
+        for (r, v) in self.votes.iter().enumerate() {
+            if v.taxon.is_none() || self.calls[r].is_some() {
+                continue;
+            }
+            return Some(if top.shared < th.min_shared[r] {
+                Withheld {
+                    rank: r,
+                    code: "too_few_shared_hashes",
+                    detail: format!("{} shared hashes < {}", top.shared, th.min_shared[r]),
+                }
+            } else if top.ani < th.min_ani[r] {
+                Withheld {
+                    rank: r,
+                    code: "ani_below_cutoff",
+                    detail: format!("ANI {:.4} < {:.4}", top.ani, th.min_ani[r]),
+                }
+            } else {
+                Withheld {
+                    rank: r,
+                    code: "low_agreement",
+                    detail: format!(
+                        "the near-best hits agree on {:.2} < {:.2}",
+                        v.consistency, th.min_consistency[r]
+                    ),
+                }
+            });
+        }
+        None
+    }
+}
+
 pub fn guess(
     index: &RefIndex,
     query: &[u64],
@@ -253,6 +305,35 @@ mod tests {
         // nothing shared -> no calls
         let g = guess(&ix, &[5000, 5001], &|_| false, &th);
         assert!(g.calls.iter().all(|c| c.is_none()));
+    }
+
+    #[test]
+    fn withheld_names_the_first_failed_rank_and_why() {
+        let mut b = IndexBuilder::new(21, 1, 42);
+        b.add(
+            m("a1", "Aspergillus", "Aspergillus fumigatus"),
+            (0..100).collect(),
+        );
+        let ix = b.build(1);
+        let th = Thresholds {
+            min_shared: [1; 6],
+            ..Default::default()
+        };
+        // identical: everything called, nothing withheld
+        let g = guess(&ix, &(0..100).collect::<Vec<_>>(), &|_| false, &th);
+        assert_eq!(g.withheld(&th), None);
+        // 60% of the hashes: containment 0.6 -> ANI 0.976, below the species cutoff
+        let g = guess(
+            &ix,
+            &(0..60).chain(500..540).collect::<Vec<_>>(),
+            &|_| false,
+            &th,
+        );
+        let w = g.withheld(&th).unwrap();
+        assert_eq!((w.rank, w.code), (5, "ani_below_cutoff"), "{w:?}");
+        // nothing shared
+        let g = guess(&ix, &[7000, 7001], &|_| false, &th);
+        assert_eq!(g.withheld(&th).unwrap().code, "no_hits");
     }
 
     #[test]

@@ -35,6 +35,12 @@ struct Cli {
     /// worker threads (default: all cores)
     #[arg(long, global = true)]
     threads: Option<usize>,
+    /// print no progress or summary lines (errors still go to stderr)
+    #[arg(short, long, global = true, conflicts_with = "verbose")]
+    quiet: bool,
+    /// also print, per input, why the first uncalled rank was withheld
+    #[arg(short, long, global = true)]
+    verbose: bool,
     #[command(subcommand)]
     cmd: Cmd,
 }
@@ -92,7 +98,7 @@ enum Cmd {
     },
     /// Guess the taxonomy of one or more queries (.gsk, FASTA or FASTQ)
     #[command(
-        after_long_help = "EXAMPLES\n  gmg guess --index bfd.gmgi genome.fa.gz\n  gmg guess --index bfd.gmgi --thresholds novel query.fa        stricter set for a possibly new genus"
+        after_long_help = "EXAMPLES\n  gmg guess --index bfd.gmgi genome.fa.gz\n  gmg guess --index bfd.gmgi --thresholds novel query.fa        stricter set for a possibly new genus\n  gmg guess --index bfd.gmgi --format table a.fa b.fa            one readable line per query (or --format tsv)"
     )]
     Guess {
         #[arg(long)]
@@ -107,6 +113,9 @@ enum Cmd {
         /// `known` (default), `permissive`, `novel`, or a JSON file (min_shared[6], min_ani[6], min_consistency[6], margin, top_n, tentative_genus_min_ani)
         #[arg(long)]
         thresholds: Option<String>,
+        /// json (default: one JSON object per query), tsv (header + one row per query) or table (one readable line per query)
+        #[arg(long, default_value = "json", value_parser = ["json", "tsv", "table"])]
+        format: String,
         queries: Vec<PathBuf>,
     },
     /// Classify every genome / read set in a folder: writes results.tsv, hits.tsv and run.json
@@ -398,6 +407,33 @@ fn read_sketch(path: &Path) -> Result<SketchFile> {
     Ok(SketchFile::read(&mut BufReader::new(f))?)
 }
 
+/// Why the first uncalled rank was withheld, as JSON (`null` when a species was called).
+pub(crate) fn withheld_json(g: &gmg_core::Guess, th: &Thresholds) -> serde_json::Value {
+    match g.withheld(th) {
+        Some(w) => serde_json::json!({"rank": RANKS[w.rank], "code": w.code, "detail": w.detail}),
+        None => serde_json::Value::Null,
+    }
+}
+
+/// `genus: ani_below_cutoff (ANI 0.8870 < 0.9000)`, or an empty string.
+pub(crate) fn withheld_text(v: &serde_json::Value) -> String {
+    match (v["rank"].as_str(), v["code"].as_str(), v["detail"].as_str()) {
+        (Some(r), Some(c), Some(d)) => format!("{r}: {c} ({d})"),
+        _ => String::new(),
+    }
+}
+
+/// `no_match` / `low_confidence` / `ok` from the deepest rank called.
+pub(crate) fn status_of(g: &gmg_core::Guess) -> (Option<usize>, &'static str) {
+    let best = g.calls.iter().rposition(|c| c.is_some());
+    let status = match best {
+        None => "no_match",
+        Some(i) if i >= 4 => "ok",
+        Some(_) => "low_confidence",
+    };
+    (best, status)
+}
+
 pub(crate) fn sha256_file(path: &Path) -> Result<String> {
     use sha2::{Digest, Sha256};
     let mut f = File::open(path).with_context(|| format!("opening {}", path.display()))?;
@@ -477,6 +513,7 @@ fn main() -> Result<()> {
             .num_threads(t)
             .build_global()?;
     }
+    let (quiet, verbose) = (cli.quiet, cli.verbose);
     match cli.cmd {
         Cmd::Sketch {
             ksize,
@@ -611,17 +648,93 @@ fn main() -> Result<()> {
             max_reads,
             top,
             thresholds,
+            format,
             queries,
         } => {
             let ix = load_index(&index)?;
             let (th, _) = load_thresholds(thresholds.as_deref())?;
+            if format == "tsv" {
+                let mut h = vec!["query".to_string(), "status".into(), "best_rank".into()];
+                h.extend(RANKS.iter().map(|r| format!("call_{r}")));
+                h.extend(
+                    [
+                        "tentative_genus",
+                        "withheld",
+                        "top_hit",
+                        "top_hit_species",
+                        "top_hit_taxid",
+                        "ani",
+                    ]
+                    .map(String::from),
+                );
+                println!("{}", h.join("\t"));
+            }
             for q in &queries {
                 let hashes = query_hashes(&ix, q, min_abund, max_reads)?;
                 let g = guess(&ix, &hashes, &|_| false, &th);
-                println!(
-                    "{}",
-                    gmg_core::guess_json(&ix, &g, &q.display().to_string(), top)
-                );
+                let name = q.display().to_string();
+                let (best, status) = status_of(&g);
+                let w = withheld_json(&g, &th);
+                let tophit = g.top.as_ref().map(|t| {
+                    let m = &ix.genomes[t.genome as usize];
+                    (m.id.clone(), m.lineage[5].clone(), m.taxid, t.ani)
+                });
+                match format.as_str() {
+                    "tsv" => {
+                        let mut row = vec![
+                            name,
+                            status.to_string(),
+                            best.map(|b| RANKS[b].to_string()).unwrap_or_default(),
+                        ];
+                        row.extend(g.calls.iter().map(|c| c.clone().unwrap_or_default()));
+                        row.push(
+                            g.tentative_genus
+                                .as_ref()
+                                .map(|t| t.taxon.clone())
+                                .unwrap_or_default(),
+                        );
+                        row.push(withheld_text(&w));
+                        match &tophit {
+                            Some((id, sp, tid, ani)) => row.extend([
+                                id.clone(),
+                                sp.clone(),
+                                tid.to_string(),
+                                format!("{ani:.4}"),
+                            ]),
+                            None => row.extend(std::iter::repeat_n(String::new(), 4)),
+                        }
+                        println!("{}", row.join("\t"));
+                    }
+                    "table" => {
+                        let call = best.and_then(|b| g.calls[b].clone());
+                        let mut line = match (&call, best) {
+                            (Some(c), Some(b)) => format!("{name}  {c}  ({}", RANKS[b]),
+                            _ => format!("{name}  no call  (no_match"),
+                        };
+                        if let Some((_, _, _, ani)) = &tophit {
+                            line.push_str(&format!(", ANI {ani:.4}"));
+                        }
+                        if !w.is_null() && best != Some(5) {
+                            line.push_str(&format!(
+                                "; {} withheld: {}",
+                                w["rank"].as_str().unwrap_or(""),
+                                w["detail"].as_str().unwrap_or("")
+                            ));
+                        }
+                        if let Some(t) = &g.tentative_genus {
+                            line.push_str(&format!("; tentative genus {}", t.taxon));
+                        }
+                        line.push(')');
+                        println!("{line}");
+                    }
+                    _ => {
+                        let mut j = gmg_core::guess_json(&ix, &g, &name, top);
+                        j["status"] = status.into();
+                        j["best_rank"] = best.map(|b| RANKS[b]).into();
+                        j["withheld"] = w;
+                        println!("{j}");
+                    }
+                }
             }
         }
         Cmd::Cluster {
@@ -759,6 +872,8 @@ fn main() -> Result<()> {
             no_group,
         } => {
             run::run(run::RunArgs {
+                quiet,
+                verbose,
                 sample_sheet,
                 checksums,
                 report_format,
