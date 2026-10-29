@@ -41,7 +41,7 @@ for l in open(a.jsonl):
     acc = g["accession"]; t = int(g["organism"]["tax_id"])
     mb = int(g["assembly_stats"]["total_sequence_length"]) / 1e6
     L = lineage(t)
-    if L.get("clade") == 4751 or 4751 in L.values() or L.get("superkingdom") != 2759:
+    if 4751 in L.values() or 2759 not in L.values():   # fungi out; Eukaryota is a "domain" in the current taxdump
         continue
     if not (a.min_mb <= mb <= a.max_mb) or not acc.startswith("GCF_"):
         continue

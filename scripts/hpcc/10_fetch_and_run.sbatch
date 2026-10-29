@@ -11,9 +11,10 @@ set -uo pipefail
 source $HOME/projects/GmG/scripts/hpcc/env.sh
 module load ncbi_datasets/18.30.1
 B=$(printf "%03d" ${SLURM_ARRAY_TASK_ID})
-R=$GR/external_big; W=$R/work/b$B; OUT=$R/out/b$B
+R=$GR/external_big; W=$R/work/b$B; OUT=$R/${OUTNAME:-out}/b$B
+INDEX=${INDEX:-$GR/index/bfd_s10000.v1.gmgi}   # OUTNAME/INDEX: rerun the same batches against another index (e.g. a decoy index)
 [ -s $OUT/results.tsv ] && { echo "batch $B already done"; exit 0; }
-rm -rf $W; mkdir -p $W/genomes $R/out
+rm -rf $W; mkdir -p $W/genomes $R/${OUTNAME:-out}
 ok=0
 for try in 1 2 3 4; do
   if datasets download genome accession --inputfile $R/batches/batch_$B --include genome --filename $W/d.zip --no-progressbar 2> $W/dl.err; then ok=1; break; fi
@@ -23,5 +24,5 @@ done
 unzip -oq $W/d.zip -d $W/x
 for f in $W/x/ncbi_dataset/data/GC*/*.fna; do mv "$f" $W/genomes/$(basename $(dirname "$f")).fna; done
 echo "batch $B: $(ls $W/genomes | wc -l) genomes of $(wc -l < $R/batches/batch_$B) requested"
-$GMG --threads ${SLURM_CPUS_PER_TASK} run $W/genomes --index $GR/index/bfd_s10000.v1.gmgi -o $OUT --no-report
+$GMG --threads ${SLURM_CPUS_PER_TASK} run $W/genomes --index $INDEX -o $OUT --no-report
 rm -rf $W
