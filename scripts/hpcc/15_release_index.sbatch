@@ -27,6 +27,13 @@ python3 $GMG_REPO/scripts/normalize_taxonomy.py $I/meta.tsv $TD meta_full.tsv --
   --report taxonomy_normalization.md --taxdump-label "new_taxdump md5 $MD5"
 # non-fungal decoys (#79): data/decoys/decoys.tsv, sketched by 17_decoys.sbatch; same normalization, appended to the table
 python3 $GMG_REPO/scripts/normalize_taxonomy.py $GMG_REPO/data/decoys/decoys.tsv $TD meta_decoys.tsv --taxdump-label "new_taxdump md5 $MD5"
+# decoys whose lineage has no phylum rank (Opisthokonta/SAR/etc. protists) get a placeholder so the not_fungal flag can match them
+python3 - <<PY
+rows = [l.rstrip("\n").split("\t") for l in open("meta_decoys.tsv")]
+for r in rows[1:]:
+    if not r[2]: r[2] = "Eukaryota (no phylum)"
+open("meta_decoys.tsv", "w").write("".join("\t".join(r) + "\n" for r in rows))
+PY
 tail -n +2 meta_decoys.tsv >> meta_full.tsv
 NONFUNGAL=$(cut -f3 meta_decoys.tsv | tail -n +2 | sort -u | paste -sd, -)
 echo "non-fungal phyla: $NONFUNGAL"
