@@ -33,6 +33,8 @@ pub struct RefIndex {
     pub lineage_ids: Vec<[u32; 6]>,
     /// interned taxon names per rank (index = id, 0 = "")
     pub taxa: [Vec<String>; 6],
+    /// optional provenance record (one line of JSON) stored in the index: how and from what it was built
+    pub manifest: Option<String>,
     hashes: Vec<u64>,
     offsets: Vec<u64>,
     postings: Vec<u32>,
@@ -158,10 +160,23 @@ impl RefIndex {
             genomes,
             lineage_ids,
             taxa,
+            manifest: None,
             hashes,
             offsets,
             postings,
         }
+    }
+
+    fn manifest_line(&self) -> String {
+        match &self.manifest {
+            Some(m) => format!("#manifest\t{}\n", m.replace(['\n', '\r'], " ")),
+            None => String::new(),
+        }
+    }
+
+    /// Attach a provenance record (JSON on one line) that is written with the index.
+    pub fn set_manifest(&mut self, json: String) {
+        self.manifest = Some(json);
     }
 
     pub fn n_unique_hashes(&self) -> usize {
@@ -251,7 +266,7 @@ impl RefIndex {
     }
 
     pub fn write<W: Write>(&self, w: &mut W) -> io::Result<()> {
-        let mut meta = String::new();
+        let mut meta = self.manifest_line();
         for g in &self.genomes {
             meta.push_str(&format!(
                 "{}\t{}\t{}\t{}\t{}\n",
@@ -279,7 +294,7 @@ impl RefIndex {
     /// Write the compact v1 format: hashes as deltas, posting lists as (length, id deltas), all LEB128.
     /// `read` accepts both formats.
     pub fn write_v1<W: Write>(&self, w: &mut W) -> io::Result<()> {
-        let mut meta = String::new();
+        let mut meta = self.manifest_line();
         for g in &self.genomes {
             meta.push_str(&format!(
                 "{}\t{}\t{}\t{}\t{}\n",
@@ -335,7 +350,12 @@ impl RefIndex {
         let mb = crate::skfile::rd_bytes(r, meta_len)?;
         let meta = String::from_utf8(mb).map_err(|_| bad("meta not utf-8"))?;
         let mut genomes = Vec::with_capacity(n_genomes.min(1 << 20));
+        let mut manifest = None;
         for line in meta.lines() {
+            if let Some(m) = line.strip_prefix("#manifest\t") {
+                manifest = Some(m.to_string());
+                continue;
+            }
             let f: Vec<&str> = line.split('\t').collect();
             // 9 fields = indexes written before clusters existed; 10 = with the cluster column
             if f.len() != 9 && f.len() != 10 {
@@ -392,9 +412,9 @@ impl RefIndex {
                 offsets.push(postings.len() as u64);
             }
             validate(genomes.len(), &hashes, &offsets, &postings)?;
-            return Ok(Self::assemble(
-                ksize, scaled, seed, genomes, hashes, offsets, postings,
-            ));
+            let mut ix = Self::assemble(ksize, scaled, seed, genomes, hashes, offsets, postings);
+            ix.manifest = manifest;
+            return Ok(ix);
         }
         let hashes = rd_u64_vec(r, nh)?;
         let offsets = rd_u64_vec(
@@ -404,9 +424,9 @@ impl RefIndex {
         let np = usize::try_from(rd_u64(r)?).map_err(|_| bad("implausible length"))?;
         let postings = rd_u32_vec(r, np)?;
         validate(genomes.len(), &hashes, &offsets, &postings)?;
-        Ok(Self::assemble(
-            ksize, scaled, seed, genomes, hashes, offsets, postings,
-        ))
+        let mut ix = Self::assemble(ksize, scaled, seed, genomes, hashes, offsets, postings);
+        ix.manifest = manifest;
+        Ok(ix)
     }
 }
 
@@ -505,6 +525,24 @@ mod tests {
             v,
             vec![("Ascomycota".into(), 30), ("Basidiomycota".into(), 20)]
         );
+    }
+
+    #[test]
+    fn manifest_survives_both_formats_and_does_not_count_as_a_genome() {
+        let mut ix = small(3);
+        assert!(ix.manifest.is_none());
+        ix.set_manifest("{\"k\":21,\"note\":\"two\\nlines\"}".to_string());
+        for v1 in [false, true] {
+            let mut b = Vec::new();
+            if v1 {
+                ix.write_v1(&mut b).unwrap();
+            } else {
+                ix.write(&mut b).unwrap();
+            }
+            let back = RefIndex::read(&mut &b[..]).unwrap();
+            assert_eq!(back.genomes, ix.genomes);
+            assert!(back.manifest.as_deref().unwrap().starts_with("{\"k\":21"));
+        }
     }
 
     #[test]

@@ -52,3 +52,6 @@ R1/R2 and lane-split FASTQ of one sample are merged into a single sketch/row (te
 
 ## 2026-10-28 robustness (#34)
 Index/sketch readers no longer allocate from header lengths (bounded reads, k in 1..=32, scaled>=1), validate offsets/hashes/genome ids and use checked arithmetic; a mutation/truncation test (gmg-core/tests/robust.rs) aborted the old loader (4 EB allocation) and passes now. gmg run turns a panic into an internal_error row. CLI tests: CRLF/mixed endings give the same sketch, 100 kb header line, binary, cut FASTQ, lone '>'.
+
+## 2026-10-28 index manifest (#28)
+Index files carry a JSON manifest (tool version/commit, build time, format, k/scaled/seed, meta checksum, taxonomy version, note), shown by gmg info and copied into run.json; convert keeps it. docs/index-distribution.md proposes release layout (hosting is the owner's decision); scripts/make_index_release.sh writes SHA256SUMS/MANIFEST.txt.
