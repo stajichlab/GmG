@@ -19,6 +19,12 @@ use std::time::{Instant, SystemTime, UNIX_EPOCH};
 /// Bump when a column of results.tsv / hits.tsv or a key of results.jsonl / run.json changes meaning.
 pub const SCHEMA_VERSION: u32 = 2; // 2: tentative_genus column; balanced default thresholds
 
+/// Species ANI cutoff for read sets (#32): repeated sequencing errors lower the containment ANI of a read set, so the
+/// assembly cutoff (0.9938) leaves 8-15% of correct species unnamed. With *C. immitis* left out of the reference its reads
+/// match *C. posadasii* at ANI 0.976-0.980 and are named at 0.99 in 0.6% of sets; at 0.985 also 0.6%, at 0.98 10%.
+/// Only lowers a cutoff that is above this value and is still reachable (<= 1.0, so `novel` stays off).
+pub const READS_SPECIES_MIN_ANI: f64 = 0.99;
+
 pub struct RunArgs {
     pub inputs: Vec<PathBuf>,
     pub index: PathBuf,
@@ -200,6 +206,15 @@ fn process(
             None
         };
         let hashes = query_hashes_from(ix, sk, min_abund)?;
+        let reads_th;
+        let th = if reads && th.min_ani[5] > READS_SPECIES_MIN_ANI && th.min_ani[5] <= 1.0 {
+            let mut t = th.clone();
+            t.min_ani[5] = READS_SPECIES_MIN_ANI;
+            reads_th = t;
+            &reads_th
+        } else {
+            th
+        };
         let g = guess(ix, &hashes, &|_| false, th);
         let gj = guess_json(ix, &g, &path, a.top);
         let best = g.calls.iter().rposition(|c| c.is_some());
@@ -566,7 +581,7 @@ pub fn run(args: RunArgs) -> Result<()> {
         "elapsed_seconds": (t0.elapsed().as_secs_f64() * 10.0).round() / 10.0,
         "index": {"path": args.index.display().to_string(), "bytes": fs::metadata(&args.index).map(|m| m.len()).unwrap_or(0),
                   "k": ix.ksize, "scaled": ix.scaled, "seed": ix.seed, "n_genomes": ix.genomes.len()},
-        "thresholds": {"name": th_name, "values": thresholds_json(&th)},
+        "thresholds": {"name": th_name, "values": thresholds_json(&th), "reads_species_min_ani": READS_SPECIES_MIN_ANI},
         "status_counts": counts,
         "inputs": results.iter().map(|r| json!({"id": r["id"], "path": r["path"], "size_bytes": r["size_bytes"],
                                                 "kind": r["kind"], "status": r["status"]})).collect::<Vec<_>>(),
