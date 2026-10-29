@@ -7,6 +7,7 @@ For every rank: n with truth, share of inputs given a call, PRECISION of the cal
 and the raw top-vote accuracy. Breakdowns: for each --by column (default: species_in_bfd genus_in_bfd level phylum) and for
 quality bins (total_len, n50) when present in the truth table. Also: status counts, and for known/novel taxa the false-call rate
 ("called a species/genus that is not the truth").
+Also: confusion lists (most frequent wrong genus/species calls), calibration (precision by ANI and vote consistency) and, for reads, accuracy by amount of sequence.
 Writes OUT_PREFIX.md and OUT_PREFIX.tsv (long format: group, rank, n, called, precision, recall, vote_acc).
 """
 import sys, argparse
@@ -92,6 +93,34 @@ if "genus_in_bfd" in d:
     if len(ng):
         md.append(f"\n## Genus NOT in the reference (n = {len(ng)})\n\nGenus called for {int(ng['called_genus'].sum())} (wrong by construction); family called {int(ng['called_family'].sum())}, correct {int((ng['called_family'] & ng['ok_family']).sum())}; "
                   f"order called {int(ng['called_order'].sum())}, correct {int((ng['called_order'] & ng['ok_order']).sum())}; phylum called {int(ng['called_phylum'].sum())}, correct {int((ng['called_phylum'] & ng['ok_phylum']).sum())}.\n")
+# confusion: the most frequent wrong calls at genus and species (truth -> call)
+for r in ("genus", "species"):
+    w = scored[scored[f"has_{r}"] & scored[f"called_{r}"] & ~scored[f"ok_{r}"]]
+    if len(w):
+        c = w.groupby([r, f"call_{r}"]).size().sort_values(ascending=False).head(15)
+        md.append(f"\n## Most frequent wrong {r} calls ({len(w)} wrong of {int((scored[f'has_{r}'] & scored[f'called_{r}']).sum())} called)\n\n| truth | called | n |\n|---|---|---|")
+        md += [f"| {t} | {k} | {n} |" for (t, k), n in c.items()]
+# calibration: precision of genus/species calls by the reported ANI and by the vote consistency
+for r in ("genus", "species"):
+    t = scored[scored[f"has_{r}"] & scored[f"called_{r}"]].copy()
+    for col, bins, lab in (("ani", [0, .90, .95, .98, .995, 1.01], "top-hit ANI"), (f"conf_{r}", [-1, .6, .8, .9, .95, 1.01], f"{r} vote consistency")):
+        if col in t and len(t):
+            t["_v"] = pd.to_numeric(t[col], errors="coerce")
+            t["_b"] = pd.cut(t["_v"], bins, right=False).astype(str)
+            g = t.groupby("_b").agg(n=(f"ok_{r}", "size"), precision=(f"ok_{r}", "mean"))
+            md.append(f"\n## Calibration: {r} precision by {lab}\n\n| {lab} | n | precision |\n|---|---|---|")
+            md += [f"| {b} | {int(x.n)} | {x.precision:.3f} |" for b, x in g.iterrows()]
+            allrows += [dict(group=f"calib_{col}={b}", rank=r, n=int(x.n), called=1.0, precision=x.precision, recall=np.nan) for b, x in g.iterrows()]
+# reads: accuracy against sequencing depth
+if "kind" in d and (scored["kind"] == "reads").any() and "total_bases" in d:
+    rd = scored[scored["kind"] == "reads"].copy()
+    rd["_tb"] = pd.to_numeric(rd["total_bases"], errors="coerce")
+    rd["_bin"] = pd.cut(rd["_tb"], [-1, 1e7, 1e8, 1e9, 1e12], labels=["<10 Mb", "10-100 Mb", "0.1-1 Gb", ">= 1 Gb"]).astype(str)
+    for val, g in rd.groupby("_bin"):
+        rows = table(g, f"reads_bases={val}")
+        if rows and len(g) >= 5:
+            md.append(f"\n**reads, {val} of sequence** (n = {len(g)})\n\n" + md_table(rows))
+        allrows += rows
 pd.DataFrame(allrows).to_csv(a.out + ".tsv", sep="\t", index=False, float_format="%.4f")
 open(a.out + ".md", "w").write("\n".join(md) + "\n")
 print("\n".join(md))
