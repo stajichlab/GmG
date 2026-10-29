@@ -578,3 +578,40 @@ fn odd_but_legal_and_hostile_inputs_do_not_crash_a_run() {
     }
     assert_eq!(get("binary")[col(&h, "error_code")], "not_sequence_file");
 }
+
+#[test]
+fn index_manifest_is_recorded_shown_and_kept_by_convert() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, _) = build_reference(d);
+    let info = String::from_utf8(ok(&["info", ix.to_str().unwrap()]).stdout).unwrap();
+    assert!(
+        info.contains("manifest.meta_sha256\t")
+            && info.contains("manifest.built_utc\t")
+            && info.contains("manifest.format\tGMGIDX01"),
+        "{info}"
+    );
+    let v1 = d.join("ix.v1.gmgi");
+    ok(&["convert", ix.to_str().unwrap(), "-o", v1.to_str().unwrap()]);
+    let info1 = String::from_utf8(ok(&["info", v1.to_str().unwrap()]).stdout).unwrap();
+    assert!(
+        info1.contains("manifest.format\tGMGIDX02") && info1.contains("manifest.converted_utc\t"),
+        "{info1}"
+    );
+    let inp = d.join("in");
+    fs::create_dir_all(&inp).unwrap();
+    fs::write(inp.join("a.fa"), fasta("a", &genomes[0])).unwrap();
+    let out = d.join("out");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        v1.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+        "--no-report",
+    ]);
+    let run: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(out.join("run.json")).unwrap()).unwrap();
+    assert_eq!(run["index"]["manifest"]["k"], 21);
+}

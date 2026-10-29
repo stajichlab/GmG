@@ -61,6 +61,12 @@ enum Cmd {
         scaled: Option<u32>,
         #[arg(long, default_value_t = 64)]
         buckets: usize,
+        /// label recorded in the index manifest, e.g. "NCBI taxonomy 2026-10"
+        #[arg(long, default_value = "")]
+        taxonomy_version: String,
+        /// free-text note recorded in the index manifest
+        #[arg(long, default_value = "")]
+        note: String,
     },
     /// Guess the taxonomy of one or more queries (.gsk, FASTA or FASTQ)
     Guess {
@@ -333,6 +339,14 @@ fn read_sketch(path: &Path) -> Result<SketchFile> {
     Ok(SketchFile::read(&mut BufReader::new(f))?)
 }
 
+pub(crate) fn sha256_file(path: &Path) -> Result<String> {
+    use sha2::{Digest, Sha256};
+    let mut f = File::open(path).with_context(|| format!("opening {}", path.display()))?;
+    let mut h = Sha256::new();
+    std::io::copy(&mut f, &mut h)?;
+    Ok(h.finalize().iter().map(|b| format!("{b:02x}")).collect())
+}
+
 pub(crate) fn load_index(path: &Path) -> Result<RefIndex> {
     let f = File::open(path).with_context(|| format!("opening {}", path.display()))?;
     Ok(RefIndex::read(&mut BufReader::with_capacity(1 << 20, f))?)
@@ -460,6 +474,8 @@ fn main() -> Result<()> {
             out,
             scaled,
             buckets,
+            taxonomy_version,
+            note,
         } => {
             let metas = read_meta(&meta)?;
             let loaded: Vec<(GenomeMeta, Option<SketchFile>)> = metas
@@ -509,7 +525,17 @@ fn main() -> Result<()> {
                     }
                 }
             }
-            let ix = b.build(buckets);
+            let mut ix = b.build(buckets);
+            ix.set_manifest(
+                serde_json::json!({
+                    "gmg": env!("CARGO_PKG_VERSION"), "commit": env!("GMG_GIT"), "built_utc": run::utc_now(),
+                    "format": "GMGIDX01", "k": k, "scaled": target, "seed": DEFAULT_SEED,
+                    "genomes": used, "skipped": missing,
+                    "meta_sha256": sha256_file(&meta)?, "meta_name": meta.file_name().map(|n| n.to_string_lossy().into_owned()),
+                    "taxonomy_version": taxonomy_version, "note": note,
+                })
+                .to_string(),
+            );
             let mut w = BufWriter::new(File::create(&out)?);
             ix.write(&mut w)?;
             w.flush()?;
@@ -631,7 +657,14 @@ fn main() -> Result<()> {
             eprintln!("{n} genomes -> {n_clusters} clusters at ANI >= {ani} ({}); {n_too_big} (centroid, genome) pairs above the ANI cutoff were refused by the size ratio", out.display());
         }
         Cmd::Convert { index, out } => {
-            let ix = load_index(&index)?;
+            let mut ix = load_index(&index)?;
+            if let Some(m) = &ix.manifest {
+                if let Ok(mut v) = serde_json::from_str::<serde_json::Value>(m) {
+                    v["format"] = "GMGIDX02".into();
+                    v["converted_utc"] = run::utc_now().into();
+                    ix.set_manifest(v.to_string());
+                }
+            }
             let mut w = BufWriter::new(File::create(&out)?);
             ix.write_v1(&mut w)?;
             w.flush()?;
@@ -689,6 +722,22 @@ fn main() -> Result<()> {
             println!("file\t{}\t{} bytes", index.display(), size);
             println!("k\t{}\nscaled\t{}\nseed\t{}", ix.ksize, ix.scaled, ix.seed);
             println!("genomes\t{}", ix.genomes.len());
+            match &ix.manifest {
+                Some(m) => match serde_json::from_str::<serde_json::Value>(m) {
+                    Ok(serde_json::Value::Object(o)) => {
+                        for (k, v) in o {
+                            println!(
+                                "manifest.{k}\t{}",
+                                v.as_str()
+                                    .map(str::to_string)
+                                    .unwrap_or_else(|| v.to_string())
+                            );
+                        }
+                    }
+                    _ => println!("manifest\t{m}"),
+                },
+                None => println!("manifest\t(none: built before manifests existed)"),
+            }
             println!(
                 "unique_hashes\t{}\npostings\t{}",
                 ix.n_unique_hashes(),

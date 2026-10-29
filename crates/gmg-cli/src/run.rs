@@ -225,7 +225,7 @@ fn discover(args: &RunArgs) -> Result<Vec<Input>> {
     Ok(inputs)
 }
 
-fn utc_now() -> String {
+pub(crate) fn utc_now() -> String {
     let secs = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map(|d| d.as_secs() as i64)
@@ -707,7 +707,8 @@ pub fn run(args: RunArgs) -> Result<()> {
         "command": std::env::args().collect::<Vec<_>>(), "started_utc": started, "finished_utc": utc_now(),
         "elapsed_seconds": (t0.elapsed().as_secs_f64() * 10.0).round() / 10.0,
         "index": {"path": args.index.display().to_string(), "bytes": fs::metadata(&args.index).map(|m| m.len()).unwrap_or(0),
-                  "k": ix.ksize, "scaled": ix.scaled, "seed": ix.seed, "n_genomes": ix.genomes.len()},
+                  "k": ix.ksize, "scaled": ix.scaled, "seed": ix.seed, "n_genomes": ix.genomes.len(),
+                  "manifest": ix.manifest.as_deref().and_then(|m| serde_json::from_str::<Value>(m).ok())},
         "thresholds": {"name": th_name, "values": thresholds_json(&th), "reads_species_min_ani": READS_SPECIES_MIN_ANI},
         "status_counts": counts,
         "inputs": results.iter().map(|r| json!({"id": r["id"], "path": r["path"], "size_bytes": r["size_bytes"],
