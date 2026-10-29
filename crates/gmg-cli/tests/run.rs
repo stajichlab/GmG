@@ -906,3 +906,92 @@ fn quiet_and_verbose_control_progress_lines() {
         "default does not print the reason"
     );
 }
+
+#[test]
+fn size_flags_come_from_the_reference_size_range_of_the_called_phylum() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let mut rng = Rng(0xABCDEF1234567);
+    // 60 Ascomycota of 150-250 kb, one genus each; scaled 10 -> ~15-25k hashes
+    let refs = d.join("refs");
+    fs::create_dir(&refs).unwrap();
+    let mut meta = String::from("id\ttaxid\tphylum\tclass\torder\tfamily\tgenus\tspecies\n");
+    let mut files = Vec::new();
+    let mut gs = Vec::new();
+    for i in 0..60 {
+        let g = rng.genome(150_000 + (i % 10) * 11_000);
+        let f = refs.join(format!("g{i}.fa"));
+        fs::write(&f, fasta(&format!("g{i}"), &g)).unwrap();
+        meta.push_str(&format!(
+            "g{i}\t{}\tAscomycota\tC\tO\tF\tGenus{i}\tGenus{i} sp\n",
+            1000 + i
+        ));
+        files.push(f.display().to_string());
+        gs.push(g);
+    }
+    fs::write(d.join("meta.tsv"), meta).unwrap();
+    let sk = d.join("sk");
+    let mut args = vec!["sketch", "-k", "21", "-s", "10", "-o", sk.to_str().unwrap()];
+    args.extend(files.iter().map(|s| s.as_str()));
+    ok(&args);
+    let ix = d.join("ix.gmgi");
+    ok(&[
+        "build",
+        "--meta",
+        d.join("meta.tsv").to_str().unwrap(),
+        "--sketches",
+        sk.to_str().unwrap(),
+        "-o",
+        ix.to_str().unwrap(),
+    ]);
+    let inp = d.join("in");
+    fs::create_dir_all(&inp).unwrap();
+    // a 20 kb piece of g3, the whole of g3, and g3 followed by 700 kb of unrelated sequence
+    fs::write(inp.join("piece.fa"), fasta("p", &gs[3][..20_000])).unwrap();
+    fs::write(inp.join("whole.fa"), fasta("w", &gs[3])).unwrap();
+    let mut big = gs[3].clone();
+    big.extend(rng.genome(700_000));
+    fs::write(inp.join("big.fa"), fasta("b", &big)).unwrap();
+    let out = d.join("out");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+        "--no-report",
+    ]);
+    let (h, rows) = read_tsv(&out.join("results.tsv"));
+    let flags = |id: &str| rows.iter().find(|r| r[0] == id).unwrap()[col(&h, "qc_flags")].clone();
+    assert!(
+        flags("piece").contains("short_genome"),
+        "20 kb of a 150-250 kb lineage: {}",
+        flags("piece")
+    );
+    assert!(
+        !flags("whole").contains("short_genome") && !flags("whole").contains("long_genome"),
+        "{}",
+        flags("whole")
+    );
+    assert!(flags("big").contains("long_genome"), "{}", flags("big"));
+    // the range and its basis are recorded for the report
+    let jl = fs::read_to_string(out.join("results.jsonl")).unwrap();
+    let rec: serde_json::Value = jl
+        .lines()
+        .map(|l| serde_json::from_str::<serde_json::Value>(l).unwrap())
+        .find(|v| v["id"] == "piece")
+        .unwrap();
+    assert!(rec["qc"]["size_range_basis"]
+        .as_str()
+        .unwrap()
+        .starts_with("Ascomycota (n = 60"));
+    assert!(rec["qc"]["size_range_mb"][0].as_f64().unwrap() > 0.1);
+    // the report says what is typical for the lineage
+    ok(&["report", out.to_str().unwrap()]);
+    let html = fs::read_to_string(out.join("report.html")).unwrap();
+    assert!(
+        html.contains("Typical size"),
+        "qc panel shows the typical size"
+    );
+}

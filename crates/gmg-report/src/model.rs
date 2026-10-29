@@ -53,6 +53,8 @@ pub struct Rec {
     pub total_bases: f64,
     pub n50: f64,
     pub n_hashes: u64,
+    /// expected genome size (low, high in Mb, basis) of the called phylum, from the reference
+    pub size_range: Option<(f64, f64, String)>,
     pub flags: Vec<String>,
     pub hist: Option<Hist>,
     pub calls: [Call; 6],
@@ -143,6 +145,13 @@ impl Rec {
             total_bases: v["qc"]["total_bases"].as_f64().unwrap_or(0.0),
             n50: v["qc"]["n50"].as_f64().unwrap_or(0.0),
             n_hashes: v["qc"]["n_hashes"].as_u64().unwrap_or(0),
+            size_range: match (
+                v["qc"]["size_range_mb"][0].as_f64(),
+                v["qc"]["size_range_mb"][1].as_f64(),
+            ) {
+                (Some(lo), Some(hi)) => Some((lo, hi, s(&v["qc"]["size_range_basis"]))),
+                _ => None,
+            },
             flags: v["qc_flags"]
                 .as_array()
                 .map(|a| {
