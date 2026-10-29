@@ -77,6 +77,7 @@ or `--report-format all` on `gmg run`. All three come from the same run.
   lower genus cutoff.
 * QC flags (`short_genome`, `fragmented`, `few_hashes`, ...) explain a result; they never change a call.
 * Contaminated or mixed samples are classified as one organism; GmG does not detect mixtures.
+* GmG assumes the input is a fungus. Bacterial and viral genomes come out `no_match`, but plant, animal and protist genomes can be given a (wrong) fungal phylum, class, order or family at low confidence; they never reach a genus or species call (`reports/validation/negative_controls.md`).
 
 ## 5. Shell completions and manual page
 
