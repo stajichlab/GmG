@@ -85,3 +85,6 @@ gmg-core::classify builds the result record and TSVs (CLI and wasm share it); wa
 
 ## 2026-10-29 reference exclusion (#85)
 `gmg run --exclude-ids FILE` and `--exclude-level self|species|genus` (sample sheet `ref`/`expected` columns); gmg-core::classify takes a skip closure and has `exclusion_mask`; `excluded` in results.jsonl, `exclusion` in run.json, results.tsv unchanged (schema 6). Test: exclusion_hides_the_query_its_species_or_its_genus_from_the_reference. Needed by #39/#42-#44.
+
+## 2026-10-29 stdin and --max-bases (#27)
+`gmg guess -` (stdin, gz detected), global `--max-bases N` (stops after the record that reaches N bases); test stdin_and_max_bases_are_inputs_like_any_other. Docs: results-schema.md.

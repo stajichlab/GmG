@@ -1142,7 +1142,10 @@ fn exclusion_hides_the_query_its_species_or_its_genus_from_the_reference() {
         serde_json::from_str(line.lines().next().unwrap()).unwrap()
     };
     let plain = run(&[]);
-    assert_eq!(plain["guess"]["calls"]["species"]["taxon"], "Fusarium gamma");
+    assert_eq!(
+        plain["guess"]["calls"]["species"]["taxon"],
+        "Fusarium gamma"
+    );
     assert!(plain.get("excluded").is_none());
     for (extra, n) in [
         (vec!["--exclude-level", "self"], 1),
@@ -1161,6 +1164,56 @@ fn exclusion_hides_the_query_its_species_or_its_genus_from_the_reference() {
         );
         assert_eq!(r["status"], "no_match", "{extra:?}");
     }
+}
+
+#[test]
+fn stdin_and_max_bases_are_inputs_like_any_other() {
+    use std::io::Write;
+    use std::process::Stdio;
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, _) = build_reference(d);
+    let fa = fasta("q", &genomes[2]);
+    fs::write(d.join("q.fa"), &fa).unwrap();
+    let guess = |args: &[&str], stdin: Option<&[u8]>| -> serde_json::Value {
+        let mut c = Command::new(env!("CARGO_BIN_EXE_gmg"));
+        c.args(["guess", "--index", ix.to_str().unwrap(), "--format", "json"])
+            .args(args);
+        c.stdin(if stdin.is_some() {
+            Stdio::piped()
+        } else {
+            Stdio::null()
+        })
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped());
+        let mut ch = c.spawn().unwrap();
+        if let Some(b) = stdin {
+            ch.stdin.take().unwrap().write_all(b).unwrap();
+        }
+        let o = ch.wait_with_output().unwrap();
+        assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+        serde_json::from_slice(&o.stdout).unwrap()
+    };
+    let file = guess(&[d.join("q.fa").to_str().unwrap()], None);
+    let piped = guess(&["-"], Some(fa.as_bytes()));
+    assert_eq!(file["calls"], piped["calls"]);
+    assert_eq!(piped["calls"]["species"]["taxon"], "Fusarium gamma");
+    // a gzipped stream is detected from its bytes
+    let mut gz = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::fast());
+    gz.write_all(fa.as_bytes()).unwrap();
+    let zipped = guess(&["-"], Some(&gz.finish().unwrap()));
+    assert_eq!(file["calls"], zipped["calls"]);
+    // reading stops after the record that reaches the limit: 10 kb records, 20 kb limit = a tenth of the genome
+    let many: String = genomes[2]
+        .chunks(10_000)
+        .enumerate()
+        .map(|(i, c)| fasta(&format!("c{i}"), c))
+        .collect();
+    fs::write(d.join("many.fa"), &many).unwrap();
+    let many_p = d.join("many.fa");
+    let all = guess(&[many_p.to_str().unwrap()], None);
+    let part = guess(&["--max-bases", "20000", many_p.to_str().unwrap()], None);
+    assert!(part["query_hashes"].as_u64().unwrap() < all["query_hashes"].as_u64().unwrap() / 4);
 }
 
 #[test]

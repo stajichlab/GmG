@@ -90,3 +90,7 @@ Queries that are themselves in the reference would be found at 100% ANI. To scor
 - `--exclude-level self|species|genus` hides, per query, its own genome (sample sheet column `ref`, default the sample `id`), or every reference genome of its species or genus (taken from `ref`'s lineage when it is in the index, otherwise from the `expected` column).
 
 Each affected record in `results.jsonl` gets `excluded: {level, n_genomes}`, and `run.json` records `exclusion` (ids file, number of ids, level). `results.tsv` is unchanged.
+
+### Input from a pipe and subsampling
+
+`gmg guess -` reads one FASTA/FASTQ from standard input (gzip is detected from the bytes; the sample id is `stdin`), e.g. `curl -s URL | gmg guess --index ix.gmgi -`. The global `--max-bases N` stops reading each input file after the record that reaches N bases (a cheap subsample of the start of a file; `--max-reads` counts records). `gmg run` takes files and directories only.

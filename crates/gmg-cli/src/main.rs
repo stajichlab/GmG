@@ -5,7 +5,7 @@ use gmg_core::{
     downsample, guess, FracSketch, GenomeMeta, IndexBuilder, RefIndex, SketchFile, Thresholds,
     DEFAULT_SEED, RANKS,
 };
-use needletail::parse_fastx_file;
+use needletail::{parse_fastx_file, parse_fastx_stdin};
 mod errors;
 mod run;
 
@@ -42,6 +42,9 @@ struct Cli {
     /// also print, per input, why the first uncalled rank was withheld
     #[arg(short, long, global = true)]
     verbose: bool,
+    /// stop reading each input file after about this many bases (a cheap subsample of the start of a file)
+    #[arg(long, global = true, value_name = "N")]
+    max_bases: Option<u64>,
     #[command(subcommand)]
     cmd: Cmd,
 }
@@ -296,7 +299,18 @@ pub(crate) fn strip_ext(name: &str) -> String {
     name.to_string()
 }
 
+/// `--max-bases`, set once from the command line (0 = no limit)
+pub(crate) static MAX_BASES: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+/// the path that means standard input (gzip and FASTA/FASTQ are detected from the bytes)
+pub(crate) fn is_stdin(p: &Path) -> bool {
+    p.as_os_str() == "-"
+}
+
 fn id_of(path: &Path) -> String {
+    if is_stdin(path) {
+        return "stdin".to_string();
+    }
     strip_ext(
         &path
             .file_name()
@@ -331,8 +345,13 @@ pub(crate) fn sketch_paths(
     let (mut n, mut total, mut non_acgt) = (0u64, 0u64, 0u64);
     let mut lens: Vec<u64> = Vec::new();
     for path in paths {
-        let mut r =
-            parse_fastx_file(path).with_context(|| format!("opening {}", path.display()))?;
+        let mut r = if is_stdin(path) {
+            parse_fastx_stdin().with_context(|| "reading standard input".to_string())?
+        } else {
+            parse_fastx_file(path).with_context(|| format!("opening {}", path.display()))?
+        };
+        let max_bases = MAX_BASES.load(std::sync::atomic::Ordering::Relaxed);
+        let mut file_bases = 0u64;
         let mut file_n = 0u64;
         while let Some(rec) = r.next() {
             let rec = rec.with_context(|| format!("parsing {}", path.display()))?;
@@ -348,7 +367,9 @@ pub(crate) fn sketch_paths(
             if !abund {
                 lens.push(seq.len() as u64);
             }
-            if max_reads.is_some_and(|m| file_n >= m) {
+            file_bases += seq.len() as u64;
+            if max_reads.is_some_and(|m| file_n >= m) || (max_bases > 0 && file_bases >= max_bases)
+            {
                 break;
             }
         }
@@ -517,6 +538,10 @@ fn read_thresholds(path: &Path) -> Result<Thresholds> {
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
+    MAX_BASES.store(
+        cli.max_bases.unwrap_or(0),
+        std::sync::atomic::Ordering::Relaxed,
+    );
     if let Some(t) = cli.threads {
         rayon::ThreadPoolBuilder::new()
             .num_threads(t)
