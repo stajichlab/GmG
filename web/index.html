@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GmG: Guess My Genome</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="page">
+  <header class="top">
+    <div>
+      <div class="eyebrow">GmG · Guess My Genome</div>
+      <h1>Classify fungal genomes or reads</h1>
+      <p class="sub">Phylum to species from a FracMinHash sketch, in your browser. <b>Your files never leave this computer</b>: they are sketched here and compared with a reference index.</p>
+    </div>
+  </header>
+
+  <section class="card" id="ref">
+    <h2><span class="n">1</span> Reference index</h2>
+    <div class="row">
+      <label class="field">Index
+        <select id="index-select" aria-describedby="index-status"><option value="">(no bundled index found)</option></select>
+      </label>
+      <button id="index-load" class="btn primary" type="button">Load</button>
+      <span class="or">or</span>
+      <label class="btn" for="index-file">Use a .gmgi file…</label>
+      <input id="index-file" type="file" accept=".gmgi" hidden>
+    </div>
+    <div class="bar" id="index-bar" hidden><div></div></div>
+    <p class="status" id="index-status" role="status">No index loaded. The small representatives index loads fastest; the full index finds more species.</p>
+    <dl class="facts" id="index-facts" hidden></dl>
+  </section>
+
+  <section class="card" id="inputs">
+    <h2><span class="n">2</span> Genomes or reads</h2>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Drop FASTA or FASTQ files or a folder here, or press Enter to choose files">
+      <p><b>Drop FASTA / FASTQ files or a folder here</b></p>
+      <p class="muted">.fa .fna .fasta .fas .ffn .fq .fastq, plain or .gz. FASTQ: only the first reads are used.</p>
+      <div class="row center">
+        <label class="btn" for="pick-files">Choose files…</label><input id="pick-files" type="file" multiple hidden>
+        <label class="btn" for="pick-dir">Choose folder…</label><input id="pick-dir" type="file" webkitdirectory hidden>
+      </div>
+    </div>
+    <p class="status" id="queue-status">No files chosen.</p>
+    <details class="opts">
+      <summary>Options</summary>
+      <div class="row">
+        <label class="field">Thresholds
+          <select id="th">
+            <option value="known">known (default)</option>
+            <option value="permissive">permissive (lower genus cutoff)</option>
+            <option value="novel">novel (query may be a new genus)</option>
+          </select>
+        </label>
+        <label class="field">FASTQ: reads used
+          <input id="max-reads" type="number" min="1000" step="1000" value="500000">
+        </label>
+        <label class="field">FASTQ: minimum count of a k-mer
+          <input id="min-abund" type="number" min="0" max="20" value="0" title="0 = automatic (2 for reads, 1 for assemblies)">
+        </label>
+      </div>
+    </details>
+    <div class="row">
+      <button id="run" class="btn primary" type="button" disabled>Classify</button>
+      <button id="cancel" class="btn" type="button" hidden>Cancel</button>
+      <div class="bar grow" id="run-bar" hidden><div></div></div>
+      <span class="status" id="run-status" role="status"></span>
+    </div>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2><span class="n">3</span> Results</h2>
+    <div class="chips" id="chips"></div>
+    <div class="row">
+      <input id="filter" type="search" placeholder="Filter by name or taxon" aria-label="Filter results">
+      <select id="status-filter" aria-label="Filter by status">
+        <option value="">all statuses</option><option value="ok">classified</option><option value="low_confidence">low confidence</option>
+        <option value="no_match">no match</option><option value="error">error</option>
+      </select>
+      <span class="grow"></span>
+      <button class="btn" data-dl="results.tsv" type="button">results.tsv</button>
+      <button class="btn" data-dl="hits.tsv" type="button">hits.tsv</button>
+      <button class="btn" data-dl="report.html" type="button">report.html</button>
+      <button class="btn" id="print" type="button">Print / save as PDF</button>
+    </div>
+    <div class="scroll"><table id="table"><thead></thead><tbody></tbody></table></div>
+    <details id="report-box"><summary>Full report</summary><iframe id="report" title="GmG report" sandbox="allow-scripts"></iframe></details>
+  </section>
+
+  <footer class="foot">
+    <span id="version"></span>
+    <a href="https://github.com/stajichlab/GmG">GmG on GitHub</a> · same code as the <code>gmg</code> command line: the results are identical (docs/tutorial.md).
+  </footer>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>

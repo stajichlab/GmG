@@ -165,7 +165,7 @@ impl Index {
     pub fn run_json(&self, started_utc: &str, elapsed_seconds: f64) -> String {
         serde_json::json!({
             "schema_version": SCHEMA_VERSION, "tool": "gmg-wasm", "version": env!("CARGO_PKG_VERSION"),
-            "commit": "", "started_utc": started_utc, "elapsed_seconds": elapsed_seconds,
+            "commit": "web", "started_utc": started_utc, "elapsed_seconds": elapsed_seconds,
             "index": {"n_genomes": self.ix.genomes.len(), "k": self.ix.ksize, "scaled": self.ix.scaled, "seed": self.ix.seed,
                       "manifest": self.ix.manifest.as_deref().and_then(|m| serde_json::from_str::<serde_json::Value>(m).ok())},
             "thresholds": {"name": self.th_name,
