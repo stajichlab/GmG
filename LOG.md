@@ -67,3 +67,6 @@ ETA in the progress line, --checksums (sha256 in run.json inputs), --sample-shee
 
 ## 2026-10-28 CLI docs (#35)
 Per-command examples in --help (tested: every example parses), top-level quick start and exit codes, gmg completions SHELL and gmg man, docs/tutorial.md, golden results.tsv test on the tutorial workflow (UPDATE_GOLDEN=1 regenerates).
+
+## 2026-10-28 output formats (#26)
+guess --format table|tsv|json, Guess::withheld (first failed rank + number), withheld column (schema v5), global -q/-v, golden guess.tsv / guess.table.txt. Real non-fungal negative controls: job 16_negative_controls (E. coli, B. subtilis, phiX174, Arabidopsis, Chlamydomonas, C. elegans, P. falciparum). Taxids per call remain #30.

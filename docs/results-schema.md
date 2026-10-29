@@ -38,9 +38,10 @@ Empty cell = not applicable / not called. TSV cells never contain tabs or newlin
 | `qc_flags` | comma-separated, see below |
 | `message` | plain one-sentence reason when `status` is `error` (never a path) |
 | `error_code` | `empty_file`, `no_sequence_records`, `not_sequence_file`, `bad_gzip`, `unreadable`, `too_short`, `parse_error`, `internal_error`; blank unless `status` is `error`. `results.jsonl` also has `error_action`, what to do about it |
+| `withheld` | why the first uncalled rank was not called, e.g. `genus: ani_below_cutoff (ANI 0.8870 < 0.9000)`; codes: `no_hits`, `too_few_shared_hashes`, `ani_below_cutoff`, `low_agreement`; blank when a species was called |
 | `expected` | the label from the sample sheet, if one was given |
 | `expected_match` | `yes` if `expected` equals the call at some rank (case-insensitive), `no` if not, blank without an `expected` |
-| `schema_version` | 4 |
+| `schema_version` | 5 |
 
 ### Thresholds
 
@@ -74,6 +75,7 @@ all inputs are always in `results.tsv`. The same code renders the report in the 
 Read files of one sample are merged into one input and one row: files in the same directory whose names differ only by `_R1`/`_R2` (optionally `_001`), `_1`/`_2`, `.1`/`.2` or a lane token `_L00N`; the row id is the shared stem and `results.jsonl` has `files` (names). `--max-reads` applies to each file. A lone file keeps its own id. `--no-group` turns this off; `--list FILE` adds inputs from a file with one path per line (`#` comments allowed).
 `--report-format md` (or `all`) on `gmg run`, and `gmg report DIR --format md`, also write `report.md` and `figures/*.svg` (standalone SVG, colours embedded; renders on GitHub or in a notebook). The Markdown has the same numbers as `report.html`: summary, figures, inputs needing attention, one table row per input (up to 5,000), methods and thresholds. `--report-format pdf` (or `all`) writes `report.pdf` (A4, pure Rust via krilla; figures are vector, text is selectable, Inter is embedded as a subset). Inter is © The Inter Project Authors, SIL Open Font License 1.1 (`crates/gmg-pdf/assets/fonts/Inter-OFL.txt`). The PDF is the Markdown report laid out on pages, so the three formats always agree.
 `--sample-sheet FILE`: a tab-separated file with a header and columns `id`, `path` (relative to the sheet) and optionally `expected`; rows with the same id are the files of one sample (R1/R2, lanes), so pairings no naming rule would find can be stated. `--checksums` records the SHA-256 of every input file in `run.json` (`inputs[].sha256`; slow for large inputs). The progress line shows elapsed time and an ETA.
+`gmg guess --format json|tsv|table` prints one JSON object (keys `query, status, best_rank, calls, withheld, tentative_genus, top, hits`), a TSV (header, then one row per query: status, best_rank, the six calls, tentative_genus, withheld, top hit, ANI) or one readable line per query. `-q/--quiet` removes progress and summary lines, `-v/--verbose` adds the withheld reason per input; exit codes are in `gmg --help` (0 finished, 1 could not run, 2 usage).
 `qc.phylum_split`: up to three `{phylum, hashes}` entries, the query hashes found only in genomes of that phylum (informational; it is too noisy to flag mixtures, see `reports/validation/stress_tests.md`);
 `qc.abundance_hist` (reads only): `{counts: [seen 1..12 times], over12, min_abund, median_kept}`, the hashes of a read set by how often they were seen;
 `median_kept` estimates k-mer coverage.

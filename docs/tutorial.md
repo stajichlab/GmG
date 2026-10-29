@@ -31,6 +31,11 @@ enough: not a fungus, a lineage the reference lacks, or too little of a genome) 
 column -t -s$'\t' results/results.tsv | less -S
 ```
 
+One genome without a folder: `gmg guess --index INDEX genome.fa.gz --format table` prints a line such as
+`genome.fa.gz  Agaricus  (genus, ANI 0.9846; species withheld: ANI 0.9846 < 0.9938)`; `--format tsv` and `--format json`
+give the same information for scripts. The `withheld` column of `results.tsv` says the same for every input: the rank that
+was not called and the number that stopped it.
+
 ## 2. Reads (DNA or RNA)
 
 ```
