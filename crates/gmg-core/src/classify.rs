@@ -427,7 +427,11 @@ pub fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
             withheld_text(&r["guess"]["withheld"]),
             tsv_cell(&r["expected"]),
             expected_match(r),
-            tsv_cell(&r["qc"]["coverage_est"]),
+            // two decimals, whatever the JSON text was (a round trip through JavaScript turns 5.0 into 5)
+            r["qc"]["coverage_est"]
+                .as_f64()
+                .map(|v| format!("{v:.2}"))
+                .unwrap_or_default(),
             SCHEMA_VERSION.to_string(),
         ]);
         rows.push(row);
