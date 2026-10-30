@@ -1304,6 +1304,10 @@ fn decoy_genomes_make_non_fungal_inputs_say_so() {
         get("plant_distant")[col(&h, "ani")]
     );
     assert!(
+        get("plant_distant")[col(&h, "call_phylum")] != "Streptophyta",
+        "a distant decoy hit does not become a phylum call"
+    );
+    assert!(
         !flags("fungus").contains("not_fungal"),
         "a fungus is not flagged: {}",
         flags("fungus")
