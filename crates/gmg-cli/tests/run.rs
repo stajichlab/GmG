@@ -1107,3 +1107,291 @@ fn per_rank_taxids_and_original_labels_reach_the_results() {
             && String::from_utf8_lossy(&o.stderr).contains("header lacks the column")
     );
 }
+
+#[test]
+fn exclusion_hides_the_query_its_species_or_its_genus_from_the_reference() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, _) = build_reference(d);
+    let data = d.join("data");
+    fs::create_dir_all(&data).unwrap();
+    // the query is reference genome g2 (Fusarium gamma; its genus mate is g3)
+    fs::write(data.join("q.fa"), fasta("q", &genomes[2])).unwrap();
+    let sheet = d.join("sheet.tsv");
+    fs::write(
+        &sheet,
+        "id\tpath\tref\texpected\nq\tdata/q.fa\tg2\tFusarium gamma\n",
+    )
+    .unwrap();
+    fs::write(d.join("ids.txt"), "# comment\ng2\n").unwrap();
+    let run = |extra: &[&str]| -> serde_json::Value {
+        let out = d.join(format!("out{}", extra.join("")));
+        let mut a = vec![
+            "run",
+            "--sample-sheet",
+            sheet.to_str().unwrap(),
+            "--index",
+            ix.to_str().unwrap(),
+            "-o",
+            out.to_str().unwrap(),
+            "--no-report",
+        ];
+        a.extend_from_slice(extra);
+        ok(&a);
+        let line = fs::read_to_string(out.join("results.jsonl")).unwrap();
+        serde_json::from_str(line.lines().next().unwrap()).unwrap()
+    };
+    let plain = run(&[]);
+    assert_eq!(
+        plain["guess"]["calls"]["species"]["taxon"],
+        "Fusarium gamma"
+    );
+    assert!(plain.get("excluded").is_none());
+    for (extra, n) in [
+        (vec!["--exclude-level", "self"], 1),
+        (vec!["--exclude-level", "species"], 1),
+        (vec!["--exclude-level", "genus"], 2),
+        (
+            vec!["--exclude-ids", d.join("ids.txt").to_str().unwrap()],
+            1,
+        ),
+    ] {
+        let r = run(&extra);
+        assert_eq!(r["excluded"]["n_genomes"], n, "{extra:?}");
+        assert_ne!(
+            r["guess"]["calls"]["species"]["taxon"], "Fusarium gamma",
+            "{extra:?}"
+        );
+        assert_eq!(r["status"], "no_match", "{extra:?}");
+    }
+}
+
+#[test]
+fn stdin_and_max_bases_are_inputs_like_any_other() {
+    use std::io::Write;
+    use std::process::Stdio;
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, _) = build_reference(d);
+    let fa = fasta("q", &genomes[2]);
+    fs::write(d.join("q.fa"), &fa).unwrap();
+    let guess = |args: &[&str], stdin: Option<&[u8]>| -> serde_json::Value {
+        let mut c = Command::new(env!("CARGO_BIN_EXE_gmg"));
+        c.args(["guess", "--index", ix.to_str().unwrap(), "--format", "json"])
+            .args(args);
+        c.stdin(if stdin.is_some() {
+            Stdio::piped()
+        } else {
+            Stdio::null()
+        })
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped());
+        let mut ch = c.spawn().unwrap();
+        if let Some(b) = stdin {
+            ch.stdin.take().unwrap().write_all(b).unwrap();
+        }
+        let o = ch.wait_with_output().unwrap();
+        assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+        serde_json::from_slice(&o.stdout).unwrap()
+    };
+    let file = guess(&[d.join("q.fa").to_str().unwrap()], None);
+    let piped = guess(&["-"], Some(fa.as_bytes()));
+    assert_eq!(file["calls"], piped["calls"]);
+    assert_eq!(piped["calls"]["species"]["taxon"], "Fusarium gamma");
+    // a gzipped stream is detected from its bytes
+    let mut gz = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::fast());
+    gz.write_all(fa.as_bytes()).unwrap();
+    let zipped = guess(&["-"], Some(&gz.finish().unwrap()));
+    assert_eq!(file["calls"], zipped["calls"]);
+    // reading stops after the record that reaches the limit: 10 kb records, 20 kb limit = a tenth of the genome
+    let many: String = genomes[2]
+        .chunks(10_000)
+        .enumerate()
+        .map(|(i, c)| fasta(&format!("c{i}"), c))
+        .collect();
+    fs::write(d.join("many.fa"), &many).unwrap();
+    let many_p = d.join("many.fa");
+    let all = guess(&[many_p.to_str().unwrap()], None);
+    let part = guess(&["--max-bases", "20000", many_p.to_str().unwrap()], None);
+    assert!(part["query_hashes"].as_u64().unwrap() < all["query_hashes"].as_u64().unwrap() / 4);
+}
+
+#[test]
+fn decoy_genomes_make_non_fungal_inputs_say_so() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, _ix, mut rng) = build_reference(d);
+    // two non-fungal decoys added to the same reference, listed in the manifest
+    let plant = rng.genome(300_000);
+    let worm = rng.genome(250_000);
+    let refs = d.join("refs");
+    fs::write(refs.join("plant.fa"), fasta("plant", &plant)).unwrap();
+    fs::write(refs.join("worm.fa"), fasta("worm", &worm)).unwrap();
+    ok(&[
+        "sketch",
+        "-k",
+        "21",
+        "-s",
+        "10",
+        "-o",
+        d.join("sk").to_str().unwrap(),
+        refs.join("plant.fa").to_str().unwrap(),
+        refs.join("worm.fa").to_str().unwrap(),
+    ]);
+    let mut meta = fs::read_to_string(d.join("meta.tsv")).unwrap();
+    meta.push_str("plant\t3702\tStreptophyta\tMagnoliopsida\tBrassicales\tBrassicaceae\tArabidopsis\tArabidopsis thaliana\n");
+    meta.push_str("worm\t6239\tNematoda\tChromadorea\tRhabditida\tRhabditidae\tCaenorhabditis\tCaenorhabditis elegans\n");
+    let meta_path = d.join("meta_decoys.tsv");
+    fs::write(&meta_path, meta).unwrap();
+    let ix = d.join("ix_decoys.gmgi");
+    ok(&[
+        "build",
+        "--meta",
+        meta_path.to_str().unwrap(),
+        "--sketches",
+        d.join("sk").to_str().unwrap(),
+        "-o",
+        ix.to_str().unwrap(),
+        "--non-fungal-phyla",
+        "Streptophyta, Nematoda",
+    ]);
+    assert!(
+        String::from_utf8(ok(&["info", ix.to_str().unwrap()]).stdout)
+            .unwrap()
+            .contains("non_fungal_phyla")
+    );
+    let inp = d.join("in");
+    fs::create_dir_all(&inp).unwrap();
+    fs::write(
+        inp.join("plant_relative.fa"),
+        fasta("p", &rng.mutate(&plant, 30)),
+    )
+    .unwrap(); // ~0.98 ANI: a close relative
+    fs::write(inp.join("worm_copy.fa"), fasta("w", &worm)).unwrap();
+    fs::write(
+        inp.join("plant_distant.fa"),
+        fasta("d", &rng.mutate(&plant, 200)),
+    )
+    .unwrap(); // ~0.85 ANI: a decoy is nearest, but not a relative
+    fs::write(inp.join("fungus.fa"), fasta("f", &genomes[2])).unwrap();
+    fs::write(inp.join("unrelated.fa"), fasta("u", &rng.genome(150_000))).unwrap();
+    let out = d.join("out");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+        "-q",
+    ]);
+    let (h, rows) = read_tsv(&out.join("results.tsv"));
+    let get = |id: &str| rows.iter().find(|r| r[0] == id).unwrap().clone();
+    let flags = |id: &str| get(id)[col(&h, "qc_flags")].clone();
+    assert!(
+        flags("plant_relative").contains("not_fungal")
+            && get("plant_relative")[col(&h, "call_phylum")] == "Streptophyta"
+    );
+    assert!(
+        flags("worm_copy").contains("not_fungal")
+            && get("worm_copy")[col(&h, "call_species")] == "Caenorhabditis elegans"
+    );
+    assert!(
+        !flags("plant_distant").contains("not_fungal")
+            && flags("plant_distant").contains("distant_non_fungal_hit"),
+        "a distant decoy hit is not a verdict: {} (ANI {})",
+        flags("plant_distant"),
+        get("plant_distant")[col(&h, "ani")]
+    );
+    assert!(
+        !flags("fungus").contains("not_fungal"),
+        "a fungus is not flagged: {}",
+        flags("fungus")
+    );
+    assert_eq!(get("fungus")[col(&h, "call_species")], "Fusarium gamma");
+    assert!(
+        !flags("unrelated").contains("not_fungal"),
+        "no match is not a decoy match"
+    );
+    let html = fs::read_to_string(out.join("report.html")).unwrap();
+    assert!(html.contains("Probably not a fungus"));
+    // an index without the manifest list never flags
+    let out2 = d.join("out2");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        d.join("ix.gmgi").to_str().unwrap(),
+        "-o",
+        out2.to_str().unwrap(),
+        "-q",
+        "--no-report",
+    ]);
+    let (h2, r2) = read_tsv(&out2.join("results.tsv"));
+    assert!(r2
+        .iter()
+        .all(|r| !r[col(&h2, "qc_flags")].contains("not_fungal")));
+}
+
+#[test]
+fn run_reads_standard_input_next_to_files() {
+    use std::io::Write;
+    use std::process::Stdio;
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, _) = build_reference(d);
+    let fa = fasta("q", &genomes[2]);
+    fs::create_dir_all(d.join("in")).unwrap();
+    fs::write(d.join("in/file.fa"), &fa).unwrap();
+    let run = |extra: &[&str], stdin: &[u8]| -> std::process::Output {
+        let mut ch = Command::new(env!("CARGO_BIN_EXE_gmg"))
+            .args(["run", "--index", ix.to_str().unwrap(), "-q", "--no-report"])
+            .args(extra)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+        let _ = ch.stdin.take().unwrap().write_all(stdin); // the process may exit first (refused input)
+        ch.wait_with_output().unwrap()
+    };
+    // a file and standard input in one run: two rows, the same call
+    let out = d.join("out");
+    let o = run(
+        &[
+            "-o",
+            out.to_str().unwrap(),
+            d.join("in").to_str().unwrap(),
+            "-",
+        ],
+        fa.as_bytes(),
+    );
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+    let (h, rows) = read_tsv(&out.join("results.tsv"));
+    assert_eq!(rows.len(), 2);
+    let sp = |id: &str| rows.iter().find(|r| r[0] == id).unwrap()[col(&h, "call_species")].clone();
+    assert_eq!(sp("stdin"), "Fusarium gamma");
+    assert_eq!(sp("file"), sp("stdin"));
+    // FASTQ on standard input needs --kind reads
+    let fq = "@r1\nACGTACGTACGTACGTACGTACGTAAA\n+\nIIIIIIIIIIIIIIIIIIIIIIIIIII\n";
+    let out2 = d.join("out2");
+    let o = run(&["-o", out2.to_str().unwrap(), "-"], fq.as_bytes());
+    let (h2, rows2) = read_tsv(&out2.join("results.tsv"));
+    assert_eq!(rows2[0][col(&h2, "status")], "error");
+    assert!(String::from_utf8_lossy(&o.stderr).len() < 10_000);
+    assert!(
+        fs::read_to_string(out2.join("results.jsonl"))
+            .unwrap()
+            .contains("--kind reads"),
+        "the error row says how to fix it"
+    );
+    let out3 = d.join("out3");
+    let o = run(
+        &["-o", out3.to_str().unwrap(), "--kind", "reads", "-"],
+        fq.as_bytes(),
+    );
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+    // standard input twice is refused
+    let o = run(&["-o", d.join("out4").to_str().unwrap(), "-", "-"], b"");
+    assert!(!o.status.success());
+}

@@ -5,7 +5,7 @@ use gmg_core::{
     downsample, guess, FracSketch, GenomeMeta, IndexBuilder, RefIndex, SketchFile, Thresholds,
     DEFAULT_SEED, RANKS,
 };
-use needletail::parse_fastx_file;
+use needletail::{parse_fastx_file, parse_fastx_stdin};
 mod errors;
 mod run;
 
@@ -42,6 +42,9 @@ struct Cli {
     /// also print, per input, why the first uncalled rank was withheld
     #[arg(short, long, global = true)]
     verbose: bool,
+    /// stop reading each input file after about this many bases (a cheap subsample of the start of a file)
+    #[arg(long, global = true, value_name = "N")]
+    max_bases: Option<u64>,
     #[command(subcommand)]
     cmd: Cmd,
 }
@@ -96,6 +99,10 @@ enum Cmd {
         /// free-text note recorded in the index manifest
         #[arg(long, default_value = "")]
         note: String,
+        /// comma-separated phyla of non-fungal decoy genomes in the reference (e.g. "Streptophyta,Chordata"); inputs that
+        /// match them get the `not_fungal` QC flag
+        #[arg(long, default_value = "")]
+        non_fungal_phyla: String,
     },
     /// Guess the taxonomy of one or more queries (.gsk, FASTA or FASTQ)
     #[command(
@@ -171,6 +178,13 @@ enum Cmd {
         /// report format: html (default), md (report.md + figures/*.svg), pdf (report.pdf) or all
         #[arg(long, default_value = "html", value_parser = ["html", "md", "pdf", "all"])]
         report_format: String,
+        /// hide these reference genome ids (one per line, first column) from every query
+        #[arg(long, value_name = "FILE")]
+        exclude_ids: Option<PathBuf>,
+        /// validation of queries that are in the reference: hide each query's own genome (sample sheet column `ref`,
+        /// default the sample id), or all genomes of its species or genus (from `ref`, else the `expected` column)
+        #[arg(long, value_name = "LEVEL", value_parser = ["self", "species", "genus"])]
+        exclude_level: Option<String>,
     },
     /// Write report.html from a finished `gmg run` directory
     #[command(
@@ -184,6 +198,22 @@ enum Cmd {
         /// html (default), md (report.md + figures/*.svg), pdf (report.pdf) or all
         #[arg(long, default_value = "html", value_parser = ["html", "md", "pdf", "all"])]
         format: String,
+    },
+    /// Score a results.tsv against a truth table: accuracy per rank and clade, confusion, calibration (validation report)
+    #[command(
+        after_long_help = "EXAMPLES\n  gmg validate out/results.tsv truth.tsv -o validation/\n  gmg validate results.tsv truth.tsv -o v/ --by level phylum --title \"Post-freeze assemblies\"\n\nTRUTH.tsv: a header and an `id` column (matching results.tsv `query_id`), any of phylum class order family genus species\n(blank = unknown, not scored) and optional grouping columns (e.g. species_in_bfd, level). Writes validation.md,\nvalidation.tsv (long format) and validation.html in the output directory."
+    )]
+    Validate {
+        results: PathBuf,
+        truth: PathBuf,
+        /// output directory
+        #[arg(short, long)]
+        out: PathBuf,
+        /// columns to break the metrics down by (default: species_in_bfd genus_in_bfd level phylum)
+        #[arg(long, num_args = 1..)]
+        by: Option<Vec<String>>,
+        #[arg(long, default_value = "Validation")]
+        title: String,
     },
     /// Print a shell completion script (bash, zsh, fish, elvish, powershell)
     Completions {
@@ -285,7 +315,18 @@ pub(crate) fn strip_ext(name: &str) -> String {
     name.to_string()
 }
 
+/// `--max-bases`, set once from the command line (0 = no limit)
+pub(crate) static MAX_BASES: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+/// the path that means standard input (gzip and FASTA/FASTQ are detected from the bytes)
+pub(crate) fn is_stdin(p: &Path) -> bool {
+    p.as_os_str() == "-"
+}
+
 fn id_of(path: &Path) -> String {
+    if is_stdin(path) {
+        return "stdin".to_string();
+    }
     strip_ext(
         &path
             .file_name()
@@ -320,11 +361,23 @@ pub(crate) fn sketch_paths(
     let (mut n, mut total, mut non_acgt) = (0u64, 0u64, 0u64);
     let mut lens: Vec<u64> = Vec::new();
     for path in paths {
-        let mut r =
-            parse_fastx_file(path).with_context(|| format!("opening {}", path.display()))?;
+        let mut r = if is_stdin(path) {
+            parse_fastx_stdin().with_context(|| "reading standard input".to_string())?
+        } else {
+            parse_fastx_file(path).with_context(|| format!("opening {}", path.display()))?
+        };
+        let max_bases = MAX_BASES.load(std::sync::atomic::Ordering::Relaxed);
+        let mut file_bases = 0u64;
         let mut file_n = 0u64;
         while let Some(rec) = r.next() {
             let rec = rec.with_context(|| format!("parsing {}", path.display()))?;
+            if file_n == 0
+                && is_stdin(path)
+                && !abund
+                && rec.format() == needletail::parser::Format::Fastq
+            {
+                anyhow::bail!("standard input is FASTQ: add --kind reads");
+            }
             let seq = rec.seq();
             sk.add_sequence(&seq);
             n += 1;
@@ -337,7 +390,9 @@ pub(crate) fn sketch_paths(
             if !abund {
                 lens.push(seq.len() as u64);
             }
-            if max_reads.is_some_and(|m| file_n >= m) {
+            file_bases += seq.len() as u64;
+            if max_reads.is_some_and(|m| file_n >= m) || (max_bases > 0 && file_bases >= max_bases)
+            {
                 break;
             }
         }
@@ -506,6 +561,10 @@ fn read_thresholds(path: &Path) -> Result<Thresholds> {
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
+    MAX_BASES.store(
+        cli.max_bases.unwrap_or(0),
+        std::sync::atomic::Ordering::Relaxed,
+    );
     if let Some(t) = cli.threads {
         rayon::ThreadPoolBuilder::new()
             .num_threads(t)
@@ -570,6 +629,7 @@ fn main() -> Result<()> {
             buckets,
             taxonomy_version,
             note,
+            non_fungal_phyla,
         } => {
             let metas = read_meta(&meta)?;
             let loaded: Vec<(GenomeMeta, Option<SketchFile>)> = metas
@@ -627,6 +687,7 @@ fn main() -> Result<()> {
                     "genomes": used, "skipped": missing,
                     "meta_sha256": sha256_file(&meta)?, "meta_name": meta.file_name().map(|n| n.to_string_lossy().into_owned()),
                     "taxonomy_version": taxonomy_version, "note": note,
+                    "non_fungal_phyla": non_fungal_phyla.split(',').map(str::trim).filter(|p| !p.is_empty()).collect::<Vec<_>>(),
                 })
                 .to_string(),
             );
@@ -873,6 +934,8 @@ fn main() -> Result<()> {
             no_report,
             report_cards,
             report_format,
+            exclude_ids,
+            exclude_level,
             list,
             checksums,
             sample_sheet,
@@ -884,6 +947,8 @@ fn main() -> Result<()> {
                 sample_sheet,
                 checksums,
                 report_format,
+                exclude_ids,
+                exclude_level: exclude_level.map(|l| l.parse().expect("validated by clap")),
                 list,
                 group: !no_group,
                 inputs,
@@ -906,6 +971,55 @@ fn main() -> Result<()> {
         } => {
             run::write_report(&dir, max_cards, &format)?;
             eprintln!("wrote the {format} report in {}", dir.display());
+        }
+        Cmd::Validate {
+            results,
+            truth,
+            out,
+            by,
+            title,
+        } => {
+            let read = |p: &Path| -> Result<Vec<std::collections::HashMap<String, String>>> {
+                let text = std::fs::read_to_string(p)
+                    .with_context(|| format!("reading {}", p.display()))?;
+                let mut lines = text.lines();
+                let head: Vec<&str> = lines.next().unwrap_or("").split('\t').collect();
+                Ok(lines
+                    .filter(|l| !l.trim().is_empty())
+                    .map(|l| {
+                        head.iter()
+                            .zip(l.split('\t').chain(std::iter::repeat("")))
+                            .map(|(h, v)| (h.to_string(), v.to_string()))
+                            .collect()
+                    })
+                    .collect())
+            };
+            let (res, tru) = (read(&results)?, read(&truth)?);
+            if !res.first().is_some_and(|r| r.contains_key("query_id")) {
+                bail!(
+                    "{} has no query_id column (is it a results.tsv from `gmg run`?)",
+                    results.display()
+                );
+            }
+            if !tru.first().is_some_and(|r| r.contains_key("id")) {
+                bail!("{} has no `id` column", truth.display());
+            }
+            let mut o = gmg_report::ValidateOptions {
+                title,
+                ..Default::default()
+            };
+            if let Some(b) = by {
+                o.by = b;
+            }
+            let v = gmg_report::validate(&res, &tru, &o);
+            std::fs::create_dir_all(&out)?;
+            std::fs::write(out.join("validation.md"), &v.md)?;
+            std::fs::write(out.join("validation.tsv"), &v.tsv)?;
+            std::fs::write(out.join("validation.html"), &v.html)?;
+            eprintln!(
+                "wrote validation.md, validation.tsv and validation.html in {}",
+                out.display()
+            );
         }
         Cmd::Completions { shell } => {
             clap_complete::generate(shell, &mut Cli::command(), "gmg", &mut std::io::stdout());

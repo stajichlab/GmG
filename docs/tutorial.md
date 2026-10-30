@@ -3,6 +3,9 @@
 You need `gmg` (a release binary, the container `ghcr.io/stajichlab/gmg`, or `pixi run build`) and a reference index
 (`bfd-*.gmgi`; see [index-distribution.md](index-distribution.md)). `gmg info INDEX` shows what an index is made of.
 
+No genomes at hand? `scripts/fetch_examples.sh examples_data` downloads six small public assemblies from NCBI (see
+[../examples/README.md](../examples/README.md)); use `examples_data/` below.
+
 ## 1. Genomes
 
 ```
@@ -88,3 +91,16 @@ gmg man | gzip > ~/.local/share/man/man1/gmg.1.gz
 ```
 
 Exit codes: 0 finished (unreadable inputs are rows with `status=error`), 1 could not run, 2 usage error.
+
+## Checking accuracy against known answers
+
+With a table of what the inputs really are, `gmg validate` reports accuracy per rank and per clade:
+
+```
+gmg validate results/results.tsv truth.tsv -o validation/ --title "My test set"
+```
+
+`truth.tsv` has an `id` column (the `query_id` of `results.tsv`), any of `phylum class order family genus species` (blank = unknown,
+not scored) and optional grouping columns. `validation/validation.html` shows precision and the share called per rank (with 95%
+intervals), calibration (precision by ANI), the most frequent wrong calls and the same tables by group; `validation.md` and the
+long-format `validation.tsv` hold the numbers. Precision is correct among the calls made; recall counts an input with no call as missed.

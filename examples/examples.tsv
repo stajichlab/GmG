@@ -1,0 +1,7 @@
+id	accession	name	expected	note	url
+scer	GCA_059919235.1	Saccharomyces cerevisiae	Saccharomyces cerevisiae	Budding yeast, 11.9 Mb. Species call expected.	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/059/919/235/GCA_059919235.1_IU_Scer_DoF1_1.0/GCA_059919235.1_IU_Scer_DoF1_1.0_genomic.fna.gz
+pombe	GCA_056321735.1	Schizosaccharomyces pombe	Schizosaccharomyces pombe	Fission yeast, 13 Mb: a different class of Ascomycota.	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/056/321/735/GCA_056321735.1_dxm954-hifiasm/GCA_056321735.1_dxm954-hifiasm_genomic.fna.gz
+malassezia	GCA_051943995.1	Malassezia restricta	Malassezia restricta	Skin yeast, 7 Mb: a Basidiomycota.	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/051/943/995/GCA_051943995.1_ASM5194399v1/GCA_051943995.1_ASM5194399v1_genomic.fna.gz
+wallemia	GCA_982436685.1	Wallemia ichthyophaga	Wallemia ichthyophaga	Halophilic fungus, 9.7 Mb: Wallemiomycetes, a small lineage.	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/982/436/685/GCA_982436685.1_wich_EXF-994/GCA_982436685.1_wich_EXF-994_genomic.fna.gz
+vavraia	GCA_985809295.1	Vavraia culicis	Vavraia culicis	Microsporidian parasite, 7 Mb: a Microsporidia genome.	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/985/809/295/GCA_985809295.1_icMalFlav1.microsporidian_1.1/GCA_985809295.1_icMalFlav1.microsporidian_1.1_genomic.fna.gz
+ecoli	GCF_000005845.2	Escherichia coli K-12	(not a fungus)	Bacterium, 4.6 Mb: expect no fungal call (no_match).	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz

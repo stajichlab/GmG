@@ -3,16 +3,17 @@
 //! Each finished input is appended to `results.jsonl` immediately, so a killed run can be resumed (`--resume`);
 //! the TSV files and the manifest are generated from that file at the end. Schema version: see `SCHEMA_VERSION`.
 
-use crate::{load_index, load_thresholds, sketch_paths, strip_ext};
+use crate::{is_stdin, load_index, load_thresholds, sketch_paths, strip_ext};
 use anyhow::{bail, Context, Result};
 use gmg_core::classify::{
-    classify, error_record, hits_tsv, relationship_label, relationships, results_tsv, size_ranges,
-    Item, SizeRanges, READS_SPECIES_MIN_ANI, SCHEMA_VERSION,
+    classify, error_record, exclusion_mask, hits_tsv, relationship_label, relationships,
+    results_tsv, Context as RefContext, Item, READS_SPECIES_MIN_ANI, SCHEMA_VERSION,
 };
 use gmg_core::{RefIndex, Thresholds};
 use rayon::prelude::*;
 use serde_json::{json, Value};
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::fs::{self, File, OpenOptions};
 use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
@@ -45,6 +46,10 @@ pub struct RunArgs {
     pub max_cards: usize,
     /// html (default), md or all
     pub report_format: String,
+    /// reference genome ids to hide from every query (one per line)
+    pub exclude_ids: Option<PathBuf>,
+    /// hide each query's own genome / species / genus from the reference (sample sheet `ref` and `expected` columns)
+    pub exclude_level: Option<gmg_core::classify::ExcludeLevel>,
 }
 
 struct Input {
@@ -55,6 +60,8 @@ struct Input {
     kind: &'static str, // "assembly" | "reads"
     /// from a sample sheet: the label the user expects (carried to results.tsv for validation)
     expected: Option<String>,
+    /// from a sample sheet: the reference genome id of this query, for `--exclude-level`
+    ref_id: Option<String>,
     /// named by a sample sheet: never merged automatically
     explicit: bool,
 }
@@ -162,6 +169,7 @@ fn group_reads(inputs: Vec<Input>) -> Vec<Input> {
                 id: key.1.clone(),
                 kind: "reads",
                 expected: None,
+                ref_id: None,
                 explicit: false,
             });
         }
@@ -190,6 +198,7 @@ fn read_sheet(sheet: &Path, forced: &str) -> Result<Vec<Input>> {
         bail!("sample sheet needs a header with columns 'id' and 'path' (and optionally 'expected'), separated by tabs");
     };
     let ce = col("expected");
+    let cr = col("ref");
     let mut out: Vec<Input> = Vec::new();
     for (n, line) in lines.enumerate() {
         let f: Vec<&str> = line.split('\t').map(str::trim).collect();
@@ -225,6 +234,10 @@ fn read_sheet(sheet: &Path, forced: &str) -> Result<Vec<Input>> {
             .and_then(|c| f.get(c))
             .filter(|x| !x.is_empty())
             .map(|x| x.to_string());
+        let ref_id = cr
+            .and_then(|c| f.get(c))
+            .filter(|x| !x.is_empty())
+            .map(|x| x.to_string());
         match out.iter_mut().find(|i| i.id == *id) {
             Some(i) => {
                 if i.kind != kind {
@@ -238,6 +251,7 @@ fn read_sheet(sheet: &Path, forced: &str) -> Result<Vec<Input>> {
                 id: id.to_string(),
                 kind,
                 expected,
+                ref_id,
                 explicit: true,
             }),
         }
@@ -257,8 +271,15 @@ fn discover(args: &RunArgs) -> Result<Vec<Input>> {
                 .map(PathBuf::from),
         );
     }
+    let mut stdin_given = false;
     for p in &given {
-        if p.is_dir() {
+        if is_stdin(p) {
+            if stdin_given {
+                bail!("standard input (-) can be given only once");
+            }
+            stdin_given = true;
+            files.push(p.clone());
+        } else if p.is_dir() {
             walk(p, &mut files)?;
         } else if p.is_file() {
             files.push(p.clone());
@@ -269,15 +290,28 @@ fn discover(args: &RunArgs) -> Result<Vec<Input>> {
     let mut inputs: Vec<Input> = Vec::new();
     let mut seen: HashMap<String, PathBuf> = HashMap::new();
     for p in files {
-        // directories are filtered by extension; explicitly named files must also look like sequence files
-        let Some(kind) = kind_of(&p, &args.kind) else {
+        // directories are filtered by extension; explicitly named files must also look like sequence files;
+        // standard input has no name: `--kind reads` says it is FASTQ/reads, anything else is an assembly (FASTQ is refused later)
+        let kind = if is_stdin(&p) {
+            if args.kind == "reads" {
+                "reads"
+            } else {
+                "assembly"
+            }
+        } else if let Some(k) = kind_of(&p, &args.kind) {
+            k
+        } else {
             continue;
         };
-        let id = strip_ext(
-            &p.file_name()
-                .map(|s| s.to_string_lossy().into_owned())
-                .unwrap_or_default(),
-        );
+        let id = if is_stdin(&p) {
+            "stdin".to_string()
+        } else {
+            strip_ext(
+                &p.file_name()
+                    .map(|s| s.to_string_lossy().into_owned())
+                    .unwrap_or_default(),
+            )
+        };
         if let Some(prev) = seen.insert(id.clone(), p.clone()) {
             bail!(
                 "two inputs would get the id '{id}': {} and {}; rename one",
@@ -291,6 +325,7 @@ fn discover(args: &RunArgs) -> Result<Vec<Input>> {
             id,
             kind,
             expected: None,
+            ref_id: None,
             explicit: false,
         });
     }
@@ -366,7 +401,8 @@ fn process(
     inp: &Input,
     a: &RunArgs,
     keep_hashes: bool,
-    ranges: &SizeRanges,
+    ctx: &RefContext,
+    excl: &HashSet<String>,
 ) -> (Value, Option<Vec<u64>>) {
     let size = input_size(inp);
     let path = inp.path.display().to_string();
@@ -381,8 +417,22 @@ fn process(
             size_bytes: size,
             kind: inp.kind,
         };
-        let (mut rec, hashes) = classify(ix, th, ranges, &item, sk, &st, min_abund, a.top)
+        let hidden = (!excl.is_empty() || a.exclude_level.is_some()).then(|| {
+            exclusion_mask(
+                ix,
+                excl,
+                a.exclude_level,
+                inp.ref_id.as_deref().or(Some(inp.id.as_str())),
+                inp.expected.as_deref(),
+            )
+        });
+        let skip = |g: u32| hidden.as_ref().is_some_and(|m| m[g as usize]);
+        let (mut rec, hashes) = classify(ix, th, ctx, &item, sk, &st, min_abund, a.top, &skip)
             .map_err(anyhow::Error::msg)?;
+        if let Some(m) = &hidden {
+            rec["excluded"] = json!({"level": a.exclude_level.map(|l| format!("{l:?}")),
+                                     "n_genomes": m.iter().filter(|x| **x).count()});
+        }
         if let Some(e) = &inp.expected {
             rec["expected"] = json!(e);
         }
@@ -496,7 +546,17 @@ pub fn run(args: RunArgs) -> Result<()> {
     let writer = Mutex::new(BufWriter::new(
         OpenOptions::new().append(true).open(&jsonl)?,
     ));
-    let ranges = size_ranges(&ix);
+    let ctx = RefContext::new(&ix);
+    let excl: HashSet<String> = match &args.exclude_ids {
+        Some(f) => fs::read_to_string(f)
+            .with_context(|| "reading the --exclude-ids file".to_string())?
+            .lines()
+            .map(str::trim)
+            .filter(|l| !l.is_empty() && !l.starts_with('#'))
+            .map(|l| l.split('\t').next().unwrap_or(l).to_string())
+            .collect(),
+        None => HashSet::new(),
+    };
     let counter = AtomicUsize::new(0);
     let t_work = Instant::now();
     let total = todo.len();
@@ -505,7 +565,7 @@ pub fn run(args: RunArgs) -> Result<()> {
     let fresh: Vec<(String, Value, Option<Vec<u64>>)> = todo
         .par_iter()
         .map(|inp| {
-            let (v, h) = process(&ix, &th, inp, &args, want_rel, &ranges);
+            let (v, h) = process(&ix, &th, inp, &args, want_rel, &ctx, &excl);
             {
                 let mut w = writer.lock().unwrap();
                 let _ = writeln!(w, "{v}");
@@ -589,6 +649,8 @@ pub fn run(args: RunArgs) -> Result<()> {
         "index": {"path": args.index.display().to_string(), "bytes": fs::metadata(&args.index).map(|m| m.len()).unwrap_or(0),
                   "k": ix.ksize, "scaled": ix.scaled, "seed": ix.seed, "n_genomes": ix.genomes.len(),
                   "manifest": ix.manifest.as_deref().and_then(|m| serde_json::from_str::<Value>(m).ok())},
+        "exclusion": {"ids_file": args.exclude_ids.as_ref().map(|p| p.display().to_string()), "n_ids": excl.len(),
+                      "level": args.exclude_level.map(|l| format!("{l:?}"))},
         "thresholds": {"name": th_name, "values": thresholds_json(&th), "reads_species_min_ani": READS_SPECIES_MIN_ANI},
         "status_counts": counts,
         "inputs": results.iter().map(|r| {

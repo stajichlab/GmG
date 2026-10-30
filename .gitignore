@@ -18,3 +18,4 @@ data/reads/fq/
 .pixi/
 crates/gmg-wasm/pkg-node/
 crates/gmg-wasm/pkg-web/
+.claude/worktrees/

@@ -20,6 +20,34 @@ pub use crate::fastx::SeqStats;
 /// Expected genome size range (Mb) of the called phylum, from the reference (`RefIndex::size_range_mb`), by phylum name.
 pub type SizeRanges = HashMap<String, Option<(f64, f64, String)>>;
 
+/// Per-reference facts used when classifying: expected genome size ranges, and the phyla that are not fungi
+/// (decoy genomes added to the reference, listed in the manifest as `non_fungal_phyla`).
+pub struct Context {
+    pub ranges: SizeRanges,
+    pub non_fungal: Vec<String>,
+}
+
+impl Context {
+    pub fn new(ix: &RefIndex) -> Context {
+        let non_fungal = ix
+            .manifest
+            .as_deref()
+            .and_then(|m| serde_json::from_str::<Value>(m).ok())
+            .and_then(|v| {
+                v["non_fungal_phyla"].as_array().map(|a| {
+                    a.iter()
+                        .filter_map(|x| x.as_str().map(String::from))
+                        .collect()
+                })
+            })
+            .unwrap_or_default();
+        Context {
+            ranges: size_ranges(ix),
+            non_fungal,
+        }
+    }
+}
+
 /// What identifies an input in its record.
 pub struct Item<'a> {
     pub id: &'a str,
@@ -30,18 +58,23 @@ pub struct Item<'a> {
     pub kind: &'a str,
 }
 
+/// Best-hit ANI to a non-fungal decoy at or above which an input is flagged `not_fungal` (the largest ANI of a real fungus to a
+/// decoy in the 1,257-genome post-freeze set plus IndigoAg was 0.881; non-fungal relatives of a decoy are well above 0.9).
+pub const NOT_FUNGAL_MIN_ANI: f64 = 0.90;
+
 /// Classify one sketched input. Returns the record (the line of `results.jsonl`) and the query hashes it was classified
 /// with, or a message when the input cannot be classified (too short, k/seed mismatch).
 #[allow(clippy::too_many_arguments)]
 pub fn classify(
     ix: &RefIndex,
     th: &Thresholds,
-    ranges: &SizeRanges,
+    ctx: &Context,
     item: &Item,
     sk: SketchFile,
     st: &SeqStats,
     min_abund: u32,
     top: usize,
+    skip: &dyn Fn(u32) -> bool,
 ) -> Result<(Value, Vec<u64>), String> {
     let reads = item.kind == "reads";
     if st.total_len == 0 {
@@ -65,7 +98,7 @@ pub fn classify(
     } else {
         th
     };
-    let g = guess(ix, &hashes, &|_| false, th);
+    let g = guess(ix, &hashes, skip, th);
     let mut gj = guess_json(ix, &g, item.path, top);
     gj["withheld"] = withheld_json(&g, th);
     let (best, status) = status_of(&g);
@@ -76,18 +109,37 @@ pub fn classify(
     } else {
         g.calls[0]
             .as_deref()
-            .and_then(|ph| ranges.get(ph))
+            .and_then(|ph| ctx.ranges.get(ph))
             .filter(|r| r.is_some())
-            .or_else(|| ranges.get(""))
+            .or_else(|| ctx.ranges.get(""))
             .and_then(|r| r.as_ref())
     };
-    let flags = qc_flags(
+    // the input is nearest to non-fungal decoys: its phylum call, or failing that its best hit, is one of the listed phyla.
+    // A real relative (ANI >= NOT_FUNGAL_MIN_ANI) says "not a fungus"; a distant best hit says nothing either way, because a
+    // divergent fungus and a divergent non-fungus both land on whichever decoy is nearest by chance (ANI 0.75-0.88).
+    let near_decoy = !ctx.non_fungal.is_empty()
+        && (g.calls[0]
+            .as_deref()
+            .is_some_and(|p| ctx.non_fungal.iter().any(|n| n == p))
+            || g.top.as_ref().is_some_and(|t| {
+                let ph = &ix.genomes[t.genome as usize].lineage[0];
+                ctx.non_fungal.iter().any(|n| n == ph)
+            }));
+    let top_ani = g.top.as_ref().map_or(0.0, |t| t.ani);
+    let not_fungal = near_decoy && top_ani >= NOT_FUNGAL_MIN_ANI;
+    let distant_decoy = near_decoy && !not_fungal;
+    let mut flags = qc_flags(
         item.kind,
         st,
         hashes.len(),
         gj.get("top").filter(|t| !t.is_null()),
         range.map(|r| (est_mb, r)),
     );
+    if not_fungal {
+        flags.push("not_fungal");
+    } else if distant_decoy {
+        flags.push("distant_non_fungal_hit");
+    }
     let mut qc = json!({"n_records": st.n_records, "total_bases": st.total_len, "n50": st.n50,
                "non_acgt_fraction": if st.total_len > 0 { st.non_acgt as f64 / st.total_len as f64 } else { 0.0 },
                "n_hashes": hashes.len(), "min_abund": min_abund});
@@ -471,4 +523,70 @@ pub fn relationships(k: u32, items: &[(String, String, Vec<u64>)]) -> Value {
         }
     }
     json!({"ids": items.iter().map(|t| t.0.clone()).collect::<Vec<_>>(), "labels": items.iter().map(|t| t.1.clone()).collect::<Vec<_>>(), "ani": m})
+}
+
+/// How much of the reference a query may not see (validation of queries that are themselves in the reference).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ExcludeLevel {
+    /// only the query's own reference genome
+    SelfOnly,
+    /// every reference genome of the query's species
+    Species,
+    /// every reference genome of the query's genus
+    Genus,
+}
+
+impl std::str::FromStr for ExcludeLevel {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, String> {
+        match s {
+            "self" => Ok(Self::SelfOnly),
+            "species" => Ok(Self::Species),
+            "genus" => Ok(Self::Genus),
+            _ => Err(format!(
+                "unknown exclusion level '{s}' (self, species or genus)"
+            )),
+        }
+    }
+}
+
+/// Reference genomes to hide from one query: the ids in `ids`, plus (when `level` is given) the query's own genome
+/// (`ref_id`), or every genome sharing its species or genus. The species/genus come from the reference genome `ref_id`
+/// when it is in the index, otherwise from `expected` ("Genus species" or a genus). Returns a flag per genome.
+pub fn exclusion_mask(
+    ix: &RefIndex,
+    ids: &std::collections::HashSet<String>,
+    level: Option<ExcludeLevel>,
+    ref_id: Option<&str>,
+    expected: Option<&str>,
+) -> Vec<bool> {
+    let mut mask: Vec<bool> = ix.genomes.iter().map(|g| ids.contains(&g.id)).collect();
+    let Some(level) = level else { return mask };
+    let own = ref_id.and_then(|r| ix.genomes.iter().position(|g| g.id == r));
+    if let Some(i) = own {
+        mask[i] = true;
+    }
+    if level == ExcludeLevel::SelfOnly {
+        return mask;
+    }
+    let rank = if level == ExcludeLevel::Species { 5 } else { 4 };
+    let target: Option<String> = match own {
+        Some(i) => Some(ix.genomes[i].lineage[rank].clone()).filter(|t| !t.is_empty()),
+        None => expected.map(|e| {
+            let e = e.trim();
+            if rank == 4 {
+                e.split_whitespace().next().unwrap_or(e).to_string()
+            } else {
+                e.to_string()
+            }
+        }),
+    };
+    if let Some(t) = target {
+        for (i, g) in ix.genomes.iter().enumerate() {
+            if g.lineage[rank] == t {
+                mask[i] = true;
+            }
+        }
+    }
+    mask
 }

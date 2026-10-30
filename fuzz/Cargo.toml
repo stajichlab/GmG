@@ -1,0 +1,36 @@
+[package]
+name = "gmg-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+gmg-core = { path = "../crates/gmg-core" }
+
+# not part of the main workspace: it needs nightly + cargo-fuzz (see fuzz/README.md)
+[workspace]
+
+[[bin]]
+name = "index"
+path = "fuzz_targets/index.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "sketch_file"
+path = "fuzz_targets/sketch_file.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fastx"
+path = "fuzz_targets/fastx.rs"
+test = false
+doc = false
+bench = false
