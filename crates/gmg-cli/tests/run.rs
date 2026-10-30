@@ -470,6 +470,36 @@ fn paired_and_lane_split_reads_equal_the_concatenated_file() {
         jl.contains("\"files\":[\"A_S1_L001_R1_001.fastq\""),
         "grouped sample lists its files"
     );
+    // the same holds with the abundance filter, because abundances are summed over the files of a sample: the default cutoff (2) and
+    // `auto` give the same hashes, the same coverage estimate and the same call for the merged sample and the concatenated file (#32)
+    for extra in [vec![], vec!["--min-abund", "auto"]] {
+        let outc = d.join(format!("out_cut{}", extra.join("")));
+        let mut args = vec![
+            "run",
+            inp.to_str().unwrap(),
+            "--index",
+            ix.to_str().unwrap(),
+            "-o",
+            outc.to_str().unwrap(),
+            "--no-report",
+        ];
+        args.extend_from_slice(&extra);
+        ok(&args);
+        let (hc, rc) = read_tsv(&outc.join("results.tsv"));
+        let find = |id: &str| rc.iter().find(|r| r[0] == id).unwrap().clone();
+        let (ca, cw) = (find("A_S1"), find("whole"));
+        for c in [
+            "status",
+            "call_species",
+            "n_hashes",
+            "shared",
+            "total_bases",
+            "coverage_est",
+        ] {
+            assert_eq!(ca[col(&hc, c)], cw[col(&hc, c)], "{c} with {extra:?}");
+        }
+        assert!(!ca[col(&hc, "coverage_est")].is_empty(), "{extra:?}");
+    }
 
     // --no-group keeps the five files separate; --list reads paths from a file
     let list = d.join("list.txt");
@@ -1467,4 +1497,128 @@ fn weak_phylum_flags_a_phylum_called_from_a_distant_assembly() {
         dist[col(&h, "qc_flags")],
         dist[col(&h, "ani")]
     );
+}
+
+/// Error-bearing single-end reads of length `len` at coverage `cov` from `g` (positions and errors from `rng`), as FASTQ text.
+fn fastq_reads(rng: &mut Rng, g: &[u8], cov: f64, len: usize, err_per_thousand: u64) -> String {
+    let n = (cov * g.len() as f64 / len as f64).round() as usize;
+    let mut out = String::new();
+    for i in 0..n {
+        let start = (rng.next() as usize) % (g.len() - len);
+        let read = rng.mutate(&g[start..start + len], err_per_thousand);
+        out.push_str(&format!(
+            "@r{i}\n{}\n+\n{}\n",
+            String::from_utf8(read).unwrap(),
+            "I".repeat(len)
+        ));
+    }
+    out
+}
+
+#[test]
+fn coverage_is_estimated_from_the_abundance_histogram_and_auto_cutoff_runs() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, mut rng) = build_reference(d);
+    let g = &genomes[2];
+    let inp = d.join("reads");
+    fs::create_dir_all(&inp).unwrap();
+    let covs = [0.5f64, 2.0, 8.0, 30.0];
+    for c in covs {
+        // 0.5% substitution errors, 150 bp reads
+        fs::write(
+            inp.join(format!("c{c}.fastq")),
+            fastq_reads(&mut rng, g, c, 150, 5),
+        )
+        .unwrap();
+    }
+    let out = d.join("out");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+        "-q",
+        "--no-report",
+    ]);
+    let (h, rows) = read_tsv(&out.join("results.tsv"));
+    let mut seen = vec![];
+    for c in covs {
+        let r = rows.iter().find(|r| r[0] == format!("c{c}")).unwrap();
+        let est: f64 = r[col(&h, "coverage_est")]
+            .parse()
+            .expect("a coverage estimate");
+        seen.push((c, est));
+        // the estimate follows the truth within 30% (errors, repeated k-mers and small histograms are noise)
+        assert!((est - c).abs() <= 0.3 * c, "true {c}x, estimated {est}x");
+    }
+    let line = fs::read_to_string(out.join("results.jsonl")).unwrap();
+    assert!(
+        line.contains("\"coverage_basis\":\"peak\"")
+            && line.contains("\"coverage_basis\":\"poisson\""),
+        "{seen:?}"
+    );
+    // --min-abund auto: runs for reads and assemblies, records the cutoff it used, and keeps the call at depth
+    let asm = d.join("asm");
+    fs::create_dir_all(&asm).unwrap();
+    fs::write(asm.join("g.fa"), fasta("g", g)).unwrap();
+    for (dir_in, kind) in [(&inp, "reads"), (&asm, "assembly")] {
+        let o = d.join(format!("auto_{kind}"));
+        ok(&[
+            "run",
+            dir_in.to_str().unwrap(),
+            "--index",
+            ix.to_str().unwrap(),
+            "-o",
+            o.to_str().unwrap(),
+            "-q",
+            "--no-report",
+            "--min-abund",
+            "auto",
+        ]);
+        let (h2, r2) = read_tsv(&o.join("results.tsv"));
+        assert!(
+            r2.iter().all(|r| r[col(&h2, "status")] != "error"),
+            "{kind}"
+        );
+    }
+    let (h3, r3) = read_tsv(&d.join("auto_reads").join("results.tsv"));
+    let deep = r3.iter().find(|r| r[0] == "c30").unwrap();
+    assert_eq!(deep[col(&h3, "call_species")], "Fusarium gamma");
+    let rec: serde_json::Value = serde_json::from_str(
+        fs::read_to_string(d.join("auto_reads").join("results.jsonl"))
+            .unwrap()
+            .lines()
+            .find(|l| l.contains("\"c30\""))
+            .unwrap(),
+    )
+    .unwrap();
+    let used = rec["qc"]["min_abund"].as_u64().unwrap();
+    assert!((2..=10).contains(&used), "auto cutoff at 30x: {used}");
+    // guess takes it too
+    let o = ok(&[
+        "guess",
+        "--index",
+        ix.to_str().unwrap(),
+        "--min-abund",
+        "auto",
+        "--format",
+        "json",
+        inp.join("c30.fastq").to_str().unwrap(),
+    ]);
+    let j: serde_json::Value = serde_json::from_slice(&o.stdout).unwrap();
+    assert_eq!(j["calls"]["species"]["taxon"], "Fusarium gamma");
+    // a bad value is refused
+    assert!(!gmg(&[
+        "guess",
+        "--index",
+        ix.to_str().unwrap(),
+        "--min-abund",
+        "many",
+        inp.join("c30.fastq").to_str().unwrap()
+    ])
+    .status
+    .success());
 }

@@ -9,6 +9,7 @@
 mod call;
 #[cfg(feature = "json")]
 pub mod classify;
+pub mod coverage;
 mod fastx;
 mod index;
 #[cfg(feature = "json")]

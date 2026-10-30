@@ -43,7 +43,8 @@ Empty cell = not applicable / not called. TSV cells never contain tabs or newlin
 | `withheld` | why the first uncalled rank was not called, e.g. `genus: ani_below_cutoff (ANI 0.8870 < 0.9000)`; codes: `no_hits`, `too_few_shared_hashes`, `ani_below_cutoff`, `low_agreement`; blank when a species was called |
 | `expected` | the label from the sample sheet, if one was given |
 | `expected_match` | `yes` if `expected` equals the call at some rank (case-insensitive), `no` if not, blank without an `expected` |
-| `schema_version` | 6 |
+| `coverage_est` | reads only: estimated genome coverage of the sketched reads (see `qc.coverage_est`), blank otherwise |
+| `schema_version` | 7 |
 
 ### Thresholds
 
@@ -80,7 +81,11 @@ Read files of one sample are merged into one input and one row: files in the sam
 `gmg guess --format json|tsv|table` prints one JSON object (keys `query, status, best_rank, calls, withheld, tentative_genus, top, hits`), a TSV (header, then one row per query: status, best_rank, the six calls, tentative_genus, withheld, top hit, ANI) or one readable line per query. `-q/--quiet` removes progress and summary lines, `-v/--verbose` adds the withheld reason per input; exit codes are in `gmg --help` (0 finished, 1 could not run, 2 usage).
 `qc.phylum_split`: up to three `{phylum, hashes}` entries, the query hashes found only in genomes of that phylum (informational; it is too noisy to flag mixtures, see `reports/validation/stress_tests.md`);
 `qc.abundance_hist` (reads only): `{counts: [seen 1..12 times], over12, min_abund, median_kept}`, the hashes of a read set by how often they were seen;
-`median_kept` estimates k-mer coverage.
+`median_kept` is the median abundance of the hashes kept (a crude coverage figure);
+`qc.coverage_est` (reads only; number or absent) is the estimated **genome coverage of the reads that were sketched** (so it follows `--max-reads`), and `qc.coverage_basis` says how it was found:
+`peak` (the histogram has an error tail, a valley and a peak: the coverage is the mode of the peak) or `poisson` (no peak, coverage below about 3x: the ratio of the numbers of hashes seen 3 and 2 times, else 2 and 1 times, of a Poisson distribution).
+The k-mer coverage is converted with the mean read length `L`: `coverage = lambda * L / (L - k + 1)`. No estimate when fewer than 30 hashes are kept or too few were seen twice. For RNA-seq it is only the dominant k-mer abundance, and a heterozygous genome can show a second peak at twice the coverage (the lowest strong peak is reported). Accuracy on simulated and real reads: `reports/validation/reads_calibration.md`.
+`--min-abund auto` (reads; also `gmg guess`): the abundance cutoff is taken from the valley of the histogram (the position of the valley, at least 2; 2 when there is no peak) instead of the fixed 2; `qc.abundance_hist.min_abund` records the cutoff used. See `reports/validation/reads_calibration.md` for when it helps and which cutoff is the default.
 
 ### Leaving the query out of the reference (validation)
 
