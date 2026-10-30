@@ -72,6 +72,7 @@ def cause(o, n):
 
 md = ["# Release stability (#48)\n", f"Releases compared: {', '.join(order)}. Same binary and thresholds for all runs (`known`).\n"]
 trigger = []
+notes = []
 for name in sorted(res):
     vs = [v for v in order if v in res[name]]
     md.append(f"## {name}\n")
@@ -113,6 +114,25 @@ for name in sorted(res):
                 cells.append(f"{k / c:.3f} ({c / n:.2f})" if c else "-")
             md.append(f"| {v} | " + " | ".join(cells) + " |")
         md.append("")
+        # `weak_phylum` (#99): a phylum called from a best-hit ANI < 0.85 (assemblies). Derived from the columns, so that releases run
+        # with an older binary can be compared: the flag is kept on the call, this only reports how much of the phylum precision it carries.
+        md.append("Phylum calls with a best-hit ANI below 0.85 (`weak_phylum`, kept as calls and flagged): share of the phylum calls, and phylum precision of the calls without and with the flag:\n")
+        md.append("| release | weak share | precision without | precision with (weak only) |")
+        md.append("|---|---|---|---|")
+        weak = {}
+        for v in vs:
+            t = [(r, truth[q]) for q, r in res[name][v].items() if q in truth and r["status"] != "error" and truth[q].get("phylum") and r["call_phylum"]]
+            isweak = lambda r: r.get("kind", "assembly") != "reads" and r.get("ani", "") != "" and float(r["ani"]) < 0.85
+            w = [(r, g) for r, g in t if isweak(r)]
+            s = [(r, g) for r, g in t if not isweak(r)]
+            pw = sum(1 for r, g in w if r["call_phylum"] == g["phylum"])
+            ps = sum(1 for r, g in s if r["call_phylum"] == g["phylum"])
+            weak[v] = len(w) / len(t) if t else 0.0
+            md.append(f"| {v} | {len(w)} of {len(t)} ({100 * weak[v]:.1f}%) | {ps / len(s):.3f} ({len(s)}) | " + (f"{pw / len(w):.3f} ({len(w)})" if w else "-") + " |")
+        md.append("")
+        for v0, v1 in zip(vs, vs[1:]):
+            if abs(weak[v1] - weak[v0]) > 0.05:
+                trigger.append(f"{name} {v0}->{v1}: the share of weak_phylum calls moved by more than 5 points ({100 * weak[v0]:.1f}% -> {100 * weak[v1]:.1f}%)")
         for v0, v1 in zip(vs, vs[1:]):
             for r in RANKS:
                 n0, c0, k0 = stats[(v0, r)]
@@ -125,10 +145,17 @@ for name in sorted(res):
     for v0, v1 in zip(vs, vs[1:]):
         A, B = res[name][v0], res[name][v1]
         okc = [q for q in A if q in B and A[q]["status"] == "ok" and B[q]["status"] == "ok"]
-        ch = sum(1 for q in okc if A[q]["call_genus"] != B[q]["call_genus"])
+        changed = [q for q in okc if A[q]["call_genus"] != B[q]["call_genus"]]
+        explained = ("old top hit excluded from the reference", "same top hit, new label (taxonomy update)")
+        ch = sum(1 for q in changed if cause(A[q], B[q]) not in explained)
+        notes.append(f"{name} {v0}->{v1}: {len(changed)} of {len(okc)} confident genus calls changed, {len(changed) - ch} of them explained "
+                     f"(a deliberately excluded top hit or a label update), {ch} unexplained")
         if okc and ch / len(okc) > 0.02:
-            trigger.append(f"{name} {v0}->{v1}: {ch} of {len(okc)} confident genus calls changed ({100 * ch / len(okc):.1f}% > 2%)")
+            trigger.append(f"{name} {v0}->{v1}: {ch} of {len(okc)} confident genus calls changed for no documented reason ({100 * ch / len(okc):.1f}% > 2%)")
 md.append("## Re-calibration trigger\n")
+md.append("Churn of confident genus calls (rule 3 counts only the unexplained ones):\n")
+md += [f"* {n}" for n in notes]
+md.append("")
 if trigger:
     md.append("TRIGGER: " + "; ".join(trigger) + "\n")
 else:

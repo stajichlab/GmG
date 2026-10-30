@@ -27,13 +27,9 @@ python3 $GMG_REPO/scripts/normalize_taxonomy.py $I/meta.tsv $TD meta_full.tsv --
   --report taxonomy_normalization.md --taxdump-label "new_taxdump md5 $MD5"
 # genomes with ambiguous labels are not in the reference (reports/label_audit/reference_exclusions.txt: the 43 of the label audit and 14
 # more found by the truth-set run, #39): drop them from the metadata table before anything is built (their sketches stay in the store)
-python3 - <<PY
-ex = {l.strip() for l in open("$GMG_REPO/reports/label_audit/reference_exclusions.txt") if l.strip()}
-rows = [l for l in open("meta_full.tsv")]
-keep = [rows[0]] + [l for l in rows[1:] if l.split("\t")[0] not in ex]
-open("meta_full.tsv", "w").write("".join(keep))
-print("excluded", len(rows) - len(keep), "of", len(ex), "listed genomes from the reference")
-PY
+# A removed genome can be a cluster centroid (15 of the 57 were): reseed_clusters.py gives such a cluster a new centroid (the first remaining
+# member in the BFD priority order) so that `cluster` never names a genome that is not in the index (#47, reports/validation/clusters_vs_skani.md).
+python3 $GMG_REPO/scripts/reseed_clusters.py meta_full.tsv meta_full.excl.tsv $GMG_REPO/reports/label_audit/reference_exclusions.txt $I/reps.order.txt && mv meta_full.excl.tsv meta_full.tsv
 # non-fungal decoys (#79): data/decoys/decoys.tsv, sketched by 17_decoys.sbatch; same normalization, appended to the table
 python3 $GMG_REPO/scripts/normalize_taxonomy.py $GMG_REPO/data/decoys/decoys.tsv $TD meta_decoys.tsv --taxdump-label "new_taxdump md5 $MD5"
 # decoys whose lineage has no phylum rank (Opisthokonta/SAR/etc. protists) get a placeholder so the not_fungal flag can match them

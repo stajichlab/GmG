@@ -140,7 +140,14 @@ def score(a):
                 if x < y and v >= IDENT:
                     hits.append((x, y, v))
             n_pairs = len(ids) * (len(ids) - 1) // 2
-            centroid_rows.append((m["genus"], len(ids), n_pairs, hits))
+
+            def ratio(x, y):
+                a, b = int(meta[x]["n_hashes"]), int(meta[y]["n_hashes"])
+                return max(a, b) / max(1, min(a, b))
+            allr = sorted(ratio(x, y) for i, x in enumerate(ids) for y in ids[i + 1:])
+            hr = sorted(ratio(x, y) for x, y, v in hits)
+            centroid_rows.append((m["genus"], len(ids), n_pairs, hits, statistics.median(allr) if allr else float("nan"),
+                                  statistics.median(hr) if hr else float("nan")))
             continue
         cl = meta[ids[0]]["cluster"]
         n = len(ids)
@@ -148,12 +155,15 @@ def score(a):
         for x in ids[1:]:
             g = float(meta[x]["ani_to_centroid"])
             s = e.get((ids[0], x))
-            pairs_all.append((g, s))
+            if m["kind"] == "stratified":
+                pairs_all.append((g, s))
             tot_c += 1
             below_c += (s is None or s < IDENT)
         pw = [(e.get((x, y)) or 0.0) for i, x in enumerate(ids) for y in ids[i + 1:]]
         below = sum(1 for v in pw if v < IDENT)
-        per_cluster.append(dict(kind=m["kind"], name=m["name"], genus=m["genus"], cluster=cl, n=n, centroid_below=below_c,
+        nh = sorted(int(meta[i]["n_hashes"]) for i in ids[1:])
+        size_ratio = int(meta[ids[0]]["n_hashes"]) / nh[len(nh) // 2] if nh and nh[len(nh) // 2] else float("nan")
+        per_cluster.append(dict(size_ratio=size_ratio, kind=m["kind"], name=m["name"], genus=m["genus"], cluster=cl, n=n, centroid_below=below_c,
                                 centroid_total=tot_c, pairs=len(pw), pairs_below=below, min_pair=min(pw) if pw else None,
                                 species=len({meta[i]["species"] for i in ids}), species_labels="; ".join(sorted({meta[i]["species"] for i in ids})[:6])))
     # 1. members vs centroid
@@ -182,9 +192,9 @@ def score(a):
     if cx:
         md.append("## 2. Chaining inside the largest clusters of species-complex genera\n\nAll pairs of up to 60 members (centroid included). "
                   "`pairs < 95%` counts member pairs that skani puts below 95% although both are within 95% (gmg) of the centroid.\n")
-        md.append("| genus | cluster (centroid) | size in index | members tested | member-centroid < 95% | pairs < 95% | min pair ANI | species labels |\n|---|---|---|---|---|---|---|---|")
+        md.append("| genus | cluster (centroid) | size in index | members tested | member-centroid < 95% | pairs < 95% | min pair ANI (0 = not reported) | centroid size / median member | species labels |\n|---|---|---|---|---|---|---|---|---|")
         for c in sorted(cx, key=lambda c: (c["genus"], -c["n"])):
-            minp = "-" if c["min_pair"] is None else "%.3f" % c["min_pair"]
+            minp = ("-" if c["min_pair"] is None else "%.3f" % c["min_pair"]) + f" | {c['size_ratio']:.2f}"
             md.append(f"| {c['genus']} | {c['cluster'][:34]} | {len(by[c['cluster']])} | {c['n']} | {c['centroid_below']}/{c['centroid_total']} | "
                       f"{c['pairs_below']}/{c['pairs']} ({pct(c['pairs_below'] / c['pairs'] if c['pairs'] else None)}) | "
                       f"{minp} | {c['species']}: {c['species_labels'][:90]} |")
@@ -193,10 +203,10 @@ def score(a):
     if centroid_rows:
         md.append("## 3. Do separate clusters of one genus merge at 95% under skani?\n\nAll centroid pairs of the clusters of a genus (up to 150 centroids). "
                   "gmg's greedy clustering keeps centroids below 95% containment ANI of each other; skani may disagree.\n")
-        md.append("| genus | centroids | pairs | skani ANI >= 95% | >= 97% | example (ANI) |\n|---|---|---|---|---|---|")
-        for g, n, npairs, hits in centroid_rows:
+        md.append("| genus | centroids | pairs | skani ANI >= 95% | >= 97% | size ratio of those pairs (median, larger/smaller n_hashes) | same for all pairs | example (ANI) |\n|---|---|---|---|---|---|---|---|")
+        for g, n, npairs, hits, r_all, r_hit in centroid_rows:
             ex = "; ".join(f"{meta[x]['species']} / {meta[y]['species']} ({v:.3f})" for x, y, v in sorted(hits, key=lambda t: -t[2])[:2])
-            md.append(f"| {g} | {n} | {npairs} | {len(hits)} | {sum(1 for h in hits if h[2] >= 0.97)} | {ex[:110]} |")
+            md.append(f"| {g} | {n} | {npairs} | {len(hits)} | {sum(1 for h in hits if h[2] >= 0.97)} | {'-' if r_hit != r_hit else '%.2f' % r_hit} | {r_all:.2f} | {ex[:110]} |")
         md.append("")
     with open(f"{a.out}/summary.tsv", "w") as f:
         w = csv.writer(f, delimiter="\t")
