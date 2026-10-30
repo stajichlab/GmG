@@ -1,0 +1,52 @@
+id	rank	call	category	decision
+GCF_000149585.1	species	Histoplasma capsulatum	species_complex	H. mississippiense (NAm2 lineage, recognised 2021) is not separable from H. capsulatum by ANI 0.999; the reference neighbour carries the older name
+GCF_000365145.1	class	Dothideomycetes	tool_error	Chaetothyriales (Eurotiomycetes) genome whose nearest reference genome is a Pseudocercospora at ANI 0.76; low_confidence, the vote lands on the nearest sampled class
+GCF_000365145.1	order	Mycosphaerellales	tool_error	same input and cause as the class row
+GCF_000516985.1	genus	Pseudopestalotiopsis	reference_label_error	ANI 0.991 is conspecific: one genome is in the wrong genus. The RefSeq side is a reference genome; the index genome GCA_028028555.1 is the probable error (report upstream, #14)
+GCF_000711695.1	order	Tilletiales	tool_error	Georgefischeriales (Tilletiaria) with ANI 0.75 to the nearest genome; low_confidence; class and phylum are correct
+GCF_000721765.1	species	Aureobasidium sp. EXF-3399	reference_label_error	ANI 1.0000 to a genome whose label is only a strain designation: the species is right in substance, the label unresolved
+GCF_001299255.1	class	Sordariomycetes	tool_error	Eurotiomycetes genome, nearest reference a Diaporthe at ANI 0.74; low_confidence
+GCF_001636725.1	family	Nectriaceae	reference_label_error	ANI 0.991 between a Cordyceps (Cordycipitaceae) and 'Neonectria sp. MB3469' is impossible for two families: the reference genome GCA_051527695.1 is mislabelled or contaminated
+GCF_001636725.1	genus	Neonectria	reference_label_error	same genome pair as the family row
+GCF_001642475.1	species	Fonsecaea pedrosoi	species_complex	F. monophora / F. pedrosoi / F. nubica are a closely related clade; ANI 0.996 is above the species cutoff
+GCF_011074885.1	class	Saccharomycetes	reference_label_error	the reference neighbour is 'Saccharomycetes sp.' (an uninformative label on the hub list); Pichiomycetes is the newer NCBI class
+GCF_016861865.1	species	Aspergillus sp. MA 6037	reference_label_error	provisional strain label of a conspecific genome (ANI 0.995)
+GCF_019456465.1	phylum	Neocallimastigomycota	tool_error	Bacidia (lichen, Lecanoromycetes): ANI 0.82 to the nearest genome (a tunicate decoy); the phylum vote is spurious; flagged distant_non_fungal_hit and low_confidence
+GCF_019456465.1	class	Neocallimastigomycetes	tool_error	same input as the phylum row
+GCF_019456465.1	order	Neocallimastigales	tool_error	same input as the phylum row
+GCF_022376455.1	family	Polyporaceae	tool_error	Epitheliaceae with the nearest reference at ANI 0.78 (a Sanguinoderma); low_confidence; order and above correct
+GCF_028827665.1	species	Penicillium sp. M1327	reference_label_error	provisional strain label of a conspecific genome (ANI 0.997)
+GCF_028828045.1	species	Penicillium sp. C7(2024)	reference_label_error	provisional strain label of a conspecific genome (ANI 0.997)
+GCF_029851405.1	species	Lichtheimia sp. PT1902	reference_label_error	provisional strain label of a conspecific genome (ANI 0.996)
+GCF_033296635.1	genus	Chaetomium	taxonomy_synonym	Dichotomopilus was split from Chaetomium in 2016; the reference neighbour is 'Chaetomium sp.'
+GCF_033297395.1	species	Canariomyces subthermophilus	species_complex	ANI 0.995: sister species of one genus, above the species cutoff
+GCF_036327395.1	species	Knufia fluminis	species_complex	ANI 0.996: sister species, above the species cutoff
+GCF_036417295.1	species	Cryptococcus gattii	species_complex	C. decagattii (VGIV) is one of the C. gattii species complex; ANI 0.995
+GCF_036884685.1	species	Scheffersomyces shehatae	species_complex	ANI 0.996: sister species, above the species cutoff
+GCF_038497915.1	species	Lipomyces arxii	species_complex	ANI 0.9997: L. doorenjongii and L. arxii are probably one species; an expert should decide
+GCF_050370095.1	species	Fusarium sp. Ph1	reference_label_error	provisional strain label of a conspecific genome (ANI 0.997)
+GCF_000146945.2	genus	Ciboria	reference_label_error	ANI 0.997 between Sclerotinia sclerotiorum (RefSeq reference) and 'Ciboria shiraiana': a congener cannot be in another genus at this ANI; the index genome GCA_008122225.1 is the probable error
+GCF_000146945.2	species	Ciboria shiraiana	reference_label_error	same genome pair as the genus row
+GCF_000182765.1	family	Metschnikowiaceae	reference_label_error	ANI 0.9985 between Candida parapsilosis CDC317 (RefSeq reference) and 'Candidozyma auris' GCA_049307545.1: C. auris is about 0.8 from C. parapsilosis, so the index genome is mislabelled
+GCF_000182765.1	genus	Candidozyma	reference_label_error	same genome pair as the family row
+GCF_000182765.1	species	Candidozyma auris	reference_label_error	same genome pair as the family row
+GCF_000400465.1	phylum	Glomeromycota	tool_error	Wallemia (Wallemiomycetes, Basidiomycota) with ANI 0.78 to a Gigaspora; the short_genome flag follows from the wrong phylum range; low_confidence
+GCF_000400465.1	class	Glomeromycetes	tool_error	same input as the phylum row
+GCF_000417875.1	order	Urocystidales	tool_error	Ustilaginaceae query, nearest reference Thecaphora thlaspeos (Glomosporiaceae) at ANI 0.83; low_confidence
+GCF_000417875.1	family	Glomosporiaceae	tool_error	same input as the order row
+GCF_000464535.1	genus	Willeya	tool_error	Endocarpon pusillum: with its own genus absent, a genus is called at ANI 0.902, barely above the genus cutoff, from a MAG-derived reference (a metabat2 bin); a confident overcall
+GCF_001447935.2	species	Debaryomyces hansenii	species_complex	D. fabryi and D. hansenii are one species in several treatments (ANI 0.9998)
+GCF_003054445.1	order	Serinales	tool_error	Pichiaceae query, nearest genus Hyphopichia (Debaryomycetaceae) at ANI 0.87; low_confidence
+GCF_003054445.1	family	Debaryomycetaceae	tool_error	same input as the order row
+GCF_010093885.1	family	Botryosphaeriaceae	tool_error	Aplosporellaceae query with a Botryosphaeriaceae neighbour at ANI 0.79; low_confidence; the families are neighbours
+GCF_020536065.1	class	Saccharomycetes	tool_error	Pichiomycetes query, nearest genome Nakaseomyces at ANI 0.83; low_confidence; the class split (Pichiomycetes) is recent in NCBI
+GCF_020536065.1	order	Saccharomycetales	tool_error	same input as the class row
+GCF_020536065.1	family	Saccharomycetaceae	tool_error	same input as the class row
+GCF_022702325.1	family	Dermateaceae	taxonomy_synonym	Marssonina is the asexual-state genus of Drepanopeziza; NCBI places the two in different families
+GCF_022702325.1	genus	Marssonina	taxonomy_synonym	Marssonina is the asexual-state genus of Drepanopeziza
+GCF_022829205.1	family	Sporocadaceae	tool_error	Apiosporaceae query, nearest genome Neopestalotiopsis at ANI 0.78; low_confidence
+GCF_026210795.1	genus	Oehlia	taxonomy_synonym	Oehlia diaphana = Rhizophagus diaphanus in several treatments
+GCF_010111755.1	genus	Candida	reference_label_error	ANI 0.9485 between Nakaseomyces (Saccharomycetaceae) and 'Candida tropicalis' (Serinales) is impossible for two orders: the hub genome GCA_057383725.1 is mislabelled
+GCF_010111755.1	family	Debaryomycetaceae	reference_label_error	same genome pair as the genus row
+GCF_010111755.1	order	Serinales	reference_label_error	same genome pair as the genus row
+GCF_010111755.1	class	Pichiomycetes	reference_label_error	same genome pair as the genus row

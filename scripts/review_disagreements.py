@@ -4,7 +4,7 @@
 usage: review_disagreements.py DATASET RESULTS.tsv[,RESULTS.tsv...] TRUTH.tsv TRUTH_BFDLABEL.tsv|- INDEX_META.tsv TAXDUMP_DIR AUDIT_DIR OUT.tsv
                                [--reviews REVIEWS.tsv] [--excluded-rank species|genus]
 A disagreement is a CALL that differs from the truth at a rank where the truth is known; a withheld rank is not one.
-Draft categories are rule-based (the table says which rule fired); REVIEWS.tsv (dataset, id, rank, category, decision) holds the
+Draft categories are rule-based (the table says which rule fired); REVIEWS.tsv (id, rank, call, category, decision) holds the
 manual verdicts and overrides the draft. Categories: tool_error, reference_label_error, truth_label_error, species_complex,
 taxonomy_synonym, contamination, low_quality_input. Columns of OUT: dataset id rank truth call category evidence decision date
 plus the numbers behind them (status, ani, top hit, BFD label of the query, audit lists, quality).
@@ -37,7 +37,25 @@ for name in ("exclude_ids.txt", "loo_suspects.tsv", "hub_references.tsv", "size_
 reviews = {}
 if "--reviews" in opt and os.path.exists(opt["--reviews"]):
     for r in rd(opt["--reviews"]):
-        reviews[(r["dataset"], r["id"], r["rank"])] = r
+        reviews[(r["id"], r["rank"], r["call"])] = r
+
+
+# genus pairs that name one lineage under two generic names: the sexual (teleomorph) and asexual (anamorph) name of the same fungus,
+# or an old genus and the genera later split out of it. Reviewed by hand (#39); NCBI taxonomy keeps both names as separate genera.
+GENUS_PAIRS = {frozenset(p): why for p, why in [
+    (("Aspergillus", "Neosartorya"), "Neosartorya is the sexual-state genus of Aspergillus section Fumigati"),
+    (("Aspergillus", "Eurotium"), "Eurotium is the sexual-state genus of Aspergillus section Aspergillus"),
+    (("Aspergillus", "Emericella"), "Emericella is the sexual-state genus of Aspergillus section Nidulantes"),
+    (("Botrytis", "Botryotinia"), "Botryotinia is the sexual-state genus of Botrytis"),
+    (("Diaporthe", "Phomopsis"), "Phomopsis is the asexual-state genus of Diaporthe"),
+    (("Apiospora", "Arthrinium"), "Apiospora was separated from Arthrinium; names used interchangeably in the literature"),
+    (("Drepanopeziza", "Marssonina"), "Marssonina is the asexual-state genus of Drepanopeziza"),
+    (("Ceratocystis", "Huntiella"), "Huntiella was split from Ceratocystis in 2014"),
+    (("Rhizophagus", "Oehlia"), "Oehlia diaphana = Rhizophagus diaphanus in several treatments"),
+    (("Dichotomopilus", "Chaetomium"), "Dichotomopilus was split from Chaetomium in 2016"),
+    (("Fusarium", "Neocosmospora"), "Neocosmospora (Fusarium solani species complex) is treated as part of Fusarium by most authors"),
+    (("Colletotrichum", "Glomerella"), "Glomerella is the sexual-state genus of Colletotrichum"),
+]}
 
 
 def synonym(a, b):
@@ -64,21 +82,33 @@ for r in res:
         nh = int(r["n_hashes"]) if r.get("n_hashes", "").isdigit() else 0
         topmeta = meta.get(top, {})
         why = []
+        try:
+            ani = float(r.get("ani") or 0)
+        except ValueError:
+            ani = 0.0
+        pair = frozenset((t["genus"], r["call_genus"]))
         if synonym(tv, cv):
             cat, why = "taxonomy_synonym", [f"'{tv}' and '{cv}' share an NCBI taxid"]
-        elif n50 < 10000 or nh < 1000 or any(f in flags for f in ("fragmented", "short_genome", "few_hashes")):
+        elif pair in GENUS_PAIRS:
+            cat, why = "taxonomy_synonym", [f"{t['genus']} / {r['call_genus']}: {GENUS_PAIRS[pair]} (NCBI keeps both genera)"]
+        elif n50 < 10000 or any(f in flags for f in ("fragmented", "few_hashes")):
             cat, why = "low_quality_input", [f"n50 {n50}, {nh} hashes, flags {flags or '-'}"]
-        elif rank == "species" and t["genus"] == r["call_genus"] and r["call_genus"]:
-            cat, why = "species_complex", [f"same genus {t['genus']}; ANI {r.get('ani', '')}; confusable congeners"]
+        elif rank == "species" and " sp." in cv:
+            cat, why = "reference_label_error", [f"the call is a provisional label ('{cv}') of a genome at ANI {ani:.4f}: an unresolved, not an incorrect, label"]
+        elif (rank != "species" or r["call_genus"] != t["genus"]) and ani >= 0.95:
+            cat, why = "reference_label_error", [f"ANI {ani:.4f} to {top} ('{topmeta.get('species', '')}') although the {rank} differs "
+                                                 f"(RefSeq: {tv}; call: {cv}): one of the two labels is wrong, the other side is {t.get('evidence', 'RefSeq')}"]
         elif audit_hits(top) and cv == topmeta.get(rank, ""):
             cat, why = "reference_label_error", [f"top hit {top} is on the label-audit list ({audit_hits(top)})"]
+        elif rank == "species" and t["genus"] == r["call_genus"] and r["call_genus"] and ani >= 0.99:
+            cat, why = "species_complex", [f"same genus {t['genus']}; ANI {ani:.4f} (above the species cutoff): species not separable by a sketch"]
         elif own and own.get(rank) == cv and own.get(rank) != tv:
             cat, why = "truth_label_error", [f"the index label of this genome ({own.get(rank)}) agrees with the call, NCBI RefSeq says {tv}"]
         else:
             cat = "tool_error"
             if opt.get("--excluded-rank") == rank:
                 why = [f"call at the excluded rank ({rank}) the reference cannot hold (overcall)"]
-        rv = reviews.get((dataset, r["query_id"], rank))
+        rv = reviews.get((r["query_id"], rank, cv))
         rows.append(dict(
             dataset=dataset, id=r["query_id"], rank=rank, truth=tv, call=cv,
             category=rv["category"] if rv else cat, auto_category=cat,
