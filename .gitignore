@@ -19,3 +19,4 @@ data/reads/fq/
 crates/gmg-wasm/pkg-node/
 crates/gmg-wasm/pkg-web/
 .claude/worktrees/
+*pyc
