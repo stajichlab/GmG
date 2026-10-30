@@ -9,7 +9,7 @@ use pyo3::exceptions::{PyIOError, PyValueError};
 use pyo3::prelude::*;
 use std::io::Read;
 
-fn to_py(py: Python<'_>, json_text: &str) -> PyResult<PyObject> {
+fn to_py(py: Python<'_>, json_text: &str) -> PyResult<Py<PyAny>> {
     Ok(py
         .import("json")?
         .call_method1("loads", (json_text,))?
@@ -98,7 +98,7 @@ impl Index {
     }
 
     /// The manifest of the index as a dict (None for indexes built before manifests).
-    fn manifest(&self, py: Python<'_>) -> PyResult<PyObject> {
+    fn manifest(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
         match &self.ix.manifest {
             Some(m) => to_py(py, m),
             None => Ok(py.None()),
@@ -120,7 +120,7 @@ impl Index {
 
     /// The JSON of `gmg guess` (as a dict) from hashes made with `sketch`.
     #[pyo3(signature = (hashes, top=5))]
-    fn guess_hashes(&self, py: Python<'_>, hashes: Vec<u64>, top: usize) -> PyResult<PyObject> {
+    fn guess_hashes(&self, py: Python<'_>, hashes: Vec<u64>, top: usize) -> PyResult<Py<PyAny>> {
         let mut h = hashes;
         h.sort_unstable();
         h.dedup();
@@ -143,7 +143,7 @@ impl Index {
         max_records: u64,
         top: usize,
         id: Option<&str>,
-    ) -> PyResult<PyObject> {
+    ) -> PyResult<Py<PyAny>> {
         let bytes = read_maybe_gz(path)?;
         let name = std::path::Path::new(path)
             .file_name()
@@ -169,7 +169,7 @@ impl Index {
         min_abund: u32,
         max_records: u64,
         top: usize,
-    ) -> PyResult<PyObject> {
+    ) -> PyResult<Py<PyAny>> {
         let rec = self.classify_bytes(name, name, data, kind, min_abund, max_records, top);
         to_py(py, &rec)
     }
@@ -242,17 +242,17 @@ impl Index {
 
 /// `results.tsv` text from a list of records (dicts from `Index.classify`).
 #[pyfunction]
-fn results_tsv_text(py: Python<'_>, records: PyObject) -> PyResult<String> {
+fn results_tsv_text(py: Python<'_>, records: Py<PyAny>) -> PyResult<String> {
     tsv(py, records, false)
 }
 
 /// `hits.tsv` text from a list of records.
 #[pyfunction]
-fn hits_tsv_text(py: Python<'_>, records: PyObject) -> PyResult<String> {
+fn hits_tsv_text(py: Python<'_>, records: Py<PyAny>) -> PyResult<String> {
     tsv(py, records, true)
 }
 
-fn tsv(py: Python<'_>, records: PyObject, hits: bool) -> PyResult<String> {
+fn tsv(py: Python<'_>, records: Py<PyAny>, hits: bool) -> PyResult<String> {
     let text: String = py
         .import("json")?
         .call_method1("dumps", (records,))?
