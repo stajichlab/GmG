@@ -25,6 +25,15 @@ MD5=$(md5sum $TD/new_taxdump.tar.gz 2>/dev/null | cut -d" " -f1); [ -n "$MD5" ] 
 TAXV="NCBI taxonomy new_taxdump md5 $MD5 ($(basename $TD | sed s/taxdump_//)); BFD NCBI taxids; original BFD species string kept as label"
 python3 $GMG_REPO/scripts/normalize_taxonomy.py $I/meta.tsv $TD meta_full.tsv --clusters $I/clusters_ani0.95.tsv \
   --report taxonomy_normalization.md --taxdump-label "new_taxdump md5 $MD5"
+# genomes with ambiguous labels are not in the reference (reports/label_audit/reference_exclusions.txt: the 43 of the label audit and 14
+# more found by the truth-set run, #39): drop them from the metadata table before anything is built (their sketches stay in the store)
+python3 - <<PY
+ex = {l.strip() for l in open("$GMG_REPO/reports/label_audit/reference_exclusions.txt") if l.strip()}
+rows = [l for l in open("meta_full.tsv")]
+keep = [rows[0]] + [l for l in rows[1:] if l.split("\t")[0] not in ex]
+open("meta_full.tsv", "w").write("".join(keep))
+print("excluded", len(rows) - len(keep), "of", len(ex), "listed genomes from the reference")
+PY
 # non-fungal decoys (#79): data/decoys/decoys.tsv, sketched by 17_decoys.sbatch; same normalization, appended to the table
 python3 $GMG_REPO/scripts/normalize_taxonomy.py $GMG_REPO/data/decoys/decoys.tsv $TD meta_decoys.tsv --taxdump-label "new_taxdump md5 $MD5"
 # decoys whose lineage has no phylum rank (Opisthokonta/SAR/etc. protists) get a placeholder so the not_fungal flag can match them
@@ -51,7 +60,7 @@ with open("meta_reps.tsv", "w") as o:
 PY
 $GMG --threads 8 build --meta meta_full.tsv --sketches $GR/sketch --scaled 10000 -o full_raw.gmgi \
   --taxonomy-version "$TAXV" --non-fungal-phyla "$NONFUNGAL" \
-  --note "full reference; ANI clusters at 0.95; includes 43 genomes flagged as possible mislabels (reports/label_audit/exclude_ids.txt); plus $NDECOY non-fungal decoy genomes (data/decoys/decoys.tsv)"
+  --note "full reference; ANI clusters at 0.95; excludes 57 genomes with ambiguous labels (reports/label_audit/reference_exclusions.txt); plus $NDECOY non-fungal decoy genomes (data/decoys/decoys.tsv)"
 $GMG convert full_raw.gmgi -o bfd-$VER-s10000.gmgi
 $GMG --threads 8 build --meta meta_reps.tsv --sketches $GR/sketch --scaled 20000 -o reps_raw.gmgi \
   --taxonomy-version "$TAXV" --non-fungal-phyla "$NONFUNGAL" \

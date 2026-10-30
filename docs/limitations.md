@@ -40,3 +40,9 @@ Precision is the share of calls made that are correct; "called" is the share of 
 ## What GmG is not
 
 It is not a substitute for taxonomic curation, a phylogenetic placement, an ANI-based species delimitation, or a contamination or completeness assessment (use BUSCO, CheckM2, FCS-GX or similar). Use the call as a fast first answer and a prompt for a check, and report the index version (`gmg info`; recorded in `run.json`) with it.
+
+## Reference genomes left out for ambiguous labels
+
+57 genomes whose label conflicts with their close relatives (43 from the label audit, `reports/label_audit/`, and 14 more found by the truth-set run, #39) are
+not in the reference from release 2026.10.3 on; the list is `reports/label_audit/reference_exclusions.txt`. Hiding the 43 audit genomes raised
+leave-genus-out class precision from 0.785 to 0.897 (`reports/validation/truth_set.md`). A species whose only genome was excluded loses its species call.
