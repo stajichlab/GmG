@@ -1,0 +1,44 @@
+name: Python bindings
+on:
+  pull_request:
+    paths: ["crates/gmg-py/**", "crates/gmg-core/**", "crates/gmg-report/**", ".github/workflows/python.yml"]
+  push:
+    branches: [main]
+    paths: ["crates/gmg-py/**", "crates/gmg-core/**", "crates/gmg-report/**"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    name: python (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14]
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> target\ncrates/gmg-py -> target"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: cargo build -p gmg-cli
+      - run: pip install maturin pytest
+      - name: Build the extension
+        working-directory: crates/gmg-py
+        run: |
+          python -m venv .venv
+          . .venv/bin/activate
+          pip install maturin pytest
+          maturin develop
+      - name: Test (records equal `gmg run`)
+        working-directory: crates/gmg-py
+        env:
+          GMG_BIN: ${{ github.workspace }}/target/debug/gmg
+        run: |
+          . .venv/bin/activate
+          pytest -q tests

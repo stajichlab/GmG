@@ -1,0 +1,16 @@
+[build-system]
+requires = ["maturin>=1.5,<2"]
+build-backend = "maturin"
+
+[project]
+name = "gmg"
+version = "0.0.1"
+description = "Guess My Genome: fungal taxonomy from FracMinHash sketches (Python bindings)"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+classifiers = ["Programming Language :: Rust", "Topic :: Scientific/Engineering :: Bio-Informatics"]
+
+[tool.maturin]
+python-source = "python"
+module-name = "gmg._gmg"
+features = ["pyo3/extension-module"]
