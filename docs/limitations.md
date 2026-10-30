@@ -46,3 +46,7 @@ It is not a substitute for taxonomic curation, a phylogenetic placement, an ANI-
 57 genomes whose label conflicts with their close relatives (43 from the label audit, `reports/label_audit/`, and 14 more found by the truth-set run, #39) are
 not in the reference from release 2026.10.3 on; the list is `reports/label_audit/reference_exclusions.txt`. Hiding the 43 audit genomes raised
 leave-genus-out class precision from 0.785 to 0.897 (`reports/validation/truth_set.md`). A species whose only genome was excluded loses its species call.
+
+## Contamination
+
+Genus and phylum calls are unchanged by up to 15% bacterial or 30% human DNA in an assembly (`reports/validation/contamination.md`). The species call needs about 90% of the input to be fungal DNA of the species: ANI falls as (1 - f)^(1/21), and the species cutoff (0.9938) is crossed at 10-15% foreign DNA, after which the species is withheld (never wrong) and the genus is still called.
