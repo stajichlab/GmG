@@ -11,10 +11,8 @@
 set -uo pipefail
 source $HOME/projects/GmG/scripts/hpcc/env.sh
 C=$GR/compare; E=$GR/envs/skani/bin; mkdir -p $C/ref; cd $C/ref
-META=${META:-$GR/release/2026.10.3/meta_reps.tsv}
-if [ ! -s reflist.txt ]; then
-  tail -n +2 $META | cut -f1 | while read id; do f=$BFD_GENOMES/$id.fa.gz; [ -s "$f" ] && echo "$f"; done > reflist.txt
-fi
+# reflist.txt comes from hpcc_00a_reflist.sh (run once before submitting this array)
+[ -s reflist.txt ] || { echo "run hpcc_00a_reflist.sh first"; exit 1; }
 wc -l reflist.txt
 case $SLURM_ARRAY_TASK_ID in
 0) /usr/bin/time -v -o skani_build.time $E/skani sketch -l reflist.txt -o skani_db -t 8 ;;
