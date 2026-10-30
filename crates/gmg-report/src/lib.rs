@@ -9,9 +9,14 @@ mod markdown;
 mod model;
 mod page;
 mod svg;
+mod validation;
 
 pub use markdown::{standalone_svg, Markdown};
 pub use model::{file_names_only, Rec};
+pub use validation::{
+    score as validate, wilson, Options as ValidateOptions, Output as ValidateOutput,
+    Row as ValidateRow,
+};
 
 use serde_json::Value;
 

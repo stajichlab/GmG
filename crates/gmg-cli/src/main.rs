@@ -199,6 +199,22 @@ enum Cmd {
         #[arg(long, default_value = "html", value_parser = ["html", "md", "pdf", "all"])]
         format: String,
     },
+    /// Score a results.tsv against a truth table: accuracy per rank and clade, confusion, calibration (validation report)
+    #[command(
+        after_long_help = "EXAMPLES\n  gmg validate out/results.tsv truth.tsv -o validation/\n  gmg validate results.tsv truth.tsv -o v/ --by level phylum --title \"Post-freeze assemblies\"\n\nTRUTH.tsv: a header and an `id` column (matching results.tsv `query_id`), any of phylum class order family genus species\n(blank = unknown, not scored) and optional grouping columns (e.g. species_in_bfd, level). Writes validation.md,\nvalidation.tsv (long format) and validation.html in the output directory."
+    )]
+    Validate {
+        results: PathBuf,
+        truth: PathBuf,
+        /// output directory
+        #[arg(short, long)]
+        out: PathBuf,
+        /// columns to break the metrics down by (default: species_in_bfd genus_in_bfd level phylum)
+        #[arg(long, num_args = 1..)]
+        by: Option<Vec<String>>,
+        #[arg(long, default_value = "Validation")]
+        title: String,
+    },
     /// Print a shell completion script (bash, zsh, fish, elvish, powershell)
     Completions {
         #[arg(value_enum)]
@@ -955,6 +971,55 @@ fn main() -> Result<()> {
         } => {
             run::write_report(&dir, max_cards, &format)?;
             eprintln!("wrote the {format} report in {}", dir.display());
+        }
+        Cmd::Validate {
+            results,
+            truth,
+            out,
+            by,
+            title,
+        } => {
+            let read = |p: &Path| -> Result<Vec<std::collections::HashMap<String, String>>> {
+                let text = std::fs::read_to_string(p)
+                    .with_context(|| format!("reading {}", p.display()))?;
+                let mut lines = text.lines();
+                let head: Vec<&str> = lines.next().unwrap_or("").split('\t').collect();
+                Ok(lines
+                    .filter(|l| !l.trim().is_empty())
+                    .map(|l| {
+                        head.iter()
+                            .zip(l.split('\t').chain(std::iter::repeat("")))
+                            .map(|(h, v)| (h.to_string(), v.to_string()))
+                            .collect()
+                    })
+                    .collect())
+            };
+            let (res, tru) = (read(&results)?, read(&truth)?);
+            if !res.first().is_some_and(|r| r.contains_key("query_id")) {
+                bail!(
+                    "{} has no query_id column (is it a results.tsv from `gmg run`?)",
+                    results.display()
+                );
+            }
+            if !tru.first().is_some_and(|r| r.contains_key("id")) {
+                bail!("{} has no `id` column", truth.display());
+            }
+            let mut o = gmg_report::ValidateOptions {
+                title,
+                ..Default::default()
+            };
+            if let Some(b) = by {
+                o.by = b;
+            }
+            let v = gmg_report::validate(&res, &tru, &o);
+            std::fs::create_dir_all(&out)?;
+            std::fs::write(out.join("validation.md"), &v.md)?;
+            std::fs::write(out.join("validation.tsv"), &v.tsv)?;
+            std::fs::write(out.join("validation.html"), &v.html)?;
+            eprintln!(
+                "wrote validation.md, validation.tsv and validation.html in {}",
+                out.display()
+            );
         }
         Cmd::Completions { shell } => {
             clap_complete::generate(shell, &mut Cli::command(), "gmg", &mut std::io::stdout());

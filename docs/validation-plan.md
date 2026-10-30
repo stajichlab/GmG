@@ -11,7 +11,7 @@ Every validation answers the same question in the same format, so results can be
   `source` (where the label comes from), `evidence` (`type_material`, `reference_genome`, `curated`, `submitter`, `assembly_label`),
   `in_bfd` (`exact`, `species`, `genus`, `none`: what the reference holds for it) and free `notes`.
 * **Run** with the production index and the default thresholds, and with `--thresholds novel` where the dataset can contain new taxa.
-* **Report** from `scripts/validate_run.py` (to become `gmg validate`, #25): per rank precision with a Wilson 95% interval,
+* **Report** from `gmg validate RESULTS.tsv TRUTH.tsv -o DIR` (#25; writes validation.md, validation.tsv and validation.html with figures; `scripts/validate_run.py` is the reference implementation it was checked against: identical numbers on 132 table rows of 1,257 results): per rank precision with a Wilson 95% interval,
   fraction called, recall, break-downs by clade, assembly level / depth, and whether the taxon is in the reference;
   the confusion list (top 20 wrong calls); run time and memory.
 * **Rules:** a call is *wrong* only when it disagrees with the truth at that rank; a withheld rank is not an error (it lowers
