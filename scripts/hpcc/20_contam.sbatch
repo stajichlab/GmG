@@ -3,7 +3,7 @@
 #SBATCH -p short
 #SBATCH -c 8
 #SBATCH --mem=48G
-#SBATCH -t 04:00:00
+#SBATCH -t 02:00:00
 #SBATCH -o /bigdata/stajichlab/shared/projects/GmG_runs/logs/20_contam.%j.log
 # Contamination spike-in (#41): the 24 stress hosts + bacterial (E. coli, B. subtilis) or human (chr20) DNA at 1-30%, classified with
 # the decoy release index, scored against the host lineage with `gmg validate`. Per-input output stays here; aggregates go in the repo.
