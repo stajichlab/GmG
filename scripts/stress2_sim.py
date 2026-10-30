@@ -36,7 +36,10 @@ def pick(pcs, want):
     keep, acc = [], 0
     for p in pcs:
         if acc >= want: break
-        p = p[:int(want - acc)] if acc + len(p) > want else p   # the last piece is cut so the share is exact
+        if acc + len(p) > want:
+            p = p[:int(want - acc)]   # the last piece is cut so the share is exact
+        if not p:                     # a remainder below one base: an empty record would not parse
+            break
         keep.append(p); acc += len(p)
     return keep
 
