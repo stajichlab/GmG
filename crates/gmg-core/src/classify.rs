@@ -112,7 +112,8 @@ pub fn classify(
         && (g.calls[0]
             .as_deref()
             .is_some_and(|p| ctx.non_fungal.iter().any(|n| n == p))
-            || g.top.as_ref().is_some_and(|t| is_decoy(t.genome)));
+            // a best hit alone (no phylum call, e.g. 2 shared hashes of a bacterium) is not "nearest to a decoy": nothing was called from it
+            || (g.calls[0].is_some() && g.top.as_ref().is_some_and(|t| is_decoy(t.genome))));
     let top_ani = g.top.as_ref().map_or(0.0, |t| t.ani);
     let not_fungal = near_decoy && top_ani >= NOT_FUNGAL_MIN_ANI;
     let distant_decoy = near_decoy && !not_fungal;
