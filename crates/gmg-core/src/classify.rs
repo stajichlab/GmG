@@ -98,7 +98,27 @@ pub fn classify(
     } else {
         th
     };
-    let g = guess(ix, &hashes, skip, th);
+    let is_decoy = |gi: u32| {
+        let ph = &ix.genomes[gi as usize].lineage[0];
+        ctx.non_fungal.iter().any(|n| n == ph)
+    };
+    let mut g = guess(ix, &hashes, skip, th);
+    // the input is nearest to non-fungal decoys: its phylum call, or failing that its best hit, is one of the listed phyla.
+    // A real relative (ANI >= NOT_FUNGAL_MIN_ANI) says "not a fungus". A distant best hit says nothing either way, because a
+    // divergent fungus and a divergent non-fungus both land on whichever decoy is nearest by chance (ANI 0.75-0.88): the call
+    // is then made again without the decoys, so a divergent fungus gets the call it would get from an index without them
+    // (instead of e.g. a Chordata phylum), and the flag `distant_non_fungal_hit` records what happened.
+    let near_decoy = !ctx.non_fungal.is_empty()
+        && (g.calls[0]
+            .as_deref()
+            .is_some_and(|p| ctx.non_fungal.iter().any(|n| n == p))
+            || g.top.as_ref().is_some_and(|t| is_decoy(t.genome)));
+    let top_ani = g.top.as_ref().map_or(0.0, |t| t.ani);
+    let not_fungal = near_decoy && top_ani >= NOT_FUNGAL_MIN_ANI;
+    let distant_decoy = near_decoy && !not_fungal;
+    if distant_decoy {
+        g = guess(ix, &hashes, &|gi| skip(gi) || is_decoy(gi), th);
+    }
     let mut gj = guess_json(ix, &g, item.path, top);
     gj["withheld"] = withheld_json(&g, th);
     let (best, status) = status_of(&g);
@@ -114,20 +134,6 @@ pub fn classify(
             .or_else(|| ctx.ranges.get(""))
             .and_then(|r| r.as_ref())
     };
-    // the input is nearest to non-fungal decoys: its phylum call, or failing that its best hit, is one of the listed phyla.
-    // A real relative (ANI >= NOT_FUNGAL_MIN_ANI) says "not a fungus"; a distant best hit says nothing either way, because a
-    // divergent fungus and a divergent non-fungus both land on whichever decoy is nearest by chance (ANI 0.75-0.88).
-    let near_decoy = !ctx.non_fungal.is_empty()
-        && (g.calls[0]
-            .as_deref()
-            .is_some_and(|p| ctx.non_fungal.iter().any(|n| n == p))
-            || g.top.as_ref().is_some_and(|t| {
-                let ph = &ix.genomes[t.genome as usize].lineage[0];
-                ctx.non_fungal.iter().any(|n| n == ph)
-            }));
-    let top_ani = g.top.as_ref().map_or(0.0, |t| t.ani);
-    let not_fungal = near_decoy && top_ani >= NOT_FUNGAL_MIN_ANI;
-    let distant_decoy = near_decoy && !not_fungal;
     let mut flags = qc_flags(
         item.kind,
         st,

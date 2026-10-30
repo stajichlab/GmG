@@ -7,7 +7,7 @@ Cost: about 0.4 MB per 100 Mb genome, +1-2% of the index. Evaluated with the bin
 ## Flags
 
 * `not_fungal`: the phylum call or the best hit is a decoy AND the best-hit ANI is >= 0.90 (a real relative among the decoys).
-* `distant_non_fungal_hit`: the nearest genomes are decoys but the best-hit ANI is < 0.90. No verdict: a divergent fungus and a
+* `distant_non_fungal_hit`: the nearest genomes are decoys but the best-hit ANI is < 0.90. The call is made again without the decoys (added after the truth-set run showed 4.7% of leave-one-out fungi getting a Chordata phylum from a chance decoy hit; #39). No verdict: a divergent fungus and a
   divergent non-fungus both land on whichever decoy is nearest by chance (ANI 0.75-0.88, 3-700 shared hashes).
 
 The gate exists because the first version (no ANI condition) flagged 30 of 1,257 real post-freeze fungi (2.4%) and 10 of 199
