@@ -300,14 +300,22 @@ impl RefIndex {
 
     /// For each phylum, the number of `query` hashes found only in genomes of that phylum (sorted, unique query).
     /// Hashes shared across phyla or only with genomes of unknown phylum are not counted. Returns (phylum name, count)
-    /// sorted by count descending; a single-organism input has one dominant phylum, a mixture has two.
-    pub fn phylum_exclusive(&self, query: &[u64]) -> Vec<(String, u32)> {
+    /// sorted by count descending; a single-organism input has one dominant phylum, a mixture has two. Genomes for which
+    /// `skip(genome)` is true are left out (the reference-exclusion mask of `gmg run --exclude-*`), as in `search`.
+    pub fn phylum_exclusive(
+        &self,
+        query: &[u64],
+        skip: &dyn Fn(u32) -> bool,
+    ) -> Vec<(String, u32)> {
         let mut counts = vec![0u32; self.taxa[0].len().max(1)];
         let n = self.lineage_ids.len();
         self.visit(query, &mut |gs| {
             let mut ph = None;
             let mut single = true;
             for &g in gs {
+                if skip(g) {
+                    continue;
+                }
                 let id = if (g as usize) < n {
                     self.lineage_ids[g as usize][0]
                 } else {
@@ -734,7 +742,7 @@ mod tests {
         q.extend(1000..1020);
         q.extend(60..70);
         q.sort_unstable();
-        let v = ix.phylum_exclusive(&q);
+        let v = ix.phylum_exclusive(&q, &|_| false);
         assert_eq!(
             v,
             vec![("Ascomycota".into(), 30), ("Basidiomycota".into(), 20)]
@@ -902,7 +910,10 @@ mod tests {
                 packed.search(&q, &|g| g % 3 == 0),
                 ix.search(&q, &|g| g % 3 == 0)
             );
-            assert_eq!(packed.phylum_exclusive(&q), ix.phylum_exclusive(&q));
+            assert_eq!(
+                packed.phylum_exclusive(&q, &|_| false),
+                ix.phylum_exclusive(&q, &|_| false)
+            );
         }
         // expanding gives back the arrays: writing v1 from either is identical, and v3 survives a rewrite
         let (mut a, mut c) = (Vec::new(), Vec::new());

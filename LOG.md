@@ -88,3 +88,11 @@ gmg-core::classify builds the result record and TSVs (CLI and wasm share it); wa
 
 ## 2026-10-29 stdin and --max-bases (#27)
 `gmg guess -` (stdin, gz detected), global `--max-bases N` (stops after the record that reaches N bases); test stdin_and_max_bases_are_inputs_like_any_other. Docs: results-schema.md.
+
+## 2026-10-30: phylum split respects the exclusion mask (#85)
+
+`qc.phylum_split` (hashes found in one phylum only) ignored `--exclude-ids/--exclude-level`, so in every leave-one/species/genus-out run the hidden genome still
+contributed its own exclusive hashes and the split named the right phylum for 653/653 truth-set genomes in all three modes. Fixed (`phylum_exclusive(query, skip)`,
+test `exclusion_hides_...`). Calls, ANI and flags were never affected (they use `guess`, which honoured the mask); only `qc.phylum_split` of leave-out runs.
+On independent genomes (1,257 post-freeze assemblies, nothing hidden) the split plurality is right for 0.964 against 0.977 for the phylum call, and for the weak calls
+(best-hit ANI < 0.85, n = 73) 0.781 against 0.671: better for weak calls, worse overall, so it is not used for the call (#58).
