@@ -4,7 +4,7 @@ GCA_056321735.1	ok	species	Ascomycota	Schizosaccharomycetes	Schizosaccharomyceta
 GCA_051943995.1	ok	genus	Basidiomycota	Malasseziomycetes	Malasseziales	Malasseziaceae	Malassezia		short_genome	GCF_003290485.1_ASM329048v1	0.9945
 GCA_982436685.1	ok	species	Basidiomycota	Wallemiomycetes	Wallemiales	Wallemiaceae	Wallemia	Wallemia ichthyophaga		GCA_004918745.1_ASM491874v1	0.9963
 GCA_985809295.1	ok	species	Microsporidia			Pleistophoridae	Vavraia	Vavraia culicis		GCA_985805035.1_idAstConc1.microsporidian_1.1	0.9979
-GCF_000005845.2	no_match								distant_non_fungal_hit	GCA_002120315.1_HypCI4A_v1.0	0.7772
+GCF_000005845.2	no_match									GCF_002217175.1	0.8033
 GCA_062046625.1	ok	species	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	Candidozyma	Candidozyma auris		GCA_059629385.1_MRSN455079	0.9994
 GCA_980652395.1	ok	species	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Yamadazyma	Yamadazyma diddensiae		GCA_980652965.1_TUCC00000373	0.9989
 GCA_059056815.1	ok	species	Basidiomycota	Tremellomycetes	Trichosporonales	Trichosporonaceae	Trichosporon	Trichosporon austroamericanum		GCA_055769455.1_ASM5576945v1	0.9998
