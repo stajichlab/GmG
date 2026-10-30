@@ -74,9 +74,12 @@ GCF_965202585.1) at ANI 0.913 (182 shared hashes, 15% of the query). It is not a
 the best hit: 7 *Conidiobolus*/*Neoconidiobolus* (ANI 0.85-0.91) and 2 *Mucor hiemalis* (0.83); two of them cross the gate and are flagged `not_fungal` (ARSEF 6913 at ANI 0.9001, ARSEF 79 at 0.9055; shared
 hashes 825 and 982, 11-12% of the assembly). Chance cannot give a salp genome 10% of the k-mers of a fungus (a 4^21 k-mer space against a few hundred Mb), so the decoy shares
 real sequence with these fungi: probably fungal contaminant contigs in the *Thalia* assembly, or a conserved repeat. The consequence is that the `not_fungal` gate (ANI >= 0.90), set from test sets that had
-no Entomophthoromycota, gives a **false `not_fungal` on a real fungus for the thin clade Entomophthoromycota** (3 inputs here: 2 assemblies and 1 read set, all *Conidiobolus*-type). Whether the decoy or the gate is at
-fault was queued for a test (`scripts/hpcc/28_thalia_check.sbatch`: the same inputs with and without that decoy, `--exclude-ids`; job 31445815 was still waiting for a node when this report was written). For the parent
-project: the evidence so far argues for removing GCF_965202585.1 from the decoy panel (the panel has other animals, and one salp is not needed), or for checking the assembly for fungal contigs, before the next release.
+no Entomophthoromycota, gives a **false `not_fungal` on a real fungus for the thin clade Entomophthoromycota** (3 inputs here: 2 assemblies and 1 read set, all *Conidiobolus*-type). **Test** (`scripts/hpcc/28_thalia_check.sbatch`: the 9 assemblies and the reads set classified with and without that decoy, `--exclude-ids`, index 2026.10.3): hiding the decoy removes
+the false `not_fungal` and the Chordata phylum for all three inputs (ARSEF 6913, ARSEF 79 and the reads set); they become `low_confidence` calls with a fungal best hit at ANI 0.88-0.90
+(*Neocallimastix* in the reference, the nearest genus it has). The other six inputs do not change. Note that the *Thalia* genome was closer to these fungi (ANI 0.90-0.91) than any fungal genome in the reference
+(0.88-0.90): the reference has no close Entomophthoromycota. For the parent project: remove GCF_965202585.1 from the decoy panel (the panel has other animals; one salp is not needed), or check that assembly
+for fungal contigs, before the next release; this looks like a problem of that decoy, not of the 0.90 threshold: raising the gate to 0.92 would hide these three, but only by luck, because the decoy is closer than any fungal genome in the reference.
+Whether the *Thalia* assembly contains fungal contigs was not examined.
 
 ## Not covered
 
