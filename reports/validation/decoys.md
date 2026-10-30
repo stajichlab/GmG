@@ -48,3 +48,11 @@ same distance (below).
 `distant_non_fungal_hit` and `low_confidence` calls with a phylum that is not fungal. See `docs/qc.md` and `docs/limitations.md`.
 
 Per-genome results stay on the HPCC (`GmG_runs/decoys/eval`, `external_big/out_decoy2`).
+
+## Addendum (2026-10-30): the Thalia democratica decoy was removed
+
+The reads validation (#45, reports/validation/reads_contamination.md) found that the *Thalia democratica* decoy (GCF_965202585.1) was the best hit of
+*Conidiobolus*-type fungi (Entomophthoromycota) at ANI up to 0.913, closer than any fungal genome in the reference (0.88-0.90): two ZyGoLife assemblies and one
+read set got a false `not_fungal` and a Chordata phylum. Hiding that one decoy removed all three false calls. All 81 decoys were also classified with themselves hidden:
+only 3 have a best hit at ANI >= 0.85: *Ichthyophthirius* (ciliate) to *Thalia* at 0.909 (not biological: the *Thalia* assembly is the odd one), and *Plasmodium* and
+*Dictyostelium* to *Neocallimastix* at 0.90 and 0.89 (AT-rich genomes sharing k-mers; not contamination, so those decoys stay). Release 2026.10.4 has 80 decoys.
