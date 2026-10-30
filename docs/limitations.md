@@ -55,3 +55,5 @@ them, no decoys, to 0.768 / 0.707 / 0.652) and cut the label-conflict share of i
 ## Contamination
 
 Genus and phylum calls are unchanged by up to 15% bacterial or 30% human DNA in an assembly (`reports/validation/contamination.md`). The species call needs about 90% of the input to be fungal DNA of the species: ANI falls as (1 - f)^(1/21), and the species cutoff (0.9938) is crossed at 10-15% foreign DNA, after which the species is withheld (never wrong) and the genus is still called.
+
+* **Weak phylum calls.** A phylum called from a best hit below ANI 0.85 carries the `weak_phylum` flag (assemblies). Such calls are right about 4 times in 5 for divergent genomes (leave-genus-out phylum precision 0.858 overall against 0.981 at ANI >= 0.85); withholding them would remove the phylum for about three quarters of divergent genomes, so they are flagged, not withheld.
