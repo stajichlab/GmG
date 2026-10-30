@@ -58,6 +58,11 @@ pub struct Item<'a> {
     pub kind: &'a str,
 }
 
+/// Best-hit ANI below which a phylum call is marked `weak_phylum` (assemblies). Measured on the RefSeq truth set (index 2026.10.3):
+/// phylum precision is 0.998 for leave-one-out and 0.981 for leave-genus-out at best-hit ANI >= 0.85, and 0.858 for leave-genus-out overall; all
+/// wrong leave-one-out phylum calls are chance hits below 0.86. The call is kept (the user chose to flag, not withhold).
+pub const WEAK_PHYLUM_ANI: f64 = 0.85;
+
 /// Best-hit ANI to a non-fungal decoy at or above which an input is flagged `not_fungal` (the largest ANI of a real fungus to a
 /// decoy in the 1,257-genome post-freeze set plus IndigoAg was 0.881; non-fungal relatives of a decoy are well above 0.9).
 pub const NOT_FUNGAL_MIN_ANI: f64 = 0.90;
@@ -146,6 +151,10 @@ pub fn classify(
         flags.push("not_fungal");
     } else if distant_decoy {
         flags.push("distant_non_fungal_hit");
+    }
+    // reads are left out: sequencing errors lower their ANI without the genome being distant
+    if !reads && g.calls[0].is_some() && g.top.as_ref().is_some_and(|t| t.ani < WEAK_PHYLUM_ANI) {
+        flags.push("weak_phylum");
     }
     let mut qc = json!({"n_records": st.n_records, "total_bases": st.total_len, "n50": st.n50,
                "non_acgt_fraction": if st.total_len > 0 { st.non_acgt as f64 / st.total_len as f64 } else { 0.0 },

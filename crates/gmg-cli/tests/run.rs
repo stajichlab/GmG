@@ -1399,3 +1399,44 @@ fn run_reads_standard_input_next_to_files() {
     let o = run(&["-o", d.join("out4").to_str().unwrap(), "-", "-"], b"");
     assert!(!o.status.success());
 }
+
+#[test]
+fn weak_phylum_flags_a_phylum_called_from_a_distant_assembly() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, mut rng) = build_reference(d);
+    let inp = d.join("in");
+    fs::create_dir_all(&inp).unwrap();
+    fs::write(inp.join("copy.fa"), fasta("c", &genomes[2])).unwrap();
+    fs::write(
+        inp.join("distant.fa"),
+        fasta("d", &rng.mutate(&genomes[2], 250)),
+    )
+    .unwrap(); // ~0.81 ANI to its reference genome
+    let out = d.join("out");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+        "-q",
+        "--no-report",
+    ]);
+    let (h, rows) = read_tsv(&out.join("results.tsv"));
+    let get = |id: &str| rows.iter().find(|r| r[0] == id).unwrap().clone();
+    let (c, dist) = (get("copy"), get("distant"));
+    assert!(!c[col(&h, "qc_flags")].contains("weak_phylum"));
+    assert_eq!(
+        dist[col(&h, "call_phylum")],
+        "Ascomycota",
+        "the distant input still gets its phylum (flag, not withhold)"
+    );
+    assert!(
+        dist[col(&h, "qc_flags")].contains("weak_phylum"),
+        "flags: {} ANI {}",
+        dist[col(&h, "qc_flags")],
+        dist[col(&h, "ani")]
+    );
+}
