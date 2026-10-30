@@ -1163,6 +1163,34 @@ fn exclusion_hides_the_query_its_species_or_its_genus_from_the_reference() {
             "{extra:?}"
         );
         assert_eq!(r["status"], "no_match", "{extra:?}");
+        // the phylum split (hashes found in one phylum only) must not see the hidden genomes either (it used to: the hidden genome
+        // then made every leave-out phylum look perfectly resolved)
+        if extra[0] == "--exclude-level" && extra[1] == "self" {
+            assert!(
+                plain["qc"]["phylum_split"]
+                    .as_array()
+                    .is_some_and(|a| !a.is_empty()),
+                "the unhidden run has a split"
+            );
+            let hidden_hashes: u64 = r["qc"]["phylum_split"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter(|p| p["phylum"] == "Ascomycota")
+                .map(|p| p["hashes"].as_u64().unwrap())
+                .sum();
+            let plain_hashes: u64 = plain["qc"]["phylum_split"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter(|p| p["phylum"] == "Ascomycota")
+                .map(|p| p["hashes"].as_u64().unwrap())
+                .sum();
+            assert!(
+                hidden_hashes < plain_hashes / 4,
+                "Ascomycota-exclusive hashes {hidden_hashes} vs {plain_hashes} unhidden"
+            );
+        }
     }
 }
 

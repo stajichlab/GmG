@@ -128,7 +128,7 @@ pub fn classify(
     let mut gj = guess_json(ix, &g, item.path, top);
     gj["withheld"] = withheld_json(&g, th);
     let (best, status) = status_of(&g);
-    let split = ix.phylum_exclusive(&hashes);
+    let split = ix.phylum_exclusive(&hashes, skip);
     let est_mb = hashes.len() as f64 * ix.scaled as f64 / 1e6;
     let range = if reads {
         None
