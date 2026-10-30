@@ -8,14 +8,14 @@
 # #39: merge the shards of each run variant, score it against the RefSeq lineage (trusted truth) and against the index label of the
 # same genome, with and without the phylum calls that only name a distant decoy (scripts/blank_decoy_calls.py), list every
 # disagreement with its evidence (scripts/review_disagreements.py) and build the report tables (scripts/truth_set_tables.py).
-# usage: REPO=<dir with scripts/ and reports_label_audit/> sbatch 24_truth_score.sbatch     (VARIANTS="known novel known.nodecoy1 known.noaudit")
+# usage: REPO=<dir with scripts/ and reports_label_audit/> sbatch 24_truth_score.sbatch     (PREV=<earlier disagreements.tsv> for the prev_category column)
 # needs pandas (validate_run.py); the committed numbers were produced with the same scripts on a workstation.
 set -uo pipefail
 source $HOME/projects/GmG/scripts/hpcc/env.sh
 REPO=${REPO:-$HOME/projects/GmG}
 AUDIT=${AUDIT:-$REPO/reports/label_audit}
 REVIEWS=${REVIEWS:-$REPO/data/validation/truth_set_reviews.tsv}
-VARIANTS=${VARIANTS:-"known novel known.nodecoy1 known.noaudit"}
+VARIANTS=${VARIANTS:-"known novel known.nodecoy1 known.noaudit known.i3 novel.i3"}   # .i3 = index 2026.10.3 (production), the rest the first run on 2026.10.2 / 2026.10.1
 T=$GR/truthset; cd $T
 REL=$GR/release/2026.10.2
 mkdir -p score
@@ -41,4 +41,4 @@ for v in $VARIANTS; do
       $AUDIT score/disagreements_draft.$m.$v.tsv $X --reviews $REVIEWS
   done
 done
-python3 $REPO/scripts/truth_set_tables.py score score/tables.md score/disagreements.tsv
+python3 $REPO/scripts/truth_set_tables.py score score/tables.md score/disagreements.tsv ${PREV:-/dev/null}
