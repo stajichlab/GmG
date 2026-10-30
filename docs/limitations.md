@@ -13,6 +13,10 @@ GmG compares the k-mer content of an input with a reference collection and repor
 
 | situation | measure | result |
 |---|---|---|
+| RefSeq truth set, a new strain of a known species (leave-one-out, 653 genomes, 258 type material; index 2026.10.2) | precision of calls made, phylum / class / order / family / genus | 0.998 / 0.993 / 0.995 / 0.997 / 0.992 (species 0.948, called for 39%; 0.992 and 60% when the species has another genome in the reference) |
+| same, a new species of a known genus (leave-species-out) | phylum to genus | 0.997 / 0.983 / 0.984 / 0.977 / 0.962; a species call here is necessarily wrong and happens for 7% (congeners at ANI >= 0.99, label conflicts) |
+| same, a new genus of a known family (leave-genus-out) | phylum / class / order / family | 0.966 / 0.785 / 0.766 / 0.616 (called 67% / 68% / 62% / 50%); 12% get a genus call (label conflicts, synonym genera, 9 plain overcalls). The 57 ambiguous-label genomes left out from 2026.10.3 raise class to about 0.90 (measured with the 43 audit genomes hidden: class 0.897, order 0.832, family 0.722) |
+| RefSeq genomes outside the reference (21) | phylum to genus | 21 / 21 correct at each rank; species called and correct for 17 |
 | Independent assemblies (1,257 not in the reference, no quality filter), balanced default | precision of calls made | phylum 0.990, class 0.991, order 0.986, family 0.983, genus 0.988 |
 | same set | share with a call | phylum 0.946; genus 0.839; inputs with only a `tentative_genus` 78 |
 | Species (52 genomes with a species name, all in the reference) | called / precision | 75% / 1.000 (too few to generalise) |
@@ -21,7 +25,8 @@ GmG compares the k-mer content of an input with a reference collection and repor
 | Real reads, *Coccidioides* (558 sets, 100k to 2M reads) | genus / species called, precision | genus ≥ 99.6% called, 0.991-0.993; species 95-96% called, 0.994-0.996 |
 | Real RNA-seq (345 sets) | genus / species precision | genus 0.997 at every depth; species 0.966-0.968, called 63-68% |
 | Degraded genomes (24 hosts) | completeness 10-75%, 5 kb contigs | calls unchanged down to 10% (phylum right for 23/24) |
-| Contamination from another phylum | phylum correct | 21/24 at 5%, 19/24 at 20%, 17/24 at 50% foreign DNA |
+| Contamination from another phylum | phylum correct | 21/24 at 5%, 19/24 at 20%, 17/24 at 50% foreign DNA (another fungus) |
+| Bacterial (to 15%) or human (to 30%) DNA in an assembly (24 + 44 hosts) | genus and phylum call unchanged; species | genus/phylum unchanged for 255/256 and 474/474; species kept 31/32 at 5%, 29-30/32 at 10%, withheld (never wrong) from 15% bacteria / 20% human |
 | Negative controls | random DNA, repeat, bacteria, phage | `no_match` |
 | Non-fungal eukaryotes | see below | flagged `not_fungal` when a relative (ANI >= 0.90) is among the decoys; otherwise `distant_non_fungal_hit` |
 
