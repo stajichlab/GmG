@@ -15,7 +15,7 @@ scripts (`scripts/stress2_*.py`, `scripts/fetch_small_inputs.py`, `scripts/hpcc/
   same-order pairs 4/8, 3/8, 3/8. A hit list cannot find a minority below 50%: decomposition (#31) is needed.
 * **The top-hit ANI is a mixture meter.** The median ANI falls as p^(1/21) with the majority share p: 0.963-0.968 at 50:50 (0.5^(1/21) = 0.968), 0.977-0.981 at 70:30 (0.983),
   0.989-0.994 at 90:10 (0.995). A top hit of a clearly known genus with ANI 0.96-0.98 and nothing at 0.99+ is what a half-and-half input looks like.
-* **Hybrids: simulated (union of two same-genus genomes, 8 pairs) genus correct 8/8, species withheld 8/8**, status `ok`, median ANI 0.969. **Seven real hybrid assemblies with their own species hidden: genus correct 6/7, the seventh kept at the family; with the genus hidden never a genus call (0/7) and the rank above right for 6/7.**
+* **Hybrids: simulated (union of two same-genus genomes, 8 pairs) genus correct 8/8, species withheld 8/8**, status `ok`, median ANI 0.969. **Seven real hybrid assemblies (six in the reference): with their own species hidden the genus is right for 5 of 6 and the sixth is kept at the correct family; with the genus hidden, never a genus call (0/7) and the rank above right for 6/7.**
 * **Mitochondrion-only inputs (10 RefSeq fungal mtDNAs, 19-135 kb): 7 correct calls (5 to species, 2 to genus), 3 `no_match`, 0 wrong.** They rest on 5-19 hashes and carry
   `few_hashes`. A small-input mode is not worth building now (see below).
 * **Plasmid and viruses: no fungal call.** A yeast plasmid (1 hash) and 7 viruses (lambda, T4, mimivirus, PBCV-1, vaccinia, HSV-1, phiX174) all `no_match`.
@@ -82,13 +82,13 @@ assembly's own species, and then its own genus, is hidden from the reference (`-
 |---|---|---|
 | *S. pastorianus* | genus *Saccharomyces* correct; species of another hybrid genome, *S. cerevisiae* x *S. eubayanus* (0.9997) | family Saccharomycetaceae, correct (0.955) |
 | *S. cerevisiae* x *S. kudriavzevii* | genus *Saccharomyces* correct (0.9968) | family Saccharomycetaceae, correct (0.976) |
-| *S. eubayanus* | genus *Saccharomyces* correct, species withheld (0.9995) | family Saccharomycetaceae, correct (0.916) |
+| *S. eubayanus* | not in the reference, so nothing was hidden: genus *Saccharomyces* correct, species withheld (0.9995 to another *S. eubayanus* genome) | family Saccharomycetaceae, correct (0.916) |
 | *Zygosaccharomyces parabailii* | genus *Zygosaccharomyces* correct; species *Z. bailii* (0.9979), a parent species and not the hybrid | family Saccharomycetaceae, correct (0.790, `distant_non_fungal_hit`) |
 | *Cryptococcus* hybrid | genus *Cryptococcus* correct; species *C. neoformans* (0.9940), one parent | order Magnaporthales, **wrong** (0.752, `distant_non_fungal_hit`, `low_confidence`) |
 | *Verticillium longisporum* | genus *Verticillium* correct; best hit *V. dahliae* (0.9647) | order Glomerellales, correct (0.767, `distant_non_fungal_hit`) |
 | *Candida orthopsilosis* | no genus call: family Debaryomycetaceae, best hit *Lodderomyces metapsilosis* (0.838), `low_confidence` | order Serinales, correct (0.796) |
 
-* **Genus correct for 6 of 7 with the species hidden;** the seventh (a close relative at ANI 0.84, below the genus cutoff) is kept at the family, which is right. **Never a genus call with the genus
+* **With the own species hidden, 5 of the 6 assemblies that are in the reference keep the correct genus;** the sixth (*C. orthopsilosis*; its nearest relative is at ANI 0.84, below the genus cutoff) is kept at the family, which is right. *S. eubayanus* is not in the reference (nothing was hidden) and its genus is correct. **Never a genus call with the genus
   hidden** (0 of 7), as it should be, and the rank above is right for 6 of 7 (all `low_confidence`); the one wrong deepest call is the Cryptococcus hybrid, whose nearest remaining relatives
   are at ANI 0.75 (it is called to an unrelated order, `low_confidence` with `distant_non_fungal_hit`).
 * **Hybrids are called to the genus of their parents and to a parent species**, never to a third genus. The species call is to one parent's species (or another hybrid genome) at ANI 0.994-0.9997 and
