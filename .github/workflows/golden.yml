@@ -1,0 +1,43 @@
+name: Golden panel
+# #49: 17 real genomes (data/golden/panel.tsv, pinned by SHA-256) must give the pinned calls, flags and ANI (data/golden/expected.tsv) with the
+# pinned published index (data/golden/INDEX.txt), on Linux and macOS: a change of any call fails the job.
+on:
+  pull_request:
+    paths: ["crates/**", "data/golden/**", "scripts/golden_check.py", ".github/workflows/golden.yml"]
+  schedule:
+    - cron: "41 5 * * 1"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  golden:
+    name: golden (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14]
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release -p gmg-cli
+      - name: Cache the panel genomes
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/gmg-golden
+          key: golden-panel-${{ hashFiles('data/golden/panel.tsv') }}
+      - name: Fetch the pinned index
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          idx=$(sed -n 's/^index: \([^ ]*\) .*/\1/p' data/golden/INDEX.txt)
+          want=$(sed -n 's/^sha256: //p' data/golden/INDEX.txt)
+          tag=$(sed -n 's/.*release \(index-[0-9.]*\).*/\1/p' data/golden/INDEX.txt)
+          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern "$idx" --dir .
+          got=$( (sha256sum "$idx" 2>/dev/null || shasum -a 256 "$idx") | cut -d' ' -f1)
+          [ "$got" = "$want" ] || { echo "index checksum mismatch: $got"; exit 1; }
+          echo "INDEX=$PWD/$idx" >> "$GITHUB_ENV"
+      - name: Golden check
+        run: python3 scripts/golden_check.py --gmg target/release/gmg --index "$INDEX"
