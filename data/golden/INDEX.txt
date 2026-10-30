@@ -1,0 +1,4 @@
+index: bfd-reps-2026.10.2-s20000.gmgi (release index-2026.10.2, the representatives index)
+sha256: 90eed274573ee63956fb7706368a7f24e2a21d1cd9bd33d3b817a2e8efbd8327
+The expected calls in expected.tsv are for this index and the `gmg` built from the commit under test. When a new index is published, re-pin
+here and run `scripts/golden_check.py --update` with a note on what changed and why.
