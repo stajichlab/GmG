@@ -45,6 +45,31 @@ unzip -oq h.zip -d hx
 for f in hx/ncbi_dataset/data/GC*/*.fna; do mv "$f" g/$(basename $(dirname "$f")).fna; done
 $GMG --threads ${SLURM_CPUS_PER_TASK} run g --index $INDEX -o $R/out_hybrids --no-report --top 10
 cp acc.tsv $R/hybrids_acc.tsv
+# most of these assemblies are in the reference: hide each one's own species, then its genus (#85), for a test that is not a lookup
+META=$(dirname $INDEX)/meta_full.tsv
+python3 - $META <<PY
+import csv, sys
+ids = [r["id"] for r in csv.DictReader(open(sys.argv[1]), delimiter="\t")]
+with open("sheet.tsv", "w") as o:
+    o.write("id\tpath\texpected\tref\n")
+    for l in open("acc.tsv"):
+        acc, genus, name, level, org = l.rstrip("\n").split("\t")
+        ref = next((i for i in ids if i.startswith(acc + "_") or i == acc), "")
+        o.write(f"{acc}\tg/{acc}.fna\t{genus}\t{ref}\n")
+PY
+cat sheet.tsv | cut -c1-120
+for lv in species genus; do
+  $GMG --threads ${SLURM_CPUS_PER_TASK} run --sample-sheet sheet.tsv --index $INDEX -o $R/out_hybrids_$lv --no-report --top 10 --exclude-level $lv -q
+done
+python3 - <<PY
+import csv
+for lv in ("species", "genus"):
+    print("--- own", lv, "hidden")
+    print("accession | expected genus | status | call (deepest) | genus call | top hit species | ANI | flags")
+    for r in csv.DictReader(open("$R/out_hybrids_%s/results.tsv" % lv), delimiter="\t"):
+        deepest = next((r["call_" + x] for x in ("species", "genus", "family", "order", "class", "phylum") if r["call_" + x]), "")
+        print(" | ".join([r["query_id"], r.get("expected", ""), r["status"], deepest, r["call_genus"], r["top_hit_species"], r["ani"][:6], r["qc_flags"]]))
+PY
 python3 - <<PY
 import csv
 res = {r["query_id"]: r for r in csv.DictReader(open("$R/out_hybrids/results.tsv"), delimiter="\t")}
