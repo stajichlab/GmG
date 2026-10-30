@@ -13,12 +13,25 @@ REL=$GR/release/2026.10.4
 R=$GR/reads_sra; mkdir -p $R; cd $R
 Q='tax_tree(4751) AND library_strategy="WGS" AND library_source="GENOMIC" AND instrument_platform="ILLUMINA" AND library_layout="PAIRED"'
 F=run_accession,sample_accession,secondary_sample_accession,study_accession,scientific_name,tax_id,center_name,instrument_model,library_layout,library_strategy,library_source,read_count,base_count,fastq_ftp,fastq_bytes
+# one request for all ~250,000 fungal runs fails (server-side timeout); the table is fetched one first_public year at a time (each ~10-30k rows, ~30 s)
 if [ ! -s ena_runs.tsv ]; then
-  for try in 1 2 3 4 5; do
-    curl -sS -m 600 -G "https://www.ebi.ac.uk/ena/portal/api/search" --data-urlencode "result=read_run" --data-urlencode "query=$Q" \
-      --data-urlencode "fields=$F" --data-urlencode "limit=0" --data-urlencode "format=tsv" -o ena_runs.tmp && head -c 12 ena_runs.tmp | grep -q run_accession && mv ena_runs.tmp ena_runs.tsv && break
-    echo "ENA run table: attempt $try failed"; sleep $((try * 60))
+  rm -f ena_runs.tmp; first=1
+  for Y in $(seq 2008 2026); do
+    ok=0
+    for try in 1 2 3 4; do
+      curl -sS -m 400 -G "https://www.ebi.ac.uk/ena/portal/api/search" --data-urlencode "result=read_run" \
+        --data-urlencode "query=$Q AND first_public>=$Y-01-01 AND first_public<=$Y-12-31" --data-urlencode "fields=$F" --data-urlencode "limit=0" \
+        --data-urlencode "format=tsv" -o y$Y.tmp && head -c 20 y$Y.tmp | grep -q run_accession && { ok=1; break; }
+      echo "ENA run table $Y: attempt $try failed"; sleep $((try * 30))
+    done
+    if [ $ok = 1 ]; then
+      if [ $first = 1 ]; then cat y$Y.tmp > ena_runs.tmp; first=0; else tail -n +2 y$Y.tmp >> ena_runs.tmp; fi
+      echo "year $Y: $(($(wc -l < y$Y.tmp) - 1)) runs"; rm -f y$Y.tmp
+    else
+      echo "ENA run table $Y could not be fetched"; exit 1
+    fi
   done
+  mv ena_runs.tmp ena_runs.tsv
 fi
 [ -s ena_runs.tsv ] || { echo "ENA run table could not be fetched"; exit 1; }
 echo "ENA runs: $(($(wc -l < ena_runs.tsv) - 1))"

@@ -68,14 +68,60 @@ def test_sra_harvest_reads_only_the_head_and_counts_bytes(tmp_path):
     assert (tmp_path / "raw" / "RUN1_1.fastq.gz").stat().st_mtime_ns == before
 
 
-def test_sra_depth_table_bins_by_coverage(tmp_path):
-    write_tsv(tmp_path / "runs.tsv", [dict(run="A", read_len=100, genome_size=10_000_000), dict(run="B", read_len=100, genome_size=10_000_000)])
-    write_tsv(tmp_path / "truth.tsv", [dict(id="A", genus="G1", species="G1 a", phylum="P"), dict(id="B", genus="G2", species="G2 b", phylum="P")])
+def test_sra_depth_table_counts_recall_over_attainable_inputs(tmp_path):
+    """Recall is over inputs whose truth can still be found in the reference after the exclusion; the minimum depth comes from it."""
+    write_tsv(tmp_path / "runs.tsv", [dict(run="A", read_len=100, genome_size=10_000_000, species_others_in_ref=1, genus_others_in_ref=2),
+                                      dict(run="B", read_len=100, genome_size=10_000_000, species_others_in_ref=0, genus_others_in_ref=0)])
+    write_tsv(tmp_path / "truth.tsv", [dict(id="A", genus="G1", species="G1 a", phylum="P", center="X"), dict(id="B", genus="G2", species="G2 b", phylum="P", center="X")])
     hdr = ["query_id", "call_phylum", "call_genus", "call_species"]
     write_tsv(tmp_path / "lo.tsv", [dict(zip(hdr, ["A", "P", "", ""])), dict(zip(hdr, ["B", "", "", ""]))])
     write_tsv(tmp_path / "hi.tsv", [dict(zip(hdr, ["A", "P", "G1", "G1 a"])), dict(zip(hdr, ["B", "P", "G2", "G9 x"]))])
     out = run("sra_depth_table.py", tmp_path / "runs.tsv", tmp_path / "truth.tsv", tmp_path / "o.md",
               f"self:pair:5000={tmp_path / 'lo.tsv'}", f"self:pair:500000={tmp_path / 'hi.tsv'}").stdout
-    # 5,000 pairs x 100 bp x 2 / 10 Mb = 0.1x ; 500,000 pairs = 10x
-    assert "| 0.1-0.25x | 2 | 0.00 |" in out and "| >=10x | 2 | 1.00 | 1.000 (2) | 1.00 | 1.00 | 0.500 (2) | 0.50 |" in out
-    assert "Minimum depth for genus (recall >= 0.8 from there on): >=10x" in out
+    # B's genus is not elsewhere in the reference (genus_others 0): only A counts for recall, so recall is 0 then 1 even though B is also called right
+    assert "| 5,000 (median 0.10x) | 2 | 1 | 0.00 | - (0) | 0.00 |" in out
+    assert "| 500,000 (median 10.00x) | 2 | 1 | 1.00 | 1.000 (2) | 1.00 |" in out
+    assert "Minimum depth for genus (recall over attainable inputs >= 0.8 from there on): 500,000 pairs (median 10.00x)" in out
+    assert "Minimum depth for species (recall over attainable inputs >= 0.8 from there on): 500,000 pairs" in out
+    assert "**By phylum, 500,000 pairs**" in out and "| P | 2 | 1 |" in out and "centers with >= 3 runs" in out
+
+
+def test_sra_harvest_resumes_a_stream_the_server_ends_early(tmp_path):
+    """A server that closes every response after 60 kB (HTTP Range supported) must still deliver the requested pairs, without re-reading bytes."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+    rng = random.Random(5)
+    src = tmp_path / "big.fastq.gz"
+    with gzip.open(src, "wt") as fh:
+        for i in range(20000):
+            s = "".join(rng.choice("ACGT") for _ in range(100))
+            fh.write(f"@r{i}\n{s}\n+\n{'F' * 100}\n")
+    blob = src.read_bytes()
+    hits = []
+
+    class H(BaseHTTPRequestHandler):
+        def do_GET(self):
+            start = int(self.headers["Range"].split("=")[1].rstrip("-")) if self.headers.get("Range") else 0
+            end = min(len(blob), start + 60_000)
+            hits.append((self.path, start))
+            self.send_response(206 if start else 200)
+            self.send_header("Content-Length", str(end - start))
+            self.end_headers()
+            self.wfile.write(blob[start:end])
+
+        def log_message(self, *a):
+            pass
+
+    srv = HTTPServer(("127.0.0.1", 0), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    url = f"http://127.0.0.1:{srv.server_address[1]}/big.fastq.gz"
+    runs = tmp_path / "runs.tsv"
+    write_tsv(runs, [dict(run="RUN2", fastq_1=url, fastq_2=url.replace("big", "big2"))])
+    run("sra_harvest.py", runs, tmp_path / "raw", 4000, 1, 1e9)
+    srv.shutdown()
+    lines = gzip.open(tmp_path / "raw" / "RUN2_1.fastq.gz", "rt").read().splitlines()
+    assert len(lines) == 16000 and lines[0] == "@r0" and lines[-4] == "@r3999"
+    h1 = [b for p, b in hits if p == "/big.fastq.gz"]
+    assert len(h1) > 2 and h1 == sorted(h1) and len(set(h1)) == len(h1)       # several resumes, each at a later byte
+    row = (tmp_path / "raw" / "bytes.tsv").read_text().splitlines()[1].split("\t")
+    assert int(row[3]) == 4000 and int(row[5]) >= 2 and int(row[1]) <= max(h1) + 60_000

@@ -11,5 +11,5 @@ set -uo pipefail
 source $HOME/projects/GmG/scripts/hpcc/env.sh
 S=${READS_SCRIPTS:-$GMG_REPO/scripts}
 R=$GR/reads_sra; mkdir -p $R/raw; cd $R
-python3 $S/sra_harvest.py sra_runs.tsv raw ${PAIRS:-500000} 4 24e9
+python3 $S/sra_harvest.py sra_runs.tsv raw ${PAIRS:-500000} 3 24e9
 cat raw/bytes.tsv | awk -F'\t' 'NR>1{b+=$2+$3; n++} END{printf "%d runs, %.2f GB of compressed bytes read\n", n, b/1e9}'

@@ -15,7 +15,9 @@ R=$GR/reads_sra; cd $R
 echo "gmg: $($GMG --version)  index: $INDEX"
 python3 - <<'PY'
 import csv, os
-runs = [r for r in csv.DictReader(open("sra_runs.tsv"), delimiter="\t") if os.path.exists(f"raw/{r['run']}.done")]
+# only runs whose two mates both reached the full 500,000 pairs (a short stream is never silently accepted)
+full = {l.split("\t")[0] for l in open("raw/bytes.tsv") if l.split("\t")[0] != "run" and int(l.split("\t")[3]) >= 500000}
+runs = [r for r in csv.DictReader(open("sra_runs.tsv"), delimiter="\t") if os.path.exists(f"raw/{r['run']}.done") and r["run"] in full]
 with open("sheet.tsv", "w") as sh, open("sheet_r1.tsv", "w") as s1, open("truth.tsv", "w") as tr:
     sh.write("id\tpath\texpected\tref\n"); s1.write("id\tpath\texpected\tref\n")
     w = csv.writer(tr, delimiter="\t", lineterminator="\n")
