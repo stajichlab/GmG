@@ -1,0 +1,25 @@
+kind	a	b	a_len	b_len	a_phylum	a_class	a_order	a_family	a_genus	a_species	b_phylum	b_class	b_order	b_family	b_genus	b_species
+same_genus	GCA_060702595.1	GCA_061311405.1	56112191	36908131	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	Fusarium oxysporum	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	
+same_genus	GCA_059056845.1	GCA_061613165.1	20969069	25523718	Basidiomycota	Tremellomycetes	Trichosporonales	Trichosporonaceae	Trichosporon		Basidiomycota	Tremellomycetes	Trichosporonales	Trichosporonaceae	Trichosporon	Trichosporon asahii
+same_genus	GCA_062042547.1	GCA_062053534.1	53991246	50404813	Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum		Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum	
+same_genus	GCA_057913235.1	GCA_060806595.1	37253248	27874854	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus	
+same_genus	GCA_050230655.1	GCA_050230735.1	11597263	9034224	Ascomycota	Saccharomycetes	Saccharomycodales	Saccharomycodaceae	Hanseniaspora		Ascomycota	Saccharomycetes	Saccharomycodales	Saccharomycodaceae	Hanseniaspora	
+same_genus	GCA_061611815.1	GCA_061611855.1	32413196	33475457	Ascomycota	Eurotiomycetes	Onygenales	Ajellomycetaceae	Emergomyces		Ascomycota	Eurotiomycetes	Onygenales	Ajellomycetaceae	Emergomyces	
+same_genus	GCA_062042558.1	GCA_965286845.1	11035057	14007052	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Diutina		Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Diutina	
+same_genus	GCA_059330095.1	GCA_061612335.1	44918736	49916457	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia	
+same_order	GCA_056010345.1	GCA_061208645.1	50057248	44248433	Basidiomycota	Agaricomycetes	Agaricales	Omphalotaceae	Lentinula		Basidiomycota	Agaricomycetes	Agaricales	Clitocybaceae	Collybia	
+same_order	GCA_058411585.1	GCA_965358655.1	14660828	13990122	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Candida		Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Diutina	
+same_order	GCA_061311535.1	GCA_061336215.1	36904220	34242889	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma	
+same_order	GCA_061208565.1	GCA_988554075.1	43748370	41125901	Basidiomycota	Agaricomycetes	Agaricales	Clitocybaceae	Collybia		Basidiomycota	Agaricomycetes	Agaricales	Inocybaceae	Inocybe	
+same_order	GCA_053456535.1	GCA_965358675.1	13084032	14034053	Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Lodderomyces		Ascomycota	Pichiomycetes	Serinales	Debaryomycetaceae	Diutina	
+same_order	GCA_061208585.1	GCA_987114515.1	42563404	50087202	Basidiomycota	Agaricomycetes	Agaricales	Clitocybaceae	Collybia		Basidiomycota	Agaricomycetes	Agaricales	Cortinariaceae	Calonarius	
+same_order	GCA_056010365.1	GCA_987567215.1	51166050	42978895	Basidiomycota	Agaricomycetes	Agaricales	Omphalotaceae	Lentinula		Basidiomycota	Agaricomycetes	Agaricales	Hygrophoraceae	Hygrocybe	
+same_order	GCA_061291985.1	GCA_987566535.1	48461588	38549964	Basidiomycota	Agaricomycetes	Agaricales	Strophariaceae	Stropharia		Basidiomycota	Agaricomycetes	Agaricales	Agaricaceae	Agaricus	
+same_class	GCA_059330025.1	GCA_061603705.1	42958876	43724057	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium	
+same_class	GCA_061603605.1	GCA_062042542.1	44419148	53660449	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum	
+same_class	GCA_061311225.1	GCA_977097105.1	36914926	34767643	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	Fusarium		Ascomycota	Sordariomycetes	Sordariales	Podosporaceae	Podospora	
+same_class	GCA_050157985.1	GCA_062042533.1	42973823	54418416	Ascomycota	Sordariomycetes	Magnaporthales	Pyriculariaceae	Pyricularia		Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum	
+same_class	GCA_059056815.1	GCA_061237835.1	20969021	26749457	Basidiomycota	Tremellomycetes	Trichosporonales	Trichosporonaceae	Trichosporon		Basidiomycota	Tremellomycetes	Tremellales	Tremellaceae	Tremella	
+same_class	GCA_057913195.1	GCA_061346435.1	38731829	23461531	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Aspergillus		Ascomycota	Eurotiomycetes	Onygenales	Arthrodermataceae	Trichophyton	
+same_class	GCA_061476995.1	GCA_062042531.1	42627817	54415048	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae	Metarhizium		Ascomycota	Sordariomycetes	Glomerellales	Glomerellaceae	Colletotrichum	
+same_class	GCA_061611865.1	GCA_061613905.1	35821341	28280235	Ascomycota	Eurotiomycetes	Onygenales	Ajellomycetaceae	Emergomyces		Ascomycota	Eurotiomycetes	Eurotiales	Trichocomaceae	Talaromyces	
