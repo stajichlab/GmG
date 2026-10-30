@@ -1,0 +1,21 @@
+[package]
+name = "gmg-py"
+description = "Python bindings for GmG: load a reference index, sketch FASTA/FASTQ, classify (the same code as `gmg run`)"
+version = "0.0.1"
+edition = "2021"
+license = "MIT"
+publish = false
+
+# not part of the main workspace: it needs Python and maturin (see README.md); the Rust CI does not build it
+[workspace]
+
+[lib]
+name = "_gmg"
+crate-type = ["cdylib"]
+
+[dependencies]
+gmg-core = { path = "../gmg-core", features = ["json"] }
+gmg-report = { path = "../gmg-report" }
+serde_json = "1"
+flate2 = "1"
+pyo3 = { version = "0.23", features = ["extension-module", "abi3-py39"] }
