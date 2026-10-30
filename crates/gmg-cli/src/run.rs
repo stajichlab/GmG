@@ -3,7 +3,7 @@
 //! Each finished input is appended to `results.jsonl` immediately, so a killed run can be resumed (`--resume`);
 //! the TSV files and the manifest are generated from that file at the end. Schema version: see `SCHEMA_VERSION`.
 
-use crate::{load_index, load_thresholds, sketch_paths, strip_ext};
+use crate::{is_stdin, load_index, load_thresholds, sketch_paths, strip_ext};
 use anyhow::{bail, Context, Result};
 use gmg_core::classify::{
     classify, error_record, exclusion_mask, hits_tsv, relationship_label, relationships,
@@ -271,8 +271,15 @@ fn discover(args: &RunArgs) -> Result<Vec<Input>> {
                 .map(PathBuf::from),
         );
     }
+    let mut stdin_given = false;
     for p in &given {
-        if p.is_dir() {
+        if is_stdin(p) {
+            if stdin_given {
+                bail!("standard input (-) can be given only once");
+            }
+            stdin_given = true;
+            files.push(p.clone());
+        } else if p.is_dir() {
             walk(p, &mut files)?;
         } else if p.is_file() {
             files.push(p.clone());
@@ -283,15 +290,28 @@ fn discover(args: &RunArgs) -> Result<Vec<Input>> {
     let mut inputs: Vec<Input> = Vec::new();
     let mut seen: HashMap<String, PathBuf> = HashMap::new();
     for p in files {
-        // directories are filtered by extension; explicitly named files must also look like sequence files
-        let Some(kind) = kind_of(&p, &args.kind) else {
+        // directories are filtered by extension; explicitly named files must also look like sequence files;
+        // standard input has no name: `--kind reads` says it is FASTQ/reads, anything else is an assembly (FASTQ is refused later)
+        let kind = if is_stdin(&p) {
+            if args.kind == "reads" {
+                "reads"
+            } else {
+                "assembly"
+            }
+        } else if let Some(k) = kind_of(&p, &args.kind) {
+            k
+        } else {
             continue;
         };
-        let id = strip_ext(
-            &p.file_name()
-                .map(|s| s.to_string_lossy().into_owned())
-                .unwrap_or_default(),
-        );
+        let id = if is_stdin(&p) {
+            "stdin".to_string()
+        } else {
+            strip_ext(
+                &p.file_name()
+                    .map(|s| s.to_string_lossy().into_owned())
+                    .unwrap_or_default(),
+            )
+        };
         if let Some(prev) = seen.insert(id.clone(), p.clone()) {
             bail!(
                 "two inputs would get the id '{id}': {} and {}; rename one",

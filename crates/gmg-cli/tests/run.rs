@@ -1332,3 +1332,66 @@ fn decoy_genomes_make_non_fungal_inputs_say_so() {
         .iter()
         .all(|r| !r[col(&h2, "qc_flags")].contains("not_fungal")));
 }
+
+#[test]
+fn run_reads_standard_input_next_to_files() {
+    use std::io::Write;
+    use std::process::Stdio;
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, _) = build_reference(d);
+    let fa = fasta("q", &genomes[2]);
+    fs::create_dir_all(d.join("in")).unwrap();
+    fs::write(d.join("in/file.fa"), &fa).unwrap();
+    let run = |extra: &[&str], stdin: &[u8]| -> std::process::Output {
+        let mut ch = Command::new(env!("CARGO_BIN_EXE_gmg"))
+            .args(["run", "--index", ix.to_str().unwrap(), "-q", "--no-report"])
+            .args(extra)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+        let _ = ch.stdin.take().unwrap().write_all(stdin); // the process may exit first (refused input)
+        ch.wait_with_output().unwrap()
+    };
+    // a file and standard input in one run: two rows, the same call
+    let out = d.join("out");
+    let o = run(
+        &[
+            "-o",
+            out.to_str().unwrap(),
+            d.join("in").to_str().unwrap(),
+            "-",
+        ],
+        fa.as_bytes(),
+    );
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+    let (h, rows) = read_tsv(&out.join("results.tsv"));
+    assert_eq!(rows.len(), 2);
+    let sp = |id: &str| rows.iter().find(|r| r[0] == id).unwrap()[col(&h, "call_species")].clone();
+    assert_eq!(sp("stdin"), "Fusarium gamma");
+    assert_eq!(sp("file"), sp("stdin"));
+    // FASTQ on standard input needs --kind reads
+    let fq = "@r1\nACGTACGTACGTACGTACGTACGTAAA\n+\nIIIIIIIIIIIIIIIIIIIIIIIIIII\n";
+    let out2 = d.join("out2");
+    let o = run(&["-o", out2.to_str().unwrap(), "-"], fq.as_bytes());
+    let (h2, rows2) = read_tsv(&out2.join("results.tsv"));
+    assert_eq!(rows2[0][col(&h2, "status")], "error");
+    assert!(String::from_utf8_lossy(&o.stderr).len() < 10_000);
+    assert!(
+        fs::read_to_string(out2.join("results.jsonl"))
+            .unwrap()
+            .contains("--kind reads"),
+        "the error row says how to fix it"
+    );
+    let out3 = d.join("out3");
+    let o = run(
+        &["-o", out3.to_str().unwrap(), "--kind", "reads", "-"],
+        fq.as_bytes(),
+    );
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+    // standard input twice is refused
+    let o = run(&["-o", d.join("out4").to_str().unwrap(), "-", "-"], b"");
+    assert!(!o.status.success());
+}

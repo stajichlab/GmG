@@ -355,6 +355,13 @@ pub(crate) fn sketch_paths(
         let mut file_n = 0u64;
         while let Some(rec) = r.next() {
             let rec = rec.with_context(|| format!("parsing {}", path.display()))?;
+            if file_n == 0
+                && is_stdin(path)
+                && !abund
+                && rec.format() == needletail::parser::Format::Fastq
+            {
+                anyhow::bail!("standard input is FASTQ: add --kind reads");
+            }
             let seq = rec.seq();
             sk.add_sequence(&seq);
             n += 1;

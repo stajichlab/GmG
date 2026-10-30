@@ -37,7 +37,7 @@ Empty cell = not applicable / not called. TSV cells never contain tabs or newlin
 | `n_hashes`, `total_bases`, `n50` | sketch size after filtering, input bases, N50 (assemblies) |
 | `qc_flags` | comma-separated, see below |
 | `message` | plain one-sentence reason when `status` is `error` (never a path) |
-| `error_code` | `empty_file`, `no_sequence_records`, `not_sequence_file`, `bad_gzip`, `unreadable`, `too_short`, `parse_error`, `internal_error`; blank unless `status` is `error`. `results.jsonl` also has `error_action`, what to do about it |
+| `error_code` | `empty_file`, `no_sequence_records`, `not_sequence_file`, `bad_gzip`, `unreadable`, `too_short`, `parse_error`, `internal_error`, `stdin`; blank unless `status` is `error`. `results.jsonl` also has `error_action`, what to do about it |
 | `taxid_phylum` .. `taxid_species` | the NCBI taxid of each called taxon (docs/taxonomy.md); blank for a rank that was not called or has no NCBI taxon |
 | `top_hit_label` | the original label of the top-hit genome in the source collection, next to the NCBI `top_hit_species` |
 | `withheld` | why the first uncalled rank was not called, e.g. `genus: ani_below_cutoff (ANI 0.8870 < 0.9000)`; codes: `no_hits`, `too_few_shared_hashes`, `ani_below_cutoff`, `low_agreement`; blank when a species was called |
@@ -93,4 +93,4 @@ Each affected record in `results.jsonl` gets `excluded: {level, n_genomes}`, and
 
 ### Input from a pipe and subsampling
 
-`gmg guess -` reads one FASTA/FASTQ from standard input (gzip is detected from the bytes; the sample id is `stdin`), e.g. `curl -s URL | gmg guess --index ix.gmgi -`. The global `--max-bases N` stops reading each input file after the record that reaches N bases (a cheap subsample of the start of a file; `--max-reads` counts records). `gmg run` takes files and directories only.
+`gmg guess -` reads one FASTA/FASTQ from standard input (gzip is detected from the bytes; the sample id is `stdin`), e.g. `curl -s URL | gmg guess --index ix.gmgi -`. The global `--max-bases N` stops reading each input file after the record that reaches N bases (a cheap subsample of the start of a file; `--max-reads` counts records). `gmg run` takes `-` too, next to files and directories (once; the row id is `stdin`): `curl -s URL | gmg run - --index ix.gmgi -o out/`. Standard input has no file name, so FASTQ needs `--kind reads` (otherwise it is refused with error code `stdin`); `--checksums` skips it.

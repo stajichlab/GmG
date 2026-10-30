@@ -32,6 +32,20 @@ pub fn classify(path: &Path, size: u64, err: &Error) -> InputError {
             "Please report it (https://github.com/stajichlab/GmG/issues) with the file if you can share it.",
         );
     }
+    if path.as_os_str() == "-" {
+        // standard input cannot be reopened to look at it: say what the reader said
+        let msg = if text.contains("--kind reads") {
+            "Standard input is FASTQ."
+        } else {
+            "Standard input could not be read as FASTA or FASTQ (gzip is detected automatically)."
+        };
+        let action = if text.contains("--kind reads") {
+            "Add --kind reads (FASTQ is treated as reads)."
+        } else {
+            "Check the command that feeds the pipe."
+        };
+        return e("stdin", msg, action);
+    }
     if size == 0 {
         return e(
             "empty_file",
