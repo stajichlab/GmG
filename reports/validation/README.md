@@ -10,6 +10,7 @@ Details per dataset are in the linked files. All numbers are from runs of `gmg r
 | 3 | Held-out calibration: thresholds fitted on half the genera, tested on the other half, and fitted on Ascomycota, tested on other phyla | 70,878 bench queries | BFD labels (43 suspect genomes removed) | `heldout_calibration.md` |
 | 4 | False-call rate for taxa absent from the reference (leave-genus-out / leave-species-out) | 23,6k each | BFD labels | `novelty_curve.md` |
 | 5 | Real RNA-seq reads (BFD, species-labelled, non-empty files only) | 345 | BFD species lineage | `rna_reads_n*.md` |
+| 6 | Independent lab and public assemblies: IndigoAg (199), ZyGoLife aaftf/sort (552), KassonLab (36), Antarctic MAGs (266, classification only), CCFEE AAFTF vs shovill (67 strains); registry `data/validation/datasets.tsv` | 1,120 | provider names / NCBI taxids / agreement | `external_summary.md` |
 
 ## Before and after the balanced default (#57, PR #60)
 
