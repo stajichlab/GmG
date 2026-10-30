@@ -26,7 +26,8 @@ with open(f"{out}/s1_post_freeze.tsv", "w") as o:
 tr = [r for r in csv.DictReader(open(f"{repo}/data/validation/truth_set.list.tsv"), delimiter="\t") if r["in_bfd"] == "yes" and r["bfd_id"]]
 big = [r for r in tr if r["phylum"] in ("Ascomycota", "Basidiomycota")]
 small = [r for r in tr if r not in big]
-sel = small + rng.sample([r for r in big if r["phylum"] == "Ascomycota"], 128) + rng.sample([r for r in big if r["phylum"] == "Basidiomycota"], 128)
+pick2 = lambda ph: [r for r in big if r["phylum"] == ph]
+sel = small + [r for ph in ("Ascomycota", "Basidiomycota") for r in rng.sample(pick2(ph), min(128, len(pick2(ph))))]
 cols2 = ["id", "bfd_id"] + R
 with open(f"{out}/s2_truth.tsv", "w") as o:
     w = csv.writer(o, delimiter="\t", lineterminator="\n")
