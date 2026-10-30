@@ -111,8 +111,8 @@ enum Cmd {
     Guess {
         #[arg(long)]
         index: PathBuf,
-        /// drop query hashes seen fewer than this many times (reads)
-        #[arg(long, default_value_t = 1)]
+        /// drop query hashes seen fewer than this many times (reads), or `auto` to take the cutoff from the abundance histogram
+        #[arg(long, default_value = "1", value_parser = parse_min_abund)]
         min_abund: u32,
         #[arg(long)]
         max_reads: Option<u64>,
@@ -145,8 +145,9 @@ enum Cmd {
         /// auto (by extension), assembly or reads
         #[arg(long, default_value = "auto", value_parser = ["auto", "assembly", "reads"])]
         kind: String,
-        /// drop hashes seen fewer than this many times (default 1 for assemblies, 2 for reads)
-        #[arg(long)]
+        /// drop hashes seen fewer than this many times (default 1 for assemblies, 2 for reads), or `auto` (reads): the cutoff at the
+        /// valley of the abundance histogram
+        #[arg(long, value_parser = parse_min_abund)]
         min_abund: Option<u32>,
         /// reads: stop after this many reads per file
         #[arg(long)]
@@ -321,6 +322,16 @@ pub(crate) static MAX_BASES: std::sync::atomic::AtomicU64 = std::sync::atomic::A
 /// the path that means standard input (gzip and FASTA/FASTQ are detected from the bytes)
 pub(crate) fn is_stdin(p: &Path) -> bool {
     p.as_os_str() == "-"
+}
+
+/// `--min-abund`: a count, or `auto` for the cutoff chosen from the abundance histogram of a read set
+fn parse_min_abund(s: &str) -> Result<u32, String> {
+    if s.eq_ignore_ascii_case("auto") {
+        Ok(gmg_core::classify::MIN_ABUND_AUTO)
+    } else {
+        s.parse::<u32>()
+            .map_err(|_| format!("'{s}' is not a count or 'auto'"))
+    }
 }
 
 fn id_of(path: &Path) -> String {

@@ -37,6 +37,9 @@ pub struct Hist {
     pub over12: u64,
     pub min_abund: u32,
     pub median_kept: u32,
+    /// estimated genome coverage of the sketched reads (`qc.coverage_est`) and how it was found (`peak` | `poisson`)
+    pub coverage_est: Option<f64>,
+    pub coverage_basis: String,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -130,6 +133,8 @@ impl Rec {
             median_kept: v["qc"]["abundance_hist"]["median_kept"]
                 .as_u64()
                 .unwrap_or(0) as u32,
+            coverage_est: v["qc"]["coverage_est"].as_f64(),
+            coverage_basis: s(&v["qc"]["coverage_basis"]),
         });
         Rec {
             id: s(&v["id"]),

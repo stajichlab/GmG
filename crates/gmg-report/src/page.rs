@@ -288,8 +288,15 @@ fn card(r: &Rec, th: &Th, open: bool) -> String {
     let reads = match (&r.hist, r.kind.as_str()) {
         (Some(h), "reads") => {
             let c = charts::abundance_chart(h);
+            let cov = match h.coverage_est {
+                Some(v) => format!(
+                    " The estimated genome coverage of these reads is {v:.1}× (from the {} of the abundance histogram; for RNA-seq it is only the dominant k-mer abundance).",
+                    if h.coverage_basis == "peak" { "peak" } else { "counts of hashes seen two and three times" }
+                ),
+                None => String::new(),
+            };
             format!(
-                r#"<h4>Reads: what was kept</h4><figure class="fig">{}<figcaption>Hashes seen once are mostly sequencing errors and are dropped (minimum abundance {}). The peak of the kept hashes (median {}×) estimates k-mer coverage; {:.1}% of the kept hashes are found in the best reference.</figcaption></figure>"#,
+                r#"<h4>Reads: what was kept</h4><figure class="fig">{}<figcaption>Hashes seen once are mostly sequencing errors and are dropped (minimum abundance {}). The median abundance of the kept hashes is {}×;{cov} {:.1}% of the kept hashes are found in the best reference.</figcaption></figure>"#,
                 figtools(&c),
                 h.min_abund,
                 h.median_kept,

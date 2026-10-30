@@ -7,7 +7,7 @@ use serde_json::{json, Value};
 use std::collections::HashMap;
 
 /// Bump when a column of results.tsv / hits.tsv or a key of results.jsonl / run.json changes meaning.
-pub const SCHEMA_VERSION: u32 = 6; // 6: taxid_<rank> columns, top_hit_label. 5: withheld column. 4: expected, expected_match columns (sample sheet). 2: tentative_genus column; balanced default thresholds. 3: error_code column, plain error messages
+pub const SCHEMA_VERSION: u32 = 7; // 7: coverage_est column (reads). 6: taxid_<rank> columns, top_hit_label. 5: withheld column. 4: expected, expected_match columns (sample sheet). 2: tentative_genus column; balanced default thresholds. 3: error_code column, plain error messages
 
 /// Species ANI cutoff for read sets (#32): repeated sequencing errors lower the containment ANI of a read set, so the
 /// assembly cutoff (0.9938) leaves 8-15% of correct species unnamed. With *C. immitis* left out of the reference its reads
@@ -67,6 +67,9 @@ pub const WEAK_PHYLUM_ANI: f64 = 0.85;
 /// decoy in the 1,257-genome post-freeze set plus IndigoAg was 0.881; non-fungal relatives of a decoy are well above 0.9).
 pub const NOT_FUNGAL_MIN_ANI: f64 = 0.90;
 
+/// `min_abund` value that asks for the abundance cutoff chosen from the histogram of a read set (`--min-abund auto`).
+pub const MIN_ABUND_AUTO: u32 = u32::MAX;
+
 /// Classify one sketched input. Returns the record (the line of `results.jsonl`) and the query hashes it was classified
 /// with, or a message when the input cannot be classified (too short, k/seed mismatch).
 #[allow(clippy::too_many_arguments)]
@@ -88,6 +91,25 @@ pub fn classify(
     if st.total_len < ix.ksize as u64 {
         return Err("input is too short for one k-mer window".into());
     }
+    // reads: the abundance cutoff may be chosen from the histogram, and the coverage is estimated from it
+    let cov = if reads {
+        sk.abunds.as_deref().and_then(crate::coverage::profile)
+    } else {
+        None
+    };
+    let min_abund = if min_abund == MIN_ABUND_AUTO {
+        match sk.abunds.as_deref() {
+            Some(a) if reads => crate::coverage::auto_min_abund(a),
+            _ => 1,
+        }
+    } else {
+        min_abund
+    };
+    let coverage_est = cov.as_ref().map(|c| {
+        let mean_len = st.total_len as f64 / st.n_records.max(1) as f64;
+        let v = crate::coverage::base_coverage(c.kmer, mean_len, ix.ksize);
+        (v, c.basis)
+    });
     let hist = if reads {
         abundance_hist(&sk, min_abund)
     } else {
@@ -161,6 +183,10 @@ pub fn classify(
                "n_hashes": hashes.len(), "min_abund": min_abund});
     if let Some(h) = hist {
         qc["abundance_hist"] = h;
+    }
+    if let Some((v, basis)) = coverage_est {
+        qc["coverage_est"] = json!((v * 100.0).round() / 100.0);
+        qc["coverage_basis"] = json!(basis);
     }
     if let Some((lo, hi, basis)) = range {
         qc["size_est_mb"] = json!((est_mb * 100.0).round() / 100.0);
@@ -339,6 +365,7 @@ pub fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
         "withheld",
         "expected",
         "expected_match",
+        "coverage_est",
         "schema_version",
     ] {
         header.push(c.to_string());
@@ -400,6 +427,7 @@ pub fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
             withheld_text(&r["guess"]["withheld"]),
             tsv_cell(&r["expected"]),
             expected_match(r),
+            tsv_cell(&r["qc"]["coverage_est"]),
             SCHEMA_VERSION.to_string(),
         ]);
         rows.push(row);
@@ -498,6 +526,13 @@ pub fn query_hashes_from(
     let mut pairs: Vec<(u64, u32)> = match &sk.abunds {
         Some(a) => sk.hashes.iter().copied().zip(a.iter().copied()).collect(),
         None => sk.hashes.iter().map(|&h| (h, 1)).collect(),
+    };
+    let min_abund = if min_abund == MIN_ABUND_AUTO {
+        sk.abunds
+            .as_deref()
+            .map_or(1, crate::coverage::auto_min_abund)
+    } else {
+        min_abund
     };
     pairs.retain(|&(_, a)| a >= min_abund);
     let h: Vec<u64> = pairs.into_iter().map(|(h, _)| h).collect();
