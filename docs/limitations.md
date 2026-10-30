@@ -23,7 +23,7 @@ GmG compares the k-mer content of an input with a reference collection and repor
 | Degraded genomes (24 hosts) | completeness 10-75%, 5 kb contigs | calls unchanged down to 10% (phylum right for 23/24) |
 | Contamination from another phylum | phylum correct | 21/24 at 5%, 19/24 at 20%, 17/24 at 50% foreign DNA |
 | Negative controls | random DNA, repeat, bacteria, phage | `no_match` |
-| Non-fungal eukaryotes | see below | flagged `not_fungal` when a relative is among the decoys |
+| Non-fungal eukaryotes | see below | flagged `not_fungal` when a relative (ANI >= 0.90) is among the decoys; otherwise `distant_non_fungal_hit` |
 
 Precision is the share of calls made that are correct; "called" is the share of inputs that get a call. Confidence intervals and per-clade tables are in the validation reports.
 
@@ -33,7 +33,7 @@ Precision is the share of calls made that are correct; "called" is the share of 
 * **Genera and species that are not in the reference** are sometimes given the nearest name. The `low_confidence` status and `tentative_genus` exist for this; do not treat an ANI-0.9 genus call as a new-taxon discovery or a negative result.
 * **Small, fragmented or partial inputs** (N50 under 10 kb, fewer than 100 hashes) often get no call; this is correct but says nothing about the organism. QC flags `fragmented`, `few_hashes`, `short_genome`, `long_genome`, `high_N` say why.
 * **Mixtures.** GmG returns one lineage. A contaminant that has close relatives in the reference can win the call; a mixture flag was tried and rejected (6% false positives at ~50% sensitivity). GmG does not separate the parts of a metagenome (#31).
-* **Not a fungus.** The input is assumed to be a fungus. A decoy panel of non-fungal genomes (plants, animals, protists) lets many non-fungal inputs say so (`not_fungal` flag, #79); eukaryotes without a close decoy relative can still get a low-confidence fungal call, so check the flags. Bacteria and viruses return `no_match`.
+* **Not a fungus.** The input is assumed to be a fungus. A decoy panel of non-fungal genomes (plants, animals, protists) lets non-fungal inputs that have a close decoy relative (best-hit ANI >= 0.90) say so (`not_fungal` flag, #79). Inputs far from every reference genome, fungal or not, usually land on whichever decoy is nearest by chance (ANI 0.75-0.88); they get `distant_non_fungal_hit` and a low-confidence call, which says nothing about whether they are fungi (about 2% of divergent real fungi in the post-freeze set look like this). Bacteria and viruses return `no_match`.
 * **Reads** need enough depth for the species to be seen at the species cutoff (0.99 for reads, 0.9938 for assemblies): at about 0.5x genome coverage genus calls are reliable, species calls less so. Sequencing errors lower ANI. RNA-seq covers only the transcribed part of the genome, so it is less sensitive (#33). Long reads and very high error rates are not validated yet (#44).
 * **Only fungi are in the reference.** Mitochondrion-only or plasmid-only inputs are not tested.
 

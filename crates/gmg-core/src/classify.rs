@@ -58,6 +58,10 @@ pub struct Item<'a> {
     pub kind: &'a str,
 }
 
+/// Best-hit ANI to a non-fungal decoy at or above which an input is flagged `not_fungal` (the largest ANI of a real fungus to a
+/// decoy in the 1,257-genome post-freeze set plus IndigoAg was 0.881; non-fungal relatives of a decoy are well above 0.9).
+pub const NOT_FUNGAL_MIN_ANI: f64 = 0.90;
+
 /// Classify one sketched input. Returns the record (the line of `results.jsonl`) and the query hashes it was classified
 /// with, or a message when the input cannot be classified (too short, k/seed mismatch).
 #[allow(clippy::too_many_arguments)]
@@ -110,8 +114,10 @@ pub fn classify(
             .or_else(|| ctx.ranges.get(""))
             .and_then(|r| r.as_ref())
     };
-    // the input looks like a non-fungal decoy: its phylum call, or failing that its best hit, is one of the listed phyla
-    let not_fungal = !ctx.non_fungal.is_empty()
+    // the input is nearest to non-fungal decoys: its phylum call, or failing that its best hit, is one of the listed phyla.
+    // A real relative (ANI >= NOT_FUNGAL_MIN_ANI) says "not a fungus"; a distant best hit says nothing either way, because a
+    // divergent fungus and a divergent non-fungus both land on whichever decoy is nearest by chance (ANI 0.75-0.88).
+    let near_decoy = !ctx.non_fungal.is_empty()
         && (g.calls[0]
             .as_deref()
             .is_some_and(|p| ctx.non_fungal.iter().any(|n| n == p))
@@ -119,6 +125,9 @@ pub fn classify(
                 let ph = &ix.genomes[t.genome as usize].lineage[0];
                 ctx.non_fungal.iter().any(|n| n == ph)
             }));
+    let top_ani = g.top.as_ref().map_or(0.0, |t| t.ani);
+    let not_fungal = near_decoy && top_ani >= NOT_FUNGAL_MIN_ANI;
+    let distant_decoy = near_decoy && !not_fungal;
     let mut flags = qc_flags(
         item.kind,
         st,
@@ -128,6 +137,8 @@ pub fn classify(
     );
     if not_fungal {
         flags.push("not_fungal");
+    } else if distant_decoy {
+        flags.push("distant_non_fungal_hit");
     }
     let mut qc = json!({"n_records": st.n_records, "total_bases": st.total_len, "n50": st.n50,
                "non_acgt_fraction": if st.total_len > 0 { st.non_acgt as f64 / st.total_len as f64 } else { 0.0 },

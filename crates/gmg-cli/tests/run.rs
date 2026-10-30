@@ -1266,8 +1266,13 @@ fn decoy_genomes_make_non_fungal_inputs_say_so() {
         inp.join("plant_relative.fa"),
         fasta("p", &rng.mutate(&plant, 30)),
     )
-    .unwrap(); // ~90% ANI: genus-level distance
+    .unwrap(); // ~0.98 ANI: a close relative
     fs::write(inp.join("worm_copy.fa"), fasta("w", &worm)).unwrap();
+    fs::write(
+        inp.join("plant_distant.fa"),
+        fasta("d", &rng.mutate(&plant, 200)),
+    )
+    .unwrap(); // ~0.85 ANI: a decoy is nearest, but not a relative
     fs::write(inp.join("fungus.fa"), fasta("f", &genomes[2])).unwrap();
     fs::write(inp.join("unrelated.fa"), fasta("u", &rng.genome(150_000))).unwrap();
     let out = d.join("out");
@@ -1290,6 +1295,13 @@ fn decoy_genomes_make_non_fungal_inputs_say_so() {
     assert!(
         flags("worm_copy").contains("not_fungal")
             && get("worm_copy")[col(&h, "call_species")] == "Caenorhabditis elegans"
+    );
+    assert!(
+        !flags("plant_distant").contains("not_fungal")
+            && flags("plant_distant").contains("distant_non_fungal_hit"),
+        "a distant decoy hit is not a verdict: {} (ANI {})",
+        flags("plant_distant"),
+        get("plant_distant")[col(&h, "ani")]
     );
     assert!(
         !flags("fungus").contains("not_fungal"),
