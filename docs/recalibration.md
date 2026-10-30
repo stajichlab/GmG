@@ -13,7 +13,7 @@ and the new release on the 1,257 post-freeze assemblies, the IndigoAg assemblies
 |---|---|---|
 | 1 | **Precision drops.** On the post-freeze set (truth = NCBI lineage), the precision of the calls made at any rank is below the lower end of the 95% Wilson interval of the previous release | a drop outside the noise of the previous measurement; 1,257 inputs give intervals of about +-0.01 at phylum to genus |
 | 2 | **Called share moves.** The share of inputs with a genus or species call moves by more than 5 points | silent loss (or gain) of calls changes what users see even if the precision holds |
-| 3 | **Confident calls churn.** More than 2% of inputs that are `ok` in both releases change their genus call | taxonomy renames move a few percent of species names, genus calls should be steadier; more means the genome set or the cutoffs moved |
+| 3 | **Confident calls churn.** More than 2% of inputs that are `ok` in both releases change their genus call **for a reason other than a deliberately removed top hit or a label update** (`release_compare.py` separates them) | taxonomy renames move a few percent of species names, genus calls should be steadier; more unexplained change means the genome set or the cutoffs moved. A removal changes the calls of the inputs whose nearest genome it was, by design (2026.10.3: 3 of 137 confident IndigoAg genus calls) |
 | 4 | **The golden panel changes** (`scripts/golden_check.py` fails) | any change of a call, flag or ANI (> 0.0005) of the 17 pinned genomes must be understood before release |
 | 5 | **The reference changes size or composition by more than 10%** (genomes, or clusters at 95%), or the taxonomy dump renames more than 5% of the species labels | cutoffs depend on how dense the reference is around a query |
 

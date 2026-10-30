@@ -72,6 +72,7 @@ def cause(o, n):
 
 md = ["# Release stability (#48)\n", f"Releases compared: {', '.join(order)}. Same binary and thresholds for all runs (`known`).\n"]
 trigger = []
+notes = []
 for name in sorted(res):
     vs = [v for v in order if v in res[name]]
     md.append(f"## {name}\n")
@@ -125,10 +126,17 @@ for name in sorted(res):
     for v0, v1 in zip(vs, vs[1:]):
         A, B = res[name][v0], res[name][v1]
         okc = [q for q in A if q in B and A[q]["status"] == "ok" and B[q]["status"] == "ok"]
-        ch = sum(1 for q in okc if A[q]["call_genus"] != B[q]["call_genus"])
+        changed = [q for q in okc if A[q]["call_genus"] != B[q]["call_genus"]]
+        explained = ("old top hit excluded from the reference", "same top hit, new label (taxonomy update)")
+        ch = sum(1 for q in changed if cause(A[q], B[q]) not in explained)
+        notes.append(f"{name} {v0}->{v1}: {len(changed)} of {len(okc)} confident genus calls changed, {len(changed) - ch} of them explained "
+                     f"(a deliberately excluded top hit or a label update), {ch} unexplained")
         if okc and ch / len(okc) > 0.02:
-            trigger.append(f"{name} {v0}->{v1}: {ch} of {len(okc)} confident genus calls changed ({100 * ch / len(okc):.1f}% > 2%)")
+            trigger.append(f"{name} {v0}->{v1}: {ch} of {len(okc)} confident genus calls changed for no documented reason ({100 * ch / len(okc):.1f}% > 2%)")
 md.append("## Re-calibration trigger\n")
+md.append("Churn of confident genus calls (rule 3 counts only the unexplained ones):\n")
+md += [f"* {n}" for n in notes]
+md.append("")
 if trigger:
     md.append("TRIGGER: " + "; ".join(trigger) + "\n")
 else:
