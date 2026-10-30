@@ -35,6 +35,7 @@ for r in rows[1:]:
 open("meta_decoys.tsv", "w").write("".join("\t".join(r) + "\n" for r in rows))
 PY
 tail -n +2 meta_decoys.tsv >> meta_full.tsv
+NDECOY=$(tail -n +2 meta_decoys.tsv | wc -l)
 NONFUNGAL=$(cut -f3 meta_decoys.tsv | tail -n +2 | sort -u | paste -sd, -)
 echo "non-fungal phyla: $NONFUNGAL"
 # representatives: the same normalized rows, restricted to the representative ids (all decoys are kept)
@@ -50,11 +51,11 @@ with open("meta_reps.tsv", "w") as o:
 PY
 $GMG --threads 8 build --meta meta_full.tsv --sketches $GR/sketch --scaled 10000 -o full_raw.gmgi \
   --taxonomy-version "$TAXV" --non-fungal-phyla "$NONFUNGAL" \
-  --note "full reference; ANI clusters at 0.95; includes 43 genomes flagged as possible mislabels (reports/label_audit/exclude_ids.txt); plus 8 non-fungal decoy genomes (data/decoys/decoys.tsv)"
+  --note "full reference; ANI clusters at 0.95; includes 43 genomes flagged as possible mislabels (reports/label_audit/exclude_ids.txt); plus $NDECOY non-fungal decoy genomes (data/decoys/decoys.tsv)"
 $GMG convert full_raw.gmgi -o bfd-$VER-s10000.gmgi
 $GMG --threads 8 build --meta meta_reps.tsv --sketches $GR/sketch --scaled 20000 -o reps_raw.gmgi \
   --taxonomy-version "$TAXV" --non-fungal-phyla "$NONFUNGAL" \
-  --note "representatives only (best genome per species, BFD rule); ANI clusters at 0.95 where the centroid is in the full index; plus 8 non-fungal decoy genomes"
+  --note "representatives only (best genome per species, BFD rule); ANI clusters at 0.95 where the centroid is in the full index; plus $NDECOY non-fungal decoy genomes"
 $GMG convert reps_raw.gmgi -o bfd-reps-$VER-s20000.gmgi
 rm -f full_raw.gmgi reps_raw.gmgi
 bash $GMG_REPO/scripts/make_index_release.sh bfd-$VER-s10000.gmgi bfd-reps-$VER-s20000.gmgi
