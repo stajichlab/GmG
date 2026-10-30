@@ -15,7 +15,7 @@ scripts (`scripts/stress2_*.py`, `scripts/fetch_small_inputs.py`, `scripts/hpcc/
   same-order pairs 4/8, 3/8, 3/8. A hit list cannot find a minority below 50%: decomposition (#31) is needed.
 * **The top-hit ANI is a mixture meter.** The median ANI falls as p^(1/21) with the majority share p: 0.963-0.968 at 50:50 (0.5^(1/21) = 0.968), 0.977-0.981 at 70:30 (0.983),
   0.989-0.994 at 90:10 (0.995). A top hit of a clearly known genus with ANI 0.96-0.98 and nothing at 0.99+ is what a half-and-half input looks like.
-* **Hybrids (union of two same-genus genomes, 8 pairs): genus correct 8/8, species withheld 8/8**, status `ok`, median ANI 0.969.
+* **Hybrids: simulated (union of two same-genus genomes, 8 pairs) genus correct 8/8, species withheld 8/8**, status `ok`, median ANI 0.969. **Seven real hybrid assemblies with their own species hidden: genus correct 6/7, the seventh kept at the family; with the genus hidden never a genus call (0/7) and the rank above right for 6/7.**
 * **Mitochondrion-only inputs (10 RefSeq fungal mtDNAs, 19-135 kb): 7 correct calls (5 to species, 2 to genus), 3 `no_match`, 0 wrong.** They rest on 5-19 hashes and carry
   `few_hashes`. A small-input mode is not worth building now (see below).
 * **Plasmid and viruses: no fungal call.** A yeast plasmid (1 hash) and 7 viruses (lambda, T4, mimivirus, PBCV-1, vaccinia, HSV-1, phiX174) all `no_match`.
@@ -72,7 +72,28 @@ The simulated hybrid (both parent genomes in full) is called to the genus of bot
 half of its k-mers from each parent, so the containment ANI against either parent is about 0.97). The status is `ok` and no flag is raised. Real hybrids differ from this union:
 their homeologous chromosomes diverge by a few percent, so the k-mers of the two subgenomes partly coincide and the ANI to the nearest parent is higher than for a union.
 
-**Real hybrids are not scored in this report.** `scripts/hpcc/31_real_hybrids.sbatch` (S. pastorianus, S. bayanus, S. cerevisiae x S. kudriavzevii, *Candida orthopsilosis*, a Cryptococcus hybrid, *Zygosaccharomyces parabailii*, *Verticillium longisporum*; truth = the parent genus) was submitted but had not run when this report was written; its result belongs in a follow-up. The simulated union above is a stand-in, not a test of real hybrids.
+**Real hybrids** (`scripts/hpcc/31_real_hybrids.sbatch`, index 2026.10.4, same binary; truth = the genus of the parents). Seven NCBI assemblies of known hybrids: *Saccharomyces pastorianus*
+(*S. cerevisiae* x *S. eubayanus*), *S. cerevisiae* x *S. kudriavzevii*, *S. eubayanus* (the cold-tolerant parent, not itself a hybrid), *Candida orthopsilosis* (an interspecies hybrid strain; NCBI now
+calls the genus *Lodderomyces*), a *Cryptococcus neoformans* x *C. deneoformans* hybrid, *Zygosaccharomyces parabailii* and *Verticillium longisporum*. Six are in the reference
+(four are `identical_to_reference`), so the plain run (all 7 `ok`, genus correct for 7/7 under the current names) is a lookup and says little. The test is what happens when the
+assembly's own species, and then its own genus, is hidden from the reference (`--exclude-level`, #85):
+
+| assembly | own species hidden: call (best-hit ANI) | own genus hidden: deepest call (best-hit ANI) |
+|---|---|---|
+| *S. pastorianus* | genus *Saccharomyces* correct; species of another hybrid genome, *S. cerevisiae* x *S. eubayanus* (0.9997) | family Saccharomycetaceae, correct (0.955) |
+| *S. cerevisiae* x *S. kudriavzevii* | genus *Saccharomyces* correct (0.9968) | family Saccharomycetaceae, correct (0.976) |
+| *S. eubayanus* | genus *Saccharomyces* correct, species withheld (0.9995) | family Saccharomycetaceae, correct (0.916) |
+| *Zygosaccharomyces parabailii* | genus *Zygosaccharomyces* correct; species *Z. bailii* (0.9979), a parent species and not the hybrid | family Saccharomycetaceae, correct (0.790, `distant_non_fungal_hit`) |
+| *Cryptococcus* hybrid | genus *Cryptococcus* correct; species *C. neoformans* (0.9940), one parent | order Magnaporthales, **wrong** (0.752, `distant_non_fungal_hit`, `low_confidence`) |
+| *Verticillium longisporum* | genus *Verticillium* correct; best hit *V. dahliae* (0.9647) | order Glomerellales, correct (0.767, `distant_non_fungal_hit`) |
+| *Candida orthopsilosis* | no genus call: family Debaryomycetaceae, best hit *Lodderomyces metapsilosis* (0.838), `low_confidence` | order Serinales, correct (0.796) |
+
+* **Genus correct for 6 of 7 with the species hidden;** the seventh (a close relative at ANI 0.84, below the genus cutoff) is kept at the family, which is right. **Never a genus call with the genus
+  hidden** (0 of 7), as it should be, and the rank above is right for 6 of 7 (all `low_confidence`); the one wrong deepest call is the Cryptococcus hybrid, whose nearest remaining relatives
+  are at ANI 0.75 (it is called to an unrelated order, `low_confidence` with `distant_non_fungal_hit`).
+* **Hybrids are called to the genus of their parents and to a parent species**, never to a third genus. The species call is to one parent's species (or another hybrid genome) at ANI 0.994-0.9997 and
+  is withheld otherwise; the sketch cannot say it is a hybrid. This agrees with the simulated union (genus 8/8, species withheld).
+* The hybrid assemblies carry no hybrid-specific flag; `high_N` (Verticillium) is the only flag that is not `distant_non_fungal_hit`.
 
 ## Mitochondrion-, plasmid- and virus-only inputs
 
@@ -128,5 +149,5 @@ Never a confident fungal call: no genus or species call, and none without a flag
 
 ## Not covered
 
-Contaminated reads (see the reads reports), real hybrids (the job above), mixtures of three or more genomes, mixtures across phyla at 50:50, pairs whose parents are
+Contaminated reads (see the reads reports), real hybrids not in the list above, mixtures of three or more genomes, mixtures across phyla at 50:50, pairs whose parents are
 the same species, and an organelle-only input from a species that is not in the reference.
