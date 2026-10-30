@@ -14,7 +14,7 @@ scripts/fetch_examples.sh examples_data          # downloads all six (or: script
 gmg run examples_data/ --index bfd-reps-2026.10.2-s20000.gmgi -o example_results/
 ```
 
-Measured with `gmg` from `main` and the 2026.10.2 indexes (a later index or taxonomy may differ slightly, see docs/taxonomy.md):
+Measured with `gmg` from `main` and the 2026.10.3 indexes (a later index or taxonomy may differ slightly, see docs/taxonomy.md):
 
 | example | representatives index (67 MB, the web app) | full index (213 MB) |
 |---|---|---|
