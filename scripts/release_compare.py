@@ -114,6 +114,25 @@ for name in sorted(res):
                 cells.append(f"{k / c:.3f} ({c / n:.2f})" if c else "-")
             md.append(f"| {v} | " + " | ".join(cells) + " |")
         md.append("")
+        # `weak_phylum` (#99): a phylum called from a best-hit ANI < 0.85 (assemblies). Derived from the columns, so that releases run
+        # with an older binary can be compared: the flag is kept on the call, this only reports how much of the phylum precision it carries.
+        md.append("Phylum calls with a best-hit ANI below 0.85 (`weak_phylum`, kept as calls and flagged): share of the phylum calls, and phylum precision of the calls without and with the flag:\n")
+        md.append("| release | weak share | precision without | precision with (weak only) |")
+        md.append("|---|---|---|---|")
+        weak = {}
+        for v in vs:
+            t = [(r, truth[q]) for q, r in res[name][v].items() if q in truth and r["status"] != "error" and truth[q].get("phylum") and r["call_phylum"]]
+            isweak = lambda r: r.get("kind", "assembly") != "reads" and r.get("ani", "") != "" and float(r["ani"]) < 0.85
+            w = [(r, g) for r, g in t if isweak(r)]
+            s = [(r, g) for r, g in t if not isweak(r)]
+            pw = sum(1 for r, g in w if r["call_phylum"] == g["phylum"])
+            ps = sum(1 for r, g in s if r["call_phylum"] == g["phylum"])
+            weak[v] = len(w) / len(t) if t else 0.0
+            md.append(f"| {v} | {len(w)} of {len(t)} ({100 * weak[v]:.1f}%) | {ps / len(s):.3f} ({len(s)}) | " + (f"{pw / len(w):.3f} ({len(w)})" if w else "-") + " |")
+        md.append("")
+        for v0, v1 in zip(vs, vs[1:]):
+            if abs(weak[v1] - weak[v0]) > 0.05:
+                trigger.append(f"{name} {v0}->{v1}: the share of weak_phylum calls moved by more than 5 points ({100 * weak[v0]:.1f}% -> {100 * weak[v1]:.1f}%)")
         for v0, v1 in zip(vs, vs[1:]):
             for r in RANKS:
                 n0, c0, k0 = stats[(v0, r)]

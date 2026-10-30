@@ -21,6 +21,9 @@ re-calibration rules of `docs/recalibration.md`. Per-genome results stay on the 
 * **The calibration holds.** Precision of the calls made on the post-freeze set is the same in all four releases to three decimals: phylum 0.990, class 0.991, order 0.986, family 0.983-0.984, genus 0.988,
   species 1.000; the called share is the same (phylum 0.95, genus 0.84, species 0.75; family 0.90 to 0.91). The decoys (2026.10.2) cost nothing on fungal calls *because of the distant-decoy rule* (#89): the first decoy build,
   before it, put a Chordata phylum on 25 post-freeze fungi and lowered phylum precision from 0.990 to 0.977 (`reports/validation/decoys.md`, `truth_set.md`).
+* **`weak_phylum` (#99) is stable across releases.** 70 of the 1,189 phylum calls on the post-freeze set (5.9%) come from a best-hit ANI below 0.85; phylum precision is **0.996 without them and 0.886 with them**, and the
+  numbers are identical in all four releases (derived from `ani`, so the older runs are comparable). The flag keeps the call; `release_compare.py` now reports the share and the split, and a move of the share by more than 5 points is a
+  re-calibration rule (rule 2 of `docs/recalibration.md`).
 * **Decoys change what they should.** On the 15 held-out non-fungal genomes, 4 changed (the three that are themselves decoys and *Entamoeba*, which has a decoy relative: all now `not_fungal`) and 11 did not (bacteria, viruses and the non-fungi without a close decoy keep their calls); nothing else in the other sets moved with the decoys
   (1 IndigoAg call, a label).
 * **Removing 57 genomes changes the inputs whose nearest genome they were, by design.** IndigoAg 2026.10.2 to .3: 5 inputs changed (2.5%): three assemblies called *Pseudopestalotiopsis* from an excluded genome (*P. chinensis*, one of the
@@ -28,7 +31,7 @@ re-calibration rules of `docs/recalibration.md`. Per-genome results stay on the 
   from a distant, chance hit (ANI 0.81); one low-confidence phylum flips. The loss of the *Tetracladium* call is the cost of removing a genome that was probably mislabelled but was also the only close relative; this is the
   "distant relatives give wrong low-confidence phylum calls" weakness already seen in IndigoAg (`external_indigo.md`).
 * **Cluster ids are stable until genomes are removed.** Clusters are computed once and carried: ids and partition identical across 2026.10, .1, .2 (adjusted Rand index 1.0000, 23,669 of 23,669 genomes). 2026.10.3 keeps the ids of
-  its 23,612 genomes, but 15 removed genomes were centroids: **3 clusters (23 genomes) now carry the id of a genome that is not in the index** (`scripts/reseed_clusters.py` fixes this; see `clusters_vs_skani.md`).
+  its 23,612 genomes, but 15 removed genomes were centroids: **3 clusters (23 genomes) now carry the id of a genome that is not in the index** (`scripts/reseed_clusters.py` fixes this and the release script now calls it; the published `index-2026.10.3` predates it and still has them; see `clusters_vs_skani.md`).
 
 ## Re-calibration trigger
 
@@ -91,6 +94,15 @@ Precision of the calls made (called share), against the truth table:
 | 2026.10.1 | 0.990 (0.95) | 0.991 (0.94) | 0.986 (0.94) | 0.983 (0.90) | 0.988 (0.84) | 1.000 (0.75) |
 | 2026.10.2 | 0.990 (0.95) | 0.991 (0.94) | 0.986 (0.94) | 0.984 (0.90) | 0.988 (0.84) | 1.000 (0.75) |
 | 2026.10.3 | 0.990 (0.95) | 0.991 (0.94) | 0.986 (0.94) | 0.984 (0.91) | 0.988 (0.84) | 1.000 (0.75) |
+
+Phylum calls with a best-hit ANI below 0.85 (`weak_phylum`, kept as calls and flagged): share of the phylum calls, and phylum precision of the calls without and with the flag:
+
+| release | weak share | precision without | precision with (weak only) |
+|---|---|---|---|
+| 2026.10 | 70 of 1189 (5.9%) | 0.996 (1119) | 0.886 (70) |
+| 2026.10.1 | 70 of 1189 (5.9%) | 0.996 (1119) | 0.886 (70) |
+| 2026.10.2 | 70 of 1189 (5.9%) | 0.996 (1119) | 0.886 (70) |
+| 2026.10.3 | 70 of 1189 (5.9%) | 0.996 (1119) | 0.886 (70) |
 
 ### Re-calibration trigger
 
