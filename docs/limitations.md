@@ -13,10 +13,10 @@ GmG compares the k-mer content of an input with a reference collection and repor
 
 | situation | measure | result |
 |---|---|---|
-| RefSeq truth set, a new strain of a known species (leave-one-out, 653 genomes, 258 type material; index 2026.10.2) | precision of calls made, phylum / class / order / family / genus | 0.998 / 0.993 / 0.995 / 0.997 / 0.992 (species 0.948, called for 39%; 0.992 and 60% when the species has another genome in the reference) |
-| same, a new species of a known genus (leave-species-out) | phylum to genus | 0.997 / 0.983 / 0.984 / 0.977 / 0.962; a species call here is necessarily wrong and happens for 7% (congeners at ANI >= 0.99, label conflicts) |
-| same, a new genus of a known family (leave-genus-out) | phylum / class / order / family | 0.966 / 0.785 / 0.766 / 0.616 (called 67% / 68% / 62% / 50%); 12% get a genus call (label conflicts, synonym genera, 9 plain overcalls). The 57 ambiguous-label genomes left out from 2026.10.3 raise class to about 0.90 (measured with the 43 audit genomes hidden: class 0.897, order 0.832, family 0.722) |
-| RefSeq genomes outside the reference (21) | phylum to genus | 21 / 21 correct at each rank; species called and correct for 17 |
+| RefSeq truth set, a new strain of a known species (leave-one-out, 652 genomes, 258 type material; index 2026.10.3) | precision of calls made, phylum / class / order / family / genus | 0.978 / 0.971 / 0.969 / 0.986 / 0.994 (called 98% / 98% / 97% / 92% / 77%); species 0.949, called for 39% (0.992 and 60% when the species has another genome in the reference). The wrong calls at phylum to order are all `low_confidence`, at best-hit ANI 0.74-0.85 |
+| same, a new species of a known genus (leave-species-out) | phylum to genus | 0.962 / 0.948 / 0.944 / 0.960 / 0.980 (called 96% / 97% / 95% / 87% / 54%); a species call here is necessarily wrong and happens for 6% (congeners at ANI >= 0.99, label conflicts) |
+| same, a new genus of a known family (leave-genus-out) | phylum / class / order / family | 0.860 / 0.768 / 0.707 / 0.652 (called 93% / 94% / 83% / 57%); 7% get a genus call (15 of 47 label conflicts, 20 synonym genera, 12 plain overcalls). Phylum calls at best-hit ANI >= 0.85 are 0.96-1.00 precise, below 0.85 about 0.82 (chance best hits on a few very large genomes). Release 2026.10.3, the 57 genomes left out and the decoy re-call: class 0.561 to 0.768, order 0.557 to 0.707, family 0.454 to 0.652 against 2026.10.2 |
+| RefSeq genomes outside the reference (21) | phylum to genus | 21 / 21 correct at each rank; species called and correct for 18 (3 withheld for conflicting species labels among near-identical references) |
 | Independent assemblies (1,257 not in the reference, no quality filter), balanced default | precision of calls made | phylum 0.990, class 0.991, order 0.986, family 0.983, genus 0.988 |
 | same set | share with a call | phylum 0.946; genus 0.839; inputs with only a `tentative_genus` 78 |
 | Species (52 genomes with a species name, all in the reference) | called / precision | 75% / 1.000 (too few to generalise) |
@@ -49,8 +49,8 @@ It is not a substitute for taxonomic curation, a phylogenetic placement, an ANI-
 ## Reference genomes left out for ambiguous labels
 
 57 genomes whose label conflicts with their close relatives (43 from the label audit, `reports/label_audit/`, and 14 more found by the truth-set run, #39) are
-not in the reference from release 2026.10.3 on; the list is `reports/label_audit/reference_exclusions.txt`. Hiding the 43 audit genomes raised
-leave-genus-out class precision from 0.785 to 0.897 (`reports/validation/truth_set.md`). A species whose only genome was excluded loses its species call.
+not in the reference from release 2026.10.3 on; the list is `reports/label_audit/reference_exclusions.txt`. On the RefSeq truth set the exclusions raise leave-genus-out precision by 8 points at class, 5 at order and 8 at family (0.686 / 0.659 / 0.573 on the same taxonomy without
+them, no decoys, to 0.768 / 0.707 / 0.652) and cut the label-conflict share of its disagreements from 60% to 21% (`reports/validation/truth_set.md`). A species whose only genome was excluded loses its species call.
 
 ## Contamination
 
