@@ -45,3 +45,5 @@ The change does what the novelty analysis predicted: false genus names for absen
 ## Follow-ups (issues)
 
 clade-aware calibration (#58); tiny-input messaging (#59); reads calibration (#32); RNA-aware index (#33); error codes (#55); stress tests including contamination (#41); more independent sets (#40).
+
+Reads calibration (#32): `reads_calibration.md` (coverage estimate accuracy, fixed 1 / fixed 2 / auto abundance cutoff on a calibration/evaluation split of the ZyGoLife, *Coccidioides* and RNA-seq read collections).
