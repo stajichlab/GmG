@@ -470,6 +470,36 @@ fn paired_and_lane_split_reads_equal_the_concatenated_file() {
         jl.contains("\"files\":[\"A_S1_L001_R1_001.fastq\""),
         "grouped sample lists its files"
     );
+    // the same holds with the abundance filter, because abundances are summed over the files of a sample: the default cutoff (2) and
+    // `auto` give the same hashes, the same coverage estimate and the same call for the merged sample and the concatenated file (#32)
+    for extra in [vec![], vec!["--min-abund", "auto"]] {
+        let outc = d.join(format!("out_cut{}", extra.join("")));
+        let mut args = vec![
+            "run",
+            inp.to_str().unwrap(),
+            "--index",
+            ix.to_str().unwrap(),
+            "-o",
+            outc.to_str().unwrap(),
+            "--no-report",
+        ];
+        args.extend_from_slice(&extra);
+        ok(&args);
+        let (hc, rc) = read_tsv(&outc.join("results.tsv"));
+        let find = |id: &str| rc.iter().find(|r| r[0] == id).unwrap().clone();
+        let (ca, cw) = (find("A_S1"), find("whole"));
+        for c in [
+            "status",
+            "call_species",
+            "n_hashes",
+            "shared",
+            "total_bases",
+            "coverage_est",
+        ] {
+            assert_eq!(ca[col(&hc, c)], cw[col(&hc, c)], "{c} with {extra:?}");
+        }
+        assert!(!ca[col(&hc, "coverage_est")].is_empty(), "{extra:?}");
+    }
 
     // --no-group keeps the five files separate; --list reads paths from a file
     let list = d.join("list.txt");
