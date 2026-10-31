@@ -1,7 +1,8 @@
 name: web app (GitHub Pages)
 
 # Builds the browser app (web/ + the wasm package) and publishes it. The representatives index of the newest `index-*`
-# release is bundled so the app works at once and offline after the first load; the full index is loaded from a file.
+# release is bundled so the app works at once and offline after the first load, and so is the full index (about 213 MB:
+# GitHub's 100 MB limit is for files committed to git, not for a Pages artifact; the whole site must stay under 1 GB).
 #
 # Off until the repository owner turns it on: Settings > Pages > Source = GitHub Actions, and a repository variable
 # PAGES_ENABLED = true (Settings > Secrets and variables > Actions > Variables). Run it by hand with workflow_dispatch.
@@ -36,16 +37,17 @@ jobs:
           locked: true
           cache: true
       - run: pixi run wasm
-      - name: Fetch the representatives index of the newest index release
+      - name: Fetch the representatives and full indexes of the newest index release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag=$(gh release list --limit 30 --json tagName -q '.[].tagName' | grep '^index-' | sort -r | head -1)
           echo "index release: $tag"
           mkdir -p idx
-          gh release download "$tag" --pattern 'bfd-reps-*.gmgi' --dir idx
+          gh release download "$tag" --pattern 'bfd-*.gmgi' --dir idx
           ls -la idx
-      - run: scripts/build_site.sh _site idx/*.gmgi
+      # representatives first: the first file is the default in the dropdown
+      - run: scripts/build_site.sh _site idx/bfd-reps-*.gmgi idx/bfd-2*.gmgi
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
