@@ -152,6 +152,8 @@ containment .92-.95; genus precision .997 (called .93-.94), species called 63-68
 
 ## #44 Long reads
 
+**Done (2026-10-30): `reports/validation/long_reads.md`.** Simulated sweep (24 genomes) and 20 real runs; decision: a `high_error_reads` flag from the k-mer survival, no error-aware cutoff, no second index, `--min-abund auto` recommended at >= 10x.
+
 **Problem.** A 21-mer survives an error rate e with probability (1-e)^21: at 5% 34%, at 10% 11%. But the containment *ANI*
 (containment^(1/21)) tracks identity: a read set at 10% error looks like a 0.90 ANI relative, so it can reach a genus call at the
 0.90 cutoff but never a species call at 0.9938/0.99, and the abundance filter (min count 2) throws away most true hashes at low coverage.

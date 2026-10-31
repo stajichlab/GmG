@@ -1,0 +1,25 @@
+id	species	genus	phylum	class	order	family	genome_size	replicons	species_others_in_ref	genus_others_in_ref
+GCA_027571585.1_ASM2757158v1	Encephalitozoon cuniculi	Encephalitozoon	Microsporidia			Unikaryonidae	2847233	11	5	16
+GCA_024399295.1_ASM2439929v1	Encephalitozoon intestinalis	Encephalitozoon	Microsporidia			Unikaryonidae	2609445	11	3	16
+GCA_059058645.1_ASM5905864v1	Rhizopus stolonifer	Rhizopus	Mucoromycota	Mucoromycetes	Mucorales	Rhizopodaceae	48208381	11	4	108
+GCA_963573315.1_gzEntParv1.1	Entomortierella parvispora	Entomortierella	Mortierellomycota	Mortierellomycetes	Mortierellales	Mortierellaceae	41789561	14	1	5
+GCA_047368035.1_ASM4736803v1	Malassezia pachydermatis	Malassezia	Basidiomycota	Malasseziomycetes	Malasseziales	Malasseziaceae	8403632	6	13	80
+GCA_976943335.1_jamPhyA2	Parajaminaea phylloscopi	Parajaminaea	Basidiomycota	Exobasidiomycetes	Microstromatales		18271894	3	0	1
+GCA_050655635.1_ASM5065563v1	Puccinia silphii	Puccinia	Basidiomycota	Pucciniomycetes	Pucciniales	Pucciniaceae	37500256	19	0	50
+GCA_965620545.1_gfHygConi1.hap1.1	Hygrocybe conica	Hygrocybe	Basidiomycota	Agaricomycetes	Agaricales	Hygrophoraceae	38937452	14	0	4
+GCA_034406715.1_ASM3440671v1	Rhodotorula mucilaginosa	Rhodotorula	Basidiomycota	Microbotryomycetes	Sporidiobolales	Sporidiobolaceae	20314606	18	124	215
+GCA_056632855.1_ASM5663285v1	Cryptococcus deneoformans	Cryptococcus	Basidiomycota	Tremellomycetes	Tremellales	Cryptococcaceae	19510339	14	7	242
+GCA_023748825.1_Uh359_v1	Ustilago hordei	Ustilago	Basidiomycota	Ustilaginomycetes	Ustilaginales	Ustilaginaceae	26999323	23	10	37
+GCA_029542765.1_ASM2954276v1	Malassezia psittaci	Malassezia	Basidiomycota	Malasseziomycetes	Malasseziales	Malasseziaceae	8186253	8	0	80
+GCA_059756815.1_ASM5975681v1	Morchella sextelata	Morchella	Ascomycota	Pezizomycetes	Pezizales	Morchellaceae	54639260	26	3	52
+GCA_031310005.1_ASM3131000v1	Dactylellina haptotyla	Dactylellina	Ascomycota	Orbiliomycetes	Orbiliales	Orbiliaceae	39806839	10	1	9
+GCA_017301755.1_ASM1730175v1	Pneumocystis wakefieldiae	Pneumocystis	Ascomycota	Pneumocystomycetes	Pneumocystales	Pneumocystaceae	7303369	17	0	10
+GCA_024056715.1_ASM2405671v1	Fusarium circinatum	Fusarium	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae	46694243	12	18	2098
+GCA_025331885.1_ASM2533188v1	Nakaseomyces glabratus	Nakaseomyces	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	12580898	13	98	111
+GCA_965113265.1_glEphLana1.1	Ephebe lanata	Ephebe	Ascomycota	Lichinomycetes	Lichinales	Porocyphaceae	38055185	7	0	1
+GCA_964340765.1_glUmbDeus1.1	Umbilicaria deusta	Umbilicaria	Ascomycota	Lecanoromycetes	Umbilicariales	Umbilicariaceae	40755763	24	3	37
+GCA_023078545.1_ASM2307854v1	Schizosaccharomyces pombe	Schizosaccharomyces	Ascomycota	Schizosaccharomycetes	Schizosaccharomycetales	Schizosaccharomycetaceae	12813332	3	58	67
+GCA_051599425.1_Sai_col_YB2330_v1	Saitoella coloradoensis	Saitoella	Ascomycota	Saitoellomycetes	Saitoellales	Saitoellaceae	14066465	38	0	1
+GCA_049635345.1_ASM4963534v1	Candidozyma auris	Candidozyma	Ascomycota	Pichiomycetes	Serinales	Metschnikowiaceae	12375724	7	949	984
+GCA_017766525.1_ASM1776652v1	Zymoseptoria tritici	Zymoseptoria	Ascomycota	Dothideomycetes	Mycosphaerellales	Mycosphaerellaceae	38860664	20	55	70
+GCA_039834545.1_ASM3983454v1	Sclerotinia sclerotiorum	Sclerotinia	Ascomycota	Leotiomycetes	Helotiales	Sclerotiniaceae	39247474	16	35	48

@@ -1780,3 +1780,58 @@ fn the_mixture_pass_respects_the_exclusion_masks() {
     assert_eq!(recs[0]["qc"]["mixture"]["primary"], "Agaricus");
     assert!(second(&recs).is_null(), "{}", recs[0]["qc"]["mixture"]);
 }
+
+#[test]
+fn high_error_reads_flag_comes_from_the_kmer_survival_and_never_changes_a_call() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, mut rng) = build_reference(d);
+    let g = &genomes[2];
+    let inp = d.join("reads");
+    fs::create_dir_all(&inp).unwrap();
+    // 10x reads with 0.5%, 2% and 8% substitution errors (per thousand: 5, 20, 80), and 0.5x reads with 8% (below the coverage the flag is judged from)
+    for (name, cov, e) in [
+        ("e05", 10.0, 5),
+        ("e2", 10.0, 20),
+        ("e8", 10.0, 80),
+        ("e8_low", 0.5, 80),
+    ] {
+        fs::write(
+            inp.join(format!("{name}.fastq")),
+            fastq_reads(&mut rng, g, cov, 150, e),
+        )
+        .unwrap();
+    }
+    let out = d.join("out");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+        "-q",
+        "--no-report",
+    ]);
+    let (h, rows) = read_tsv(&out.join("results.tsv"));
+    let flags = |n: &str| rows.iter().find(|r| r[0] == n).unwrap()[col(&h, "qc_flags")].clone();
+    assert!(
+        !flags("e05").contains("high_error_reads"),
+        "{}",
+        flags("e05")
+    );
+    assert!(!flags("e2").contains("high_error_reads"), "{}", flags("e2"));
+    assert!(flags("e8").contains("high_error_reads"), "{}", flags("e8"));
+    assert!(!flags("e8_low").contains("high_error_reads"));
+    // the estimate is in the record: about 8% for the 8% input
+    let rec: serde_json::Value = serde_json::from_str(
+        fs::read_to_string(out.join("results.jsonl"))
+            .unwrap()
+            .lines()
+            .find(|l| l.contains("\"e8\""))
+            .unwrap(),
+    )
+    .unwrap();
+    let est = rec["qc"]["error_est"].as_f64().expect("error_est");
+    assert!((0.05..=0.12).contains(&est), "error estimate {est}");
+}
