@@ -167,7 +167,7 @@ indel:substitution ratios on 10 genomes, depths 1x-30x.
 and shift the cutoff by the expected ANI loss); abundance filter that scales with coverage; a smaller k (15-17) or smaller
 `scaled` for long reads only (needs a second index; k is fixed by the sketch). **Acceptance:** a table of accuracy vs error rate and
 depth; a decision recorded for k / scaled / cutoff; `gmg run` flags `high_error_reads` when the histogram says so. **Effort:** L.
-**Decision needed:** whether long reads are in scope for v0.1 (they are in the issue; I would put them after #42/#43).
+**Decision needed:** whether long reads are in scope for v0.2.0 (they are in the issue; I would put them after #42/#43).
 
 ## #45 Mixed samples and contaminated reads
 
@@ -218,5 +218,5 @@ skani, mash screen and sourmash gather first (they exist in the `bio` environmen
 
 * Where the lab assemblies (Coccidioides pangenome, MAT genomes, desert isolates) and the earlier mash IDs live (#40 D5).
 * Whether a JGI Mycocosm export is available (#40 D4).
-* Whether long reads (#44) and Kraken2/ITS comparisons (#46) are in scope for v0.1.
+* Whether long reads (#44) and Kraken2/ITS comparisons (#46) are in scope for v0.2.0.
 * Whether to build a small-input mode for mitochondrial/plasmid-sized inputs (#41), after measuring.

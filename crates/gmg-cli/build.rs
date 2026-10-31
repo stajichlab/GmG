@@ -16,5 +16,8 @@ fn main() {
         .unwrap_or_else(|| "unknown".to_string());
     println!("cargo:rustc-env=GMG_GIT={hash}");
     println!("cargo:rerun-if-env-changed=GMG_GIT_HASH");
-    println!("cargo:rerun-if-changed=../../.git/HEAD");
+    // HEAD alone is not enough: `git pull` on a checked-out branch moves the ref file, not HEAD, and left a stale hash in --version.
+    for p in ["HEAD", "refs", "packed-refs"] {
+        println!("cargo:rerun-if-changed=../../.git/{p}");
+    }
 }

@@ -1,7 +1,7 @@
 [package]
 name = "gmg-py"
 description = "Python bindings for GmG: load a reference index, sketch FASTA/FASTQ, classify (the same code as `gmg run`)"
-version = "0.0.1"
+version = "0.2.0"
 edition = "2021"
 license = "MIT"
 publish = false
