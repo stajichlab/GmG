@@ -13,7 +13,7 @@
 set -uo pipefail
 source $HOME/projects/GmG/scripts/hpcc/env.sh
 S=${LR_SCRIPTS:-$GR/long_reads/scripts}
-GMGBIN=${GMGBIN:-$GR/bin/gmg-readscal}
+GMGBIN=${GMGBIN:-$GR/long_reads/bin/gmg}   # private build of the branch (38_long_reads_build.sbatch)
 INDEX=${INDEX:-$GR/release/2026.10.4/bfd-2026.10.4-s10000.gmgi}
 RUNS=${RUNS:-$GR/long_reads/long_reads_runs.tsv}
 W=$GR/long_reads/real; mkdir -p $W/raw; cd $W
@@ -60,4 +60,4 @@ run species_a2 --exclude-level species --min-abund 2
 run genus_a2 --exclude-level genus --min-abund 2
 python3 $S/long_reads_score.py collect-real runs_aug.tsv . queries_real.tsv
 awk -F'\t' 'NR>1{n+=$2}END{printf "total compressed bytes read: %.2f GB\n", n/1e9}' raw/bytes.tsv
-[ -s queries_real.tsv ] && rm -rf raw && echo "raw reads deleted"
+[ -s queries_real.tsv ] && [ "${DELETE_RAW:-0}" = 1 ] && rm -rf raw && echo "raw reads deleted"

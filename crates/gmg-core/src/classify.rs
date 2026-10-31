@@ -62,6 +62,11 @@ pub struct Item<'a> {
 /// phylum precision is 0.998 for leave-one-out and 0.981 for leave-genus-out at best-hit ANI >= 0.85, and 0.858 for leave-genus-out overall; all
 /// wrong leave-one-out phylum calls are chance hits below 0.86. The call is kept (the user chose to flag, not withhold).
 pub const WEAK_PHYLUM_ANI: f64 = 0.85;
+/// reads: `high_error_reads` when the k-mer survival estimated from the abundance histogram (coverage_est over the base coverage of the
+/// nearest reference genome) is at most this, i.e. an error rate of about 3.3% or more ((1-e)^21 <= 0.5); only judged from this base coverage up
+/// (below it the estimate is too noisy: 2% errors at 0.25x read like 5%). reports/validation/long_reads.md (#44).
+pub const HIGH_ERROR_SURVIVAL: f64 = 0.5;
+pub const HIGH_ERROR_MIN_COVERAGE: f64 = 1.0;
 
 /// Best-hit ANI to a non-fungal decoy at or above which an input is flagged `not_fungal` (the largest ANI of a real fungus to a
 /// decoy in the 1,257-genome post-freeze set plus IndigoAg was 0.881; non-fungal relatives of a decoy are well above 0.9).
@@ -199,11 +204,35 @@ pub fn classify(
     if !reads && g.calls[0].is_some() && g.top.as_ref().is_some_and(|t| t.ani < WEAK_PHYLUM_ANI) {
         flags.push("weak_phylum");
     }
+    // reads: error rate from the k-mer survival: the abundance histogram sees only the k-mers without an error, a fraction (1-e)^k of the
+    // genome's, so coverage_est / (bases / genome size) = (1-e)^k; the genome size is that of the nearest reference genome (hashes x scaled)
+    let mut error_est = None;
+    if reads {
+        if let (Some((cov, _)), Some(t)) = (coverage_est, g.top.as_ref()) {
+            let ref_size = ix.genomes[t.genome as usize].n_hashes as f64 * ix.scaled as f64;
+            let base_cov = if ref_size > 0.0 {
+                st.total_len as f64 / ref_size
+            } else {
+                0.0
+            };
+            if base_cov >= HIGH_ERROR_MIN_COVERAGE {
+                let surv = (cov / base_cov).clamp(0.0, 1.0);
+                error_est = Some((1.0 - surv.powf(1.0 / ix.ksize as f64), surv));
+                if surv <= HIGH_ERROR_SURVIVAL {
+                    flags.push("high_error_reads");
+                }
+            }
+        }
+    }
     let mut qc = json!({"n_records": st.n_records, "total_bases": st.total_len, "n50": st.n50,
                "non_acgt_fraction": if st.total_len > 0 { st.non_acgt as f64 / st.total_len as f64 } else { 0.0 },
                "n_hashes": hashes.len(), "min_abund": min_abund});
     if let Some(h) = hist {
         qc["abundance_hist"] = h;
+    }
+    if let Some((e, surv)) = error_est {
+        qc["error_est"] = json!((e * 1000.0).round() / 1000.0);
+        qc["kmer_survival_est"] = json!((surv * 1000.0).round() / 1000.0);
     }
     if let Some((v, basis)) = coverage_est {
         qc["coverage_est"] = json!((v * 100.0).round() / 100.0);
