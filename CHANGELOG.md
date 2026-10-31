@@ -10,7 +10,7 @@
 - Release workflow: the `.dockerbuild` record is no longer attached to the GitHub release.
 - The command line reads `.zst`, `.bz2` and `.xz` input as well as `.gz` (folders, `gmg guess`, `gmg sketch`); results are identical. The browser app still reads only `.gz` (the browser decompresses gzip natively).
 
-## v0.2.0 (unreleased)
+## v0.2.0 (2026-10-31)
 
 First tagged release. Indexes are released separately (`index-YYYY.MM[.N]`); this version is built to run with `index-2026.10.5`.
 
