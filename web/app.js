@@ -219,8 +219,17 @@ function render() {
       const td = document.createElement("td");
       const v = f(r);
       if (k === "status") { const s = document.createElement("span"); s.className = `st ${r.status}`; s.textContent = STATUS_LABEL[r.status] || r.status; td.append(s); }
-      else if (k === "ani") { td.className = "num"; td.textContent = v === null ? "" : v.toFixed(4); }
+      else if (k === "ani") {
+        td.className = "num"; td.textContent = v === null ? "" : v.toFixed(4);
+        if (v !== null) { const s = document.createElement("span"); s.className = "sound"; s.style.setProperty("--v", Math.min(1, Math.max(0, (v - 0.7) / 0.3)).toFixed(3)); td.append(s); }
+      }
       else td.textContent = v || "";
+      if (k === "call" && r.guess && r.guess.calls) {
+        // depth profile: one tick per rank with a call, phylum first
+        const p = document.createElement("span"); p.className = "prof"; p.title = "ranks called, phylum to species";
+        for (const rk of RANKS) { const i = document.createElement("i"); if (r.guess.calls[rk].taxon) i.className = "on"; p.append(i); }
+        td.append(p);
+      }
       tr.append(td);
     }
     const td = document.createElement("td");
@@ -260,3 +269,12 @@ $("print").onclick = () => {
 
 loadManifest();
 loadExamples();
+
+// ---------------------------------------------------------------- page theme (CSS only; see style.css)
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  for (const b of document.querySelectorAll("[data-theme-set]")) b.setAttribute("aria-pressed", String(b.dataset.themeSet === t));
+  try { localStorage.setItem("gmg-theme", t); } catch (e) { /* private mode */ }
+}
+for (const b of document.querySelectorAll("[data-theme-set]")) b.onclick = () => applyTheme(b.dataset.themeSet);
+applyTheme(document.documentElement.dataset.theme || "water");
