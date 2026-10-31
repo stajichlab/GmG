@@ -58,12 +58,50 @@ function showIndex(info) {
 }
 
 // ---------------------------------------------------------------- choosing files
-function addFiles(files) {
+const meta = new WeakMap(); // File -> { label, sha } for the list under the drop zone
+const HASH_MAX = 256e6;      // crypto.subtle needs the whole file in memory, so larger files are listed without a hash
+const fmtSize = (n) => (n >= 1e9 ? `${(n / 1e9).toFixed(1)} GB` : n >= 1e6 ? `${(n / 1e6).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1e3))} kB`);
+let hashing = Promise.resolve();
+function hashFile(f) {
+  const m = meta.get(f);
+  if (f.size > HASH_MAX) { m.sha = "too large to hash here"; return; }
+  hashing = hashing.then(async () => {
+    try {
+      const d = await crypto.subtle.digest("SHA-256", await f.arrayBuffer());
+      m.sha = [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, "0")).join("");
+    } catch { m.sha = "hash unavailable"; }
+    renderQueue();
+  });
+}
+function renderQueue() {
+  const ul = $("queue-list");
+  ul.hidden = queue.length === 0;
+  ul.replaceChildren(...queue.map((f) => {
+    const m = meta.get(f), li = document.createElement("li");
+    const name = document.createElement("span"); name.className = "qname"; name.textContent = f.name;
+    const info = document.createElement("span"); info.className = "qinfo";
+    const sha = m.sha ? (m.sha.length === 64 ? `sha256 ${m.sha.slice(0, 12)}…` : m.sha) : "hashing…";
+    info.textContent = [m.label, fmtSize(f.size), sha].filter(Boolean).join(" · ");
+    if (m.sha && m.sha.length === 64) info.title = `sha256 ${m.sha}`;
+    const x = document.createElement("button"); x.type = "button"; x.className = "qx"; x.textContent = "✕"; x.title = `Remove ${f.name}`; x.setAttribute("aria-label", `Remove ${f.name} from the list`);
+    x.onclick = () => { queue = queue.filter((q) => q !== f); queueStatus(); };
+    li.append(name, info, x);
+    return li;
+  }));
+}
+function queueStatus(extra) {
+  setStatus($("queue-status"), queue.length ? `${queue.length} file${queue.length === 1 ? "" : "s"} ready${extra || ""}. Remove any with ✕.` : `No bite yet: no files chosen${extra || ""}.`);
+  renderQueue(); updateRun();
+}
+function addFiles(files, label) {
   const keep = [...files].filter((f) => SEQ_EXT.test(f.name));
-  const skipped = files.length - keep.length;
-  queue = queue.concat(keep);
-  setStatus($("queue-status"), `${queue.length} file${queue.length === 1 ? "" : "s"} ready${skipped ? ` (${skipped} skipped: not FASTA/FASTQ)` : ""}.`);
-  updateRun();
+  const same = (a, b) => a.name === b.name && a.size === b.size && a.lastModified === b.lastModified;
+  const fresh = keep.filter((f, i) => !queue.some((q) => same(q, f)) && keep.findIndex((g) => same(g, f)) === i);
+  const dup = keep.length - fresh.length, skipped = files.length - keep.length;
+  for (const f of fresh) { meta.set(f, { label: label || "", sha: "" }); hashFile(f); }
+  queue = queue.concat(fresh);
+  const notes = [skipped ? `${skipped} skipped: not FASTA/FASTQ` : "", dup ? `${dup} already in the list` : ""].filter(Boolean).join("; ");
+  queueStatus(notes ? ` (${notes})` : "");
 }
 function updateRun() { $("run").disabled = running || !indexReady || queue.length === 0; }
 
@@ -115,7 +153,7 @@ async function addExample(ex, btn) {
   try {
     const r = await fetch(ex.url);
     if (!r.ok) throw new Error(`NCBI answered ${r.status}`);
-    addFiles([new File([await r.blob()], `${ex.accession}.fna.gz`)]);
+    addFiles([new File([await r.blob()], `${ex.accession}.fna.gz`)], ex.name);
   } catch (err) {
     setStatus($("queue-status"), `Could not download ${ex.name}: ${err.message}. Check your connection, or use scripts/fetch_examples.sh.`, true);
   } finally { btn.disabled = false; }
@@ -132,7 +170,7 @@ $("run").onclick = () => {
   const opts = { maxReads: Number($("max-reads").value) || 0, minAbund: Number($("min-abund").value) || 0, top: 5 };
   worker.postMessage({ type: "classify", files: queue, opts });
   queue = [];
-  setStatus($("queue-status"), "");
+  queueStatus();
 };
 $("cancel").onclick = () => worker.postMessage({ type: "cancel" });
 
