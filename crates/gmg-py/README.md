@@ -4,7 +4,7 @@ The same Rust code as `gmg run` and the web app, for notebooks and scripts.
 
 ```python
 import gmg
-ix = gmg.Index("bfd-reps-2026.10.3-s20000.gmgi")     # any index from the releases
+ix = gmg.Index("bfd-reps-2026.10.5-s20000.gmgi")     # any index from the releases
 rec = ix.classify("genome.fa.gz")                     # a dict: the record `gmg run` writes to results.jsonl
 rec["status"], rec["best_rank"]                       # ok | low_confidence | no_match | error
 rec["guess"]["calls"]["genus"]["taxon"]               # per-rank calls, ANI, top hits, QC flags in rec["qc"]

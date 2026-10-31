@@ -21,5 +21,5 @@ for f in $R/cache/*.fna.gz; do
 done
 sourmash --version
 python3 $SD/sourmash_parity.py $R/sk $R/sm $R/sourmash_parity.tsv
-python3 $SD/golden_check.py --gmg $GMG --index $GR/release/2026.10.2/bfd-reps-2026.10.2-s20000.gmgi --cache $R/cache --threads ${SLURM_CPUS_PER_TASK}
+python3 $SD/golden_check.py --gmg $GMG --index $GR/release/2026.10.5/bfd-reps-2026.10.5-s20000.gmgi --cache $R/cache --threads ${SLURM_CPUS_PER_TASK}
 echo "golden check exit: $?"

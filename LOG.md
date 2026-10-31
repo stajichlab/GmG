@@ -96,3 +96,11 @@ contributed its own exclusive hashes and the split named the right phylum for 65
 test `exclusion_hides_...`). Calls, ANI and flags were never affected (they use `guess`, which honoured the mask); only `qc.phylum_split` of leave-out runs.
 On independent genomes (1,257 post-freeze assemblies, nothing hidden) the split plurality is right for 0.964 against 0.977 for the phylum call, and for the weak calls
 (best-hit ANI < 0.85, n = 73) 0.781 against 0.671: better for weak calls, worse overall, so it is not used for the call (#58).
+
+## 2026-10-31: reference 2026.10.5 (15 more genomes left out)
+
+Maintainer decision 2026-10-30: the 9 tier A and 6 tier B BFD genomes of `reports/label_audit/upstream_report.md` that were still in the reference are left out (72 in all; PR #116, `reference_exclusions.txt`
+lines 58-72). Tier C rows and the assembly GCA_982397225.1 (ERR14883901 pair, wrong side undetermined) stay in. Release `index-2026.10.5`: full 23,677 genomes, representatives 7,479, 80 decoys; thresholds
+(#58, family margin reverted in #117) are compiled into the binary, so the index did not depend on them. Checks (`scripts/hpcc/38_exclusion_check.sbatch`, 18_decoy_eval, 19_external_indigo, relstab): none of the 15 finds itself,
+20 of 22 cluster mates keep their calls (2 gain family and genus), IndigoAg (199), the held-out non-fungal set (15), the golden panel (17) and the 6 examples unchanged against 2026.10.4, 80 of 80 decoys `not_fungal`, 0 dangling cluster ids.
+The golden pin moved to the 2026.10.5 representatives index with an unchanged `expected.tsv`. The web app takes the newest `index-*` release when `pages.yml` is run.
