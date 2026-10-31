@@ -296,19 +296,11 @@ enum Cmd {
 }
 
 pub(crate) fn strip_ext(name: &str) -> String {
-    for e in [
-        ".fa.gz",
-        ".fasta.gz",
-        ".fna.gz",
-        ".fastq.gz",
-        ".fq.gz",
-        ".fa",
-        ".fasta",
-        ".fna",
-        ".fastq",
-        ".fq",
-        ".gsk",
-    ] {
+    let name = crate::run::COMPRESSED
+        .iter()
+        .find_map(|c| name.strip_suffix(c))
+        .unwrap_or(name);
+    for e in [".fa", ".fasta", ".fna", ".fastq", ".fq", ".gsk"] {
         if let Some(s) = name.strip_suffix(e) {
             return s.to_string();
         }

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- The command line reads `.zst`, `.bz2` and `.xz` input as well as `.gz` (folders, `gmg guess`, `gmg sketch`); results are identical. The browser app still reads only `.gz` (the browser decompresses gzip natively).
+
 ## v0.2.0 (unreleased)
 
 First tagged release. Indexes are released separately (`index-YYYY.MM[.N]`); this version is built to run with `index-2026.10.5`.

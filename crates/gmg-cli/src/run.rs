@@ -69,10 +69,17 @@ struct Input {
 const FASTA_EXT: [&str; 5] = ["fa", "fna", "fasta", "fas", "ffn"];
 const FASTQ_EXT: [&str; 2] = ["fq", "fastq"];
 
-/// File extension without a trailing `.gz`, lowercased.
+/// Compression suffixes needletail reads (it detects the format from the first bytes, the suffix only selects the file).
+pub(crate) const COMPRESSED: [&str; 4] = [".gz", ".zst", ".bz2", ".xz"];
+
+/// File extension without a trailing compression suffix, lowercased.
 fn base_ext(p: &Path) -> Option<String> {
     let name = p.file_name()?.to_string_lossy().to_lowercase();
-    let name = name.strip_suffix(".gz").unwrap_or(&name).to_string();
+    let name = COMPRESSED
+        .iter()
+        .find_map(|c| name.strip_suffix(c))
+        .unwrap_or(&name)
+        .to_string();
     name.rsplit_once('.').map(|(_, e)| e.to_string())
 }
 
@@ -353,7 +360,7 @@ fn discover(args: &RunArgs) -> Result<Vec<Input>> {
         }
     }
     if inputs.is_empty() {
-        bail!("no FASTA/FASTQ files found in the given inputs (extensions: fa fna fasta fas ffn fq fastq, optionally .gz)");
+        bail!("no FASTA/FASTQ files found in the given inputs (extensions: fa fna fasta fas ffn fq fastq, optionally .gz .zst .bz2 .xz)");
     }
     Ok(inputs)
 }
