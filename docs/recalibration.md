@@ -21,6 +21,16 @@ A fired rule does not mean the thresholds are wrong, it means the check that the
 the new index (`reports/validation/clade_calibration.md` is the previous one), the leave-one/species/genus-out truth-set run (`reports/validation/truth_set.md`)
 and the stress tests. Record the decision, with the numbers, in `LOG.md` and in the release notes.
 
+## The genus and family safety margin (#58)
+
+The genus and family cutoffs carry a margin: each is the stricter of its previous value and a fit at precision 0.97 instead of 0.95
+(`scripts/margin_calibration.py`, `scripts/hpcc/35_margin_calibration.sbatch`; derivation `reports/validation/margin_derivation.md`; before/after
+`reports/validation/margin_validation.md`). Other ranks keep the plain 0.95 fit, species because a margin collapses its coverage (0.55 to 0.11).
+When a re-calibration is run, re-derive both: run `margin_calibration.py` with the new bench and the shipped `known` file, and copy the resulting
+`min_ani` / `min_consistency` for family and genus only. The cutoffs live in `Thresholds::default()` (crates/gmg-core/src/call.rs) and
+`data/thresholds/bfd_s10000.{known,balanced}.json` (a unit test keeps the two equal), not in the index: changing them needs a new binary, not an index rebuild or a
+new release asset.
+
 ## What does not need re-calibration
 
 * Adding or removing a handful of genomes (the 57 ambiguous-label genomes of 2026.10.3): run the check, expect the churn to be confined to the inputs

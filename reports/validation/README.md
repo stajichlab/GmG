@@ -28,6 +28,10 @@ Details per dataset are in the linked files. All numbers are from runs of `gmg r
 The change does what the novelty analysis predicted: false genus names for absent genera drop from 59% to 14%, genus precision rises to 0.988, and the cost is 6 points of genus coverage on the independent set (more on divergent RNA-seq: 4-5 points). Reads of
 *Coccidioides* and all species calls are unaffected. The weak-genus inputs now carry a `tentative_genus` and status `low_confidence`, which is never a call.
 
+## Genus/family safety margin (#58, 2026-10-30)
+
+Family ANI 0.7715 to 0.8837 and genus vote consistency 0.5 to 0.9 (the stricter of the old cutoff and a fit at 0.97). Family: precision up 0.7-1.4 points on assemblies for 6-13 points fewer calls; genus: no measurable change on real sets, because the balanced genus cutoff (#57) was already above the 0.97 fit. Derivation, before/after tables and the decision record: `margin_validation.md`, `margin_derivation.md`.
+
 ## What works
 
 * **Independent assemblies.** 1,257 genomes, 0 errors. Precision of the calls made: phylum 0.990, class 0.991, order 0.986, family 0.983, genus 0.988. The 52 genomes with a named species (all in BFD): species precision 1.000 at 75% called.
