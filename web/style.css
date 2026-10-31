@@ -38,7 +38,7 @@ input[type=search] { min-width: 220px; }
 .drop { border: 1px dashed var(--accent); border-radius: 2px; padding: 22px; text-align: center; }
 .drop.over { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
 .drop p { margin: 4px 0; }
-.bar { height: 2px; border-radius: 0; background: var(--line); overflow: hidden; min-width: 180px; }
+.bar { height: 6px; border-radius: 0; background: var(--line); overflow: hidden; min-width: 180px; }
 .bar > div { height: 100%; width: 0; background: var(--accent); transition: width .15s; }
 .facts { display: grid; grid-template-columns: max-content 1fr; gap: 2px 14px; font-size: 13px; margin: 8px 0 0; color: var(--ink2); }
 .facts dt { color: var(--muted); } .facts dd { margin: 0; overflow-wrap: anywhere; }

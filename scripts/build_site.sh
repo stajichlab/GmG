@@ -21,7 +21,7 @@ for f in files:
     v = re.search(r"(\d{4})\.(\d{2})(?:\.(\d+))?", name)  # YYYY.MM[.N]: the monthly freeze and the build of it
     if v:
         title += f", {v[1]}.{v[2]}" + (f" build {v[3]}" if v[3] else "")
-    man.append({"file": name, "title": title, "size_mb": mb})
+    man.append({"file": name, "title": title, "size_mb": mb, "bytes": os.path.getsize(f)})
 json.dump(man, open(os.path.join(out, "index", "manifest.json"), "w"), indent=1)
 print("site:", out, [m["file"] for m in man])
 PY
