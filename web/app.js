@@ -147,6 +147,34 @@ async function loadExamples() {
     $("examples").hidden = false;
   } catch { /* examples are optional */ }
 }
+// Any NCBI assembly: the Datasets API (CORS-enabled) gives the assembly name, which with the accession fixes the FTP path.
+const ACC = /^GC[AF]_\d{9}(\.\d+)?$/i;
+async function addAccession(raw) {
+  const acc = raw.trim().toUpperCase(), btn = $("acc-go"), box = $("acc");
+  if (!ACC.test(acc)) return setStatus($("queue-status"), `"${raw.trim()}" is not an NCBI assembly accession. Expected GCF_ or GCA_, nine digits, and optionally a version: GCF_000146045.2.`, true);
+  btn.disabled = box.disabled = true;
+  setStatus($("queue-status"), `Looking up ${acc} at NCBI…`);
+  try {
+    const r = await fetch(`https://api.ncbi.nlm.nih.gov/datasets/v2/genome/accession/${acc}/dataset_report`);
+    if (!r.ok) throw new Error(`NCBI answered ${r.status}`);
+    const rep = ((await r.json()).reports || [])[0];
+    if (!rep) throw new Error("no such assembly");
+    const id = rep.accession, d = id.slice(4, 13).match(/.{3}/g).join("/");
+    const dir = `${id}_${rep.assembly_info.assembly_name.replace(/[^A-Za-z0-9._-]/g, "_")}`;
+    const url = `https://ftp.ncbi.nlm.nih.gov/genomes/all/${id.slice(0, 3)}/${d}/${dir}/${dir}_genomic.fna.gz`;
+    const mb = Math.round((rep.assembly_stats && rep.assembly_stats.total_sequence_length || 0) / 1e6);
+    setStatus($("queue-status"), `Downloading ${rep.organism.organism_name} (${id}${mb ? `, ${mb} Mb` : ""}) from NCBI…`);
+    const g = await fetch(url);
+    if (!g.ok) throw new Error(`NCBI answered ${g.status} for the genome file`);
+    addFiles([new File([await g.blob()], `${id}.fna.gz`)], rep.organism.organism_name);
+    box.value = "";
+  } catch (err) {
+    setStatus($("queue-status"), `Could not fetch ${acc}: ${err.message}. Check the accession and your connection.`, true);
+  } finally { btn.disabled = box.disabled = false; }
+}
+$("acc-go").onclick = () => addAccession($("acc").value);
+$("acc").onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); addAccession($("acc").value); } };
+
 async function addExample(ex, btn) {
   btn.disabled = true;
   setStatus($("queue-status"), `Downloading ${ex.name} (${ex.accession}) from NCBI…`);
