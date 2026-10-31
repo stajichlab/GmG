@@ -34,3 +34,11 @@ Earlier releases stay available for reproducing old results. Pinned to the repre
 (`.github/workflows/pages.yml`) bundles the representatives index of the newest `index-*` release when it is run. Check a new release before it becomes the web app's index: `scripts/hpcc/18_decoy_eval.sbatch VER`, `19_external_indigo.sbatch` (`INDEX=`),
 `38_exclusion_check.sbatch OLD NEW` (for releases that leave genomes out), the golden panel and a wasm-versus-native check on the representatives index.
 
+
+## Hosting limits (GitHub)
+
+| where | limit | note |
+|---|---|---|
+| release asset | 2 GB per file | index releases; a browser cannot fetch them cross-origin (the download redirect sends no CORS header), so the web app cannot load an index from a release |
+| git repository | 100 MB per committed file | never commit an index |
+| GitHub Pages site | 1 GB in total, 10 minute deploy | no documented per-file limit for an Actions-built artifact: the 213 MB full index is served from gmg.fungalgenomes.org (checked 2026-10-31); the site holds the representatives and the full index of the newest release, about 280 MB |
