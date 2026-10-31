@@ -423,10 +423,13 @@ pub fn ani_hist(anis: &[f64], genus_thr: f64, species_thr: f64) -> Chart {
             t - 12.0,
             t + ph
         ));
-        let (dx, anchor) = if v > 0.9 {
-            (-4.0, "end")
-        } else {
+        // labels sit to the left of their lines so the two never meet (a label to the right of the genus line ran into the
+        // species one: 0.90 and 0.994 are close on this axis); with the lines closer than a label, the species one goes right
+        let close = (species_thr - genus_thr) * pw / (hi - lo) < 120.0;
+        let (dx, anchor) = if lab == "species" && close {
             (4.0, "start")
+        } else {
+            (-4.0, "end")
         };
         out.push_str(&text(
             x + dx,
