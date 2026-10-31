@@ -6,7 +6,7 @@ usage:
       SIM_ROOT/<genome id>/p<k>/{measured.tsv, <tag>/results.tsv, <tag>/results.jsonl}; tag = <hidden level>_a<min-abund> (self_a2, species_a2, ...).
       One row per classified read set: genome, truth lineage, nominal error, measured error, depth, tag, call at every rank, status, ANI, containment,
       shared hashes, n_hashes, coverage_est, flags, the abundance histogram (counts of hashes seen 1..12 times, 13+, total bases, reads).
-  long_reads_score.py collect-real RUNS.tsv REAL_ROOT OUT_QUERIES.tsv
+  long_reads_score.py collect-real RUNS.tsv REAL_ROOT OUT_QUERIES.tsv [META_FULL.tsv]
       REAL_ROOT/<tag>/results.{tsv,jsonl}, the ids are run accessions; truth from RUNS.tsv (data/validation/long_reads_runs.tsv: lineage columns,
       measured error); same columns as above (depth = the coverage of the first 200 Mb of reads over the genome size).
   long_reads_score.py summarize QUERIES.tsv OUT_ACCURACY.tsv
@@ -87,8 +87,12 @@ def collect_sim(root, genomes_p, out):
     print(len(rows), "rows", file=sys.stderr)
 
 
-def collect_real(runs_p, root, out):
+def collect_real(runs_p, root, out, meta_p=None):
     R = {r["run"]: r for r in read_tsv(runs_p)}
+    M = {r["id"]: r for r in read_tsv(meta_p)} if meta_p else {}
+    for r in R.values():                      # lineage of the truth genome from the index metadata when the run table has only some ranks
+        for x in RANKS:
+            if not r.get(x) and r["bfd_id"] in M: r[x] = M[r["bfd_id"]][x]
     rows = []
     for tdir in sorted(glob.glob(f"{root}/*_a*/")):
         tag = os.path.basename(tdir.rstrip("/"))
@@ -159,6 +163,6 @@ def summarize(qp, out):
 if __name__ == "__main__":
     c = sys.argv[1]
     if c == "collect-sim": collect_sim(*sys.argv[2:5])
-    elif c == "collect-real": collect_real(*sys.argv[2:5])
+    elif c == "collect-real": collect_real(*sys.argv[2:6])
     elif c == "summarize": summarize(*sys.argv[2:4])
     else: sys.exit(__doc__)

@@ -58,6 +58,6 @@ run self_a1 --exclude-level self --min-abund 1
 run self_aauto --exclude-level self --min-abund auto
 run species_a2 --exclude-level species --min-abund 2
 run genus_a2 --exclude-level genus --min-abund 2
-python3 $S/long_reads_score.py collect-real runs_aug.tsv . queries_real.tsv
+python3 $S/long_reads_score.py collect-real runs_aug.tsv . queries_real.tsv $GR/release/2026.10.4/meta_full.tsv
 awk -F'\t' 'NR>1{n+=$2}END{printf "total compressed bytes read: %.2f GB\n", n/1e9}' raw/bytes.tsv
 [ -s queries_real.tsv ] && [ "${DELETE_RAW:-0}" = 1 ] && rm -rf raw && echo "raw reads deleted"

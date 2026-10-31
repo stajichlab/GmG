@@ -63,6 +63,9 @@ gmg run --sample-sheet samples.tsv --index bfd-2026.10-s10000.gmgi -o results/
 Reads use a species cutoff of ANI 0.99 (errors lower the ANI of a read set); about 0.5x coverage (100,000 reads of a
 30 Mb genome) is enough for a genus call.
 
+**Long reads (ONT, PacBio).** The same command works. HiFi and ONT R10.4 (error <= 3%) need nothing special (add `--min-abund auto` at 10x or more); for ONT R9.4 and PacBio CLR (5-15% error) expect a genus, rarely a species, from about 5x, and
+look for the `high_error_reads` flag in `qc_flags`. Never use `--min-abund 1` for long reads. Details and numbers: `reports/validation/long_reads.md`.
+
 ## 3. Other report formats
 
 ```
