@@ -54,9 +54,8 @@ It is not a substitute for taxonomic curation, a phylogenetic placement, an ANI-
 
 ## Reference genomes left out for ambiguous labels
 
-57 genomes whose label conflicts with their close relatives (43 from the label audit, `reports/label_audit/`, and 14 more found by the truth-set run, #39) are
-not in the reference from release 2026.10.3 on; the list is `reports/label_audit/reference_exclusions.txt`. On the RefSeq truth set the exclusions raise leave-genus-out precision by 8 points at class, 5 at order and 8 at family (0.686 / 0.659 / 0.573 on the same taxonomy without
-them, no decoys, to 0.768 / 0.707 / 0.652) and cut the label-conflict share of its disagreements from 60% to 21% (`reports/validation/truth_set.md`). A species whose only genome was excluded loses its species call.
+72 genomes whose label conflicts with their close relatives are not in the reference: 57 from release 2026.10.3 on (43 from the label audit, `reports/label_audit/`, and 14 more found by the truth-set run, #39) and 15 more from release 2026.10.5 on (the 9 tier A and 6 tier B genomes of the label hand-off report, `reports/label_audit/upstream_report.md`, that were still in the reference; maintainer decision 2026-10-30). Tier C rows and the assembly GCA_982397225.1 (ERR14883901, where it is undetermined whether the read set or the assembly is mislabelled) were deliberately left in. The list is `reports/label_audit/reference_exclusions.txt`. On the RefSeq truth set the first 57 exclusions raise leave-genus-out precision by 8 points at class, 5 at order and 8 at family (0.686 / 0.659 / 0.573 on the same taxonomy without
+them, no decoys, to 0.768 / 0.707 / 0.652) and cut the label-conflict share of its disagreements from 60% to 21% (`reports/validation/truth_set.md`); the effect of the further 15 on those numbers has not been re-measured with the truth set (see the 2026.10.5 release notes for what was checked). A species whose only genome was excluded loses its species call.
 
 ## Contamination
 

@@ -26,8 +26,8 @@ TAXV="NCBI taxonomy new_taxdump md5 $MD5 ($(basename $TD | sed s/taxdump_//)); B
 python3 $GMG_REPO/scripts/normalize_taxonomy.py $I/meta.tsv $TD meta_full.tsv --clusters $I/clusters_ani0.95.tsv \
   --report taxonomy_normalization.md --taxdump-label "new_taxdump md5 $MD5"
 # genomes with ambiguous labels are not in the reference (reports/label_audit/reference_exclusions.txt: the 43 of the label audit and 14
-# more found by the truth-set run, #39): drop them from the metadata table before anything is built (their sketches stay in the store)
-# A removed genome can be a cluster centroid (15 of the 57 were): reseed_clusters.py gives such a cluster a new centroid (the first remaining
+# more found by the truth-set run, #39 = 57 from 2026.10.3, plus 15 tier A/B genomes of the hand-off report, #14, from 2026.10.5): drop them from the metadata table before anything is built (their sketches stay in the store)
+# A removed genome can be a cluster centroid (15 of the first 57 were): reseed_clusters.py gives such a cluster a new centroid (the first remaining
 # member in the BFD priority order) so that `cluster` never names a genome that is not in the index (#47, reports/validation/clusters_vs_skani.md).
 python3 $GMG_REPO/scripts/reseed_clusters.py meta_full.tsv meta_full.excl.tsv $GMG_REPO/reports/label_audit/reference_exclusions.txt $I/reps.order.txt && mv meta_full.excl.tsv meta_full.tsv
 # non-fungal decoys (#79): data/decoys/decoys.tsv, sketched by 17_decoys.sbatch; same normalization, appended to the table
@@ -41,6 +41,7 @@ open("meta_decoys.tsv", "w").write("".join("\t".join(r) + "\n" for r in rows))
 PY
 tail -n +2 meta_decoys.tsv >> meta_full.tsv
 NDECOY=$(tail -n +2 meta_decoys.tsv | wc -l)
+NEXCL=$(grep -c . $GMG_REPO/reports/label_audit/reference_exclusions.txt)
 NONFUNGAL=$(cut -f3 meta_decoys.tsv | tail -n +2 | sort -u | paste -sd, -)
 echo "non-fungal phyla: $NONFUNGAL"
 # representatives: the same normalized rows, restricted to the representative ids (all decoys are kept)
@@ -56,7 +57,7 @@ with open("meta_reps.tsv", "w") as o:
 PY
 $GMG --threads 8 build --meta meta_full.tsv --sketches $GR/sketch --scaled 10000 -o full_raw.gmgi \
   --taxonomy-version "$TAXV" --non-fungal-phyla "$NONFUNGAL" \
-  --note "full reference; ANI clusters at 0.95; excludes 57 genomes with ambiguous labels (reports/label_audit/reference_exclusions.txt); plus $NDECOY non-fungal decoy genomes (data/decoys/decoys.tsv)"
+  --note "full reference; ANI clusters at 0.95; excludes $NEXCL genomes with ambiguous labels (reports/label_audit/reference_exclusions.txt); plus $NDECOY non-fungal decoy genomes (data/decoys/decoys.tsv)"
 $GMG convert full_raw.gmgi -o bfd-$VER-s10000.gmgi
 $GMG --threads 8 build --meta meta_reps.tsv --sketches $GR/sketch --scaled 20000 -o reps_raw.gmgi \
   --taxonomy-version "$TAXV" --non-fungal-phyla "$NONFUNGAL" \
