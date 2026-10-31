@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Browser app: GoatCounter page views (anonymous, no cookies; disclosed in the footer) and a footer line "N classifications started so far" fed by a count of presses of Classify (no file information is sent).
+
 - Browser app: loading the index shows a thicker progress bar with MB, percent and time left, then a "building the index" step; the bar was wrong (past 100%) when the server compressed the file, and Load is disabled while loading.
 
 - Browser app: drop or choose a `.zip`, `.tar` or `.tar.gz` (also `.tgz`) and the FASTA/FASTQ files inside are listed and classified like any others (unpacked in memory, up to 3 GB of sequence files per archive).
