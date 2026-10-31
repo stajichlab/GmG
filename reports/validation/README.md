@@ -42,6 +42,10 @@ The change does what the novelty analysis predicted: false genus names for absen
 4. **Reads: errors lower the species ANI.** Fixed in part (#32): read sets now use a species cutoff of 0.99 (assemblies 0.9938). *Coccidioides* species called goes from 91.4 / 92.8 / 88.4% to 95.0 / 95.7 / 96.2% (100k / 500k / 2M reads) at unchanged precision (0.994-0.996), and no longer falls with depth; RNA-seq species called 61 / 59 / 54% → 68 / 68 / 63% (precision 0.966-0.968, was 0.968-0.972). The cutoff was checked with *C. immitis* removed from the reference: its reads match *C. posadasii* at ANI 0.976-0.980 and are falsely named at 0.99 in 0.6% (1/175) of sets (10% at 0.98). One species pair only; RNA-seq still needs a transcript-aware reference (#33). Files: `*_reads099.*`, `cocci_absent_species.md`.
 5. **Limits of the evidence.** Species truth is thin (52 genomes); labels are NCBI taxonomy and BFD metadata with known errors (`reports/label_audit/`); *Coccidioides* is two close species of one genus; calibration used BFD data for both fitting and the held-out splits.
 
+## Labels that look wrong
+
+The genomes and read sets whose label GmG disagrees with (BFD genomes, the truth-set and external sets, the SRA run *ERR14883901*, the ZyGoLife read sets) are consolidated, by confidence tier, in `reports/label_audit/upstream_report.md` (machine readable: `upstream_report.tsv`; #14). Internal hand-off only; nothing has been sent externally.
+
 ## Follow-ups (issues)
 
 clade-aware calibration (#58); tiny-input messaging (#59); reads calibration (#32); RNA-aware index (#33); error codes (#55); stress tests including contamination (#41); more independent sets (#40).
