@@ -79,7 +79,7 @@ or `--report-format all` on `gmg run`. All three come from the same run.
 * `--thresholds novel` is the stricter set for queries that may be a new genus; `--thresholds permissive` is the older,
   lower genus cutoff.
 * QC flags (`short_genome`, `fragmented`, `few_hashes`, ...) explain a result; they never change a call.
-* Contaminated or mixed samples are classified as one organism; GmG does not detect mixtures.
+* Contaminated or mixed samples are classified as one organism. The flag `mixture_suspected` (with `second_taxon` and the `explained_fraction` columns) marks an input in which a second fungal *genus* that is in the reference explains at least 1% of the hashes; it cannot see a second organism that is not in the reference, bacteria or human DNA, or one of the same genus (`docs/qc.md`).
 * GmG assumes the input is a fungus. Bacterial and viral genomes come out `no_match`, but plant, animal and protist genomes can be given a (wrong) fungal phylum, class, order or family at low confidence; they never reach a genus or species call (`reports/validation/negative_controls.md`).
 
 ## 5. Shell completions and manual page
