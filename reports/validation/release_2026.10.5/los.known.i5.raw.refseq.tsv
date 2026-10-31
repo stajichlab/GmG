@@ -1,0 +1,170 @@
+group	rank	n	called	precision	recall
+all	phylum	652	0.9571	0.9615	0.9202
+all	class	636	0.9733	0.9483	0.9230
+all	order	635	0.9512	0.9437	0.8976
+all	family	634	0.8644	0.9635	0.8328
+all	genus	652	0.5291	0.9826	0.5199
+all	species	652	0.0644	0.0000	0.0000
+evidence=reference_genome	phylum	390	0.9538	0.9839	0.9385
+evidence=reference_genome	class	378	0.9735	0.9810	0.9550
+evidence=reference_genome	order	377	0.9523	0.9749	0.9284
+evidence=reference_genome	family	381	0.9003	0.9854	0.8871
+evidence=reference_genome	genus	390	0.6179	0.9834	0.6077
+evidence=reference_genome	species	390	0.0769	0.0000	0.0000
+evidence=refseq	phylum	4	1.0000	1.0000	1.0000
+evidence=refseq	class	4	1.0000	1.0000	1.0000
+evidence=refseq	order	4	1.0000	1.0000	1.0000
+evidence=refseq	family	4	0.7500	1.0000	0.7500
+evidence=refseq	genus	4	0.7500	1.0000	0.7500
+evidence=refseq	species	4	0.0000		0.0000
+evidence=type_material	phylum	258	0.9612	0.9274	0.8915
+evidence=type_material	class	254	0.9724	0.8988	0.8740
+evidence=type_material	order	254	0.9488	0.8963	0.8504
+evidence=type_material	family	249	0.8112	0.9257	0.7510
+evidence=type_material	genus	258	0.3915	0.9802	0.3837
+evidence=type_material	species	258	0.0465	0.0000	0.0000
+level=Chromosome	phylum	63	0.9365	0.9661	0.9048
+level=Chromosome	class	60	0.9833	0.9322	0.9167
+level=Chromosome	order	60	0.9500	0.9474	0.9000
+level=Chromosome	family	62	0.8548	0.9623	0.8226
+level=Chromosome	genus	63	0.6190	0.9744	0.6032
+level=Chromosome	species	63	0.0952	0.0000	0.0000
+level=Complete Genome	phylum	66	0.9394	0.9355	0.8788
+level=Complete Genome	class	65	0.9385	0.9508	0.8923
+level=Complete Genome	order	65	0.9231	0.9333	0.8615
+level=Complete Genome	family	65	0.8769	0.9474	0.8308
+level=Complete Genome	genus	66	0.4394	1.0000	0.4394
+level=Complete Genome	species	66	0.1364	0.0000	0.0000
+level=Contig	phylum	211	0.9716	0.9512	0.9242
+level=Contig	class	207	0.9855	0.9510	0.9372
+level=Contig	order	207	0.9565	0.9545	0.9130
+level=Contig	family	208	0.8846	0.9620	0.8510
+level=Contig	genus	211	0.5592	0.9831	0.5498
+level=Contig	species	211	0.0521	0.0000	0.0000
+level=Scaffold	phylum	312	0.9551	0.9732	0.9295
+level=Scaffold	class	304	0.9704	0.9492	0.9211
+level=Scaffold	order	303	0.9538	0.9377	0.8944
+level=Scaffold	family	299	0.8495	0.9685	0.8227
+level=Scaffold	genus	312	0.5096	0.9811	0.5000
+level=Scaffold	species	312	0.0513	0.0000	0.0000
+species_in_bfd=False	phylum	652	0.9571	0.9615	0.9202
+species_in_bfd=False	class	636	0.9733	0.9483	0.9230
+species_in_bfd=False	order	635	0.9512	0.9437	0.8976
+species_in_bfd=False	family	634	0.8644	0.9635	0.8328
+species_in_bfd=False	genus	652	0.5291	0.9826	0.5199
+species_in_bfd=False	species	652	0.0644	0.0000	0.0000
+genus_in_bfd=False	phylum	76	0.9211	0.8571	0.7895
+genus_in_bfd=False	class	73	0.9315	0.7941	0.7397
+genus_in_bfd=False	order	73	0.8493	0.7419	0.6301
+genus_in_bfd=False	family	71	0.5070	0.7222	0.3662
+genus_in_bfd=False	genus	76	0.0395	0.0000	0.0000
+genus_in_bfd=False	species	76	0.0000		0.0000
+genus_in_bfd=True	phylum	576	0.9618	0.9747	0.9375
+genus_in_bfd=True	class	563	0.9787	0.9673	0.9467
+genus_in_bfd=True	order	562	0.9644	0.9668	0.9324
+genus_in_bfd=True	family	563	0.9094	0.9805	0.8917
+genus_in_bfd=True	genus	576	0.5938	0.9912	0.5885
+genus_in_bfd=True	species	576	0.0729	0.0000	0.0000
+phylum=Ascomycota	phylum	506	0.9862	0.9760	0.9625
+phylum=Ascomycota	class	506	0.9842	0.9618	0.9466
+phylum=Ascomycota	order	505	0.9683	0.9591	0.9287
+phylum=Ascomycota	family	501	0.9002	0.9712	0.8743
+phylum=Ascomycota	genus	506	0.5889	0.9799	0.5771
+phylum=Ascomycota	species	506	0.0751	0.0000	0.0000
+phylum=Basidiomycota	phylum	105	0.9143	0.9896	0.9048
+phylum=Basidiomycota	class	105	0.9143	0.9583	0.8762
+phylum=Basidiomycota	order	105	0.8762	0.9348	0.8190
+phylum=Basidiomycota	family	101	0.7723	0.9744	0.7525
+phylum=Basidiomycota	genus	105	0.3714	1.0000	0.3714
+phylum=Basidiomycota	species	105	0.0190	0.0000	0.0000
+phylum=Calcarisporiellomycota	phylum	1	1.0000	0.0000	0.0000
+phylum=Calcarisporiellomycota	class	1	1.0000	0.0000	0.0000
+phylum=Calcarisporiellomycota	order	1	1.0000	0.0000	0.0000
+phylum=Calcarisporiellomycota	family	1	1.0000	0.0000	0.0000
+phylum=Calcarisporiellomycota	genus	1	0.0000		0.0000
+phylum=Calcarisporiellomycota	species	1	0.0000		0.0000
+phylum=Chytridiomycota	phylum	5	1.0000	0.4000	0.4000
+phylum=Chytridiomycota	class	5	1.0000	0.4000	0.4000
+phylum=Chytridiomycota	order	5	0.8000	0.5000	0.4000
+phylum=Chytridiomycota	family	3	0.3333	1.0000	0.3333
+phylum=Chytridiomycota	genus	5	0.2000	1.0000	0.2000
+phylum=Chytridiomycota	species	5	0.0000		0.0000
+phylum=Glomeromycota	phylum	1	1.0000	1.0000	1.0000
+phylum=Glomeromycota	class	1	1.0000	1.0000	1.0000
+phylum=Glomeromycota	order	1	1.0000	1.0000	1.0000
+phylum=Glomeromycota	family	1	1.0000	1.0000	1.0000
+phylum=Glomeromycota	genus	1	0.0000		0.0000
+phylum=Glomeromycota	species	1	0.0000		0.0000
+phylum=Kickxellomycota	phylum	2	1.0000	1.0000	1.0000
+phylum=Kickxellomycota	class	2	1.0000	1.0000	1.0000
+phylum=Kickxellomycota	order	2	0.5000	1.0000	0.5000
+phylum=Kickxellomycota	family	2	0.5000	1.0000	0.5000
+phylum=Kickxellomycota	genus	2	0.0000		0.0000
+phylum=Kickxellomycota	species	2	0.0000		0.0000
+phylum=Microsporidia	phylum	16	0.2500	0.5000	0.1250
+phylum=Microsporidia	family	9	0.1111	1.0000	0.1111
+phylum=Microsporidia	genus	16	0.0625	1.0000	0.0625
+phylum=Microsporidia	species	16	0.0000		0.0000
+phylum=Mortierellomycota	phylum	2	1.0000	0.5000	0.5000
+phylum=Mortierellomycota	class	2	1.0000	0.5000	0.5000
+phylum=Mortierellomycota	order	2	1.0000	0.5000	0.5000
+phylum=Mortierellomycota	family	2	1.0000	0.5000	0.5000
+phylum=Mortierellomycota	genus	2	0.0000		0.0000
+phylum=Mortierellomycota	species	2	0.0000		0.0000
+phylum=Mucoromycota	phylum	14	1.0000	0.7143	0.7143
+phylum=Mucoromycota	class	14	1.0000	0.7143	0.7143
+phylum=Mucoromycota	order	14	1.0000	0.7143	0.7143
+phylum=Mucoromycota	family	14	0.8571	0.7500	0.6429
+phylum=Mucoromycota	genus	14	0.4286	1.0000	0.4286
+phylum=Mucoromycota	species	14	0.1429	0.0000	0.0000
+n50_bin=0.1-1 Mb	phylum	200	0.9300	0.9462	0.8800
+n50_bin=0.1-1 Mb	class	190	0.9737	0.9297	0.9053
+n50_bin=0.1-1 Mb	order	189	0.9418	0.9270	0.8730
+n50_bin=0.1-1 Mb	family	189	0.8413	0.9371	0.7884
+n50_bin=0.1-1 Mb	genus	200	0.5000	0.9800	0.4900
+n50_bin=0.1-1 Mb	species	200	0.0450	0.0000	0.0000
+n50_bin=10-100 kb	phylum	12	0.6667	0.8750	0.5833
+n50_bin=10-100 kb	class	7	0.8571	1.0000	0.8571
+n50_bin=10-100 kb	order	7	0.8571	1.0000	0.8571
+n50_bin=10-100 kb	family	9	0.7778	1.0000	0.7778
+n50_bin=10-100 kb	genus	12	0.2500	1.0000	0.2500
+n50_bin=10-100 kb	species	12	0.0833	0.0000	0.0000
+n50_bin=>= 1 Mb	phylum	440	0.9773	0.9698	0.9477
+n50_bin=>= 1 Mb	class	439	0.9749	0.9556	0.9317
+n50_bin=>= 1 Mb	order	439	0.9567	0.9500	0.9089
+n50_bin=>= 1 Mb	family	436	0.8761	0.9738	0.8532
+n50_bin=>= 1 Mb	genus	440	0.5500	0.9835	0.5409
+n50_bin=>= 1 Mb	species	440	0.0727	0.0000	0.0000
+size_bin=10-25 Mb	phylum	150	0.9400	0.9291	0.8733
+size_bin=10-25 Mb	class	149	0.9396	0.9000	0.8456
+size_bin=10-25 Mb	order	149	0.9060	0.8889	0.8054
+size_bin=10-25 Mb	family	143	0.7832	0.9196	0.7203
+size_bin=10-25 Mb	genus	150	0.3200	0.9792	0.3133
+size_bin=10-25 Mb	species	150	0.0600	0.0000	0.0000
+size_bin=25-50 Mb	phylum	393	0.9949	0.9719	0.9669
+size_bin=25-50 Mb	class	393	0.9924	0.9615	0.9542
+size_bin=25-50 Mb	order	392	0.9770	0.9556	0.9337
+size_bin=25-50 Mb	family	390	0.8974	0.9771	0.8769
+size_bin=25-50 Mb	genus	393	0.6081	0.9874	0.6005
+size_bin=25-50 Mb	species	393	0.0687	0.0000	0.0000
+size_bin=<10 Mb	phylum	38	0.5789	0.9091	0.5263
+size_bin=<10 Mb	class	23	0.8261	0.8947	0.7391
+size_bin=<10 Mb	order	23	0.7826	0.9444	0.7391
+size_bin=<10 Mb	family	31	0.6129	0.9474	0.5806
+size_bin=<10 Mb	genus	38	0.3158	1.0000	0.3158
+size_bin=<10 Mb	species	38	0.0789	0.0000	0.0000
+size_bin=>= 50 Mb	phylum	71	0.9859	0.9857	0.9718
+size_bin=>= 50 Mb	class	71	0.9859	0.9857	0.9718
+size_bin=>= 50 Mb	order	71	0.9577	0.9853	0.9437
+size_bin=>= 50 Mb	family	70	0.9571	0.9701	0.9286
+size_bin=>= 50 Mb	genus	71	0.6479	0.9565	0.6197
+size_bin=>= 50 Mb	species	71	0.0423	0.0000	0.0000
+calib_ani=[0.9, 0.95)	genus	103	1.0000	0.9709	
+calib_ani=[0.95, 0.98)	genus	105	1.0000	0.9810	
+calib_ani=[0.98, 0.995)	genus	87	1.0000	0.9885	
+calib_ani=[0.995, 1.01)	genus	50	1.0000	1.0000	
+calib_conf_genus=[0.9, 0.95)	genus	1	1.0000	1.0000	
+calib_conf_genus=[0.95, 1.01)	genus	344	1.0000	0.9826	
+calib_ani=[0.98, 0.995)	species	3	1.0000	0.0000	
+calib_ani=[0.995, 1.01)	species	39	1.0000	0.0000	
+calib_conf_species=[0.95, 1.01)	species	42	1.0000	0.0000	

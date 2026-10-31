@@ -1,5 +1,9 @@
 # Trusted truth set: NCBI RefSeq fungal genomes (#39)
 
+> **Re-measured on release 2026.10.5 (2026-10-31, binary `gmg-ca8e3b9`, 72 exclusions): see `release_2026.10.5/README.md` and the files in that directory.** The numbers below are the earlier-release values (index 2026.10.3, 57 exclusions); where they differ, `docs/limitations.md` quotes the 2026.10.5 ones.
+
+On 2026.10.5 (T1 equivalent in `release_2026.10.5/truth_set_tables.md`): leave-one-out 0.978 / 0.971 / 0.968 / 0.988 / 0.994, species 0.949; leave-species-out 0.962 / 0.948 / 0.944 / 0.964 / 0.983; leave-genus-out 0.861 / 0.783 / 0.726 / 0.687 (phylum to family; the +1.5 / +1.9 / +3.5 points at class, order, family are attributed to the 15 further exclusions); outside the index 21 of 21 as before; label-conflict share of the leave-genus-out disagreements 17% (91 of 523).
+
 Index `bfd-2026.10.3-s10000.gmgi` (23,612 BFD genomes without the 57 ambiguous-label ones, plus 81 non-fungal decoys, taxonomy pinned to NCBI
 taxdump 2026-10-29), binary `gmg-a9acf5c` (decoy re-call #89, flag #93), default (`known`) thresholds unless noted, `gmg run --exclude-level` (#85).
 Per-genome output stays on the HPCC (`GmG_runs/truthset/`); this page and `data/validation/` hold the aggregates, the truth list and the

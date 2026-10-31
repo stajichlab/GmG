@@ -1,5 +1,9 @@
 # False calls for taxa absent from the reference (BFD benchmark)
 
+> **Re-measured on release 2026.10.5 (2026-10-31, binary `gmg-ca8e3b9`, 72 exclusions): see `release_2026.10.5/README.md` and the files in that directory.** The numbers below are the earlier-release values (BFD index with 43 suspect genomes dropped); where they differ, `docs/limitations.md` quotes the 2026.10.5 ones.
+
+On release 2026.10.5 (72 genomes dropped) the genus false-call rate at ANI 0.90 is 0.105 (was 0.183) and the species rate at 0.9938 is 0.110 (was 0.117): `release_2026.10.5/novelty_curve.md`.
+
 `loo` = leave-one-out with relatives present: coverage and precision of the call. `absent` = the genus (or species) was left out of the reference, so any such call is wrong: the false-call rate is the share of those queries that still get a call. Clean labels, 43 suspect genomes dropped.
 
 
