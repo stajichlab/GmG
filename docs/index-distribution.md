@@ -16,7 +16,7 @@ Indexes built before manifests existed print `manifest (none ...)`; rebuild (`gm
 
 ## Releases (GitHub release assets)
 
-Indexes are data, released separately from code (`v*` tags are code): one GitHub release per index version, tag `index-YYYY.MM`, not marked as the latest release. First release: [index-2026.10](https://github.com/stajichlab/GmG/releases/tag/index-2026.10). Assets:
+Indexes are data, released separately from code (`v*` tags are code): one GitHub release per index version, tag `index-YYYY.MM` (a later build of the same monthly freeze adds `.N`, e.g. `index-2026.10.5` is the fifth build of the 2026.10 freeze), not marked as the latest release. First release: [index-2026.10](https://github.com/stajichlab/GmG/releases/tag/index-2026.10). Assets:
 
 * `bfd-YYYY.MM-s10000.gmgi`: full reference, ~200 MB (23.7k genomes, ANI clusters at 0.95 in the `cluster` column);
 * `bfd-reps-YYYY.MM-s20000.gmgi`: representatives only (best genome per species), for browsers and laptops, ~60 MB; fewer species calls (see the release notes);
