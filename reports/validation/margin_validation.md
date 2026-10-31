@@ -310,3 +310,7 @@ Cells: called share / precision [95% Wilson CI] (n with truth). The CI is on the
 
 The family margin does what it was designed to do (precision up, calls down) but costs more calls on real assemblies than the bench suggested. The genus change is close to a no-op because #57 already
 raised the genus cutoff above what a 0.97 fit asks for. If the family coverage loss is not wanted, revert only the family row (`min_ani[3]` back to 0.7715): genus is unaffected by it.
+
+## Addendum 2026-10-30: the family margin was reverted
+
+The user rejected the family part of this trade (precision +0.7-1.4 points for 6-13 points fewer family calls on assemblies and 27 on leave-species-out). The family cutoff is back at ANI 0.7715 (consistency 0.9); the genus vote consistency 0.9 stays, because its cost is about one point of genus calls on the bench and nothing measurable on real sets. The golden-panel genome GCA_061476465.1 has its `Phyllostictaceae` call back. The tables above show the version with both margins; the family columns after the revert equal the "before" columns, and genus is unchanged.

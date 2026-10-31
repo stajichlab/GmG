@@ -73,7 +73,7 @@ or `--report-format all` on `gmg run`. All three come from the same run.
 
 ## 4. How far to trust a call
 
-* The default thresholds name a family only at ANI >= 0.8837, a genus only at ANI >= 0.90 with a vote consistency of at least 0.9, and a species at ANI >= 0.9938 (0.99 for reads); they were
+* The default thresholds name a family at ANI >= 0.7715, a genus only at ANI >= 0.90 with a vote consistency of at least 0.9, and a species at ANI >= 0.9938 (0.99 for reads); they were
   calibrated on the BFD reference (`reports/validation/README.md`). A genus that is not in the reference is usually
   reported as `low_confidence` with a `tentative_genus`, not as a call.
 * `--thresholds novel` is the stricter set for queries that may be a new genus; `--thresholds permissive` is the older,
