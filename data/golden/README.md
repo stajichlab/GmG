@@ -4,7 +4,7 @@
 (`expected.tsv`) with the pinned index (`INDEX.txt`): status, best rank, the call at every rank, QC flags, top hit and ANI (to 0.0005).
 
 ```
-python3 scripts/golden_check.py --gmg target/release/gmg --index bfd-reps-2026.10.2-s20000.gmgi     # exit 1 and a diff on any change
+python3 scripts/golden_check.py --gmg target/release/gmg --index bfd-reps-2026.10.5-s20000.gmgi     # exit 1 and a diff on any change
 python3 scripts/golden_check.py ... --update       # rewrite expected.tsv: only for an intended change, with the reason in the commit message
 ```
 

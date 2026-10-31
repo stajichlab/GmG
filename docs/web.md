@@ -20,7 +20,7 @@ two); `crates/gmg-wasm/tests/parity.mjs` checks this on 21 inputs (assemblies, m
 
 ```
 pixi run wasm                                   # builds crates/gmg-wasm/pkg-web
-scripts/build_site.sh _site bfd-reps-2026.10.1-s20000.gmgi
+scripts/build_site.sh _site bfd-reps-2026.10.5-s20000.gmgi
 python3 -m http.server -d _site 8000            # the worker needs http(s); file:// does not work
 ```
 

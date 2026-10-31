@@ -25,3 +25,12 @@ Indexes are data, released separately from code (`v*` tags are code): one GitHub
 `scripts/make_index_release.sh INDEX...` writes `SHA256SUMS` and `MANIFEST.txt` next to the files. Release assets are limited to 2 GB each, which these indexes are far below.
 
 Building a release: `scripts/hpcc/15_release_index.sbatch` (HPCC) writes the two indexes, `SHA256SUMS` and `MANIFEST.txt`; `gh release create index-YYYY.MM <files> --latest=false` publishes them.
+
+## Current reference
+
+The current reference is **[index-2026.10.5](https://github.com/stajichlab/GmG/releases/tag/index-2026.10.5)**: full index 23,677 genomes (23,669 fungi - 72 ambiguous-label genomes + 80 non-fungal decoys), representatives index 7,479 genomes.
+It supersedes 2026.10.4 (full 23,692; the 15 tier A/B genomes of `reports/label_audit/upstream_report.md` are now left out as well, maintainer decision 2026-10-30; tier C and the assembly GCA_982397225.1 stay in).
+Earlier releases stay available for reproducing old results. Pinned to the representatives index of 2026.10.5: the golden panel (`data/golden/INDEX.txt`), the examples (`examples/README.md`), and the web app, whose workflow
+(`.github/workflows/pages.yml`) bundles the representatives index of the newest `index-*` release when it is run. Check a new release before it becomes the web app's index: `scripts/hpcc/18_decoy_eval.sbatch VER`, `19_external_indigo.sbatch` (`INDEX=`),
+`38_exclusion_check.sbatch OLD NEW` (for releases that leave genomes out), the golden panel and a wasm-versus-native check on the representatives index.
+
