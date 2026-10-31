@@ -54,9 +54,10 @@
     </div>
     <div class="row accrow">
       <label class="field">Or any NCBI assembly
-        <input id="acc" type="text" placeholder="GCF_000146045.2" size="20" autocomplete="off" spellcheck="false" aria-describedby="queue-status">
+        <input id="acc" type="text" placeholder="paste an accession" size="20" autocomplete="off" spellcheck="false" aria-describedby="queue-status">
       </label>
       <button id="acc-go" class="btn" type="button">Fetch from NCBI</button>
+      <span class="muted acc-eg">for example <code id="acc-eg" title="Click to put it in the box" tabindex="0" role="button">GCF_000146045.2</code> (<i>S. cerevisiae</i> S288C)</span>
     </div>
     <ul class="queue" id="queue-list" aria-label="Files to classify" hidden></ul>
     <p class="status" id="queue-status">No bite yet: no files chosen.</p>

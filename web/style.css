@@ -115,3 +115,4 @@ a { color: var(--accent); text-underline-offset: 3px; }
 @media (max-width: 560px) { .queue li { grid-template-columns: 1fr auto; } .queue .qinfo { grid-column: 1; grid-row: 2; } .queue .qx { grid-column: 2; grid-row: 1 / span 2; } }
 
 .accrow { margin-top: 14px; } #acc { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14px; min-width: 190px; }
+.acc-eg { padding-bottom: 8px; } #acc-eg { cursor: pointer; color: var(--accent); border-bottom: 1px dotted var(--accent); user-select: all; } #acc-eg:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

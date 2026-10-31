@@ -173,6 +173,9 @@ async function addAccession(raw) {
   } finally { btn.disabled = box.disabled = false; }
 }
 $("acc-go").onclick = () => addAccession($("acc").value);
+const useEg = () => { $("acc").value = $("acc-eg").textContent; $("acc").focus(); };
+$("acc-eg").onclick = useEg;
+$("acc-eg").onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); useEg(); } };
 $("acc").onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); addAccession($("acc").value); } };
 
 async function addExample(ex, btn) {
