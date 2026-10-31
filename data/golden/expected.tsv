@@ -13,6 +13,6 @@ GCA_060419215.1	ok	species	Basidiomycota	Microbotryomycetes	Sporidiobolales	Spor
 GCA_977110955.1	ok	species	Mucoromycota	Mucoromycetes	Mucorales	Rhizopodaceae	Rhizopus	Rhizopus sp. PT2906		GCA_025529335.1_ASM2552933v1	0.9963
 GCA_985568295.1	ok	species	Microsporidia			Nosematidae	Vairimorpha	Vairimorpha sp. gmOTU13 SAN23001243		GCA_985568155.1_ilYpoCagn5.microsporidian_1.1_alternate_haplotypes	0.9993
 GCA_062024532.1	no_match									GCF_022836535.1_Cspa_1.0	0.7575
-GCA_061476465.1	low_confidence	order	Ascomycota	Dothideomycetes	Botryosphaeriales					GCF_038025025.1_Pcit17464	0.8837
+GCA_061476465.1	low_confidence	family	Ascomycota	Dothideomycetes	Botryosphaeriales	Phyllostictaceae				GCF_038025025.1_Pcit17464	0.8837
 GCF_000146045.2	ok	genus	Ascomycota	Saccharomycetes	Saccharomycetales	Saccharomycetaceae	Saccharomyces			GCA_047651925.1_ASM4765192v1	0.9964
 GCF_000002765.5	ok	species	Apicomplexa	Aconoidasida	Haemosporida	Plasmodiidae	Plasmodium	Plasmodium falciparum	identical_to_reference,not_fungal	GCF_000002765.5	1.0000

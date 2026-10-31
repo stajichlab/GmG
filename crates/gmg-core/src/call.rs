@@ -23,15 +23,15 @@ impl Default for Thresholds {
     /// the reference holds close relatives (species/genus from leave-one-out, family and above from leave-species-out), with the genus
     /// cutoff raised from ANI 0.7765 to 0.90 so that a genus absent from the reference is named for 18% of queries instead of 58%
     /// (`reports/validation/novelty_curve.md`, issue #57); the 0.7765-0.90 band is kept as `tentative_genus`.
-    /// Genus and family carry a safety margin (issue #58): each is the stricter of the current cutoff and a fit at precision 0.97
-    /// instead of 0.95 on the same held-out protocol (family ANI 0.7715 -> 0.8837, genus vote consistency 0.5 -> 0.9; the genus ANI
-    /// stays at 0.90, already above the 0.97 fit of 0.8033); the other ranks are unchanged (`reports/validation/margin_validation.md`).
+    /// Genus carries a safety margin (issue #58): the stricter of the current cutoff and a fit at precision 0.97 instead of 0.95
+    /// on the same held-out protocol (genus vote consistency 0.5 -> 0.9; the genus ANI
+    /// stays at 0.90, already above the 0.97 fit of 0.8033). A family margin (ANI 0.8837) was tried and reverted: it cost 6-27 points of family calls for ~1 point of precision. The other ranks are unchanged (`reports/validation/margin_validation.md`).
     /// `data/thresholds/bfd_s10000.known.json`; the earlier permissive genus cutoff is `bfd_s10000.permissive.json`;
     /// for genomes that may belong to a genus absent from the reference use `bfd_s10000.novel.json`.
     fn default() -> Self {
         Self {
             min_shared: [5, 5, 5, 5, 5, 5],
-            min_ani: [0.7109, 0.7109, 0.7109, 0.8837, 0.90, 0.9938],
+            min_ani: [0.7109, 0.7109, 0.7109, 0.7715, 0.90, 0.9938],
             min_consistency: [0.5, 0.5, 0.6, 0.9, 0.9, 0.9],
             margin: 0.9,
             top_n: 10,
@@ -395,13 +395,13 @@ mod tests {
     }
 
     #[test]
-    fn default_thresholds_carry_the_genus_family_margin_only() {
+    fn default_thresholds_carry_the_genus_margin_only() {
         let d = Thresholds::default();
-        // margin at family and genus only; phylum..order and species keep their pre-margin cutoffs
+        // margin at genus only (the family margin was reverted); phylum..order and species keep their pre-margin cutoffs
         assert_eq!(d.min_ani[..3], [0.7109; 3]);
         assert_eq!(d.min_consistency[..3], [0.5, 0.5, 0.6]);
         assert_eq!((d.min_ani[5], d.min_consistency[5]), (0.9938, 0.9));
-        assert_eq!((d.min_ani[3], d.min_consistency[3]), (0.8837, 0.9));
+        assert_eq!((d.min_ani[3], d.min_consistency[3]), (0.7715, 0.9));
         assert_eq!((d.min_ani[4], d.min_consistency[4]), (0.90, 0.9));
     }
 
