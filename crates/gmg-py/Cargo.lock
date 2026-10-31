@@ -36,7 +36,7 @@ dependencies = [
 
 [[package]]
 name = "gmg-core"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "murmurhash3",
  "serde_json",
@@ -44,7 +44,7 @@ dependencies = [
 
 [[package]]
 name = "gmg-py"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "flate2",
  "gmg-core",
@@ -55,7 +55,7 @@ dependencies = [
 
 [[package]]
 name = "gmg-report"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "serde_json",
 ]

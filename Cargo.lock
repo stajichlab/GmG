@@ -808,7 +808,7 @@ dependencies = [
 
 [[package]]
 name = "gmg-cli"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "clap",
@@ -827,7 +827,7 @@ dependencies = [
 
 [[package]]
 name = "gmg-core"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "murmurhash3",
  "needletail",
@@ -837,7 +837,7 @@ dependencies = [
 
 [[package]]
 name = "gmg-pdf"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "gmg-report",
  "krilla",
@@ -850,7 +850,7 @@ dependencies = [
 
 [[package]]
 name = "gmg-report"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "roxmltree 0.20.0",
  "serde_json",
@@ -858,7 +858,7 @@ dependencies = [
 
 [[package]]
 name = "gmg-wasm"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "gmg-core",
  "gmg-report",

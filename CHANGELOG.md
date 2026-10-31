@@ -1,18 +1,16 @@
 # Changelog
 
-## Unreleased
+## v0.2.1 (2026-10-31)
 
 - Browser app: GoatCounter page views (anonymous, no cookies; disclosed in the footer) and a footer line "N classifications started so far" fed by a count of presses of Classify (no file information is sent).
-
 - Browser app: loading the index shows a thicker progress bar with MB, percent and time left, then a "building the index" step; the bar was wrong (past 100%) when the server compressed the file, and Load is disabled while loading.
-
 - Browser app: drop or choose a `.zip`, `.tar` or `.tar.gz` (also `.tgz`) and the FASTA/FASTQ files inside are listed and classified like any others (unpacked in memory, up to 3 GB of sequence files per archive).
 - Report: the genus and species threshold labels in the ANI histogram no longer overlap.
 - Browser app: the full index is offered next to the representatives index.
-
+- Release workflow: the `.dockerbuild` record is no longer attached to the GitHub release.
 - The command line reads `.zst`, `.bz2` and `.xz` input as well as `.gz` (folders, `gmg guess`, `gmg sketch`); results are identical. The browser app still reads only `.gz` (the browser decompresses gzip natively).
 
-## v0.2.0 (unreleased)
+## v0.2.0 (2026-10-31)
 
 First tagged release. Indexes are released separately (`index-YYYY.MM[.N]`); this version is built to run with `index-2026.10.5`.
 
