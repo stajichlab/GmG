@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Browser app: drop or choose a `.zip`, `.tar` or `.tar.gz` (also `.tgz`) and the FASTA/FASTQ files inside are listed and classified like any others (unpacked in memory, up to 3 GB of sequence files per archive).
+- Report: the genus and species threshold labels in the ANI histogram no longer overlap.
+- Browser app: the full index is offered next to the representatives index.
+
 - The command line reads `.zst`, `.bz2` and `.xz` input as well as `.gz` (folders, `gmg guess`, `gmg sketch`); results are identical. The browser app still reads only `.gz` (the browser decompresses gzip natively).
 
 ## v0.2.0 (unreleased)

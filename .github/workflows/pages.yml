@@ -9,7 +9,7 @@ name: web app (GitHub Pages)
 on:
   push:
     branches: [main]
-    paths: ["web/**", "crates/**", "scripts/build_site.sh", ".github/workflows/pages.yml", "pixi.toml", "pixi.lock"]
+    paths: ["web/**", "tests/web/**", "crates/**", "scripts/build_site.sh", ".github/workflows/pages.yml", "pixi.toml", "pixi.lock"]
   workflow_dispatch:
 
 permissions:

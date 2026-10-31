@@ -59,3 +59,7 @@ wasm-bindgen --target web --out-dir crates/gmg-wasm/pkg-web target/wasm32-unknow
 [tasks.wasm-test]
 depends-on = ["wasm", "build"]
 cmd = "node crates/gmg-wasm/tests/smoke.mjs && node crates/gmg-wasm/tests/parity.mjs"
+
+[tasks.web-test]
+# the browser app's zip / tar / tar.gz unpacking (web/archive.js), run under Node; needs the zip and tar commands
+cmd = "node --test tests/web/archive.test.mjs"

@@ -1,5 +1,6 @@
 // GmG web app: UI only. The worker (worker.js) does the sketching and classification with the same Rust code as the CLI.
 const $ = (id) => document.getElementById(id);
+import { ARCHIVE, expandArchive } from "./archive.js";
 const worker = new Worker(new URL("./worker.js", import.meta.url), { type: "module" });
 
 const SEQ_EXT = /\.(fa|fna|fasta|fas|ffn|fq|fastq)(\.gz)?$/i;
@@ -93,16 +94,31 @@ function queueStatus(extra) {
   setStatus($("queue-status"), queue.length ? `${queue.length} file${queue.length === 1 ? "" : "s"} ready${extra || ""}. Remove any with ✕.` : `No bite yet: no files chosen${extra || ""}.`);
   renderQueue(); updateRun();
 }
-function addFiles(files, label) {
-  const keep = [...files].filter((f) => SEQ_EXT.test(f.name));
+async function addFiles(files, label) {
+  const all = [...files], notes = [];
+  const plain = [];
+  for (const f of all) {
+    if (!ARCHIVE.test(f.name)) { plain.push(f); continue; }
+    setStatus($("queue-status"), `Unpacking ${f.name}…`);
+    try {
+      const { files: inner, skipped } = await expandArchive(f, (n) => SEQ_EXT.test(n));
+      for (const g of inner) {
+        meta.set(g, { label: `from ${f.name}${g.innerPath !== g.name ? `: ${g.innerPath}` : ""}`, sha: "" });
+        plain.push(g);
+      }
+      notes.push(`${f.name}: ${inner.length} sequence file${inner.length === 1 ? "" : "s"}${skipped.notSeq ? `, ${skipped.notSeq} other entr${skipped.notSeq === 1 ? "y" : "ies"} ignored` : ""}${skipped.unsupported.length ? `, ${skipped.unsupported.length} not readable (${skipped.unsupported.slice(0, 3).join("; ")})` : ""}`);
+    } catch (err) { notes.push(err.message); }
+  }
+  const keep = plain.filter((f) => f && SEQ_EXT.test(f.name));
   const same = (a, b) => a.name === b.name && a.size === b.size && a.lastModified === b.lastModified;
   const fresh = keep.filter((f, i) => !queue.some((q) => same(q, f)) && keep.findIndex((g) => same(g, f)) === i);
-  const dup = keep.length - fresh.length, skipped = files.length - keep.length;
-  for (const f of fresh) { meta.set(f, { label: label || "", sha: "" }); hashFile(f); }
+  const dup = keep.length - fresh.length, skipped = all.filter((f) => !ARCHIVE.test(f.name) && !SEQ_EXT.test(f.name)).length;
+  for (const f of fresh) { if (!meta.has(f)) meta.set(f, { label: label || "", sha: "" }); hashFile(f); }
   queue = queue.concat(fresh);
-  const notes = [skipped ? `${skipped} skipped: not FASTA/FASTQ` : "", dup ? `${dup} already in the list` : ""].filter(Boolean).join("; ");
-  queueStatus(notes ? ` (${notes})` : "");
+  const more = [skipped ? `${skipped} skipped: not FASTA/FASTQ` : "", dup ? `${dup} already in the list` : "", ...notes].filter(Boolean).join("; ");
+  queueStatus(more ? ` (${more})` : "");
 }
+
 function updateRun() { $("run").disabled = running || !indexReady || queue.length === 0; }
 
 $("pick-files").onchange = (e) => { addFiles(e.target.files); e.target.value = ""; };
