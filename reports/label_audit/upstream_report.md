@@ -15,7 +15,7 @@ not an authority: "current organism" below is the BFD species label, and the NCB
 | group | A | B | C | total |
 |---|---|---|---|---|
 | BFD genomes left out: label audit (43) | 20 | 6 | 17 | 43 |
-| BFD genomes kept in the reference: conflict with another kept genome | 9 | 6 | 70 | 85 |
+| BFD genomes kept in 2026.10.3: conflict with another kept genome (the 9 A and 6 B left out from 2026.10.5) | 9 | 6 | 70 | 85 |
 | BFD genomes left out: truth-set run (14) | 9 | 3 | 2 | 14 |
 | Lab or provider labels of read sets / assemblies (not NCBI accessions) | 5 | 9 | 9 | 23 |
 | SRA run (ERR14883901, assembly of the same BioSample) | 0 | 1 | 0 | 1 |
@@ -28,16 +28,18 @@ not an authority: "current organism" below is the BFD species label, and the NCB
 * **B, moderate**: one line at ANI >= 0.98, or two lines that do not make it to A, or a pair of genomes where the data do not say which side is wrong. Suggested action is "check".
 * **C, weak or ambiguous**: uninformative `sp.` labels, ANI < 0.98 from a single line, order-level conflicts, size outliers only, metagenome inputs, taxonomy updates. Suggested action is "keep".
 
-Where the genome sits matters more than the tier for a copy to NCBI. Of the 236 rows, **57 genomes are already left out of the GmG reference** (index 2026.10.3 onwards, `reference_exclusions.txt`:
-the 43 of the label audit plus 14 found by the truth-set run, #39/#90), **154 BFD genomes are still in the reference** (85 with a label conflict with another kept genome, 69 size outliers; the SRA genome pair is a further 2) and 24 rows
-are outside BFD (23 lab or provider label rows and one decoy). Nothing in this document changes the reference.
+Where the genome sits matters more than the tier for a copy to NCBI. Of the 236 rows, **57 genomes are left out of the GmG reference from index 2026.10.3** (`reference_exclusions.txt`, lines 1-57:
+the 43 of the label audit plus 14 found by the truth-set run, #39/#90) and **15 more from index 2026.10.5** (lines 58-72: the 9 tier A and 6 tier B BFD genomes that were still in the reference when this report was written;
+the maintainer decided on 2026-10-30 to leave them out, as was done for the 57; column `in_reference_2026.10.5` of `upstream_report.tsv`). **138 BFD genome rows remain in the reference** (70 tier C label conflicts with another kept genome, 68 size outliers; the 69th, GCA_003314755.1, is one of the 15;
+the SRA genome pair is a further 2) and 24 rows are outside BFD (23 lab or provider label rows and one decoy). Deliberately **not** left out: the tier C rows (weak or ambiguous evidence)
+and the assembly GCA_982397225.1 of the SRA pair ERR14883901 (which of the read set and the assembly carries the wrong name is undetermined). The row counts and tiers below are those of the report as written against 2026.10.3; the tables list the 15 as still in the reference of that release.
 
 Highlights, all to be read with the caveat above:
 
 * **29 of the 57 left-out genomes are tier A, 9 tier B and 19 tier C.** The A rows are the clear cases: e.g. GCA_049307695.1 "Emarellia grisea" is the nearest genome of 416 genomes labelled Eurotiomycetes and sits in a 95%-ANI cluster of 415 others, 414 of them *Aspergillus fumigatus*; GCA_037044395.1 "Alternaria destruens" sits in a cluster with 81 other *Aspergillus* genomes (82 members besides itself).
 * **19 of the 57 are probably not wrong**, they are tier C: twelve carry only an uninformative label (mostly "Saccharomycetales sp." whose neighbours are in the new class Pichiomycetes), five are specific names probably better labelled than their neighbour (the RefSeq *Brettanomyces bruxellensis* GCF_011074885.1, *Candida tropicalis* GCA_057383725.1, *Alternaria* sp. SPS-2, *Tetracladium maxilliforme*, *Brettanomyces* sp. HC-2020a) and two are single weak lines (ANI < 0.98). They were left out as ambiguous, which is conservative; this report suggests re-admitting nothing, but the lab may want to look.
-* **Surprise: 15 genomes that are still in the reference look as wrong as the left-out ones** (tier A or B, flag `kept_in_reference`). The audit defined hubs only at phylum/class level; at order level the same pattern exists, e.g. GCA_011057605.1 "Pseudocercospora fijiensis" (nearest genome of 19 Botryosphaeriales genomes; its 43 cluster mates are 41 Botryosphaeriales, mostly *Lasiodiplodia*), GCA_023087585.1 "Bipolaris maydis" and GCA_023079265.1 "Alternaria brassicicola" in the same cluster, GCA_037044435.1 "Alternaria alstroemeriae" (ANI 1.0 to an *Aspergillus costaricensis*, in the accession range GCA_037044xxx that also holds five left-out genomes). These are not in `reference_exclusions.txt`.
-* **ERR14883901** (BioSample SAMEA118140668, registered as *Coccidioides immitis*) and its assembly GCA_982397225.1: best hit *Ophidiomyces ophidiicola* GCA_982397405.1 at ANI 0.947 (reads, own genome hidden) and 0.950 (assembly), not any of 5 other *C. immitis* in the reference. Both genomes are in the reference. Tier B (same BioSample, so the lines are not fully independent).
+* **Surprise: 15 genomes that were still in the 2026.10.3 reference look as wrong as the left-out ones (left out from 2026.10.5)** (tier A or B, flag `kept_in_reference`). The audit defined hubs only at phylum/class level; at order level the same pattern exists, e.g. GCA_011057605.1 "Pseudocercospora fijiensis" (nearest genome of 19 Botryosphaeriales genomes; its 43 cluster mates are 41 Botryosphaeriales, mostly *Lasiodiplodia*), GCA_023087585.1 "Bipolaris maydis" and GCA_023079265.1 "Alternaria brassicicola" in the same cluster, GCA_037044435.1 "Alternaria alstroemeriae" (ANI 1.0 to an *Aspergillus costaricensis*, in the accession range GCA_037044xxx that also holds five left-out genomes). These are not in `reference_exclusions.txt`.
+* **ERR14883901** (BioSample SAMEA118140668, registered as *Coccidioides immitis*) and its assembly GCA_982397225.1: best hit *Ophidiomyces ophidiicola* GCA_982397405.1 at ANI 0.947 (reads, own genome hidden) and 0.950 (assembly), not any of 5 other *C. immitis* in the reference. The assembly is in the reference (kept: the wrong side is undetermined). Tier B (same BioSample, so the lines are not fully independent).
 * **Lab and provider labels** (not NCBI accessions): the strongest are four strains whose lab name disagrees with both the reads and the assembly at ANI 0.986-1.0 (*Absidia* sp. A-19777 is *Lichtheimia ramosa*, *Gongronella* sp. A-20010 is *Halteromyces radiatus*, *Rhizomucor pusillus* 2543 is *Phycomyces nitens*, *Chaetocladium brefeldii* RSA 1136 is *Cunninghamella blakesleeana*), plus *Nowakowskiella* sp. JEL0774, whose reads match a reference genome that carries the same strain designation under the name *Gonapodya* (ANI 0.990).
 * **The *Thalia democratica* decoy assembly GCF_965202585.1** shares 11-15% of its k-mers with *Conidiobolus*-type fungi, closer than any fungal reference genome; possible fungal contamination of that NCBI assembly (not examined; tier C).
 
@@ -65,7 +67,7 @@ size outliers); flags; evidence (LOO = leave-one-out conflict, HUB, REFSEQ = Ref
 <!-- TABLES -->
 ### Tier A
 
-#### BFD genomes (57 left out of the reference; the others kept, flag kept_in_reference or size_outlier) (38)
+#### BFD genomes (57 left out of the reference from 2026.10.3 and 15 more from 2026.10.5; the others kept, flag kept_in_reference or size_outlier) (38)
 
 | id | accession | current organism (BFD/NCBI) | GmG best hit | ANI | size | flags | evidence | suggested |
 |---|---|---|---|---|---|---|---|---|
@@ -120,7 +122,7 @@ size outliers); flags; evidence (LOO = leave-one-out conflict, HUB, REFSEQ = Ref
 
 ### Tier B
 
-#### BFD genomes (57 left out of the reference; the others kept, flag kept_in_reference or size_outlier) (15)
+#### BFD genomes (57 left out of the reference from 2026.10.3 and 15 more from 2026.10.5; the others kept, flag kept_in_reference or size_outlier) (15)
 
 | id | accession | current organism (BFD/NCBI) | GmG best hit | ANI | size | flags | evidence | suggested |
 |---|---|---|---|---|---|---|---|---|
@@ -157,7 +159,7 @@ size outliers); flags; evidence (LOO = leave-one-out conflict, HUB, REFSEQ = Ref
 
 ### Tier C
 
-#### BFD genomes (57 left out of the reference; the others kept, flag kept_in_reference or size_outlier) (158)
+#### BFD genomes (57 left out of the reference from 2026.10.3 and 15 more from 2026.10.5; the others kept, flag kept_in_reference or size_outlier) (158)
 
 | id | accession | current organism (BFD/NCBI) | GmG best hit | ANI | size | flags | evidence | suggested |
 |---|---|---|---|---|---|---|---|---|

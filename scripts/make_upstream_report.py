@@ -28,7 +28,9 @@ def rd(p):
 
 
 meta = {r['id']: r for r in rd('data/external/bfd_meta.tsv')}
-ex57 = [l.strip() for l in open(os.path.join(ROOT, 'reports/label_audit/reference_exclusions.txt')) if l.strip()]
+_exall = [l.strip() for l in open(os.path.join(ROOT, 'reports/label_audit/reference_exclusions.txt')) if l.strip()]
+ex57 = _exall[:57]   # the first 57 lines: left out from 2026.10.3; the tiers below are assessed against these 57 only
+ex_later = set(_exall[57:])   # left out from 2026.10.5 (the 9 tier A + 6 tier B genomes still in the reference, decided 2026-10-30)
 ex43 = set(open(os.path.join(ROOT, 'reports/label_audit/exclude_ids.txt')).read().split())
 EX = set(ex57)
 loo = rd('reports/label_audit/loo_suspects.tsv')
@@ -46,7 +48,7 @@ lin = lambda m: ';'.join(m[k] for k in RANKS) if m else ''
 label = lambda i: meta[i]['species'] if i in meta else ''
 
 COLS = ['tier', 'row_id', 'kind', 'accession', 'bfd_id', 'current_organism', 'current_lineage', 'best_hit_accession', 'best_hit_taxon', 'ani',
-        'size_ratio', 'flags', 'evidence_type', 'evidence', 'suggested_taxon', 'suggested_action', 'in_reference_2026.10.3', 'sources']
+        'size_ratio', 'flags', 'evidence_type', 'evidence', 'suggested_taxon', 'suggested_action', 'in_reference_2026.10.3', 'in_reference_2026.10.5', 'sources']
 rows = []
 
 
@@ -317,6 +319,11 @@ for t, kind, sample, lab, bacc, btax, ani, flags, et, evd, sug, act, src in LAB:
     add(tier=t, kind=kind, accession=f'(lab id) {sample}', bfd_id='(not in BFD)', current_organism=lab, best_hit_accession=bacc, best_hit_taxon=btax, ani=ani, flags=flags,
         evidence_type=et, evidence=evd, suggested_taxon=sug, suggested_action=act, **{'in_reference_2026.10.3': 'n/a (not in BFD)'}, sources=src)
 
+# the 2026.10.5 column: the 15 later exclusions are out, everything else as in 2026.10.3 (the decoy stays removed)
+for r in rows:
+    v = r['in_reference_2026.10.3']
+    r['in_reference_2026.10.5'] = 'no (left out)' if r['bfd_id'] in ex_later else v
+assert {r['bfd_id'] for r in rows if r['in_reference_2026.10.5'] == 'no (left out)' and r['in_reference_2026.10.3'] == 'yes'} == ex_later
 # order: tier, kind, group
 ordk = {'bfd_genome': 0, 'sra_run+bfd_genome': 1, 'lab_read_set+lab_assembly': 2, 'lab_read_set': 2, 'lab_assembly': 2, 'decoy_assembly': 3}
 rows.sort(key=lambda r: (r['tier'], ordk[r['kind']], 0 if 'audit43' in r['flags'] else 1, -(float(re.match(r'[0-9.]+', r['ani']).group(0)) if r['ani'] and re.match(r'[0-9.]+', r['ani']) else 0)))
@@ -354,7 +361,7 @@ def section(tier, title, kinds):
         md.append('')
 for t in 'ABC':
     md.append(f'### Tier {t}\n')
-    section(t, 'BFD genomes (57 left out of the reference; the others kept, flag kept_in_reference or size_outlier)', {'bfd_genome'})
+    section(t, 'BFD genomes (57 left out of the reference from 2026.10.3 and 15 more from 2026.10.5; the others kept, flag kept_in_reference or size_outlier)', {'bfd_genome'})
     section(t, 'Lab or provider labels of read sets and assemblies, the SRA run, the decoy', {'sra_run+bfd_genome', 'lab_read_set+lab_assembly', 'lab_read_set', 'lab_assembly', 'decoy_assembly'})
 text = '\n'.join(md)
 
@@ -363,7 +370,7 @@ def grp(r):
     f = r['flags'].split(';')[0]
     if r['kind'] == 'bfd_genome':
         return {'audit43': 'BFD genomes left out: label audit (43)', 'truthset14': 'BFD genomes left out: truth-set run (14)',
-                'kept_in_reference': 'BFD genomes kept in the reference: conflict with another kept genome', 'size_outlier': 'BFD genomes kept: size outliers only'}[f]
+                'kept_in_reference': 'BFD genomes kept in 2026.10.3: conflict with another kept genome (the 9 A and 6 B left out from 2026.10.5)', 'size_outlier': 'BFD genomes kept: size outliers only'}[f]
     if r['kind'].startswith('sra'):
         return 'SRA run (ERR14883901, assembly of the same BioSample)'
     if r['kind'] == 'decoy_assembly':
