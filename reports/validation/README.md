@@ -1,4 +1,6 @@
-# Validation summary (2026-10-28)
+# Validation summary (2026-10-28; headline numbers re-measured 2026-10-31)
+
+**Re-measurement on release 2026.10.5 (23,677 genomes, 72 ambiguous-label genomes left out, binary `gmg-ca8e3b9`): `release_2026.10.5/README.md` has old against new by rank for the truth set, leave-out bench, held-out calibration, the 1,257 independent assemblies and the real-read sets. The tables in the files linked below, and the "before and after the balanced default" and "What works" sections, are the earlier values (index 2026.10.x with 23,669 genomes and 43 or 57 exclusions); the 2026.10.5 values are quoted in `docs/limitations.md`.** Only leave-genus-out family / order / class precision (+3.5 / +1.9 / +1.5 points) and the BFD absent-genus false-call rate (0.183 to 0.105) moved by more than a point.
 
 What was tested, on data the index was not built from, and what it shows. Scripts: `scripts/validate_run.py` (scoring), `heldout_calibration.py`, `novelty_curve.py`.
 Details per dataset are in the linked files. All numbers are from runs of `gmg run` with the BFD index (23,669 genomes, scaled = 10000) and the default `known` (balanced: genus ANI ≥ 0.90, tentative genus ≥ 0.7765) thresholds; the earlier permissive results are kept as `*_permissive.*`.
@@ -18,7 +20,7 @@ Details per dataset are in the linked files. All numbers are from runs of `gmg r
 |---|---|---|
 | Independent assemblies, genus: called / precision | 0.900 / 0.971 | 0.839 / **0.988** |
 | Genus absent from BFD (n = 22): genus named | 59% (13), all wrong | **14% (3)**, all wrong |
-| Inputs that get a `tentative_genus` instead | n/a | 78 of 1,257 |
+| Inputs that get a `tentative_genus` instead | n/a | 78 of 1,257 (74 on 2026.10.5) |
 | *Coccidioides* reads, genus called / precision (100k and 2M) | .996-.998 / .995 | unchanged |
 | *Coccidioides* reads, species called / precision (2M) | .884 / .996 | unchanged |
 | RNA-seq, genus called / precision at 100k reads | .956 / .997 | .930 / .997 |
@@ -34,13 +36,13 @@ Family ANI 0.7715 to 0.8837 and genus vote consistency 0.5 to 0.9 (the stricter 
 
 ## What works
 
-* **Independent assemblies.** 1,257 genomes, 0 errors. Precision of the calls made: phylum 0.990, class 0.991, order 0.986, family 0.983, genus 0.988. The 52 genomes with a named species (all in BFD): species precision 1.000 at 75% called.
+* **Independent assemblies.** 1,257 genomes, 0 errors. Precision of the calls made: phylum 0.990, class 0.991, order 0.986, family 0.983, genus 0.988 (2026.10.5: 0.990 / 0.991 / 0.988 / 0.984 / 0.988). The 52 genomes with a named species (all in BFD): species precision 1.000 at 75% called.
 * **Real reads.** 558 *Coccidioides* read sets: genus called for ≥ 99.6% and correct for 99.1-99.3% even from 100k reads (about 0.5x coverage); species called for 88-93% with precision 0.996 at every depth. 345 RNA-seq sets: genus precision 0.997 at every depth.
-* **Calibration generalises to unseen genera.** Thresholds fitted on one half of the genera give precision 0.945-0.962 on the other half against 0.950-0.965 in-sample.
+* **Calibration generalises to unseen genera.** Thresholds fitted on one half of the genera give precision 0.945-0.962 on the other half against 0.950-0.965 in-sample (2026.10.5: 0.944-0.962 against 0.950-0.965).
 
 ## What does not (yet)
 
-1. **Absent taxa still sometimes get a name.** 3 of 22 independent absent-genus genomes are still named (BFD leave-genus-out: 18%); species at ANI ≥ 0.9938 is named for 11.7% of queries whose species is absent. The 22-genome set is too small to confirm the rate (CI 0-0.56 for precision).
+1. **Absent taxa still sometimes get a name.** 3 of 22 independent absent-genus genomes are still named (BFD leave-genus-out: 18%, 10.5% on 2026.10.5 after the 72 exclusions); species at ANI ≥ 0.9938 is named for 11.7% of queries whose species is absent (11.0% on 2026.10.5). The 22-genome set is too small to confirm the rate (CI 0-0.56 for precision).
 2. **Thresholds fitted on Ascomycota under-deliver elsewhere.** Held-out other phyla precision 0.87-0.93; Basidiomycota genus 0.942 on the independent set. Clade-aware cutoffs: #58.
 3. **Tiny or fragmented inputs** (59 assemblies with N50 < 10 kb; 48 `no_match`, including 23 of 24 Neocallimastigomycota) get no call, correctly, but the report text blames the lineage rather than the input (#59).
 4. **Reads: errors lower the species ANI.** Fixed in part (#32): read sets now use a species cutoff of 0.99 (assemblies 0.9938). *Coccidioides* species called goes from 91.4 / 92.8 / 88.4% to 95.0 / 95.7 / 96.2% (100k / 500k / 2M reads) at unchanged precision (0.994-0.996), and no longer falls with depth; RNA-seq species called 61 / 59 / 54% → 68 / 68 / 63% (precision 0.966-0.968, was 0.968-0.972). The cutoff was checked with *C. immitis* removed from the reference: its reads match *C. posadasii* at ANI 0.976-0.980 and are falsely named at 0.99 in 0.6% (1/175) of sets (10% at 0.98). One species pair only; RNA-seq still needs a transcript-aware reference (#33). Files: `*_reads099.*`, `cocci_absent_species.md`.

@@ -1,0 +1,114 @@
+group	rank	n	called	precision	recall
+all	phylum	21	1.0000	1.0000	1.0000
+all	class	20	1.0000	1.0000	1.0000
+all	order	20	1.0000	1.0000	1.0000
+all	family	21	1.0000	1.0000	1.0000
+all	genus	21	1.0000	1.0000	1.0000
+all	species	21	0.8571	1.0000	0.8571
+evidence=reference_genome	phylum	12	1.0000	1.0000	1.0000
+evidence=reference_genome	class	11	1.0000	1.0000	1.0000
+evidence=reference_genome	order	11	1.0000	1.0000	1.0000
+evidence=reference_genome	family	12	1.0000	1.0000	1.0000
+evidence=reference_genome	genus	12	1.0000	1.0000	1.0000
+evidence=reference_genome	species	12	0.7500	1.0000	0.7500
+evidence=type_material	phylum	9	1.0000	1.0000	1.0000
+evidence=type_material	class	9	1.0000	1.0000	1.0000
+evidence=type_material	order	9	1.0000	1.0000	1.0000
+evidence=type_material	family	9	1.0000	1.0000	1.0000
+evidence=type_material	genus	9	1.0000	1.0000	1.0000
+evidence=type_material	species	9	1.0000	1.0000	1.0000
+level=Chromosome	phylum	5	1.0000	1.0000	1.0000
+level=Chromosome	class	4	1.0000	1.0000	1.0000
+level=Chromosome	order	4	1.0000	1.0000	1.0000
+level=Chromosome	family	5	1.0000	1.0000	1.0000
+level=Chromosome	genus	5	1.0000	1.0000	1.0000
+level=Chromosome	species	5	0.8000	1.0000	0.8000
+level=Complete Genome	phylum	2	1.0000	1.0000	1.0000
+level=Complete Genome	class	2	1.0000	1.0000	1.0000
+level=Complete Genome	order	2	1.0000	1.0000	1.0000
+level=Complete Genome	family	2	1.0000	1.0000	1.0000
+level=Complete Genome	genus	2	1.0000	1.0000	1.0000
+level=Complete Genome	species	2	1.0000	1.0000	1.0000
+level=Contig	phylum	2	1.0000	1.0000	1.0000
+level=Contig	class	2	1.0000	1.0000	1.0000
+level=Contig	order	2	1.0000	1.0000	1.0000
+level=Contig	family	2	1.0000	1.0000	1.0000
+level=Contig	genus	2	1.0000	1.0000	1.0000
+level=Contig	species	2	1.0000	1.0000	1.0000
+level=Scaffold	phylum	12	1.0000	1.0000	1.0000
+level=Scaffold	class	12	1.0000	1.0000	1.0000
+level=Scaffold	order	12	1.0000	1.0000	1.0000
+level=Scaffold	family	12	1.0000	1.0000	1.0000
+level=Scaffold	genus	12	1.0000	1.0000	1.0000
+level=Scaffold	species	12	0.8333	1.0000	0.8333
+species_in_bfd=True	phylum	21	1.0000	1.0000	1.0000
+species_in_bfd=True	class	20	1.0000	1.0000	1.0000
+species_in_bfd=True	order	20	1.0000	1.0000	1.0000
+species_in_bfd=True	family	21	1.0000	1.0000	1.0000
+species_in_bfd=True	genus	21	1.0000	1.0000	1.0000
+species_in_bfd=True	species	21	0.8571	1.0000	0.8571
+genus_in_bfd=True	phylum	21	1.0000	1.0000	1.0000
+genus_in_bfd=True	class	20	1.0000	1.0000	1.0000
+genus_in_bfd=True	order	20	1.0000	1.0000	1.0000
+genus_in_bfd=True	family	21	1.0000	1.0000	1.0000
+genus_in_bfd=True	genus	21	1.0000	1.0000	1.0000
+genus_in_bfd=True	species	21	0.8571	1.0000	0.8571
+phylum=Ascomycota	phylum	17	1.0000	1.0000	1.0000
+phylum=Ascomycota	class	17	1.0000	1.0000	1.0000
+phylum=Ascomycota	order	17	1.0000	1.0000	1.0000
+phylum=Ascomycota	family	17	1.0000	1.0000	1.0000
+phylum=Ascomycota	genus	17	1.0000	1.0000	1.0000
+phylum=Ascomycota	species	17	0.8235	1.0000	0.8235
+phylum=Basidiomycota	phylum	3	1.0000	1.0000	1.0000
+phylum=Basidiomycota	class	3	1.0000	1.0000	1.0000
+phylum=Basidiomycota	order	3	1.0000	1.0000	1.0000
+phylum=Basidiomycota	family	3	1.0000	1.0000	1.0000
+phylum=Basidiomycota	genus	3	1.0000	1.0000	1.0000
+phylum=Basidiomycota	species	3	1.0000	1.0000	1.0000
+phylum=Microsporidia	phylum	1	1.0000	1.0000	1.0000
+phylum=Microsporidia	family	1	1.0000	1.0000	1.0000
+phylum=Microsporidia	genus	1	1.0000	1.0000	1.0000
+phylum=Microsporidia	species	1	1.0000	1.0000	1.0000
+n50_bin=0.1-1 Mb	phylum	4	1.0000	1.0000	1.0000
+n50_bin=0.1-1 Mb	class	3	1.0000	1.0000	1.0000
+n50_bin=0.1-1 Mb	order	3	1.0000	1.0000	1.0000
+n50_bin=0.1-1 Mb	family	4	1.0000	1.0000	1.0000
+n50_bin=0.1-1 Mb	genus	4	1.0000	1.0000	1.0000
+n50_bin=0.1-1 Mb	species	4	1.0000	1.0000	1.0000
+n50_bin=>= 1 Mb	phylum	17	1.0000	1.0000	1.0000
+n50_bin=>= 1 Mb	class	17	1.0000	1.0000	1.0000
+n50_bin=>= 1 Mb	order	17	1.0000	1.0000	1.0000
+n50_bin=>= 1 Mb	family	17	1.0000	1.0000	1.0000
+n50_bin=>= 1 Mb	genus	17	1.0000	1.0000	1.0000
+n50_bin=>= 1 Mb	species	17	0.8235	1.0000	0.8235
+size_bin=10-25 Mb	phylum	8	1.0000	1.0000	1.0000
+size_bin=10-25 Mb	class	8	1.0000	1.0000	1.0000
+size_bin=10-25 Mb	order	8	1.0000	1.0000	1.0000
+size_bin=10-25 Mb	family	8	1.0000	1.0000	1.0000
+size_bin=10-25 Mb	genus	8	1.0000	1.0000	1.0000
+size_bin=10-25 Mb	species	8	1.0000	1.0000	1.0000
+size_bin=25-50 Mb	phylum	10	1.0000	1.0000	1.0000
+size_bin=25-50 Mb	class	10	1.0000	1.0000	1.0000
+size_bin=25-50 Mb	order	10	1.0000	1.0000	1.0000
+size_bin=25-50 Mb	family	10	1.0000	1.0000	1.0000
+size_bin=25-50 Mb	genus	10	1.0000	1.0000	1.0000
+size_bin=25-50 Mb	species	10	0.7000	1.0000	0.7000
+size_bin=<10 Mb	phylum	2	1.0000	1.0000	1.0000
+size_bin=<10 Mb	class	1	1.0000	1.0000	1.0000
+size_bin=<10 Mb	order	1	1.0000	1.0000	1.0000
+size_bin=<10 Mb	family	2	1.0000	1.0000	1.0000
+size_bin=<10 Mb	genus	2	1.0000	1.0000	1.0000
+size_bin=<10 Mb	species	2	1.0000	1.0000	1.0000
+size_bin=>= 50 Mb	phylum	1	1.0000	1.0000	1.0000
+size_bin=>= 50 Mb	class	1	1.0000	1.0000	1.0000
+size_bin=>= 50 Mb	order	1	1.0000	1.0000	1.0000
+size_bin=>= 50 Mb	family	1	1.0000	1.0000	1.0000
+size_bin=>= 50 Mb	genus	1	1.0000	1.0000	1.0000
+size_bin=>= 50 Mb	species	1	1.0000	1.0000	1.0000
+calib_ani=[0.98, 0.995)	genus	1	1.0000	1.0000	
+calib_ani=[0.995, 1.01)	genus	20	1.0000	1.0000	
+calib_conf_genus=[0.95, 1.01)	genus	21	1.0000	1.0000	
+calib_ani=[0.98, 0.995)	species	1	1.0000	1.0000	
+calib_ani=[0.995, 1.01)	species	17	1.0000	1.0000	
+calib_conf_species=[0.9, 0.95)	species	1	1.0000	1.0000	
+calib_conf_species=[0.95, 1.01)	species	17	1.0000	1.0000	

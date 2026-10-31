@@ -1,5 +1,9 @@
 # Held-out calibration (target precision 0.95)
 
+> **Re-measured on release 2026.10.5 (2026-10-31, binary `gmg-ca8e3b9`, 72 exclusions): see `release_2026.10.5/README.md` and the files in that directory.** The numbers below are the earlier-release values (BFD bench with 43 suspect genomes dropped); where they differ, `docs/limitations.md` quotes the 2026.10.5 ones.
+
+On release 2026.10.5 the `known` held-out precision is 0.962 / 0.952 / 0.948 / 0.944 / 0.946 / 0.949 (phylum to species) at coverage 0.996 / 0.992 / 0.985 / 0.961 / 0.980 / 0.539: `release_2026.10.5/heldout_calibration.md`.
+
 70878 bench queries (clean labels: 43 suspect genomes dropped), 1914 genus groups, 20 random splits by genus (half the genera calibrate, the other half test).
 
 `held-out precision` = precision of the calls made with thresholds fitted on the other half; brackets = 2.5-97.5 percentile over the splits. `clade-out` = fit on Ascomycota queries, test on all other phyla.
