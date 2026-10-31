@@ -58,12 +58,50 @@ function showIndex(info) {
 }
 
 // ---------------------------------------------------------------- choosing files
-function addFiles(files) {
+const meta = new WeakMap(); // File -> { label, sha } for the list under the drop zone
+const HASH_MAX = 256e6;      // crypto.subtle needs the whole file in memory, so larger files are listed without a hash
+const fmtSize = (n) => (n >= 1e9 ? `${(n / 1e9).toFixed(1)} GB` : n >= 1e6 ? `${(n / 1e6).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1e3))} kB`);
+let hashing = Promise.resolve();
+function hashFile(f) {
+  const m = meta.get(f);
+  if (f.size > HASH_MAX) { m.sha = "too large to hash here"; return; }
+  hashing = hashing.then(async () => {
+    try {
+      const d = await crypto.subtle.digest("SHA-256", await f.arrayBuffer());
+      m.sha = [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, "0")).join("");
+    } catch { m.sha = "hash unavailable"; }
+    renderQueue();
+  });
+}
+function renderQueue() {
+  const ul = $("queue-list");
+  ul.hidden = queue.length === 0;
+  ul.replaceChildren(...queue.map((f) => {
+    const m = meta.get(f), li = document.createElement("li");
+    const name = document.createElement("span"); name.className = "qname"; name.textContent = f.name;
+    const info = document.createElement("span"); info.className = "qinfo";
+    const sha = m.sha ? (m.sha.length === 64 ? `sha256 ${m.sha.slice(0, 12)}…` : m.sha) : "hashing…";
+    info.textContent = [m.label, fmtSize(f.size), sha].filter(Boolean).join(" · ");
+    if (m.sha && m.sha.length === 64) info.title = `sha256 ${m.sha}`;
+    const x = document.createElement("button"); x.type = "button"; x.className = "qx"; x.textContent = "✕"; x.title = `Remove ${f.name}`; x.setAttribute("aria-label", `Remove ${f.name} from the list`);
+    x.onclick = () => { queue = queue.filter((q) => q !== f); queueStatus(); };
+    li.append(name, info, x);
+    return li;
+  }));
+}
+function queueStatus(extra) {
+  setStatus($("queue-status"), queue.length ? `${queue.length} file${queue.length === 1 ? "" : "s"} ready${extra || ""}. Remove any with ✕.` : `No bite yet: no files chosen${extra || ""}.`);
+  renderQueue(); updateRun();
+}
+function addFiles(files, label) {
   const keep = [...files].filter((f) => SEQ_EXT.test(f.name));
-  const skipped = files.length - keep.length;
-  queue = queue.concat(keep);
-  setStatus($("queue-status"), `${queue.length} file${queue.length === 1 ? "" : "s"} ready${skipped ? ` (${skipped} skipped: not FASTA/FASTQ)` : ""}.`);
-  updateRun();
+  const same = (a, b) => a.name === b.name && a.size === b.size && a.lastModified === b.lastModified;
+  const fresh = keep.filter((f, i) => !queue.some((q) => same(q, f)) && keep.findIndex((g) => same(g, f)) === i);
+  const dup = keep.length - fresh.length, skipped = files.length - keep.length;
+  for (const f of fresh) { meta.set(f, { label: label || "", sha: "" }); hashFile(f); }
+  queue = queue.concat(fresh);
+  const notes = [skipped ? `${skipped} skipped: not FASTA/FASTQ` : "", dup ? `${dup} already in the list` : ""].filter(Boolean).join("; ");
+  queueStatus(notes ? ` (${notes})` : "");
 }
 function updateRun() { $("run").disabled = running || !indexReady || queue.length === 0; }
 
@@ -109,13 +147,44 @@ async function loadExamples() {
     $("examples").hidden = false;
   } catch { /* examples are optional */ }
 }
+// Any NCBI assembly: the Datasets API (CORS-enabled) gives the assembly name, which with the accession fixes the FTP path.
+const ACC = /^GC[AF]_\d{9}(\.\d+)?$/i;
+async function addAccession(raw) {
+  const acc = raw.trim().toUpperCase(), btn = $("acc-go"), box = $("acc");
+  if (!ACC.test(acc)) return setStatus($("queue-status"), `"${raw.trim()}" is not an NCBI assembly accession. Expected GCF_ or GCA_, nine digits, and optionally a version: GCF_000146045.2.`, true);
+  btn.disabled = box.disabled = true;
+  setStatus($("queue-status"), `Looking up ${acc} at NCBI…`);
+  try {
+    const r = await fetch(`https://api.ncbi.nlm.nih.gov/datasets/v2/genome/accession/${acc}/dataset_report`);
+    if (!r.ok) throw new Error(`NCBI answered ${r.status}`);
+    const rep = ((await r.json()).reports || [])[0];
+    if (!rep) throw new Error("no such assembly");
+    const id = rep.accession, d = id.slice(4, 13).match(/.{3}/g).join("/");
+    const dir = `${id}_${rep.assembly_info.assembly_name.replace(/[^A-Za-z0-9._-]/g, "_")}`;
+    const url = `https://ftp.ncbi.nlm.nih.gov/genomes/all/${id.slice(0, 3)}/${d}/${dir}/${dir}_genomic.fna.gz`;
+    const mb = Math.round((rep.assembly_stats && rep.assembly_stats.total_sequence_length || 0) / 1e6);
+    setStatus($("queue-status"), `Downloading ${rep.organism.organism_name} (${id}${mb ? `, ${mb} Mb` : ""}) from NCBI…`);
+    const g = await fetch(url);
+    if (!g.ok) throw new Error(`NCBI answered ${g.status} for the genome file`);
+    addFiles([new File([await g.blob()], `${id}.fna.gz`)], rep.organism.organism_name);
+    box.value = "";
+  } catch (err) {
+    setStatus($("queue-status"), `Could not fetch ${acc}: ${err.message}. Check the accession and your connection.`, true);
+  } finally { btn.disabled = box.disabled = false; }
+}
+$("acc-go").onclick = () => addAccession($("acc").value);
+const useEg = () => { $("acc").value = $("acc-eg").textContent; $("acc").focus(); };
+$("acc-eg").onclick = useEg;
+$("acc-eg").onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); useEg(); } };
+$("acc").onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); addAccession($("acc").value); } };
+
 async function addExample(ex, btn) {
   btn.disabled = true;
   setStatus($("queue-status"), `Downloading ${ex.name} (${ex.accession}) from NCBI…`);
   try {
     const r = await fetch(ex.url);
     if (!r.ok) throw new Error(`NCBI answered ${r.status}`);
-    addFiles([new File([await r.blob()], `${ex.accession}.fna.gz`)]);
+    addFiles([new File([await r.blob()], `${ex.accession}.fna.gz`)], ex.name);
   } catch (err) {
     setStatus($("queue-status"), `Could not download ${ex.name}: ${err.message}. Check your connection, or use scripts/fetch_examples.sh.`, true);
   } finally { btn.disabled = false; }
@@ -132,7 +201,7 @@ $("run").onclick = () => {
   const opts = { maxReads: Number($("max-reads").value) || 0, minAbund: Number($("min-abund").value) || 0, top: 5 };
   worker.postMessage({ type: "classify", files: queue, opts });
   queue = [];
-  setStatus($("queue-status"), "");
+  queueStatus();
 };
 $("cancel").onclick = () => worker.postMessage({ type: "cancel" });
 
@@ -219,8 +288,17 @@ function render() {
       const td = document.createElement("td");
       const v = f(r);
       if (k === "status") { const s = document.createElement("span"); s.className = `st ${r.status}`; s.textContent = STATUS_LABEL[r.status] || r.status; td.append(s); }
-      else if (k === "ani") { td.className = "num"; td.textContent = v === null ? "" : v.toFixed(4); }
+      else if (k === "ani") {
+        td.className = "num"; td.textContent = v === null ? "" : v.toFixed(4);
+        if (v !== null) { const s = document.createElement("span"); s.className = "sound"; s.style.setProperty("--v", Math.min(1, Math.max(0, (v - 0.7) / 0.3)).toFixed(3)); td.append(s); }
+      }
       else td.textContent = v || "";
+      if (k === "call" && r.guess && r.guess.calls) {
+        // depth profile: one tick per rank with a call, phylum first
+        const p = document.createElement("span"); p.className = "prof"; p.title = "ranks called, phylum to species";
+        for (const rk of RANKS) { const i = document.createElement("i"); if (r.guess.calls[rk].taxon) i.className = "on"; p.append(i); }
+        td.append(p);
+      }
       tr.append(td);
     }
     const td = document.createElement("td");

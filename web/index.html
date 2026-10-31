@@ -10,14 +10,16 @@
 <main class="page">
   <header class="top">
     <div>
-      <div class="eyebrow">GmG · Guess My Genome</div>
+      <div class="eyebrow">GmG · Guess My Genome <span class="tag">a sketch-based classifier for fungal genome data</span></div>
       <h1>Classify fungal genomes or reads</h1>
       <p class="sub">Phylum to species from a FracMinHash sketch, in your browser. <b>Your files never leave this computer</b>: they are sketched here and compared with a reference index.</p>
     </div>
   </header>
 
   <section class="card" id="ref">
-    <h2><span class="n">1</span> Reference index</h2>
+    <h2><span class="depth" data-a="0 m · surface"></span>Reference index</h2>
+    <p class="side">The small representatives index loads fastest; the full index names more species.</p>
+    <div class="body">
     <div class="row">
       <label class="field">Index
         <select id="index-select" aria-describedby="index-status"><option value="">(no bundled index found)</option></select>
@@ -30,10 +32,13 @@
     <div class="bar" id="index-bar" hidden><div></div></div>
     <p class="status" id="index-status" role="status">No index loaded. The small representatives index loads fastest; the full index finds more species.</p>
     <dl class="facts" id="index-facts" hidden></dl>
+    </div>
   </section>
 
   <section class="card" id="inputs">
-    <h2><span class="n">2</span> Genomes or reads</h2>
+    <h2><span class="depth" data-a="5 m · cast"></span>Genomes or reads</h2>
+    <p class="side">Files are sketched in this tab and never uploaded.</p>
+    <div class="body">
     <div class="drop" id="drop" tabindex="0" role="button" aria-label="Drop FASTA or FASTQ files or a folder here, or press Enter to choose files">
       <p><b>Drop FASTA / FASTQ files or a folder here</b></p>
       <p class="muted">.fa .fna .fasta .fas .ffn .fq .fastq, plain or .gz. FASTQ: only the first reads are used.</p>
@@ -46,7 +51,15 @@
       <span class="muted">No data at hand? Try an example, downloaded from NCBI into your browser:</span>
       <div class="row" id="example-buttons"></div>
     </div>
-    <p class="status" id="queue-status">No files chosen.</p>
+    <div class="row accrow">
+      <label class="field">Or any NCBI assembly
+        <input id="acc" type="text" placeholder="paste an accession" size="20" autocomplete="off" spellcheck="false" aria-describedby="queue-status">
+      </label>
+      <button id="acc-go" class="btn" type="button">Fetch from NCBI</button>
+      <span class="muted acc-eg">for example <code id="acc-eg" title="Click to put it in the box" tabindex="0" role="button">GCF_000146045.2</code> (<i>S. cerevisiae</i> S288C)</span>
+    </div>
+    <ul class="queue" id="queue-list" aria-label="Files to classify" hidden></ul>
+    <p class="status" id="queue-status">No bite yet: no files chosen.</p>
     <details class="opts">
       <summary>Options</summary>
       <div class="row">
@@ -71,10 +84,13 @@
       <div class="bar grow" id="run-bar" hidden><div></div></div>
       <span class="status" id="run-status" role="status"></span>
     </div>
+    </div>
   </section>
 
   <section class="card" id="results" hidden>
-    <h2><span class="n">3</span> Results</h2>
+    <h2><span class="depth" data-a="12 m · catch"></span>Results</h2>
+    <p class="side">A withheld rank means the sketch could not support that call, not that something broke.</p>
+    <div class="body">
     <div class="chips" id="chips"></div>
     <div class="row">
       <input id="filter" type="search" placeholder="Filter by name or taxon" aria-label="Filter results">
@@ -90,6 +106,7 @@
     </div>
     <div class="scroll"><table id="table"><thead></thead><tbody></tbody></table></div>
     <details id="report-box"><summary>Full report</summary><iframe id="report" title="GmG report" sandbox="allow-scripts"></iframe></details>
+    </div>
   </section>
 
   <footer class="foot">
