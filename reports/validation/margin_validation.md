@@ -304,6 +304,8 @@ Cells: called share / precision [95% Wilson CI] (n with truth). The CI is on the
   where a family name is the most that can be said, so the call share is the cost.
 * Held-out bench coverage in the derivation is in-sample for the family cutoff (fit on the full pool); the 10-split numbers above are out-of-sample.
 
+* Golden panel: 1 of 17 pinned genomes changes (GCA_061476465.1, best-hit ANI 0.8837, just under the new family cutoff): `Phyllostictaceae` is no longer called, best rank family to order. `data/golden/expected.tsv` updated for this intended change.
+
 ## Recommendation
 
 The family margin does what it was designed to do (precision up, calls down) but costs more calls on real assemblies than the bench suggested. The genus change is close to a no-op because #57 already
