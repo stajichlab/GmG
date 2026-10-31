@@ -57,6 +57,16 @@ pub struct RefIndex {
     packed: Option<Packed>,
 }
 
+/// Result of [`RefIndex::explained_by_genus`].
+pub struct Explained {
+    /// query hashes found in a genome of the primary genus
+    pub primary: u32,
+    /// by interned genus id: other query hashes found in some genome of that genus
+    pub genus: Vec<u32>,
+    /// by genome: other query hashes found in that genome
+    pub genome: Vec<u32>,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Hit {
     pub genome: u32,
@@ -339,6 +349,58 @@ impl RefIndex {
             .collect();
         v.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
         v
+    }
+
+    /// How the query hashes split between the genus of the best hit and every other genus (the mixture detector, #31).
+    /// A hash found in any genome of genus `primary` (an interned genus id) is "explained" by it; every other hash is
+    /// credited to each other genus that has it (once per genus), and to each of those genomes. Genomes for which
+    /// `skip(genome)` is true (the exclusion masks, the decoys) are invisible, as in `search`; genomes without a genus are
+    /// ignored. One pass over the query, like `search`.
+    pub fn explained_by_genus(
+        &self,
+        query: &[u64],
+        primary: u32,
+        skip: &dyn Fn(u32) -> bool,
+    ) -> Explained {
+        let n = self.lineage_ids.len();
+        let genus_of = |g: u32| -> u32 {
+            if (g as usize) < n {
+                self.lineage_ids[g as usize][4]
+            } else {
+                0
+            }
+        };
+        let mut out = Explained {
+            primary: 0,
+            genus: vec![0u32; self.taxa[4].len().max(1)],
+            genome: vec![0u32; self.genomes.len()],
+        };
+        let mut stamp = vec![u32::MAX; out.genus.len()];
+        let mut idx = 0u32;
+        self.visit(query, &mut |gs| {
+            idx += 1;
+            if gs
+                .iter()
+                .any(|&g| !skip(g) && genus_of(g) == primary && primary != 0)
+            {
+                out.primary += 1;
+                return;
+            }
+            for &g in gs {
+                let gid = genus_of(g);
+                if gid == 0 || skip(g) {
+                    continue;
+                }
+                if stamp[gid as usize] != idx {
+                    stamp[gid as usize] = idx;
+                    out.genus[gid as usize] += 1;
+                }
+                if let Some(c) = out.genome.get_mut(g as usize) {
+                    *c += 1;
+                }
+            }
+        });
+        out
     }
 
     /// Count shared hashes between `query` (sorted, unique) and every genome. Genomes for

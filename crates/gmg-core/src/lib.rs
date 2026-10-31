@@ -20,7 +20,7 @@ mod skfile;
 
 pub use call::{guess, guess_from_hits, Guess, RankVote, Tentative, Thresholds, TopHit, Withheld};
 pub use fastx::{sketch_fastx, sketch_fastx_stats, SeqStats};
-pub use index::{GenomeMeta, Hit, IndexBuilder, RefIndex, RANKS};
+pub use index::{Explained, GenomeMeta, Hit, IndexBuilder, RefIndex, RANKS};
 #[cfg(feature = "json")]
 pub use json::guess_json;
 pub use sketch::{containment, downsample, jaccard, max_hash_for_scaled, FracSketch, DEFAULT_SEED};

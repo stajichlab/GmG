@@ -96,7 +96,7 @@ async function classifyAll(files, opts) {
       const bytes = await readFile(f, opts.maxReads);
       rec = JSON.parse(ix.classify(id, f.name, bytes, "auto", opts.minAbund || 0, BigInt(opts.maxReads || 0), opts.top || 5));
     } catch (e) {
-      rec = JSON.parse(JSON.stringify({ schema_version: 6, id, path: f.name, size_bytes: f.size, kind: "assembly", status: "error", best_rank: null,
+      rec = JSON.parse(JSON.stringify({ schema_version: 8, id, path: f.name, size_bytes: f.size, kind: "assembly", status: "error", best_rank: null,
         error_code: "unreadable", message: "The file could not be read.", error_action: String(e && e.message || e), qc: null, qc_flags: [], guess: null }));
     }
     records.push(rec);

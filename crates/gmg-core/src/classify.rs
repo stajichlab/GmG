@@ -7,7 +7,7 @@ use serde_json::{json, Value};
 use std::collections::HashMap;
 
 /// Bump when a column of results.tsv / hits.tsv or a key of results.jsonl / run.json changes meaning.
-pub const SCHEMA_VERSION: u32 = 7; // 7: coverage_est column (reads). 6: taxid_<rank> columns, top_hit_label. 5: withheld column. 4: expected, expected_match columns (sample sheet). 2: tentative_genus column; balanced default thresholds. 3: error_code column, plain error messages
+pub const SCHEMA_VERSION: u32 = 8; // 8: explained_fraction, second_taxon, second_explained_fraction columns, mixture_suspected flag. 7: coverage_est column (reads). 6: taxid_<rank> columns, top_hit_label. 5: withheld column. 4: expected, expected_match columns (sample sheet). 2: tentative_genus column; balanced default thresholds. 3: error_code column, plain error messages
 
 /// Species ANI cutoff for read sets (#32): repeated sequencing errors lower the containment ANI of a read set, so the
 /// assembly cutoff (0.9938) leaves 8-15% of correct species unnamed. With *C. immitis* left out of the reference its reads
@@ -66,6 +66,17 @@ pub const WEAK_PHYLUM_ANI: f64 = 0.85;
 /// Best-hit ANI to a non-fungal decoy at or above which an input is flagged `not_fungal` (the largest ANI of a real fungus to a
 /// decoy in the 1,257-genome post-freeze set plus IndigoAg was 0.881; non-fungal relatives of a decoy are well above 0.9).
 pub const NOT_FUNGAL_MIN_ANI: f64 = 0.90;
+
+/// Mixture detector (#31): the genus that explains most of the query hashes the genus of the best hit does not explain
+/// is a second taxon when it explains at least this fraction of ALL query hashes, at least `MIXTURE_MIN_HASHES` hashes, and
+/// at least `MIXTURE_MIN_CONCENTRATION` of those hashes sit in one of its genomes (one organism, not conserved sequence
+/// scattered over many genomes). Chosen from data: reports/validation/mixture_detector.md.
+pub const MIXTURE_MIN_FRACTION: f64 = 0.01;
+pub const MIXTURE_MIN_HASHES: u32 = 20;
+pub const MIXTURE_MIN_CONCENTRATION: f64 = 0.5;
+/// and at least this share of the hashes the best hit's genus does not explain (a pure input of a novel species leaves most
+/// hashes unexplained, so a small second genus is a small share of the rest; a mixture of known organisms leaves little else).
+pub const MIXTURE_MIN_FRACTION_OF_REST: f64 = 0.3;
 
 /// `min_abund` value that asks for the abundance cutoff chosen from the histogram of a read set (`--min-abund auto`).
 pub const MIN_ABUND_AUTO: u32 = u32::MAX;
@@ -151,6 +162,13 @@ pub fn classify(
     gj["withheld"] = withheld_json(&g, th);
     let (best, status) = status_of(&g);
     let split = ix.phylum_exclusive(&hashes, skip);
+    // mixture detector: what the genus of the best hit explains, and what another genus explains of the rest. Flag only,
+    // the call is not changed. Not for inputs that are nearest to a non-fungal decoy; decoys are invisible to the pass.
+    let mixture = if not_fungal {
+        None
+    } else {
+        mixture_scan(ix, &g, &hashes, &|gi| skip(gi) || is_decoy(gi))
+    };
     let est_mb = hashes.len() as f64 * ix.scaled as f64 / 1e6;
     let range = if reads {
         None
@@ -174,6 +192,9 @@ pub fn classify(
     } else if distant_decoy {
         flags.push("distant_non_fungal_hit");
     }
+    if mixture.as_ref().is_some_and(|m| m.suspected) {
+        flags.push("mixture_suspected");
+    }
     // reads are left out: sequencing errors lower their ANI without the genome being distant
     if !reads && g.calls[0].is_some() && g.top.as_ref().is_some_and(|t| t.ani < WEAK_PHYLUM_ANI) {
         flags.push("weak_phylum");
@@ -193,6 +214,9 @@ pub fn classify(
         qc["size_range_mb"] = json!([(lo * 100.0).round() / 100.0, (hi * 100.0).round() / 100.0]);
         qc["size_range_basis"] = json!(basis);
     }
+    if let Some(m) = &mixture {
+        qc["mixture"] = m.to_json();
+    }
     qc["phylum_split"] = json!(split
         .iter()
         .take(3)
@@ -204,6 +228,107 @@ pub fn classify(
         "qc": qc, "qc_flags": flags, "guess": gj,
     });
     Ok((rec, hashes))
+}
+
+/// Outcome of the mixture scan (`qc.mixture`).
+pub struct Mixture {
+    /// genus of the best hit and the fraction of the query hashes found in any of its genomes
+    pub primary: String,
+    pub explained_fraction: f64,
+    /// the other genus that explains most of the remaining hashes, with its phylum
+    pub second: Option<Second>,
+    pub suspected: bool,
+}
+
+pub struct Second {
+    pub taxon: String,
+    pub phylum: String,
+    pub hashes: u32,
+    /// of all query hashes
+    pub fraction: f64,
+    /// of the remaining (not explained by the primary genus) query hashes
+    pub fraction_of_rest: f64,
+    /// share of the genome of that genus with most of those hashes that they cover
+    pub ref_coverage: f64,
+    /// share of the hashes of that genus found in its single best genome: near 1 for one organism, low for scattered
+    /// conserved sequence spread over many genomes of the genus
+    pub concentration: f64,
+}
+
+impl Mixture {
+    pub fn to_json(&self) -> Value {
+        let r4 = |x: f64| (x * 10_000.0).round() / 10_000.0;
+        let mut v = json!({"primary": self.primary, "explained_fraction": r4(self.explained_fraction),
+                           "suspected": self.suspected});
+        if let Some(s) = &self.second {
+            v["second"] = json!({"taxon": s.taxon, "rank": "genus", "phylum": s.phylum, "hashes": s.hashes,
+                                 "explained_fraction": r4(s.fraction), "fraction_of_rest": r4(s.fraction_of_rest),
+                                 "ref_coverage": r4(s.ref_coverage), "concentration": r4(s.concentration)});
+        }
+        v
+    }
+}
+
+/// One pass over the query hashes: the share explained by the genus of the best hit, and the other genus that explains
+/// most of the rest. `skip` hides reference genomes (exclusion masks, decoys). `None` without a best hit or a genus.
+pub fn mixture_scan(
+    ix: &RefIndex,
+    g: &crate::Guess,
+    hashes: &[u64],
+    skip: &dyn Fn(u32) -> bool,
+) -> Option<Mixture> {
+    let top = g.top.as_ref()?;
+    let primary = ix.lineage_ids[top.genome as usize][4];
+    if primary == 0 || hashes.is_empty() {
+        return None;
+    }
+    let e = ix.explained_by_genus(hashes, primary, skip);
+    let n = hashes.len() as f64;
+    let rest = hashes.len() as f64 - e.primary as f64;
+    let best = e
+        .genus
+        .iter()
+        .enumerate()
+        .skip(1)
+        .filter(|&(_, &c)| c > 0)
+        .max_by_key(|&(i, &c)| (c, std::cmp::Reverse(i)));
+    let second = best.map(|(gid, &c)| {
+        let gid = gid as u32;
+        let (gi, shared) = e
+            .genome
+            .iter()
+            .enumerate()
+            .filter(|&(i, _)| ix.lineage_ids[i][4] == gid)
+            .max_by_key(|&(i, &c)| (c, std::cmp::Reverse(i)))
+            .map(|(i, &c)| (i, c))
+            .unwrap_or((0, 0));
+        let any = ix
+            .lineage_ids
+            .iter()
+            .position(|l| l[4] == gid)
+            .unwrap_or(gi);
+        let gi = if shared > 0 { gi } else { any };
+        Second {
+            taxon: ix.taxa[4][gid as usize].clone(),
+            phylum: ix.genomes[gi].lineage[0].clone(),
+            hashes: c,
+            fraction: c as f64 / n,
+            fraction_of_rest: if rest > 0.0 { c as f64 / rest } else { 0.0 },
+            ref_coverage: shared as f64 / ix.genomes[gi].n_hashes.max(1) as f64,
+            concentration: shared as f64 / c.max(1) as f64,
+        }
+    });
+    let suspected = second.as_ref().is_some_and(|s| {
+        s.fraction >= MIXTURE_MIN_FRACTION
+            && s.hashes >= MIXTURE_MIN_HASHES
+            && s.concentration >= MIXTURE_MIN_CONCENTRATION
+    });
+    Some(Mixture {
+        primary: ix.taxa[4][primary as usize].clone(),
+        explained_fraction: e.primary as f64 / n,
+        second,
+        suspected,
+    })
 }
 
 /// The record of an input that could not be processed.
@@ -366,6 +491,9 @@ pub fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
         "expected",
         "expected_match",
         "coverage_est",
+        "explained_fraction",
+        "second_taxon",
+        "second_explained_fraction",
         "schema_version",
     ] {
         header.push(c.to_string());
@@ -400,6 +528,7 @@ pub fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
             });
         }
         let fmt = |v: &Value| v.as_f64().map(|x| format!("{x:.4}")).unwrap_or_default();
+        let suspected = r["qc"]["mixture"]["suspected"].as_bool() == Some(true);
         row.extend([
             tsv_cell(&top["id"]),
             tsv_cell(&top_hit["lineage"][5]),
@@ -432,6 +561,18 @@ pub fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
                 .as_f64()
                 .map(|v| format!("{v:.2}"))
                 .unwrap_or_default(),
+            fmt(&r["qc"]["mixture"]["explained_fraction"]),
+            // the second taxon is a column only when it passed the rule (the JSON keeps the best candidate, below it too)
+            if suspected {
+                tsv_cell(&r["qc"]["mixture"]["second"]["taxon"])
+            } else {
+                String::new()
+            },
+            if suspected {
+                fmt(&r["qc"]["mixture"]["second"]["explained_fraction"])
+            } else {
+                String::new()
+            },
             SCHEMA_VERSION.to_string(),
         ]);
         rows.push(row);

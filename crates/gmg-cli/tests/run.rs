@@ -1622,3 +1622,161 @@ fn coverage_is_estimated_from_the_abundance_histogram_and_auto_cutoff_runs() {
     .status
     .success());
 }
+
+/// Result records of one run on `inputs` (id, FASTA text), with extra `run` arguments.
+fn run_records(
+    d: &Path,
+    ix: &Path,
+    tag: &str,
+    inputs: &[(&str, String)],
+    extra: &[&str],
+) -> Vec<serde_json::Value> {
+    let data = d.join(format!("data_{tag}"));
+    fs::create_dir_all(&data).unwrap();
+    for (id, text) in inputs {
+        fs::write(data.join(format!("{id}.fa")), text).unwrap();
+    }
+    let out = d.join(format!("out_{tag}"));
+    let mut a = vec![
+        "run",
+        data.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+        "--no-report",
+        "-q",
+    ];
+    a.extend_from_slice(extra);
+    ok(&a);
+    let mut recs: Vec<serde_json::Value> = fs::read_to_string(out.join("results.jsonl"))
+        .unwrap()
+        .lines()
+        .map(|l| serde_json::from_str(l).unwrap())
+        .collect();
+    recs.sort_by_key(|r| r["id"].as_str().unwrap().to_string());
+    recs
+}
+
+fn flags_of(r: &serde_json::Value) -> Vec<String> {
+    r["qc_flags"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|f| f.as_str().unwrap().to_string())
+        .collect()
+}
+
+#[test]
+fn a_second_genus_in_the_input_is_flagged_without_changing_the_call() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, _) = build_reference(d);
+    // pure: g0 (Aspergillus alpha). Mixed: g0 plus 50 kb of g4 (Agaricus eps) = 20% of the bases. Tiny: 1 kb of g4 (0.5%).
+    // Same genus: g0 plus 50 kb of g1 (Aspergillus beta), which the pass must not call a second genus.
+    let mix = |extra: &[u8]| {
+        let mut s = genomes[0].clone();
+        s.extend_from_slice(extra);
+        fasta("q", &s)
+    };
+    let inputs = [
+        ("pure", fasta("q", &genomes[0])),
+        ("mixed", mix(&genomes[4][..50_000])),
+        ("tiny", mix(&genomes[4][..1_000])),
+        ("samegenus", mix(&genomes[1][..50_000])),
+    ];
+    let recs = run_records(d, &ix, "plain", &inputs, &[]);
+    let by = |id: &str| recs.iter().find(|r| r["id"] == id).unwrap();
+    for r in &recs {
+        assert_eq!(r["schema_version"], 8);
+        // the call is the same for every input
+        assert_eq!(
+            r["guess"]["calls"]["genus"]["taxon"], "Aspergillus",
+            "{}",
+            r["id"]
+        );
+    }
+    // the species is called for the pure input only (the minority lowers the ANI below the species cutoff), as without the detector
+    assert_eq!(
+        by("pure")["guess"]["calls"]["species"]["taxon"],
+        "Aspergillus alpha"
+    );
+    let m = &by("mixed")["qc"]["mixture"];
+    assert!(flags_of(by("mixed")).contains(&"mixture_suspected".to_string()));
+    assert_eq!(m["primary"], "Aspergillus");
+    assert_eq!(m["second"]["taxon"], "Agaricus");
+    assert_eq!(m["second"]["phylum"], "Basidiomycota");
+    let e = m["explained_fraction"].as_f64().unwrap();
+    let s = m["second"]["explained_fraction"].as_f64().unwrap();
+    assert!((e - 0.8).abs() < 0.03 && (s - 0.2).abs() < 0.03, "{e} {s}");
+    for id in ["pure", "samegenus"] {
+        assert!(
+            !flags_of(by(id)).contains(&"mixture_suspected".to_string()),
+            "{id}"
+        );
+        assert!(by(id)["qc"]["mixture"].get("second").is_none(), "{id}");
+    }
+    assert!(!flags_of(by("tiny")).contains(&"mixture_suspected".to_string()));
+
+    // the TSV columns
+    let (h, rows) = read_tsv(&d.join("out_plain/results.tsv"));
+    let row = |id: &str| rows.iter().find(|r| r[col(&h, "query_id")] == id).unwrap();
+    let mixed = row("mixed");
+    assert_eq!(mixed[col(&h, "second_taxon")], "Agaricus");
+    let ts: f64 = mixed[col(&h, "second_explained_fraction")].parse().unwrap();
+    assert!((ts - 0.2).abs() < 0.03);
+    assert!(mixed[col(&h, "qc_flags")].contains("mixture_suspected"));
+    let pure = row("pure");
+    assert_eq!(pure[col(&h, "second_taxon")], "");
+    assert_eq!(pure[col(&h, "second_explained_fraction")], "");
+    let pe: f64 = pure[col(&h, "explained_fraction")].parse().unwrap();
+    assert!(pe > 0.99);
+    assert_eq!(pure[col(&h, "schema_version")], "8");
+}
+
+#[test]
+fn the_mixture_pass_respects_the_exclusion_masks() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, _) = build_reference(d);
+    let mut s = genomes[0].clone();
+    s.extend_from_slice(&genomes[4][..50_000]);
+    let inputs = [("mixed", fasta("q", &s))];
+    let second = |recs: &[serde_json::Value]| recs[0]["qc"]["mixture"]["second"]["taxon"].clone();
+    assert_eq!(second(&run_records(d, &ix, "a", &inputs, &[])), "Agaricus");
+    // hiding the minority's genus (both Agaricus genomes) leaves nothing to explain it: no second taxon, no flag
+    fs::write(d.join("ids.txt"), "g4\ng5\n").unwrap();
+    let ids = d.join("ids.txt");
+    let recs = run_records(
+        d,
+        &ix,
+        "b",
+        &inputs,
+        &["--exclude-ids", ids.to_str().unwrap()],
+    );
+    assert!(second(&recs).is_null(), "{}", recs[0]["qc"]["mixture"]);
+    assert!(!flags_of(&recs[0]).contains(&"mixture_suspected".to_string()));
+    // hiding a genome that is not the minority's changes nothing
+    fs::write(d.join("ids1.txt"), "g5\n").unwrap();
+    let ids1 = d.join("ids1.txt");
+    let recs = run_records(
+        d,
+        &ix,
+        "c",
+        &inputs,
+        &["--exclude-ids", ids1.to_str().unwrap()],
+    );
+    assert_eq!(second(&recs), "Agaricus");
+    // hiding the majority's genomes makes the minority the best hit; the genus that is gone is no second taxon
+    fs::write(d.join("ids0.txt"), "g0\ng1\n").unwrap();
+    let ids0 = d.join("ids0.txt");
+    let recs = run_records(
+        d,
+        &ix,
+        "e",
+        &inputs,
+        &["--exclude-ids", ids0.to_str().unwrap()],
+    );
+    assert_eq!(recs[0]["qc"]["mixture"]["primary"], "Agaricus");
+    assert!(second(&recs).is_null(), "{}", recs[0]["qc"]["mixture"]);
+}
