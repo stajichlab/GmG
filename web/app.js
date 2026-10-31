@@ -213,7 +213,21 @@ async function addExample(ex, btn) {
 
 // ---------------------------------------------------------------- running
 $("th").onchange = () => worker.postMessage({ type: "thresholds", name: $("th").value });
+const GC = "https://hyphaltip.goatcounter.com";
+// GoatCounter event: one count per press of Classify, nothing about the files (the script may be blocked or still loading)
+const countRun = () => { try { window.goatcounter?.count({ path: "classification-started", title: "Classification started", event: true }); } catch { /* counting is optional */ } };
+async function showRunCount() {
+  try {
+    const r = await fetch(`${GC}/counter/classification-started.json`);
+    if (!r.ok) return; // public counts are off in the GoatCounter settings, or the counter is blocked
+    const n = (await r.json()).count;
+    if (!n) return;
+    $("run-count-n").textContent = n; $("run-count").hidden = false;
+  } catch { /* the line stays hidden */ }
+}
+showRunCount();
 $("run").onclick = () => {
+  countRun();
   records = []; outputs = null;
   $("results").hidden = false;
   render();
