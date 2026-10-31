@@ -12,7 +12,7 @@ No genomes at hand? `scripts/fetch_examples.sh examples_data` downloads six smal
 gmg run my_genomes/ --index bfd-2026.10-s10000.gmgi -o results/
 ```
 
-`my_genomes/` is searched recursively for `.fa .fna .fasta .fas .ffn` (optionally `.gz`). While it runs you see one line
+`my_genomes/` is searched recursively for `.fa .fna .fasta .fas .ffn` (optionally `.gz`, `.zst`, `.bz2` or `.xz`; the browser app reads only `.gz`). While it runs you see one line
 per input with the elapsed time and an ETA. Interrupted? Add `--resume` and finished inputs are reused.
 
 `results/` then holds:
