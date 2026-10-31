@@ -16,4 +16,4 @@ export PATH=$HOME/.cargo/bin:$PATH
 cargo build --release -q -p gmg-cli
 mkdir -p $GR/long_reads/bin
 cp target/release/gmg $GR/long_reads/bin/gmg.new && mv $GR/long_reads/bin/gmg.new $GR/long_reads/bin/gmg
-$GR/long_reads/bin/gmg --version; git log --oneline | head -1
+$GR/long_reads/bin/gmg --version; git log -1 --oneline
