@@ -338,12 +338,3 @@ $("print").onclick = () => {
 
 loadManifest();
 loadExamples();
-
-// ---------------------------------------------------------------- page theme (CSS only; see style.css)
-function applyTheme(t) {
-  document.documentElement.dataset.theme = t;
-  for (const b of document.querySelectorAll("[data-theme-set]")) b.setAttribute("aria-pressed", String(b.dataset.themeSet === t));
-  try { localStorage.setItem("gmg-theme", t); } catch (e) { /* private mode */ }
-}
-for (const b of document.querySelectorAll("[data-theme-set]")) b.onclick = () => applyTheme(b.dataset.themeSet);
-applyTheme(document.documentElement.dataset.theme || "water");

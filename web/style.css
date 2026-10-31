@@ -1,6 +1,5 @@
-/* Two themes. Default "Still water": a bathymetric field-notebook page (Tufte-style cream paper, hairline rules, a margin
-   column for sidenotes, depth soundings for the three stages). "Field guide": parchment, sepia ink, plates. Chosen with
-   the footer links or ?theme=plate|water; remembered in localStorage. Both follow prefers-color-scheme. */
+/* "Still water": a bathymetric field-notebook page (Tufte-style cream paper, hairline rules, a margin column for sidenotes,
+   depth soundings for the three stages). Follows prefers-color-scheme. */
 :root {
   color-scheme: light dark;
   --page: #fbf8ee; --card: transparent; --ink: #16231f; --ink2: #3d4a45; --muted: #7a847d; --line: #d9d6c6;
@@ -9,11 +8,7 @@
   --water: linear-gradient(to bottom, rgba(47,111,115,0) 0, rgba(47,111,115,.07) 100%);
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="plate"]) { --page: #0f1a1b; --ink: #e4ece6; --ink2: #b4c2bb; --muted: #7f918b; --line: #26383a; --accent: #5fb0b2; --accent-ink: #0c1516; --lure: #e8825f; --good: #6ec28a; --warn: #e3b04a; --bad: #ef8272; --water: linear-gradient(to bottom, rgba(95,176,178,0) 0, rgba(95,176,178,.09) 100%); }
-}
-:root[data-theme="plate"] { --page: #f4efe0; --ink: #2b2118; --ink2: #50433a; --muted: #85786a; --line: #d3c8b0; --accent: #4b6b3a; --accent-ink: #fbf7ea; --lure: #9a4a2a; --good: #3f6b2f; --warn: #8a5a00; --bad: #9a3a2a; --water: none; }
-@media (prefers-color-scheme: dark) {
-  :root[data-theme="plate"] { --page: #1c1812; --ink: #eadfc8; --ink2: #c4b79c; --muted: #8f836f; --line: #3a3326; --accent: #93b57c; --accent-ink: #14110c; --lure: #d08a62; --good: #93b57c; --warn: #e3b04a; --bad: #e08a78; }
+  :root { --page: #0f1a1b; --ink: #e4ece6; --ink2: #b4c2bb; --muted: #7f918b; --line: #26383a; --accent: #5fb0b2; --accent-ink: #0c1516; --lure: #e8825f; --good: #6ec28a; --warn: #e3b04a; --bad: #ef8272; --water: linear-gradient(to bottom, rgba(95,176,178,0) 0, rgba(95,176,178,.09) 100%); }
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -78,7 +73,6 @@ code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .92em;
 #results > .side { display: none; }
 .depth { display: block; font: normal 12px/1.2 var(--serif); font-variant: small-caps; letter-spacing: .08em; color: var(--accent); margin-bottom: 4px; }
 .depth::before { content: attr(data-a); }
-:root[data-theme="plate"] .depth::before { content: attr(data-b); }
 .row { margin: 10px 0; } .body > .row:first-child, .body > .drop:first-child { margin-top: 0; }
 @media (max-width: 860px) {
   .card { grid-template-columns: 1fr; padding: 18px 0; }
@@ -93,17 +87,7 @@ code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .92em;
 .prof i.on { background: var(--accent); border-color: var(--accent); }
 td.num { position: relative; }
 td.num .sound { position: absolute; left: 10px; right: 10px; bottom: 3px; height: 2px; background: linear-gradient(to right, var(--lure) calc(var(--v) * 100%), var(--line) 0); opacity: .75; }
-.themes .lnk { font: inherit; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-.themes .lnk[aria-pressed="true"] { color: var(--ink); text-decoration: none; font-style: italic; }
-@media print { body { background: #fff; } .side, .themes { display: none; } }
-
-/* Field guide: serif italics for taxa, ruled plates, rust margin notes */
-:root[data-theme="plate"] .card { border: 1px solid var(--ink2); padding: 20px 22px; margin-bottom: 18px; outline: 1px solid var(--line); outline-offset: 3px; }
-:root[data-theme="plate"] .top { border-bottom: 3px double var(--ink2); }
-:root[data-theme="plate"] h1 { font-variant: small-caps; letter-spacing: .02em; }
-:root[data-theme="plate"] .card > .side { color: var(--lure); }
-:root[data-theme="plate"] td:nth-child(4) { font-style: italic; }
-:root[data-theme="plate"] .st { font-variant: small-caps; letter-spacing: .03em; }
+@media print { body { background: #fff; } .side { display: none; } }
 a { color: var(--accent); text-underline-offset: 3px; }
 
 .queue { list-style: none; margin: 12px 0 0; padding: 0; border-top: 1px solid var(--ink); }

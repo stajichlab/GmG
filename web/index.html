@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>GmG: Guess My Genome</title>
-<script>try{var t=new URLSearchParams(location.search).get("theme")||localStorage.getItem("gmg-theme");if(t==="plate"||t==="water")document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,7 +17,7 @@
   </header>
 
   <section class="card" id="ref">
-    <h2><span class="depth" data-a="0 m · surface" data-b="Plate I"></span>Reference index</h2>
+    <h2><span class="depth" data-a="0 m · surface"></span>Reference index</h2>
     <p class="side">The small representatives index loads fastest; the full index names more species.</p>
     <div class="body">
     <div class="row">
@@ -37,7 +36,7 @@
   </section>
 
   <section class="card" id="inputs">
-    <h2><span class="depth" data-a="5 m · cast" data-b="Plate II"></span>Genomes or reads</h2>
+    <h2><span class="depth" data-a="5 m · cast"></span>Genomes or reads</h2>
     <p class="side">Files are sketched in this tab and never uploaded.</p>
     <div class="body">
     <div class="drop" id="drop" tabindex="0" role="button" aria-label="Drop FASTA or FASTQ files or a folder here, or press Enter to choose files">
@@ -89,7 +88,7 @@
   </section>
 
   <section class="card" id="results" hidden>
-    <h2><span class="depth" data-a="12 m · catch" data-b="Plate III"></span>Results</h2>
+    <h2><span class="depth" data-a="12 m · catch"></span>Results</h2>
     <p class="side">A withheld rank means the sketch could not support that call, not that something broke.</p>
     <div class="body">
     <div class="chips" id="chips"></div>
@@ -111,7 +110,6 @@
   </section>
 
   <footer class="foot">
-    <span class="themes" role="group" aria-label="Page theme">Theme: <button type="button" class="lnk" data-theme-set="water">Still water</button> · <button type="button" class="lnk" data-theme-set="plate">Field guide</button></span><br>
     <span id="version"></span>
     <a href="https://github.com/stajichlab/GmG">GmG on GitHub</a> · same code as the <code>gmg</code> command line: the results are identical (docs/tutorial.md).
   </footer>
