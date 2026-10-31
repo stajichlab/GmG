@@ -63,6 +63,7 @@ jobs:
           locked: true
           cache: true
       - run: pixi run wasm-test
+      - run: pixi run web-test
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: gmg-wasm-web
