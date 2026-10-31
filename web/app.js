@@ -23,18 +23,22 @@ async function loadManifest() {
     sel.innerHTML = "";
     for (const e of list) {
       const o = document.createElement("option");
-      o.value = e.file; o.textContent = `${e.title} (${e.size_mb} MB)`; sel.append(o);
+      o.value = e.file; o.dataset.bytes = e.bytes || ""; o.textContent = `${e.title} (${e.size_mb} MB)`; sel.append(o);
     }
   } catch { /* no bundled index: the file picker still works */ }
 }
-function showProgress(bar, frac) { bar.hidden = false; bar.firstElementChild.style.width = `${Math.round(frac * 100)}%`; }
+function showProgress(bar, frac) { bar.hidden = false; bar.firstElementChild.style.width = `${Math.round(Math.min(1, Math.max(0, frac)) * 100)}%`; }
+let loadStart = 0;
+function setLoading(on) { $("index-load").disabled = $("index-select").disabled = on; if (on) loadStart = Date.now(); }
 function setStatus(el, text, err) { el.textContent = text; el.classList.toggle("err", !!err); }
 
 $("index-load").onclick = () => {
   const file = $("index-select").value;
   if (!file) return setStatus($("index-status"), "No bundled index is available here: use “Use a .gmgi file…”.", true);
-  setStatus($("index-status"), "Loading the index…");
-  worker.postMessage({ type: "index", url: `index/${file}` });
+  setLoading(true);
+  showProgress($("index-bar"), 0);
+  setStatus($("index-status"), "Starting the download…");
+  worker.postMessage({ type: "index", url: `index/${file}`, size: Number($("index-select").selectedOptions[0].dataset.bytes) || 0 });
 };
 $("index-file").onchange = (e) => {
   const f = e.target.files[0];
@@ -54,6 +58,7 @@ function showIndex(info) {
   dl.replaceChildren(...facts.flatMap(([k, v]) => { const a = document.createElement("dt"), b = document.createElement("dd"); a.textContent = k; b.textContent = v; return [a, b]; }));
   dl.hidden = false;
   $("index-bar").hidden = true;
+  setLoading(false);
   setStatus($("index-status"), "Index ready. Files are compared with it on this computer.");
   updateRun();
 }
@@ -225,7 +230,15 @@ worker.onmessage = (e) => {
   const m = e.data;
   if (m.type === "index-progress") {
     if (m.cached) setStatus($("index-status"), "Loading the index from this browser's cache…");
-    else if (m.total) { showProgress($("index-bar"), m.loaded / m.total); setStatus($("index-status"), `Downloading the index… ${(m.loaded / 1e6).toFixed(0)} of ${(m.total / 1e6).toFixed(0)} MB`); }
+    else if (m.total) {
+      const f = Math.min(1, m.loaded / m.total), s = (Date.now() - loadStart) / 1000;
+      const eta = s > 2 && f > 0.02 && f < 1 ? `, about ${Math.max(1, Math.round(s / f - s))} s left` : "";
+      showProgress($("index-bar"), f);
+      setStatus($("index-status"), `Downloading the index… ${(m.loaded / 1e6).toFixed(0)} of ${(m.total / 1e6).toFixed(0)} MB (${Math.round(f * 100)}%${eta})`);
+    } else setStatus($("index-status"), `Downloading the index… ${(m.loaded / 1e6).toFixed(0)} MB`);
+  } else if (m.type === "index-stage") {
+    showProgress($("index-bar"), 1);
+    setStatus($("index-status"), "Downloaded. Building the index in memory (a few seconds)…");
   } else if (m.type === "index-ready") {
     showIndex(m.info);
   } else if (m.type === "progress") {
@@ -242,9 +255,11 @@ worker.onmessage = (e) => {
     if (m.report_html) $("report").srcdoc = m.report_html;
     render();
   } else if (m.type === "error") {
+    const loading = $("index-load").disabled; // the error belongs to the index load, not to a run
     running = false; updateRun();
     $("cancel").hidden = true; $("run-bar").hidden = true;
-    setStatus($("index-bar").hidden && !indexReady ? $("index-status") : $("run-status"), m.message, true);
+    if (loading) { setLoading(false); $("index-bar").hidden = true; }
+    setStatus(loading || (!indexReady && $("index-bar").hidden) ? $("index-status") : $("run-status"), m.message, true);
   }
 };
 

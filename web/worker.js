@@ -1,7 +1,7 @@
 // Web Worker: loads the index, classifies files and renders the outputs. All heavy work happens here, off the UI thread.
-// Messages in:  {type:'index', url} | {type:'index', file} | {type:'thresholds', name}
+// Messages in:  {type:'index', url, size} | {type:'index', file} | {type:'thresholds', name}
 //               {type:'classify', files:[File], opts:{maxReads, minAbund, top}} | {type:'cancel'}
-// Messages out: {type:'index-progress', loaded, total} {type:'index-ready', info} {type:'progress', i, n, name}
+// Messages out: {type:'index-progress', loaded, total} {type:'index-stage', stage:'build'} {type:'index-ready', info} {type:'progress', i, n, name}
 //               {type:'record', record} {type:'done', ...outputs} {type:'error', message}
 import init, { Index, make_results_tsv, make_hits_tsv, render_report } from "./pkg/gmg_wasm.js";
 
@@ -14,7 +14,7 @@ const ready = init();
 const post = (m) => self.postMessage(m);
 const stem = (name) => name.replace(/\.gz$/i, "").replace(/\.(fa|fna|fasta|fas|ffn|fq|fastq)$/i, "");
 
-async function fetchIndex(url) {
+async function fetchIndex(url, size) {
   const cache = await caches.open(CACHE);
   let resp = await cache.match(url);
   if (resp) {
@@ -23,7 +23,9 @@ async function fetchIndex(url) {
   }
   resp = await fetch(url);
   if (!resp.ok) throw new Error(`could not fetch the index (${resp.status})`);
-  const total = Number(resp.headers.get("content-length")) || 0;
+  // content-length counts the compressed bytes when the server gzips the file (GitHub Pages does), but the reader yields the
+  // decompressed ones, so then the expected size comes from the manifest
+  const total = resp.headers.get("content-encoding") ? size || 0 : Number(resp.headers.get("content-length")) || size || 0;
   const copy = resp.clone(); // stored in the cache while the original is read for progress
   const reader = resp.body.getReader();
   const chunks = [];
@@ -118,7 +120,9 @@ self.onmessage = async (e) => {
   try {
     await ready;
     if (m.type === "index") {
-      const bytes = m.file ? new Uint8Array(await m.file.arrayBuffer()) : await fetchIndex(m.url);
+      const bytes = m.file ? new Uint8Array(await m.file.arrayBuffer()) : await fetchIndex(m.url, m.size);
+      post({ type: "index-stage", stage: "build" });
+      await new Promise((r) => setTimeout(r)); // let the message reach the page before the build blocks this thread
       setIndex(bytes);
     } else if (m.type === "thresholds") {
       thresholds = m.name;
