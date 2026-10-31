@@ -6,15 +6,15 @@
 #SBATCH -t 02:00:00
 #SBATCH -o /bigdata/stajichlab/shared/projects/GmG_runs/logs/25_relstab.%A_%a.log
 # #48: the 1,257 post-freeze assemblies (external_big batches) against every release index with the SAME binary: one download per
-# batch, one `gmg run` per release. usage: sbatch --array=0-50%6 25_release_stability.sbatch   (VERS="2026.10 2026.10.1 ..." overrides)
+# batch, one `gmg run` per release. usage: sbatch --array=0-50%6 25_release_stability.sbatch   (VERS="2026.10 2026.10.1 ..." overrides; THF=thresholds.json TAG=name writes rel_<v>.<name>, e.g. the margin run)
 set -uo pipefail
 source $HOME/projects/GmG/scripts/hpcc/env.sh
 module load ncbi_datasets/18.30.1
 VERS=${VERS:-"2026.10 2026.10.1 2026.10.2 2026.10.3"}
 B=$(printf "%03d" ${SLURM_ARRAY_TASK_ID})
-R=$GR/external_big; W=$R/work/rs$B
+R=$GR/external_big; W=$R/work/rs$B${TAG:+.$TAG}
 todo=""
-for v in $VERS; do [ -s $R/rel_$v/b$B/results.tsv ] || todo="$todo $v"; done
+for v in $VERS; do [ -s $R/rel_$v${TAG:+.$TAG}/b$B/results.tsv ] || todo="$todo $v"; done
 [ -n "$todo" ] || { echo "batch $B already done"; exit 0; }
 rm -rf $W; mkdir -p $W/genomes
 ok=0
@@ -26,6 +26,6 @@ done
 unzip -oq $W/d.zip -d $W/x
 for f in $W/x/ncbi_dataset/data/GC*/*.fna; do mv "$f" $W/genomes/$(basename $(dirname "$f")).fna; done
 for v in $todo; do
-  $GMG --threads ${SLURM_CPUS_PER_TASK} -q run $W/genomes --index $GR/release/$v/bfd-$v-s10000.gmgi -o $R/rel_$v/b$B --no-report
+  $GMG --threads ${SLURM_CPUS_PER_TASK} -q run $W/genomes --index $GR/release/$v/bfd-$v-s10000.gmgi -o $R/rel_$v${TAG:+.$TAG}/b$B --no-report ${THF:+--thresholds $THF}
 done
 rm -rf $W
