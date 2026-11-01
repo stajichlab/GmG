@@ -1,15 +1,15 @@
 // Web Worker: loads the index, classifies files and renders the outputs. All heavy work happens here, off the UI thread.
 // Messages in:  {type:'index', url, size} | {type:'index', file} | {type:'thresholds', name}
 //               {type:'classify', files:[File], opts:{maxReads, minAbund, top}} | {type:'cancel'}
-// Messages out: {type:'index-progress', loaded, total} {type:'index-stage', stage:'build'} {type:'index-ready', info} {type:'progress', i, n, name}
+// Messages out: {type:'version', version} {type:'index-progress', loaded, total} {type:'index-stage', stage:'build'} {type:'index-ready', info} {type:'progress', i, n, name}
 //               {type:'record', record} {type:'done', ...outputs} {type:'error', message}
-import init, { Index, make_results_tsv, make_hits_tsv, render_report } from "./pkg/gmg_wasm.js";
+import init, { Index, make_results_tsv, make_hits_tsv, render_report, version } from "./pkg/gmg_wasm.js";
 
 const CACHE = "gmg-index-v1";
 let ix = null;
 let thresholds = "known";
 let cancelled = false;
-const ready = init();
+const ready = init().then(() => post({ type: "version", version: version() }));
 
 const post = (m) => self.postMessage(m);
 const stem = (name) => name.replace(/\.gz$/i, "").replace(/\.(fa|fna|fasta|fas|ffn|fq|fastq)$/i, "");

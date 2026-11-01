@@ -225,6 +225,12 @@ impl Index {
     }
 }
 
+/// The GmG version this wasm package was built from (shown in the page footer).
+#[wasm_bindgen]
+pub fn version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
+}
+
 /// `results.tsv` text from `results.jsonl` text (identical to the file `gmg run` writes).
 #[wasm_bindgen]
 pub fn make_results_tsv(results_jsonl: &str) -> String {
