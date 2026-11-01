@@ -242,7 +242,9 @@ $("cancel").onclick = () => worker.postMessage({ type: "cancel" });
 
 worker.onmessage = (e) => {
   const m = e.data;
-  if (m.type === "index-progress") {
+  if (m.type === "version") {
+    $("version").textContent = `GmG v${m.version} · `;
+  } else if (m.type === "index-progress") {
     if (m.cached) setStatus($("index-status"), "Loading the index from this browser's cache…");
     else if (m.total) {
       const f = Math.min(1, m.loaded / m.total), s = (Date.now() - loadStart) / 1000;
