@@ -8,6 +8,20 @@
     try { localStorage.setItem("gmg-theme", next); } catch (e) {}
   });
 
+  // in-page links: handled here because the report is also shown in a srcdoc iframe, where a bare
+  // #fragment would navigate to the parent page instead of scrolling this document
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var id = a.getAttribute("href").slice(1);
+    try { id = decodeURIComponent(id); } catch (x) {}
+    var el = id && document.getElementById(id);
+    if (!el) return;
+    e.preventDefault();
+    if (el.tagName === "DETAILS") el.open = true;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
   // tooltips: hover and keyboard focus show the same thing; every value is also in the table view
   var tip = document.getElementById("tooltip");
   function show(el, x, y) {
