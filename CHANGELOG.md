@@ -1,12 +1,16 @@
 # Changelog
 
-## Unreleased
+## v0.3.0 (2026-11-02)
 
-- Python bindings: the distribution is named `guess-my-genome` (was `gmg`, which on PyPI is an unrelated project); `import gmg` is unchanged.
+Built to run with `index-2026.10.5` (no new index; thresholds unchanged, calls are identical to v0.2.1).
 
-## Unreleased
+**For tools that route by phylum (MATPredict)**
+- Results schema 9: every record (`results.jsonl`, Python `Index.classify`, WASM) has a `routing_hint`: `usable`, `reason`, `phylum`, `phylum_taxid`, `deepest_rank`, `deepest_taxid`. `usable` is false when there is no phylum call, the input is flagged `not_fungal`, or the call is `weak_phylum`; the call is still reported so a consumer can apply its own rule. The TSV columns are unchanged (only `schema_version` reads 9). See `docs/results-schema.md`. Measured on MATPredict's regression panel: no wrong usable call when relatives are in the reference; with the genus hidden, 4 of 40 usable calls were wrong, all into a phylum MATPredict has no families for.
+- Python bindings: the PyPI distribution is named `guess-my-genome` (`gmg` on PyPI is an unrelated project); `import gmg` is unchanged. Not published to PyPI yet; build it with maturin or use a release binary.
 
-- Results schema 9: every record (`results.jsonl`, Python, WASM) has a `routing_hint` for consumers that choose a reference set by phylum (MATPredict): `usable`, `reason`, `phylum`, `phylum_taxid`, `deepest_rank`, `deepest_taxid`. `usable` is false when there is no phylum call, or the input is `not_fungal`, or the call is `weak_phylum`. The TSV columns are unchanged (only `schema_version` reads 9). See `docs/results-schema.md`.
+**Browser app and report**
+- The footer shows the GmG version (read from the wasm package).
+- Report: in-page links work inside the web app's report frame.
 
 ## v0.2.1 (2026-10-31)
 
