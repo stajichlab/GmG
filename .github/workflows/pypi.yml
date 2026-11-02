@@ -1,0 +1,100 @@
+name: PyPI
+# Builds the Python bindings (`guess-my-genome`, import name `gmg`) as wheels for Linux (x86_64, aarch64) and Apple Silicon and
+# publishes them to PyPI with trusted publishing (no token stored here). Wheels only: there is no source distribution, because the
+# build reads data/thresholds/*.json from outside the crate; other platforms get "no matching distribution".
+#   tag vX.Y.Z      -> build, smoke-test, publish to PyPI (environment `pypi`)
+#   manual dispatch -> build and smoke-test; with `testpypi` ticked, also publish to TestPyPI (environment `testpypi`)
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      testpypi:
+        description: "also publish to TestPyPI"
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  version:
+    name: tag matches the package version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: pyproject version equals the tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          v=$(grep -m1 '^version' crates/gmg-py/pyproject.toml | cut -d'"' -f2)
+          [ "v$v" = "${GITHUB_REF_NAME}" ] || { echo "tag ${GITHUB_REF_NAME} but crates/gmg-py/pyproject.toml says $v" >&2; exit 1; }
+  wheels:
+    name: wheel (${{ matrix.name }})
+    needs: version
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: linux-x86_64, os: ubuntu-latest, manylinux: auto }
+          - { name: linux-aarch64, os: ubuntu-24.04-arm, manylinux: auto }
+          - { name: macos-arm64, os: macos-15, manylinux: "off" }
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: PyO3/maturin-action@v1.51.0
+        with:
+          command: build
+          args: --release --out dist
+          working-directory: crates/gmg-py
+          manylinux: ${{ matrix.manylinux }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Smoke test the wheel in a clean environment
+        run: |
+          python -m venv /tmp/smoke
+          /tmp/smoke/bin/pip install crates/gmg-py/dist/*.whl
+          /tmp/smoke/bin/python -c "import gmg; print('gmg', gmg.__version__, 'schema', gmg.SCHEMA_VERSION); assert hasattr(gmg, 'Index')"
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: wheel-${{ matrix.name }}
+          path: crates/gmg-py/dist/*.whl
+          if-no-files-found: error
+  publish:
+    name: publish to PyPI
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: wheels
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/guess-my-genome/
+    permissions:
+      id-token: write   # trusted publishing
+    steps:
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          pattern: wheel-*
+          merge-multiple: true
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@v1.14.3
+        with:
+          packages-dir: dist/
+  publish-testpypi:
+    name: publish to TestPyPI
+    if: github.event_name == 'workflow_dispatch' && inputs.testpypi
+    needs: wheels
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/guess-my-genome/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          pattern: wheel-*
+          merge-multiple: true
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@v1.14.3
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: dist/

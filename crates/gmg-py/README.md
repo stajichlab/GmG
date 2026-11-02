@@ -1,7 +1,11 @@
 # gmg: Python bindings (#37)
 
-The PyPI distribution is named **`guess-my-genome`** (the name `gmg` there belongs to an unrelated project, so `pip install gmg` installs
-the wrong thing); the module you import is still `gmg`. Not published yet: build it below, or use a release binary.
+```
+pip install guess-my-genome      # the module you import is `gmg`
+```
+
+Wheels are published for Linux (x86_64, aarch64) and macOS on Apple Silicon (Python >= 3.9). Other platforms: build from the repository with maturin
+(see below) or use a release binary. (`pip install gmg` is a different, unrelated project.)
 
 The same Rust code as `gmg run` and the web app, for notebooks and scripts.
 
