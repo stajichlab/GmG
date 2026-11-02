@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Python bindings: the distribution is named `guess-my-genome` (was `gmg`, which on PyPI is an unrelated project); `import gmg` is unchanged.
+
+## Unreleased
+
 - Results schema 9: every record (`results.jsonl`, Python, WASM) has a `routing_hint` for consumers that choose a reference set by phylum (MATPredict): `usable`, `reason`, `phylum`, `phylum_taxid`, `deepest_rank`, `deepest_taxid`. `usable` is false when there is no phylum call, or the input is `not_fungal`, or the call is `weak_phylum`. The TSV columns are unchanged (only `schema_version` reads 9). See `docs/results-schema.md`.
 
 ## v0.2.1 (2026-10-31)
