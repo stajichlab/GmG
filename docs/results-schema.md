@@ -46,7 +46,7 @@ Empty cell = not applicable / not called. TSV cells never contain tabs or newlin
 | `coverage_est` | reads only: estimated genome coverage of the sketched reads (see `qc.coverage_est`), blank otherwise |
 | `explained_fraction` | share of the query's hashes found in any reference genome of the genus of the best hit (`qc.mixture.explained_fraction`); blank without a best hit or when the input is `not_fungal` |
 | `second_taxon`, `second_explained_fraction` | only when `mixture_suspected` is flagged: the second genus (a different genus from the best hit's) and the share of **all** query hashes that only it explains, i.e. hashes that no genome of the best hit's genus has. About the share of the sample's DNA that is the second organism (assemblies; reads: the share of the k-mers above the abundance cutoff) |
-| `schema_version` | 8 |
+| `schema_version` | 9 |
 
 ### Thresholds
 
@@ -60,6 +60,19 @@ Held-out checks: `reports/validation/`. Use `--thresholds FILE.json` for your ow
 
 `short_genome` (< 5 Mb), `long_genome` (> 150 Mb), `fragmented` (N50 < 10 kb), `high_N` (> 5% non-ACGT), `few_hashes` (< 100 sketch hashes),
 `identical_to_reference` (ANI >= 0.9999 and the reference is fully contained). Flags explain a result; they never change a call.
+
+## routing_hint (results.jsonl, Python, WASM)
+
+For a consumer that must pick a reference set by phylum (MATPredict). Every record has it, also failed ones; the TSV columns are unchanged.
+
+```json
+"routing_hint": {"usable": true, "reason": null, "phylum": "Ascomycota", "phylum_taxid": 4890, "deepest_rank": "genus", "deepest_taxid": 5052}
+```
+
+`usable` is true only when the phylum is called with the thresholds in force, the input is not flagged `not_fungal`, and the call is not a `weak_phylum` one
+(best-hit ANI below 0.85, right about 4 times in 5): a consumer that searches by phylum loses more from a wrong phylum than from none. When `usable` is
+false, `reason` is `no_phylum_call`, `not_fungal`, `weak_phylum` or `error`; `phylum` and `deepest_*` are still filled when a call exists, so a consumer can
+apply its own rule. `deepest_rank` is the deepest rank with a call; `deepest_taxid` is its NCBI taxid (null when the reference has none). Schema version 9.
 
 ## hits.tsv
 
