@@ -75,7 +75,7 @@ def test_classify_equals_gmg_run(world, name):
     path = next((d / "in").glob(f"{name}.fa*"))
     rec = ix.classify(str(path))
     want = cli[name]
-    for k in ("id", "status", "best_rank", "kind", "guess", "qc"):
+    for k in ("id", "status", "best_rank", "kind", "guess", "qc", "routing_hint"):
         assert rec.get(k) == want.get(k), k
 
 
@@ -84,6 +84,16 @@ def test_species_call_and_gzip(world):
     ix = gmg.Index(str(d / "ix.gmgi"))
     assert ix.classify(str(d / "in" / "copy.fa"))["guess"]["calls"]["species"]["taxon"] == "Fusarium gamma"
     assert ix.classify(str(d / "in" / "other.fa.gz"))["guess"]["calls"]["species"]["taxon"] == "Agaricus eps"
+
+
+def test_routing_hint(world):
+    d, _, _ = world
+    ix = gmg.Index(str(d / "ix.gmgi"))
+    h = ix.classify(str(d / "in" / "copy.fa"))["routing_hint"]
+    assert h["usable"] is True and h["reason"] is None
+    assert h["phylum"] == "Ascomycota" and h["deepest_rank"] == "species"
+    bad = ix.classify(str(d / "in" / "empty.fa"))["routing_hint"]
+    assert bad["usable"] is False and bad["reason"] == "error" and bad["phylum"] is None
 
 
 def test_failures_are_records_not_exceptions(world):

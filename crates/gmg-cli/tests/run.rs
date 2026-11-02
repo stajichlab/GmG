@@ -1688,7 +1688,19 @@ fn a_second_genus_in_the_input_is_flagged_without_changing_the_call() {
     let recs = run_records(d, &ix, "plain", &inputs, &[]);
     let by = |id: &str| recs.iter().find(|r| r["id"] == id).unwrap();
     for r in &recs {
-        assert_eq!(r["schema_version"], 8);
+        assert_eq!(r["schema_version"], 9);
+        // the routing hint agrees with the calls
+        assert_eq!(
+            r["routing_hint"]["phylum"], r["guess"]["calls"]["phylum"]["taxon"],
+            "{}",
+            r["id"]
+        );
+        assert_eq!(
+            r["routing_hint"]["usable"],
+            r["guess"]["calls"]["phylum"]["taxon"].is_string(),
+            "{}",
+            r["id"]
+        );
         // the call is the same for every input
         assert_eq!(
             r["guess"]["calls"]["genus"]["taxon"], "Aspergillus",
@@ -1731,7 +1743,7 @@ fn a_second_genus_in_the_input_is_flagged_without_changing_the_call() {
     assert_eq!(pure[col(&h, "second_explained_fraction")], "");
     let pe: f64 = pure[col(&h, "explained_fraction")].parse().unwrap();
     assert!(pe > 0.99);
-    assert_eq!(pure[col(&h, "schema_version")], "8");
+    assert_eq!(pure[col(&h, "schema_version")], "9");
 }
 
 #[test]

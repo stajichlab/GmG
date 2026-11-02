@@ -7,7 +7,7 @@ use serde_json::{json, Value};
 use std::collections::HashMap;
 
 /// Bump when a column of results.tsv / hits.tsv or a key of results.jsonl / run.json changes meaning.
-pub const SCHEMA_VERSION: u32 = 8; // 8: explained_fraction, second_taxon, second_explained_fraction columns, mixture_suspected flag. 7: coverage_est column (reads). 6: taxid_<rank> columns, top_hit_label. 5: withheld column. 4: expected, expected_match columns (sample sheet). 2: tentative_genus column; balanced default thresholds. 3: error_code column, plain error messages
+pub const SCHEMA_VERSION: u32 = 9; // 9: routing_hint in the record (results.jsonl, Python, wasm; the TSV columns are unchanged). 8: explained_fraction, second_taxon, second_explained_fraction columns, mixture_suspected flag. 7: coverage_est column (reads). 6: taxid_<rank> columns, top_hit_label. 5: withheld column. 4: expected, expected_match columns (sample sheet). 2: tentative_genus column; balanced default thresholds. 3: error_code column, plain error messages
 
 /// Species ANI cutoff for read sets (#32): repeated sequencing errors lower the containment ANI of a read set, so the
 /// assembly cutoff (0.9938) leaves 8-15% of correct species unnamed. With *C. immitis* left out of the reference its reads
@@ -256,6 +256,8 @@ pub fn classify(
         "status": status, "best_rank": best.map(|i| RANKS[i]), "message": null,
         "qc": qc, "qc_flags": flags, "guess": gj,
     });
+    let mut rec = rec;
+    rec["routing_hint"] = routing_hint(&rec);
     Ok((rec, hashes))
 }
 
@@ -364,7 +366,47 @@ pub fn mixture_scan(
 pub fn error_record(item: &Item, code: &str, message: &str, action: &str) -> Value {
     json!({"schema_version": SCHEMA_VERSION, "id": item.id, "path": item.path, "size_bytes": item.size_bytes, "kind": item.kind,
            "status": "error", "best_rank": null, "error_code": code, "message": message,
-           "error_action": action, "qc": null, "qc_flags": [], "guess": null})
+           "error_action": action, "qc": null, "qc_flags": [], "guess": null,
+           "routing_hint": routing_hint_error()})
+}
+
+/// What a consumer that needs a phylum (MATPredict) should take from a record (`routing_hint`). `usable` is true only when the
+/// phylum is called with the thresholds in force, is not flagged `not_fungal` and is not a `weak_phylum` call (best-hit ANI below
+/// `WEAK_PHYLUM_ANI`, about 4 in 5 right for divergent genomes): a consumer that searches by phylum loses more from a wrong phylum than
+/// from none. `phylum`/`deepest_*` are reported whenever a call exists, so a consumer may apply its own rule; `reason` is a short
+/// code when `usable` is false (`no_phylum_call`, `not_fungal`, `weak_phylum`, `error`), else null. `deepest_taxid` is null when the
+/// reference carries no NCBI taxid at that rank.
+pub fn routing_hint(rec: &Value) -> Value {
+    let calls = &rec["guess"]["calls"];
+    let flag = |f: &str| {
+        rec["qc_flags"]
+            .as_array()
+            .is_some_and(|a| a.iter().any(|x| x == f))
+    };
+    let phylum = calls["phylum"]["taxon"].as_str();
+    let deepest = RANKS.iter().rev().find(|r| calls[**r]["taxon"].is_string());
+    let reason = if phylum.is_none() {
+        Some("no_phylum_call")
+    } else if flag("not_fungal") {
+        Some("not_fungal")
+    } else if flag("weak_phylum") {
+        Some("weak_phylum")
+    } else {
+        None
+    };
+    json!({
+        "usable": reason.is_none(),
+        "reason": reason,
+        "phylum": phylum,
+        "phylum_taxid": calls["phylum"]["taxid"],
+        "deepest_rank": deepest,
+        "deepest_taxid": deepest.map_or(Value::Null, |r| calls[*r]["taxid"].clone()),
+    })
+}
+
+fn routing_hint_error() -> Value {
+    json!({"usable": false, "reason": "error", "phylum": null, "phylum_taxid": null,
+           "deepest_rank": null, "deepest_taxid": null})
 }
 
 /// Why a file held in memory cannot be read as FASTA/FASTQ (the browser has no file system to inspect; gzip is
@@ -814,4 +856,75 @@ pub fn exclusion_mask(
         }
     }
     mask
+}
+
+#[cfg(test)]
+mod routing_hint_tests {
+    use super::*;
+
+    fn rec(phylum: Option<&str>, genus: Option<&str>, flags: &[&str]) -> Value {
+        json!({"qc_flags": flags, "guess": {"calls": {
+            "phylum": {"taxon": phylum, "taxid": phylum.map(|_| 4890)},
+            "class": {"taxon": null, "taxid": null},
+            "order": {"taxon": null, "taxid": null},
+            "family": {"taxon": null, "taxid": null},
+            "genus": {"taxon": genus, "taxid": genus.map(|_| 5052)},
+            "species": {"taxon": null, "taxid": null}}}})
+    }
+
+    #[test]
+    fn usable_call_names_the_deepest_rank() {
+        let h = routing_hint(&rec(
+            Some("Ascomycota"),
+            Some("Aspergillus"),
+            &["short_genome"],
+        ));
+        assert_eq!(h["usable"], true);
+        assert!(h["reason"].is_null());
+        assert_eq!(h["phylum"], "Ascomycota");
+        assert_eq!(h["phylum_taxid"], 4890);
+        assert_eq!(h["deepest_rank"], "genus");
+        assert_eq!(h["deepest_taxid"], 5052);
+    }
+
+    #[test]
+    fn phylum_only_call() {
+        let h = routing_hint(&rec(Some("Ascomycota"), None, &[]));
+        assert_eq!(h["usable"], true);
+        assert_eq!(h["deepest_rank"], "phylum");
+        assert_eq!(h["deepest_taxid"], 4890);
+    }
+
+    #[test]
+    fn blocked_calls_say_why_and_keep_the_call() {
+        let h = routing_hint(&rec(None, None, &[]));
+        assert_eq!(
+            (h["usable"].clone(), h["reason"].clone()),
+            (json!(false), json!("no_phylum_call"))
+        );
+        assert!(
+            h["phylum"].is_null() && h["deepest_rank"].is_null() && h["deepest_taxid"].is_null()
+        );
+        let h = routing_hint(&rec(Some("Chordata"), None, &["not_fungal"]));
+        assert_eq!(
+            (h["usable"].clone(), h["reason"].clone()),
+            (json!(false), json!("not_fungal"))
+        );
+        assert_eq!(h["phylum"], "Chordata");
+        let h = routing_hint(&rec(Some("Ascomycota"), None, &["weak_phylum"]));
+        assert_eq!(
+            (h["usable"].clone(), h["reason"].clone()),
+            (json!(false), json!("weak_phylum"))
+        );
+        assert_eq!(h["phylum"], "Ascomycota");
+    }
+
+    #[test]
+    fn error_records_have_a_hint() {
+        let h = routing_hint_error();
+        assert_eq!(
+            (h["usable"].clone(), h["reason"].clone()),
+            (json!(false), json!("error"))
+        );
+    }
 }
