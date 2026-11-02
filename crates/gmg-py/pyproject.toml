@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "guess-my-genome"
-version = "0.2.1"
+version = "0.3.0"
 description = "Guess My Genome: fungal taxonomy from FracMinHash sketches (Python bindings)"
 requires-python = ">=3.9"
 license = { text = "MIT" }
