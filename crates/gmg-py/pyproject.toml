@@ -3,7 +3,7 @@ requires = ["maturin>=1.5,<2"]
 build-backend = "maturin"
 
 [project]
-name = "gmg"
+name = "guess-my-genome"
 version = "0.2.1"
 description = "Guess My Genome: fungal taxonomy from FracMinHash sketches (Python bindings)"
 requires-python = ">=3.9"
