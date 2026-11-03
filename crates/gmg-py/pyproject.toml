@@ -6,9 +6,26 @@ build-backend = "maturin"
 name = "guess-my-genome"
 version = "0.3.0"
 description = "Guess My Genome: fungal taxonomy from FracMinHash sketches (Python bindings)"
+readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
-classifiers = ["Programming Language :: Rust", "Topic :: Scientific/Engineering :: Bio-Informatics"]
+authors = [{ name = "Jason Stajich", email = "jason.stajich@ucr.edu" }]
+keywords = ["fungi", "taxonomy", "genomics", "minhash", "sourmash", "bioinformatics"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Rust",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+
+[project.urls]
+Homepage = "https://github.com/stajichlab/GmG"
+Documentation = "https://github.com/stajichlab/GmG/blob/main/crates/gmg-py/README.md"
+"Web app" = "https://gmg.fungalgenomes.org/"
+Changelog = "https://github.com/stajichlab/GmG/blob/main/CHANGELOG.md"
+Issues = "https://github.com/stajichlab/GmG/issues"
 
 [tool.maturin]
 python-source = "python"

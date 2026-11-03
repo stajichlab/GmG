@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- PyPI: a release workflow (`.github/workflows/pypi.yml`) builds `guess-my-genome` wheels for Linux (x86_64, aarch64) and Apple Silicon and publishes them with trusted publishing on a version tag; richer package metadata. Wheels only (no source distribution; the build reads `data/thresholds/` from outside the crate).
+
 ## v0.3.0 (2026-11-02)
 
 Built to run with `index-2026.10.5` (no new index; thresholds unchanged, calls are identical to v0.2.1).
