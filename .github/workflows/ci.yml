@@ -64,11 +64,6 @@ jobs:
           cache: true
       - run: pixi run wasm-test
       - run: pixi run web-test
-      - uses: actions/upload-artifact@v7.0.2
-        with:
-          name: gmg-wasm-web
-          path: crates/gmg-wasm/pkg-web
-          retention-days: 14
 
   container:
     name: container build (linux/amd64)
@@ -87,18 +82,17 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build (and push :edge from main)
+      - name: Build (push :edge from main; load for the smoke test elsewhere)
         uses: docker/build-push-action@v7.4.0
         with:
           context: .
           platforms: linux/amd64
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          load: ${{ !(github.event_name == 'push' && github.ref == 'refs/heads/main') }}
           tags: ghcr.io/${{ github.repository_owner }}/gmg:edge
           build-args: GMG_GIT_HASH=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Smoke test the image
         if: github.event_name != 'push' || github.ref != 'refs/heads/main'
-        run: |
-          docker buildx build --platform linux/amd64 --load -t gmg:ci --build-arg GMG_GIT_HASH=${{ github.sha }} .
-          docker run --rm gmg:ci --version
+        run: docker run --rm ghcr.io/${{ github.repository_owner }}/gmg:edge --version
