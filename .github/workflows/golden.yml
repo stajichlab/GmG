@@ -49,9 +49,18 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7.0.1
-      - name: Build the image and take the binary out of it
+      - uses: docker/setup-buildx-action@v4.4.1
+      - name: Build the image (layers come from the CI build's cache)
+        uses: docker/build-push-action@v7.4.0
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          tags: gmg-golden
+          build-args: GMG_GIT_HASH=${{ github.sha }}
+          cache-from: type=gha
+      - name: Take the binary out of the image
         run: |
-          docker build -t gmg-golden .
           docker create --name gmg-golden-c gmg-golden
           docker cp gmg-golden-c:/usr/local/bin/gmg ./gmg-container
           docker rm gmg-golden-c
