@@ -98,3 +98,4 @@ jobs:
         with:
           repository-url: https://test.pypi.org/legacy/
           packages-dir: dist/
+          skip-existing: true   # a dry run can be repeated: TestPyPI refuses a file name it already has
