@@ -1,8 +1,10 @@
 # Changelog
 
-## Unreleased
+## v0.3.1 (2026-11-03)
 
-- PyPI: a release workflow (`.github/workflows/pypi.yml`) builds `guess-my-genome` wheels for Linux (x86_64, aarch64) and Apple Silicon and publishes them with trusted publishing on a version tag; richer package metadata. Wheels only (no source distribution; the build reads `data/thresholds/` from outside the crate).
+No change to the program or its results (same calls and schema 9 as v0.3.0); the Python bindings are published to PyPI for the first time.
+
+- PyPI: `pip install guess-my-genome` (import name `gmg`). A release workflow (`.github/workflows/pypi.yml`) builds wheels for Linux (x86_64, aarch64) and Apple Silicon and publishes them with trusted publishing when a version tag is pushed; richer package metadata. Wheels only: there is no source distribution, because the build reads `data/thresholds/` from outside the crate; other platforms build from the repository with maturin. Intel Macs and Windows may follow.
 
 ## v0.3.0 (2026-11-02)
 
