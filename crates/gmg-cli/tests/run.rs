@@ -1850,7 +1850,7 @@ fn high_error_reads_flag_comes_from_the_kmer_survival_and_never_changes_a_call()
 
 #[test]
 fn run_accepts_fsa_genomes() {
-    // `.fsa` (the GenBank submission extension) is a FASTA file: found in a folder, plain or gzipped, id without the extension
+    // `.fsa` (the GenBank submission extension), `.seq` and `.dna` are FASTA files: found in a folder, plain or gzipped, id without the extension
     let dir = tempfile::tempdir().unwrap();
     let d = dir.path();
     let (genomes, ix, _rng) = build_reference(d);
@@ -1862,6 +1862,8 @@ fn run_accepts_fsa_genomes() {
     )
     .unwrap();
     fs::write(inp.join("other.fa"), fasta("other", &genomes[3])).unwrap();
+    fs::write(inp.join("third.seq"), fasta("third", &genomes[4])).unwrap();
+    fs::write(inp.join("fourth.dna"), fasta("fourth", &genomes[1])).unwrap();
     let out = d.join("out");
     ok(&[
         "run",
@@ -1873,7 +1875,14 @@ fn run_accepts_fsa_genomes() {
         "--no-report",
     ]);
     let (h, rows) = read_tsv(&out.join("results.tsv"));
-    assert_eq!(rows.len(), 2, "both files are inputs: {rows:?}");
+    assert_eq!(rows.len(), 4, "all four files are inputs: {rows:?}");
+    for id in ["third", "fourth"] {
+        let r = rows
+            .iter()
+            .find(|r| r[0] == id)
+            .unwrap_or_else(|| panic!("{id} (.seq/.dna) is a row"));
+        assert_eq!(r[col(&h, "status")], "ok", "{id}");
+    }
     let fsa = rows
         .iter()
         .find(|r| r[0] == "Sample_one.contigs")

@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- FASTA files ending in `.fsa` (the GenBank submission name) are found and classified like `.fa`/`.fna` (command line, folders, and the browser app); the sample id drops the `.fsa`. Before, `gmg run` answered "no FASTA/FASTQ files found" for them.
+- FASTA files ending in `.fsa` (the GenBank submission name), `.seq` or `.dna` are found and classified like `.fa`/`.fna` (command line, folders, and the browser app); the sample id drops the extension. Before, `gmg run` answered "no FASTA/FASTQ files found" for them. The format is read from the content, so a GenBank-format `.seq` file is reported as `not_sequence_file`, not misread.
 
 ## v0.3.1 (2026-11-03)
 

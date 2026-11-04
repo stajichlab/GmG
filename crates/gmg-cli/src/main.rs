@@ -131,7 +131,7 @@ enum Cmd {
         after_long_help = "EXAMPLES\n  gmg run genomes/ --index bfd.gmgi -o out/\n  gmg run reads/ --index bfd.gmgi -o out/ --max-reads 500000       R1/R2 and lanes of a sample are merged\n  gmg run --sample-sheet samples.tsv --index bfd.gmgi -o out/ --report-format all\n  gmg run genomes/ --index bfd.gmgi -o out/ --resume               continue after an interruption\n\nWrites results.tsv (one row per input), hits.tsv, results.jsonl, run.json and report.html (docs/results-schema.md)."
     )]
     Run {
-        /// directories (searched recursively) and/or files: FASTA (.fa .fna .fasta .fas .ffn .fsa) or FASTQ (.fq .fastq), optionally .gz
+        /// directories (searched recursively) and/or files: FASTA (.fa .fna .fasta .fas .ffn .fsa .seq .dna) or FASTQ (.fq .fastq), optionally .gz
         #[arg(required_unless_present_any = ["list", "sample_sheet"])]
         inputs: Vec<PathBuf>,
         #[arg(long)]
@@ -300,7 +300,9 @@ pub(crate) fn strip_ext(name: &str) -> String {
         .iter()
         .find_map(|c| name.strip_suffix(c))
         .unwrap_or(name);
-    for e in [".fa", ".fasta", ".fna", ".fsa", ".fastq", ".fq", ".gsk"] {
+    for e in [
+        ".fa", ".fasta", ".fna", ".fsa", ".seq", ".dna", ".fastq", ".fq", ".gsk",
+    ] {
         if let Some(s) = name.strip_suffix(e) {
             return s.to_string();
         }

@@ -12,7 +12,7 @@ let cancelled = false;
 const ready = init().then(() => post({ type: "version", version: version() }));
 
 const post = (m) => self.postMessage(m);
-const stem = (name) => name.replace(/\.gz$/i, "").replace(/\.(fa|fna|fasta|fas|ffn|fsa|fq|fastq)$/i, "");
+const stem = (name) => name.replace(/\.gz$/i, "").replace(/\.(fa|fna|fasta|fas|ffn|fsa|seq|dna|fq|fastq)$/i, "");
 
 async function fetchIndex(url, size) {
   const cache = await caches.open(CACHE);

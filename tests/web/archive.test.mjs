@@ -16,7 +16,7 @@ writeFileSync(join(src, "a", "genome.fa"), big);
 writeFileSync(join(src, "b", "genome.fa"), ">y\nTTTTGGGGCCCCAAAA\n");
 writeFileSync(join(src, "reads.fastq"), "@r\nACGT\n+\nIIII\n");
 writeFileSync(join(src, "notes.txt"), "hello\n");
-const keep = (n) => /\.(fa|fna|fasta|fas|ffn|fsa|fq|fastq)(\.gz)?$/i.test(n);
+const keep = (n) => /\.(fa|fna|fasta|fas|ffn|fsa|seq|dna|fq|fastq)(\.gz)?$/i.test(n);
 const asFile = (path, name) => new File([readFileSync(path)], name);
 const sh = (cmd, args, cwd = src) => execFileSync(cmd, args, { cwd });
 

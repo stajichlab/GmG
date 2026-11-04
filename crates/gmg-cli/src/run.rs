@@ -66,7 +66,7 @@ struct Input {
     explicit: bool,
 }
 
-const FASTA_EXT: [&str; 6] = ["fa", "fna", "fasta", "fas", "ffn", "fsa"];
+const FASTA_EXT: [&str; 8] = ["fa", "fna", "fasta", "fas", "ffn", "fsa", "seq", "dna"];
 const FASTQ_EXT: [&str; 2] = ["fq", "fastq"];
 
 /// Compression suffixes needletail reads (it detects the format from the first bytes, the suffix only selects the file).
@@ -360,7 +360,7 @@ fn discover(args: &RunArgs) -> Result<Vec<Input>> {
         }
     }
     if inputs.is_empty() {
-        bail!("no FASTA/FASTQ files found in the given inputs (extensions: fa fna fasta fas ffn fsa fq fastq, optionally .gz .zst .bz2 .xz)");
+        bail!("no FASTA/FASTQ files found in the given inputs (extensions: fa fna fasta fas ffn fsa seq dna fq fastq, optionally .gz .zst .bz2 .xz)");
     }
     Ok(inputs)
 }
