@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## v0.3.2 (2026-11-04)
+
+Calls and schema 9 are unchanged from v0.3.1; the change is which files are read as sequence. The Python wheels (PyPI `guess-my-genome`) carry it.
 
 - FASTA files ending in `.fsa` (the GenBank submission name), `.seq` or `.dna` are found and classified like `.fa`/`.fna` (command line, folders, and the browser app); the sample id drops the extension. Before, `gmg run` answered "no FASTA/FASTQ files found" for them. The format is read from the content, so a GenBank-format `.seq` file is reported as `not_sequence_file`, not misread.
 
