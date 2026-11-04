@@ -3,7 +3,7 @@ const $ = (id) => document.getElementById(id);
 import { ARCHIVE, expandArchive } from "./archive.js";
 const worker = new Worker(new URL("./worker.js", import.meta.url), { type: "module" });
 
-const SEQ_EXT = /\.(fa|fna|fasta|fas|ffn|fq|fastq)(\.gz)?$/i;
+const SEQ_EXT = /\.(fa|fna|fasta|fas|ffn|fsa|seq|dna|fq|fastq)(\.gz)?$/i;
 const RANKS = ["phylum", "class", "order", "family", "genus", "species"];
 const STATUS_LABEL = { ok: "classified", low_confidence: "low confidence", no_match: "no match", error: "error" };
 
