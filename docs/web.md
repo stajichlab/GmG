@@ -8,7 +8,7 @@ two); `crates/gmg-wasm/tests/parity.mjs` checks this on 21 inputs (assemblies, m
 * **Index:** pick a bundled index (the representatives index is published with the app) or any `.gmgi` file, for example the
   full index from the [index releases](https://github.com/stajichlab/GmG/releases). The index is cached in the browser
   (Cache API), so the next visit works offline.
-* **Inputs:** drop files or a folder (`.fa .fna .fasta .fas .ffn .fq .fastq`, plain or `.gz`; gzip is decompressed in the
+* **Inputs:** drop files or a folder (`.fa .fna .fasta .fas .ffn .fsa .fq .fastq`, plain or `.gz`; gzip is decompressed in the
   browser). FASTQ: only the first N reads are read (default 500,000). The work runs in a Web Worker, with progress and Cancel.
 * **Examples:** the *Try an example* buttons download a small public assembly (five fungi and one bacterium, `examples/examples.tsv`)
   straight from NCBI into the browser and queue it; nothing is stored in the repository or uploaded.

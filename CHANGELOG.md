@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- FASTA files ending in `.fsa` (the GenBank submission name) are found and classified like `.fa`/`.fna` (command line, folders, and the browser app); the sample id drops the `.fsa`. Before, `gmg run` answered "no FASTA/FASTQ files found" for them.
+
 ## v0.3.1 (2026-11-03)
 
 No change to the program or its results (same calls and schema 9 as v0.3.0); the Python bindings are published to PyPI for the first time.

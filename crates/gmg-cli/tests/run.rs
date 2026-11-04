@@ -1847,3 +1847,40 @@ fn high_error_reads_flag_comes_from_the_kmer_survival_and_never_changes_a_call()
     let est = rec["qc"]["error_est"].as_f64().expect("error_est");
     assert!((0.05..=0.12).contains(&est), "error estimate {est}");
 }
+
+#[test]
+fn run_accepts_fsa_genomes() {
+    // `.fsa` (the GenBank submission extension) is a FASTA file: found in a folder, plain or gzipped, id without the extension
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let (genomes, ix, _rng) = build_reference(d);
+    let inp = d.join("in");
+    fs::create_dir_all(&inp).unwrap();
+    fs::write(
+        inp.join("Sample_one.contigs.fsa"),
+        fasta("one", &genomes[2]),
+    )
+    .unwrap();
+    fs::write(inp.join("other.fa"), fasta("other", &genomes[3])).unwrap();
+    let out = d.join("out");
+    ok(&[
+        "run",
+        inp.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+        "--no-report",
+    ]);
+    let (h, rows) = read_tsv(&out.join("results.tsv"));
+    assert_eq!(rows.len(), 2, "both files are inputs: {rows:?}");
+    let fsa = rows
+        .iter()
+        .find(|r| r[0] == "Sample_one.contigs")
+        .expect("the .fsa file is a row, its id without .fsa");
+    assert_eq!(fsa[col(&h, "status")], "ok");
+    assert_eq!(fsa[col(&h, "kind")], "assembly");
+    // the same genome under .fa gives the same call
+    let fa = rows.iter().find(|r| r[0] == "other").unwrap();
+    assert_eq!(fa[col(&h, "status")], "ok");
+}
