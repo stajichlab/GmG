@@ -1499,6 +1499,8 @@ dependencies = [
  "clap",
  "gmg-core",
  "gmg-input",
+ "gmg-pdf",
+ "gmg-report",
  "needletail",
  "rayon",
  "serde_json",
