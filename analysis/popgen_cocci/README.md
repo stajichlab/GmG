@@ -19,6 +19,7 @@ them. Raw data and results are not in this repository.
 | 9-10 | `09_bd_eval.py`, `10_bd_coarse.py` | Bd lineages: scoring and merged-group scoring |
 | 11 | `11_snp_pca.py` | k-mer PCA against SNP PCA from alignments |
 | 12-15 | `12_bdvcf_probe.sh`, `13a_bd_vcf_dump.sh`, `13b_bd_vcf_pca.py`, `14_bd_kmer_pc1.py`, `15_bd_rerun.sh` | Bd: genome-wide VCF PCA, what drives k-mer PC1, rerun without half-content samples |
+| 16-17 | `16_pcoa_vs_snp.py`, `17_gap_rule.py` | PCoA vs hash PCA against SNP PCA; where a largest-gap UPGMA cut would fall |
 
 Findings, with their caveats, are summarised in the plan. Several choices (size cut, merged Bd groups, k for k-means)
 were made after looking at the data.
