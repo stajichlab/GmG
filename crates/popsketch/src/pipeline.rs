@@ -730,7 +730,14 @@ pub fn run(o: &Options) -> Result<Results> {
                 (&res.ordination, o.dapc_pcs > 0, res.label_reports.first())
             {
                 let labs = column_labels(&table, &ids, 0);
-                let names: Vec<String> = rep.groups.iter().map(|g| g.0.clone()).collect();
+                // label groups that do not form coherent sketch clusters (see the label check) are left out: a discriminant analysis
+                // cannot separate what the sketches cannot tell apart
+                let names: Vec<String> = rep
+                    .groups
+                    .iter()
+                    .map(|g| g.0.clone())
+                    .filter(|g| !rep.unchecked.contains(g))
+                    .collect();
                 let group: Vec<Option<usize>> = labs
                     .iter()
                     .map(|l| l.as_ref().and_then(|l| names.iter().position(|x| x == l)))
@@ -739,7 +746,7 @@ pub fn run(o: &Options) -> Result<Results> {
                 let pcs: Vec<Vec<f64>> = ord.coords.iter().map(|r| r[..p].to_vec()).collect();
                 match crate::dapc::dapc(&pcs, &group, &names) {
                     Some(d) => res.dapc = Some(DapcOut { column: rep.name.clone(), dapc: d, labels: labs }),
-                    None => res.warnings.push(format!("DAPC on label column {} was skipped: it needs at least 2 label groups with 2 samples each and more samples than PCs", rep.name)),
+                    None => res.warnings.push(format!("DAPC on label column {} was skipped: it needs at least 2 label groups that form coherent clusters in the sketches, with 2 samples each, and more samples than PCs", rep.name)),
                 }
             }
             res.label_table = Some(table);

@@ -892,7 +892,7 @@ fn build(o: &Options, r: &Results) -> Vec<Block> {
                 .collect();
             d.push(Block::P(
                 vec![t(format!(
-                    "Discriminant analysis of the first {} PCs with the groups of this label column: {} axes{}. {:.1}% of the labelled samples are nearest to their own group's centroid; {} are nearest to another group{}",
+                    "Discriminant analysis of the first {} PCs with the groups of this label column that form coherent clusters in the sketches: {} axes{}. {:.1}% of the samples in those groups are nearest to their own group's centroid; {} are nearest to another group{}",
                     dp.dapc.n_pcs,
                     axes,
                     if axes == 1 { " (the second axis of the plot is jitter)" } else { "" },

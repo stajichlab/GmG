@@ -453,3 +453,30 @@ fn comparison_with_an_external_tree_and_pcs_reports_clades_and_matching_planes()
     assert!(r2.warnings.iter().any(|w| w.contains("--compare-tree")));
     cleanup(&t);
 }
+
+#[test]
+fn labels_that_do_not_follow_the_structure_give_no_conflicts_and_no_dapc() {
+    let t = build("noise");
+    // alternate two labels across the samples: neither is a coherent cluster of the sketches
+    let mut labels = String::from("id\tnoise\n");
+    for (i, (id, _)) in t.group_of.iter().enumerate() {
+        labels.push_str(&format!("{id}\t{}\n", if i % 2 == 0 { "X" } else { "Y" }));
+    }
+    let lp = t.dir.join("noise_labels.tsv");
+    fs::write(&lp, labels).unwrap();
+    let mut o = opts(&t, "noise");
+    o.labels = Some(lp);
+    let r = run(&o).unwrap();
+    let rep = &r.label_reports[0];
+    assert!(rep.conflicts.is_empty(), "{:?}", rep.conflicts);
+    assert_eq!(rep.unchecked, vec!["X".to_string(), "Y".to_string()]);
+    assert!(r.dapc.is_none());
+    assert!(
+        r.warnings
+            .iter()
+            .any(|w| w.contains("DAPC") && w.contains("coherent")),
+        "{:?}",
+        r.warnings
+    );
+    cleanup(&t);
+}
