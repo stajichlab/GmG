@@ -237,7 +237,7 @@ pub fn assess(samples: &[SampleSketch], scaled: u32, p: &QcParams) -> Vec<Sample
                 out[i].flags.push(Flag {
                     code: "abundance_shoulder",
                     detail: format!(
-                        "k-mers at 0.1-0.6x the main coverage ({c:.0}x) exceed the cohort (z {z:+.1}): a second organism at several-fold coverage"
+                        "k-mers at 0.1-0.6x the main coverage ({c:.0}x) exceed the cohort (z {z:+.1}): a second organism at several-fold coverage or, in a diploid, heterozygosity (a peak at half the coverage)"
                     ),
                 });
             }

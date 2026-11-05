@@ -396,6 +396,9 @@ pub fn write(o: &Options, r: &Results) -> Result<()> {
     // labels
     for rep in &r.label_reports {
         let _ = write!(h, "<h2>Labels: {}</h2><p class=\"note\">{} labelled samples in the analysis; groups: {}. A blank label means unlabelled.</p>", esc(&rep.name), rep.n_labelled, esc(&rep.groups.iter().map(|(g, n)| format!("{g} ({n})")).collect::<Vec<_>>().join(", ")));
+        if !rep.unchecked.is_empty() {
+            let _ = write!(h, "<p class=\"note\">Not checked for conflicts, because these labels do not form coherent clusters in the sketches (members are not more similar to each other than to the rest): {}.</p>", esc(&rep.unchecked.join(", ")));
+        }
         if rep.conflicts.is_empty() {
             h.push_str("<p>No sample matches another label better than its own.</p>");
         } else {

@@ -84,6 +84,8 @@ pub struct ColumnReport {
     /// fraction of each label's samples that sit in its most common cluster
     pub purity: Vec<(String, f64)>,
     pub conflicts: Vec<Conflict>,
+    /// labels with at least 3 samples that do not form a coherent sketch cluster: not checked for conflicts
+    pub unchecked: Vec<String>,
 }
 
 /// Labels of the included samples for one column.
@@ -144,12 +146,35 @@ pub fn analyze_column(
             )
         })
         .collect();
-    // conflicts: labels with at least 3 samples
-    let big: Vec<&String> = counts
-        .iter()
-        .filter(|(_, &c)| c >= 3)
-        .map(|(k, _)| k)
-        .collect();
+    // conflicts: only for labels with at least 3 samples that form a coherent sketch cluster. A label that does not follow the
+    // genetic structure (a sequencing centre, a QC verdict, lineages the sketches cannot tell apart) would flag samples at random.
+    let med_to = |i: usize, pred: &dyn Fn(usize) -> bool| -> f64 {
+        let v: Vec<f64> = (0..n)
+            .filter(|&j| j != i && pred(j))
+            .map(|j| dist.ani(i, j))
+            .collect();
+        median(&v)
+    };
+    let mut big: Vec<&String> = Vec::new();
+    let mut unchecked: Vec<String> = Vec::new();
+    for (lab, &c) in counts.iter().filter(|(_, &c)| c >= 3) {
+        let members: Vec<usize> = (0..n)
+            .filter(|&i| labels[i].as_ref() == Some(lab))
+            .collect();
+        let agree = members
+            .iter()
+            .filter(|&&i| {
+                let own = med_to(i, &|j| labels[j].as_ref() == Some(lab));
+                let other = med_to(i, &|j| labels[j].as_ref() != Some(lab));
+                own - other > margin
+            })
+            .count();
+        if agree as f64 >= 0.6 * c as f64 {
+            big.push(lab);
+        } else {
+            unchecked.push(lab.clone());
+        }
+    }
     let mut conflicts = Vec::new();
     if big.len() >= 2 {
         for &i in &labelled {
@@ -157,13 +182,7 @@ pub fn analyze_column(
             if !big.contains(&own) {
                 continue;
             }
-            let med = |lab: &String| -> f64 {
-                let v: Vec<f64> = (0..n)
-                    .filter(|&j| j != i && labels[j].as_ref() == Some(lab))
-                    .map(|j| dist.ani(i, j))
-                    .collect();
-                median(&v)
-            };
+            let med = |lab: &String| med_to(i, &|j| labels[j].as_ref() == Some(lab));
             let own_m = med(own);
             let (best, best_m) = big
                 .iter()
@@ -203,6 +222,7 @@ pub fn analyze_column(
         contingency_k,
         purity,
         conflicts,
+        unchecked,
     }
 }
 
@@ -283,5 +303,40 @@ mod tests {
         );
         assert!(r.conflicts.is_empty());
         assert_eq!(r.n_labelled, 5);
+    }
+
+    #[test]
+    fn labels_that_do_not_follow_the_structure_are_not_checked() {
+        let (d, ids) = two_groups();
+        // alternate labels across the two real groups: neither label is a coherent cluster
+        let labels: Vec<Option<String>> = ["X", "Y", "X", "Y", "X", "Y"]
+            .iter()
+            .map(|s| Some(s.to_string()))
+            .collect();
+        let r = analyze_column(
+            "centre",
+            &labels,
+            &ids,
+            &d,
+            &[(2, vec![0, 0, 0, 1, 1, 0])],
+            0.001,
+        );
+        assert!(r.conflicts.is_empty(), "{:?}", r.conflicts);
+        assert_eq!(r.unchecked, vec!["X".to_string(), "Y".to_string()]);
+        // a label that does follow it is checked
+        let good: Vec<Option<String>> = ["A", "A", "A", "B", "B", "B"]
+            .iter()
+            .map(|s| Some(s.to_string()))
+            .collect();
+        assert!(analyze_column(
+            "species",
+            &good,
+            &ids,
+            &d,
+            &[(2, vec![0, 0, 0, 1, 1, 0])],
+            0.001
+        )
+        .unchecked
+        .is_empty());
     }
 }

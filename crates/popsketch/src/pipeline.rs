@@ -16,7 +16,7 @@ use crate::sketch_io::{
 use crate::stats::{mad_sd, median};
 use crate::tree::{collapse, neighbor_joining, newick, root_tree};
 use anyhow::{bail, Context, Result};
-use gmg_core::classify::{classify, Context as RefContext, Item, MIN_ABUND_AUTO};
+use gmg_core::classify::{classify, Context as RefContext, Item};
 use gmg_core::{max_hash_for_scaled, RefIndex, SeqStats, SketchFile, Thresholds, DEFAULT_SEED};
 use gmg_input::{discover, DiscoverArgs};
 use rayon::prelude::*;
@@ -222,7 +222,8 @@ fn screen(ix: &RefIndex, th: &Thresholds, ctx: &RefContext, s: &SampleSketch) ->
         &item,
         sk,
         &st,
-        if reads { MIN_ABUND_AUTO } else { 1 },
+        // a fixed cutoff of 2 for reads, as `gmg run` uses: the auto cutoff drops the low-abundance k-mers of a light contaminant
+        if reads { 2 } else { 1 },
         1,
         &|_| false,
     )
@@ -421,10 +422,15 @@ pub fn run(o: &Options) -> Result<Results> {
     let unflagged: Vec<usize> = (0..cand.len())
         .filter(|&c| !qcs[cand[c]].flagged())
         .collect();
+    // nearest neighbour among the clean cohort only: a contaminated sample can carry the same foreign hashes as an unrelated one
+    let mut clean = vec![false; cand.len()];
+    for &c in &unflagged {
+        clean[c] = true;
+    }
     let nn: Vec<f64> = (0..cand.len())
         .map(|c| {
             (0..cand.len())
-                .filter(|&j| j != c)
+                .filter(|&j| j != c && clean[j])
                 .map(|j| d_all.ani(c, j))
                 .fold(0.0, f64::max)
         })
@@ -854,7 +860,7 @@ pub fn summary_json(o: &Options, r: &Results) -> Value {
         .iter()
         .map(|c| {
             json!({"column": c.name, "labelled": c.n_labelled, "groups": c.groups, "ari_by_k": c.ari, "contingency_k": c.contingency_k,
-                   "contingency": c.contingency, "purity": c.purity,
+                   "contingency": c.contingency, "purity": c.purity, "unchecked_labels": c.unchecked,
                    "conflicts": c.conflicts.iter().map(|x| json!({"id": x.id, "label": x.label, "own_median_ani": x.own_median_ani, "better_label": x.other_label, "better_median_ani": x.other_median_ani, "nearest": x.nearest, "nearest_label": x.nearest_label})).collect::<Vec<_>>()})
         })
         .collect();
