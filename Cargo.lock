@@ -816,6 +816,7 @@ dependencies = [
  "clap_mangen",
  "flate2",
  "gmg-core",
+ "gmg-input",
  "gmg-pdf",
  "gmg-report",
  "needletail",
@@ -833,6 +834,13 @@ dependencies = [
  "needletail",
  "serde_json",
  "sourmash",
+]
+
+[[package]]
+name = "gmg-input"
+version = "0.3.2"
+dependencies = [
+ "anyhow",
 ]
 
 [[package]]

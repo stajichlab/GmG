@@ -1,0 +1,9 @@
+[package]
+name = "gmg-input"
+description = "Input discovery shared by gmg run and tools built on the same sketching: files, samples, sample sheets"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+anyhow = "1"
