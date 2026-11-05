@@ -5,6 +5,7 @@ use gmg_core::{
     downsample, guess, FracSketch, GenomeMeta, IndexBuilder, RefIndex, SketchFile, Thresholds,
     DEFAULT_SEED, RANKS,
 };
+pub(crate) use gmg_input::{is_stdin, strip_ext};
 use needletail::{parse_fastx_file, parse_fastx_stdin};
 mod errors;
 mod run;
@@ -295,28 +296,8 @@ enum Cmd {
     },
 }
 
-pub(crate) fn strip_ext(name: &str) -> String {
-    let name = crate::run::COMPRESSED
-        .iter()
-        .find_map(|c| name.strip_suffix(c))
-        .unwrap_or(name);
-    for e in [
-        ".fa", ".fasta", ".fna", ".fsa", ".seq", ".dna", ".fastq", ".fq", ".gsk",
-    ] {
-        if let Some(s) = name.strip_suffix(e) {
-            return s.to_string();
-        }
-    }
-    name.to_string()
-}
-
 /// `--max-bases`, set once from the command line (0 = no limit)
 pub(crate) static MAX_BASES: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
-
-/// the path that means standard input (gzip and FASTA/FASTQ are detected from the bytes)
-pub(crate) fn is_stdin(p: &Path) -> bool {
-    p.as_os_str() == "-"
-}
 
 /// `--min-abund`: a count, or `auto` for the cutoff chosen from the abundance histogram of a read set
 fn parse_min_abund(s: &str) -> Result<u32, String> {
