@@ -19,6 +19,15 @@ them. Raw data and results are not in this repository.
 | 9-10 | `09_bd_eval.py`, `10_bd_coarse.py` | Bd lineages: scoring and merged-group scoring |
 | 11 | `11_snp_pca.py` | k-mer PCA against SNP PCA from alignments |
 | 12-15 | `12_bdvcf_probe.sh`, `13a_bd_vcf_dump.sh`, `13b_bd_vcf_pca.py`, `14_bd_kmer_pc1.py`, `15_bd_rerun.sh` | Bd: genome-wide VCF PCA, what drives k-mer PC1, rerun without half-content samples |
+| 16-17 | `16_pcoa_vs_snp.py`, `17_gap_rule.py` | PCoA vs hash PCA against SNP PCA; where a largest-gap UPGMA cut would fall |
+
+**Known problem in the early scripts.** The built-in abundance cutoff in `02_popdist.py` returns 2 for almost every sample
+(520 of 559 Coccidioides, all 334 Bd), which leaves error k-mers in and inflated sample sizes and distances. Use `--cutoffs`
+with the output of a small probe of `gmg-core`'s `auto_min_abund` (see `18_cutoff_compare.py`; the probe is a scratch crate
+that reads `.gsk` files and calls `gmg_core::coverage::auto_min_abund`). Results from before this was found are marked in
+the plan; scripts 19-21 use the corrected cutoff.
+| 22 | `22_abundance_spectrum.py` | can the abundance spectrum alone flag mixed samples (checked against `gmg run --index` mixture calls) |
+| 18-21 | `18_cutoff_compare.py`, `19_rerun_rustcut.sh`, `20_splithalf_*.sh`, `21_splithalf_analyze.py` | Rust vs Python abundance cutoff; reruns with the Rust cutoff; split-half noise floor |
 
 Findings, with their caveats, are summarised in the plan. Several choices (size cut, merged Bd groups, k for k-means)
 were made after looking at the data.
