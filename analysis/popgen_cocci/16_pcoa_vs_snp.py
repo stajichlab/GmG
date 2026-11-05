@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """PCoA(1-ANI) vs hash-presence PCA, each compared with SNP PCA, same shared samples."""
+import os
 import numpy as np, pandas as pd
 from scipy.linalg import subspace_angles
 from scipy.spatial import procrustes
 from scipy.spatial.distance import pdist
 from scipy.stats import spearmanr
 
+SUF = os.environ.get("SUF", "")  # e.g. _rc for the runs that use the Rust cutoffs
 C = "/bigdata/stajichlab/jstajich/projects/GmG_popgen/popgen_cocci/"
 B = "/bigdata/stajichlab/jstajich/projects/GmG_popgen/popgen_bd/"
-sets = [("Cocci all", C + "final_s200/", C + "snp_pca_final_s200.tsv"),
-        ("C. immitis", C + "final_s200_immitis/", C + "snp_pca_final_s200_immitis.tsv"),
-        ("C. posadasii", C + "final_s200_posadasii/", C + "snp_pca_final_s200_posadasii.tsv"),
-        ("Bd (VCF, cleaned)", B + "out_s200_qc/", B + "snp_pca_vcf.tsv")]
+sets = [("Cocci all", C + "final_s200" + SUF + "/", C + "snp_pca_final_s200.tsv"),
+        ("C. immitis", C + "final_s200_immitis" + SUF + "/", C + "snp_pca_final_s200_immitis.tsv"),
+        ("C. posadasii", C + "final_s200_posadasii" + SUF + "/", C + "snp_pca_final_s200_posadasii.tsv"),
+        ("Bd (VCF, cleaned)", B + "out_s200_qc" + SUF + "/", B + "snp_pca_vcf.tsv")]
 
 
 def metrics(K, S):

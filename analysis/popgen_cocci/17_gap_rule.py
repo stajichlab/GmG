@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """Where would 'cut UPGMA at the largest gap in merge heights' cut, on each dataset? Top gaps, k they imply, ratio gap1/gap2."""
+import os
 import numpy as np, pandas as pd
 from scipy.cluster.hierarchy import linkage
 from scipy.spatial.distance import squareform
 
+SUF = os.environ.get("SUF", "")  # e.g. _rc for the runs that use the Rust cutoffs
 C = "/bigdata/stajichlab/jstajich/projects/GmG_popgen/popgen_cocci/"
 B = "/bigdata/stajichlab/jstajich/projects/GmG_popgen/popgen_bd/"
-for name, d in [("Cocci all (2 species)", C + "final_s200/"), ("C. immitis only", C + "final_s200_immitis/"),
-                ("C. posadasii only", C + "final_s200_posadasii/"), ("Bd cleaned", B + "out_s200_qc/")]:
+for name, d in [("Cocci all (2 species)", C + "final_s200" + SUF + "/"), ("C. immitis only", C + "final_s200_immitis" + SUF + "/"),
+                ("C. posadasii only", C + "final_s200_posadasii" + SUF + "/"), ("Bd cleaned", B + "out_s200_qc" + SUF + "/")]:
     A = pd.read_csv(d + "ani_est.tsv", sep="\t"); D = 1 - A.values; np.fill_diagonal(D, 0); D = (D + D.T) / 2
     n = len(D); h = linkage(squareform(D, checks=False), "average")[:, 2]     # n-1 merge heights, ascending
     # cut between merge i and i+1 gives k = n - 1 - i clusters; gap = h[i+1]-h[i]; look at the top 6 cuts, k<=30

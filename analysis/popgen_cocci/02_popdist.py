@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Read-set sketches (.gsk, abundance) -> QC, decontamination, distances, groups, ordination, NJ tree, label checks.
+"""NOTE: the built-in `auto_min_abund` below returns 2 for almost every sample; run with --cutoffs (gmg-core's rule).
+
+Read-set sketches (.gsk, abundance) -> QC, decontamination, distances, groups, ordination, NJ tree, label checks.
 
 usage: 02_popdist.py SKETCH_DIR MANIFEST.tsv OUT_DIR [options]
 
@@ -72,6 +74,8 @@ def main():
     ap.add_argument("--exclude", default="", help="comma list of sample ids to drop entirely")
     ap.add_argument("--only-label", default="", help="keep only samples whose (relabelled) organism equals this")
     ap.add_argument("--relabel", default="", help="comma list id=Organism overriding the manifest label (e.g. confirmed swaps)")
+    ap.add_argument("--cutoffs", default="", help="TSV with columns id and rust_min_abund (cutoff_probe output): use gmg-core's "
+                    "auto_min_abund per sample instead of the built-in rule, which in practice returns 2 for almost every sample")
     ap.add_argument("--flag", default="", help="file or comma list of sample ids to decontaminate")
     ap.add_argument("--ref-hashes", default="", help=".npy of target-genus reference hashes (same k/scaled)")
     ap.add_argument("--min-share", type=int, default=3, help="decontam: keep hashes seen in this many unflagged samples")
@@ -86,6 +90,9 @@ def main():
     if args.flag:
         flag = set(open(args.flag).read().split()) if os.path.exists(args.flag) else set(args.flag.split(","))
     meta = {r["id"]: r for r in csv.DictReader(open(args.manifest), delimiter="\t")}
+    cut = {}
+    if args.cutoffs:
+        cut = {r["id"]: int(r["rust_min_abund"]) for r in csv.DictReader(open(args.cutoffs), delimiter="\t")}
     for kv in filter(None, args.relabel.split(",")):
         i, lab = kv.split("=", 1)
         meta[i]["organism"] = lab
@@ -96,7 +103,7 @@ def main():
             continue
         sid = fn[:-4]
         k, scaled, _, h, a = read_gsk(os.path.join(args.sketch_dir, fn))
-        thr = auto_min_abund(a)
+        thr = cut.get(sid, auto_min_abund(a))
         keep = a >= thr
         med = float(np.median(a[keep])) if keep.any() else 0.0
         row = dict(id=sid, organism=meta.get(sid, {}).get("organism", ""), raw_hashes=len(h), min_abund=thr,
