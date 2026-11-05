@@ -9,6 +9,9 @@ use std::collections::BTreeMap;
 use std::fmt::Write as _;
 use std::fs;
 
+/// the deepest merge (1 - ANI) at which the set is said to span more than one species
+const DEEP_SPLIT: f64 = 0.10;
+
 const PALETTE: [&str; 10] = [
     "#1b6ca8", "#d95f02", "#1b9e77", "#7570b3", "#e7298a", "#66a61e", "#a6761d", "#e6ab02",
     "#666666", "#17becf",
@@ -972,6 +975,19 @@ fn build(o: &Options, r: &Results) -> Vec<Block> {
             }
             d.push(Block::H(3, "Clusters".into()));
             d.push(Block::P(say, tone));
+            if g.top_height >= DEEP_SPLIT {
+                d.push(Block::P(
+                    vec![
+                        b("The set spans distant genomes."),
+                        t(format!(
+                            " The deepest merge is at 1 - ANI = {:.3} (ANI {:.1}%), beyond what one species usually shows. The cohort-relative checks (size, unrelated to the cohort, abundance shoulder) assume most samples are one organism, so a small distant group is not flagged by them, and a large mixed set can have its minority species excluded. Check the clusters against the labels, or run one species or genus at a time.",
+                            g.top_height,
+                            100.0 * (1.0 - g.top_height)
+                        )),
+                    ],
+                    Tone::Warn,
+                ));
+            }
         }
         // distance histogram
         let mut vals = Vec::new();
@@ -1076,6 +1092,8 @@ fn build(o: &Options, r: &Results) -> Vec<Block> {
             d.push(Block::H(3, "Principal components".into()));
             d.push(Block::P(vec![t(s)], Tone::Note));
         }
+    } else if o.no_pca && r.dist.is_some() {
+        d.push(Block::P(vec![t("The ordination was switched off (--no-pca); distances and clusters are in the output files.")], Tone::Note));
     } else {
         d.push(Block::P(
             vec![t(

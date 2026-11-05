@@ -91,6 +91,18 @@ enum Cmd {
         /// stop reading a sample once its k-mer coverage (from the reads so far) reaches this; --max-bases stays as a ceiling
         #[arg(long)]
         target_cov: Option<f64>,
+        /// size flag when |robust z| of the estimated size exceeds this
+        #[arg(long, default_value_t = 5.0)]
+        size_z: f64,
+        /// floor of the size spread, as a fraction of the cohort median size
+        #[arg(long, default_value_t = 0.03)]
+        size_floor: f64,
+        /// abundance_shoulder flag when its robust z exceeds this
+        #[arg(long, default_value_t = 5.0)]
+        shoulder_z: f64,
+        /// skip the ordination, DAPC and PC comparison (quick threshold sweeps)
+        #[arg(long)]
+        no_pca: bool,
         /// samples with k-mer coverage below this are flagged low_coverage
         #[arg(long, default_value_t = 4.0)]
         min_cov: f64,
@@ -185,6 +197,10 @@ fn main() -> Result<()> {
             r1_only,
             target_cov,
             min_cov,
+            size_z,
+            size_floor,
+            shoulder_z,
+            no_pca,
             max_samples,
             flagged,
             index,
@@ -218,6 +234,10 @@ fn main() -> Result<()> {
                 r1_only,
                 target_cov,
                 min_cov,
+                size_z,
+                size_floor,
+                shoulder_z,
+                no_pca,
                 max_samples,
                 flagged: match flagged {
                     FlaggedArg::Exclude => FlagMode::Exclude,

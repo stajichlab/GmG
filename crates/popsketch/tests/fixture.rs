@@ -234,6 +234,10 @@ fn audit_finds_exactly_the_planted_problems_and_the_structure_is_recovered() {
     assert!(nwk.contains("g1s4"));
     let html = fs::read_to_string(out.join("report.html")).unwrap();
     assert!(
+        !html.contains("The set spans distant genomes"),
+        "the note appears for a single-species set"
+    );
+    assert!(
         html.contains("1. Audit")
             && html.contains("DAPC on the labels of group")
             && html.contains("What the audit cannot see")
@@ -258,6 +262,13 @@ fn mark_keeps_flagged_samples_in_and_decontaminate_puts_the_mixed_one_back() {
     assert_eq!(*status(&r, "mixed"), Status::Marked);
     assert_eq!(*status(&r, "half"), Status::Marked);
     assert!(r.included.len() > 27);
+    // the unrelated genome stays in, so the set spans distant genomes and the report says so
+    assert_eq!(*status(&r, "foreign"), Status::Marked);
+    let html = fs::read_to_string(t.dir.join("out_mark/report.html")).unwrap();
+    assert!(
+        html.contains("The set spans distant genomes"),
+        "no distant-genomes note"
+    );
     let mut o = opts(&t, "decon");
     o.flagged = FlagMode::Decontaminate;
     let r = run(&o).unwrap();
@@ -478,5 +489,92 @@ fn labels_that_do_not_follow_the_structure_give_no_conflicts_and_no_dapc() {
         "{:?}",
         r.warnings
     );
+    cleanup(&t);
+}
+
+/// A recombining population: every genome is a random mosaic of blocks of three founders (about 1.5% from the root each), with a
+/// little private variation. There are no groups, so the tool must not call a clear cut.
+#[test]
+fn a_recombining_population_is_not_split_into_clusters() {
+    let dir = std::env::temp_dir().join(format!("popsketch_fx_recomb_{}", std::process::id()));
+    let _ = fs::remove_dir_all(&dir);
+    fs::create_dir_all(dir.join("reads")).unwrap();
+    let root = random_genome(GLEN, 3);
+    let founders: Vec<Vec<u8>> = (0..3).map(|f| mutate(&root, 0.015, 900 + f)).collect();
+    let block = 4_000;
+    let mut r = Rng(31337);
+    for s in 0..24u64 {
+        let mut g: Vec<u8> = Vec::with_capacity(GLEN);
+        let mut start = 0;
+        while start < GLEN {
+            let end = (start + block).min(GLEN);
+            g.extend_from_slice(&founders[r.below(3)][start..end]);
+            start = end;
+        }
+        let genome = mutate(&g, 0.0015, 4000 + s);
+        let mut t = String::new();
+        reads(&genome, 0, GLEN, COV, 50_000 + s, &mut t, &format!("m{s}_"));
+        fs::write(dir.join("reads").join(format!("mosaic{s:02}.fastq")), t).unwrap();
+    }
+    let o = Options {
+        inputs: vec![dir.join("reads")],
+        out: dir.join("out"),
+        scaled: 5,
+        max_bases: 0,
+        quiet: true,
+        threads: Some(4),
+        ..Options::default()
+    };
+    let res = run(&o).unwrap();
+    assert_eq!(
+        res.included.len(),
+        24,
+        "nothing should be flagged in a clean recombining set"
+    );
+    let gap = res.gap.as_ref().unwrap();
+    assert!(
+        !matches!(gap.verdict, Verdict::Clear(_)),
+        "a recombining population has no groups, yet: {:?} (jump {:.1} floors, floor {:.5})",
+        gap.verdict,
+        gap.gap_over_floor,
+        res.floor.value
+    );
+    eprintln!(
+        "recombining set: verdict {:?}, jump {:.2} floors, ratio {:.2}, floor {:.5}, top merge {:.5}",
+        gap.verdict, gap.gap_over_floor, gap.ratio, res.floor.value, gap.top_height
+    );
+    let html = fs::read_to_string(dir.join("out/report.html")).unwrap();
+    assert!(html.contains("No single clear cut") || html.contains("one population"));
+    let _ = fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn threshold_options_and_no_pca_take_effect() {
+    let t = build("thr");
+    // a size threshold nothing can reach: the size flags (half, mixed) go away, the other planted problems stay
+    let mut o = opts(&t, "thr");
+    o.size_z = 1e6;
+    o.no_pca = true;
+    let r = run(&o).unwrap();
+    let f = flagged(&r);
+    assert!(!f.contains("half") && !f.contains("mixed"), "{f:?}");
+    assert!(f.contains("lowcov0") && f.contains("foreign"), "{f:?}");
+    // --no-pca: distances and clusters, no ordination, no DAPC, and the report says so
+    assert!(r.dist.is_some() && r.clusters.is_some());
+    assert!(r.ordination.is_none() && r.dapc.is_none());
+    let html = fs::read_to_string(t.dir.join("out_thr/report.html")).unwrap();
+    assert!(html.contains("--no-pca"));
+    assert!(!t.dir.join("out_thr/pca.tsv").exists());
+    // a lower floor multiple makes the clear cut easier to call; an impossible one makes it impossible
+    let mut hard = opts(&t, "thr_hard");
+    hard.min_floors = 1e6;
+    hard.no_pca = true;
+    let r2 = run(&hard).unwrap();
+    assert!(
+        matches!(r2.gap.as_ref().unwrap().verdict, Verdict::NoClearCut),
+        "{:?}",
+        r2.gap.as_ref().unwrap().verdict
+    );
+    assert!(r2.clusters.is_none());
     cleanup(&t);
 }
