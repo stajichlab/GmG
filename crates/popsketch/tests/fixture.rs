@@ -8,81 +8,7 @@ use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-struct Rng(u64);
-impl Rng {
-    fn next(&mut self) -> u64 {
-        self.0 ^= self.0 << 13;
-        self.0 ^= self.0 >> 7;
-        self.0 ^= self.0 << 17;
-        self.0
-    }
-    fn below(&mut self, n: usize) -> usize {
-        (self.next() % n as u64) as usize
-    }
-    fn f(&mut self) -> f64 {
-        (self.next() >> 11) as f64 / (1u64 << 53) as f64
-    }
-}
-
-fn random_genome(len: usize, seed: u64) -> Vec<u8> {
-    let mut r = Rng(seed);
-    (0..len).map(|_| b"ACGT"[r.below(4)]).collect()
-}
-
-/// Substitute a fraction `rate` of the positions with a different base.
-fn mutate(g: &[u8], rate: f64, seed: u64) -> Vec<u8> {
-    let mut r = Rng(seed);
-    g.iter()
-        .map(|&b| {
-            if r.f() < rate {
-                loop {
-                    let c = b"ACGT"[r.below(4)];
-                    if c != b {
-                        break c;
-                    }
-                }
-            } else {
-                b
-            }
-        })
-        .collect()
-}
-
-fn revcomp(s: &[u8]) -> Vec<u8> {
-    s.iter()
-        .rev()
-        .map(|&b| match b {
-            b'A' => b'T',
-            b'C' => b'G',
-            b'G' => b'C',
-            _ => b'A',
-        })
-        .collect()
-}
-
-/// FASTQ text of reads at `cov` x from `g[from..to]`, both strands, with substitution errors.
-fn reads(g: &[u8], from: usize, to: usize, cov: f64, seed: u64, out: &mut String, tag: &str) {
-    let (len, err) = (150usize, 0.003);
-    let mut r = Rng(seed);
-    let n = (cov * (to - from) as f64 / len as f64) as usize;
-    for i in 0..n {
-        let start = from + r.below(to - from - len);
-        let mut s = g[start..start + len].to_vec();
-        for b in s.iter_mut() {
-            if r.f() < err {
-                *b = b"ACGT"[r.below(4)];
-            }
-        }
-        if r.below(2) == 1 {
-            s = revcomp(&s);
-        }
-        out.push_str(&format!(
-            "@{tag}{i}\n{}\n+\n{}\n",
-            String::from_utf8_lossy(&s),
-            "I".repeat(len)
-        ));
-    }
-}
+use popsketch::demo::{generate, mutate, random_genome, reads, Rng};
 
 const GLEN: usize = 120_000;
 const COV: f64 = 12.0;
@@ -98,91 +24,13 @@ struct Truth {
 fn build(name: &str) -> Truth {
     let dir = std::env::temp_dir().join(format!("popsketch_fx_{name}_{}", std::process::id()));
     let _ = fs::remove_dir_all(&dir);
-    fs::create_dir_all(dir.join("reads")).unwrap();
-    let root = random_genome(GLEN, 1);
-    let foreign = random_genome(GLEN, 99);
-    let foreign2 = random_genome(GLEN, 77);
-    let groups: Vec<Vec<u8>> = (0..3).map(|g| mutate(&root, 0.015, 1000 + g)).collect();
-    let mut labels = String::from("id\tgroup\tsource\n");
-    let mut problems = HashSet::new();
-    let mut group_of = Vec::new();
-    let write = |id: &str, text: &str| {
-        fs::write(dir.join("reads").join(format!("{id}.fastq")), text).unwrap()
-    };
-    for (g, gg) in groups.iter().enumerate() {
-        for s in 0..9 {
-            let id = format!("g{g}s{s}");
-            let genome = mutate(gg, 0.0015, 5000 + (g * 100 + s) as u64);
-            let mut t = String::new();
-            reads(
-                &genome,
-                0,
-                GLEN,
-                COV,
-                20_000 + (g * 100 + s) as u64,
-                &mut t,
-                &id,
-            );
-            write(&id, &t);
-            // sample g0s0 is labelled as group 1 (a swap)
-            let lab = if id == "g0s0" { 1 } else { g };
-            labels.push_str(&format!(
-                "{id}\tgroup{lab}\t{}\n",
-                if s % 3 == 0 { "NA" } else { "field" }
-            ));
-            group_of.push((id, g));
-        }
-    }
-    // planted problems
-    for (i, grp) in groups.iter().take(2).enumerate() {
-        let id = format!("lowcov{i}");
-        let mut t = String::new();
-        reads(
-            &mutate(grp, 0.0015, 7000 + i as u64),
-            0,
-            GLEN,
-            0.6,
-            30_000 + i as u64,
-            &mut t,
-            &id,
-        );
-        write(&id, &t);
-        problems.insert(id.clone());
-        labels.push_str(&format!("{id}\tgroup{i}\tNA\n"));
-    }
-    let mut t = String::new();
-    reads(&foreign, 0, GLEN, COV, 31_000, &mut t, "foreign");
-    write("foreign", &t);
-    problems.insert("foreign".to_string());
-    labels.push_str("foreign\t\tNA\n");
-    let mut t = String::new();
-    let g = mutate(&groups[2], 0.0015, 7100);
-    reads(&g, 0, GLEN / 2, COV, 32_000, &mut t, "half"); // only half the genome
-    write("half", &t);
-    problems.insert("half".to_string());
-    labels.push_str("half\tgroup2\tNA\n");
-    let mut t = String::new();
-    reads(
-        &mutate(&groups[1], 0.0015, 7200),
-        0,
-        GLEN,
-        COV,
-        33_000,
-        &mut t,
-        "mixh",
-    );
-    reads(&foreign2, 0, GLEN, COV * 0.8, 34_000, &mut t, "mixc"); // a second genome at 0.8x the host coverage
-    write("mixed", &t);
-    problems.insert("mixed".to_string());
-    labels.push_str("mixed\tgroup1\tNA\n");
-    let lp = dir.join("labels.tsv");
-    fs::write(&lp, labels).unwrap();
+    let d = generate(&dir, GLEN, COV).unwrap();
     Truth {
         dir,
-        labels: lp,
-        problems,
-        swapped: "g0s0".into(),
-        group_of,
+        labels: d.labels,
+        problems: d.problems.into_iter().collect(),
+        swapped: d.swapped,
+        group_of: d.group_of,
     }
 }
 

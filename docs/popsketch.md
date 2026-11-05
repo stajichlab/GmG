@@ -5,7 +5,7 @@
 1. **an audit**: which samples look wrong for the set (not the same organism, low coverage, a second genome mixed in, half the content missing, a label that the data contradict), each with the reason and the numbers;
 2. **coarse structure** of the samples that pass: a hash-presence PCA, clusters, a first-pass tree and a report.
 
-It compares k-mer sketches, not alignments. Sketches see large differences and miss small ones: use the tree to see which samples group together, not to say how strains are related. The report says where the data stop being informative (see "Resolution"). Design and evidence: [popstruct-plan.md](popstruct-plan.md).
+It compares k-mer sketches, not alignments. Sketches see large differences and miss small ones: use the tree to see which samples group together, not to say how strains are related. The report says where the data stop being informative (see "Resolution"). A worked example on a simulated set (`popsketch demo`) is in [popsketch-tutorial.md](popsketch-tutorial.md). Design and evidence: [popstruct-plan.md](popstruct-plan.md).
 
 ```
 popsketch run reads/ -o out/ --labels labels.tsv

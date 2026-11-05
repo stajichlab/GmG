@@ -70,7 +70,7 @@ In the browser: [docs/web.md](docs/web.md). Example genomes to try: [examples/](
 
 ## A set of read files: `popsketch`
 
-`popsketch run reads/ -o out/ --labels labels.tsv` sketches every sample (R1/R2 merged), audits the set against itself (samples that are another organism, low coverage, a second genome mixed in, half the content missing, a label the data contradict), and for the samples that pass writes a PCA, clusters, a first-pass tree and an HTML report. It shows coarse structure, not a phylogeny, and it states where the data stop being informative. See [docs/popsketch.md](docs/popsketch.md); the design and its evidence are in [docs/popstruct-plan.md](docs/popstruct-plan.md).
+`popsketch run reads/ -o out/ --labels labels.tsv` sketches every sample (R1/R2 merged), audits the set against itself (samples that are another organism, low coverage, a second genome mixed in, half the content missing, a label the data contradict), and for the samples that pass writes a PCA, clusters, a first-pass tree and an HTML report. It shows coarse structure, not a phylogeny, and it states where the data stop being informative. See [docs/popsketch.md](docs/popsketch.md) and the [tutorial](docs/popsketch-tutorial.md) (`popsketch demo` writes a small example); the design and its evidence are in [docs/popstruct-plan.md](docs/popstruct-plan.md).
 
 ## Develop (no Homebrew or rustup needed)
 

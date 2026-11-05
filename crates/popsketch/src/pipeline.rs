@@ -315,11 +315,15 @@ pub fn run(o: &Options) -> Result<Results> {
     say(
         o,
         &format!(
-            "sketching {} samples (k={}, scaled={}, up to {} bases each)",
+            "sketching {} samples (k={}, scaled={}, {})",
             inputs.len(),
             o.ksize,
             o.scaled,
-            o.max_bases
+            if o.max_bases == 0 {
+                "all reads".to_string()
+            } else {
+                format!("up to {} bases each", o.max_bases)
+            }
         ),
     );
     let sketched: Vec<Result<SampleSketch>> = inputs

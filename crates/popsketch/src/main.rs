@@ -39,6 +39,21 @@ enum OrdArg {
 
 #[derive(Subcommand)]
 enum Cmd {
+    /// Write a small simulated dataset with planted problems and a swapped label, to try `popsketch run` on
+    #[command(
+        after_long_help = "EXAMPLES\n  popsketch demo -o demo/\n  popsketch run demo/reads -o demo/out --labels demo/labels.tsv --scaled 5 --max-bases 0"
+    )]
+    Demo {
+        /// folder to write (reads/ and labels.tsv are created in it)
+        #[arg(short, long, default_value = "popsketch_demo")]
+        out: PathBuf,
+        /// bases per simulated genome
+        #[arg(long, default_value_t = 120_000)]
+        genome_len: usize,
+        /// k-mer coverage of the clean samples
+        #[arg(long, default_value_t = 12.0)]
+        coverage: f64,
+    },
     /// Sketch the samples, audit them, and write distances, PCA, clusters, a tree and a report
     #[command(
         after_long_help = "EXAMPLES\n  popsketch run reads/ -o out/ --labels labels.tsv\n  popsketch run --sample-sheet samples.tsv -o out/ --flagged mark --index bfd.gmgi"
@@ -130,6 +145,24 @@ enum Cmd {
 fn main() -> Result<()> {
     let cli = Cli::parse();
     match cli.cmd {
+        Cmd::Demo {
+            out,
+            genome_len,
+            coverage,
+        } => {
+            let d = popsketch::demo::generate(&out, genome_len, coverage)?;
+            eprintln!(
+                "wrote {} samples to {} and the labels to {}\nplanted: low coverage lowcov0 lowcov1; another organism foreign; half the content half; a second genome mixed; the label of {} says group1 but its reads are group0\ntry: popsketch run {} -o {} --labels {} --scaled 5 --max-bases 0",
+                d.group_of.len() + d.problems.len(),
+                d.reads_dir.display(),
+                d.labels.display(),
+                d.swapped,
+                d.reads_dir.display(),
+                out.join("out").display(),
+                d.labels.display()
+            );
+            Ok(())
+        }
         Cmd::Run {
             inputs,
             sample_sheet,
