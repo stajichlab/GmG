@@ -1510,6 +1510,7 @@ dependencies = [
 name = "popsketch-wasm"
 version = "0.3.2"
 dependencies = [
+ "gmg-core",
  "popsketch",
  "serde_json",
  "wasm-bindgen",

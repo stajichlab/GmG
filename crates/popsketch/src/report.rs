@@ -337,6 +337,11 @@ pub fn html(o: &Options, r: &Results) -> String {
     render_html(&build(o, r))
 }
 
+/// The Markdown report and its figures as (file name under `figures/`, SVG) pairs (no files written).
+pub fn markdown(o: &Options, r: &Results) -> (String, Vec<(String, String)>) {
+    md_text(&build(o, r), false)
+}
+
 fn render_html(blocks: &[Block]) -> String {
     let mut h = format!("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>popsketch report</title><style>{CSS}</style></head><body>");
     for bl in blocks {
