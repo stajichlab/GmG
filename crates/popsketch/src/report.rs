@@ -839,6 +839,76 @@ fn build(o: &Options, r: &Results) -> Vec<Block> {
         }
         d.push(Block::Fig("pca", figs));
         d.push(Block::Legend(items));
+        // DAPC on the primary label column
+        if let Some(dp) = &r.dapc {
+            let axes = dp.dapc.eigenvalues.len();
+            let pts: Vec<Pt> = (0..n)
+                .map(|i| Pt {
+                    x: dp.dapc.scores[i][0],
+                    y: if axes >= 2 {
+                        dp.dapc.scores[i][1]
+                    } else {
+                        ((i * 37) % 11) as f64 / 11.0
+                    },
+                    color: color_of(i),
+                    shape: shape(i),
+                    title: format!(
+                        "{} (label {}, assigned {})",
+                        names[i],
+                        dp.labels[i].as_deref().unwrap_or("none"),
+                        dp.dapc.assigned[i]
+                            .map_or("n/a".to_string(), |g| dp.dapc.groups[g].clone())
+                    ),
+                })
+                .collect();
+            d.push(Block::H(3, format!("DAPC on the labels of {}", dp.column)));
+            let elsewhere: Vec<usize> = (0..n)
+                .filter(|&i| {
+                    dp.dapc.assigned[i].is_some()
+                        && dp.labels[i].as_deref()
+                            != dp.dapc.assigned[i].map(|g| dp.dapc.groups[g].as_str())
+                })
+                .collect();
+            d.push(Block::P(
+                vec![t(format!(
+                    "Discriminant analysis of the first {} PCs with the groups of this label column: {} axes{}. {:.1}% of the labelled samples are nearest to their own group's centroid; {} are nearest to another group{}",
+                    dp.dapc.n_pcs,
+                    axes,
+                    if axes == 1 { " (the second axis of the plot is jitter)" } else { "" },
+                    dp.dapc.accuracy * 100.0,
+                    elsewhere.len(),
+                    if elsewhere.is_empty() { "." } else { " (a second hint, next to the ANI-based conflict check, that the label may be wrong):" }
+                ))],
+                Tone::Note,
+            ));
+            d.push(Block::Fig(
+                "dapc",
+                vec![scatter(
+                    &pts,
+                    &format!("LD1 (eigenvalue {:.1})", dp.dapc.eigenvalues[0]),
+                    if axes >= 2 { "LD2" } else { "jitter" },
+                    false,
+                )],
+            ));
+            if !elsewhere.is_empty() {
+                let rows = elsewhere
+                    .iter()
+                    .take(40)
+                    .map(|&i| {
+                        vec![
+                            vec![t(names[i].clone())],
+                            vec![t(dp.labels[i].clone().unwrap_or_default())],
+                            vec![b(dp.dapc.assigned[i]
+                                .map_or(String::new(), |g| dp.dapc.groups[g].clone()))],
+                        ]
+                    })
+                    .collect();
+                d.push(Block::Table(
+                    vec!["sample", "label", "nearest group in discriminant space"],
+                    rows,
+                ));
+            }
+        }
         // clusters
         if let Some(g) = &r.gap {
             let (say, tone): (Vec<In>, Tone) = match &g.verdict {

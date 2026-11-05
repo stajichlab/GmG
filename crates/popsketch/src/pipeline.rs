@@ -62,12 +62,16 @@ pub struct Options {
     pub scaled: u32,
     pub max_bases: u64,
     pub r1_only: bool,
+    /// stop reading a sample once its k-mer coverage reaches this (`--max-bases` stays as a ceiling)
+    pub target_cov: Option<f64>,
     pub min_cov: f64,
     pub max_samples: usize,
     pub flagged: FlagMode,
     pub index: Option<PathBuf>,
     pub ordination: OrdKind,
     pub components: usize,
+    /// PCs used by DAPC on the primary label column (0: no DAPC); needs a label file
+    pub dapc_pcs: usize,
     /// force this many clusters
     pub k: Option<usize>,
     /// cut the clustering at this distance (1 - ANI)
@@ -104,12 +108,14 @@ impl Default for Options {
             scaled: 200,
             max_bases: 1_000_000_000,
             r1_only: false,
+            target_cov: None,
             min_cov: 4.0,
             max_samples: 1500,
             flagged: FlagMode::Exclude,
             index: None,
             ordination: OrdKind::HashPca,
             components: 5,
+            dapc_pcs: 10,
             k: None,
             cut: None,
             min_floors: 3.0,
@@ -177,6 +183,14 @@ impl SampleRow {
     }
 }
 
+/// DAPC on the primary label column.
+pub struct DapcOut {
+    pub column: String,
+    pub dapc: crate::dapc::Dapc,
+    /// label of each included sample (None: unlabelled)
+    pub labels: Vec<Option<String>>,
+}
+
 pub struct Results {
     pub rows: Vec<SampleRow>,
     /// indices into `rows` of the samples in the analysis, in matrix order
@@ -194,6 +208,7 @@ pub struct Results {
     pub label_reports: Vec<ColumnReport>,
     pub tree_comparison: Option<crate::compare::TreeComparison>,
     pub pcs_comparison: Option<crate::compare::PcsComparison>,
+    pub dapc: Option<DapcOut>,
     pub warnings: Vec<String>,
     pub advice: Option<Advice>,
 }
@@ -300,6 +315,8 @@ pub fn run(o: &Options) -> Result<Results> {
         scaled: o.scaled,
         max_bases: o.max_bases,
         r1_only: o.r1_only,
+        target_cov: o.target_cov,
+        ..SketchParams::default()
     };
     let read_ids: Vec<String> = inputs
         .iter()
@@ -564,6 +581,7 @@ pub fn run(o: &Options) -> Result<Results> {
         label_reports: Vec::new(),
         tree_comparison: None,
         pcs_comparison: None,
+        dapc: None,
         warnings,
         advice: None,
     };
@@ -634,10 +652,15 @@ pub fn run(o: &Options) -> Result<Results> {
             None
         };
         let clusters = k_used.map(|k| cut_k(&merges, n, k));
-        // ordination
+        // ordination: DAPC needs more PCs than are plotted
+        let ncomp = if o.labels.is_some() && o.dapc_pcs > 0 {
+            o.components.max(o.dapc_pcs)
+        } else {
+            o.components
+        };
         res.ordination = match o.ordination {
-            OrdKind::HashPca => hash_pca(&sets, o.components),
-            OrdKind::Pcoa => pcoa(&d1, n, o.components),
+            OrdKind::HashPca => hash_pca(&sets, ncomp),
+            OrdKind::Pcoa => pcoa(&d1, n, ncomp),
         };
         // tree
         if o.tree {
@@ -700,6 +723,23 @@ pub fn run(o: &Options) -> Result<Results> {
                 }
                 res.label_reports
                     .push(analyze_column(name, &labs, &ids, &dist, &sets, margin));
+            }
+            // DAPC on the primary label column
+            if let (Some(ord), true, Some(rep)) =
+                (&res.ordination, o.dapc_pcs > 0, res.label_reports.first())
+            {
+                let labs = column_labels(&table, &ids, 0);
+                let names: Vec<String> = rep.groups.iter().map(|g| g.0.clone()).collect();
+                let group: Vec<Option<usize>> = labs
+                    .iter()
+                    .map(|l| l.as_ref().and_then(|l| names.iter().position(|x| x == l)))
+                    .collect();
+                let p = o.dapc_pcs.min(ord.eigenvalues.len());
+                let pcs: Vec<Vec<f64>> = ord.coords.iter().map(|r| r[..p].to_vec()).collect();
+                match crate::dapc::dapc(&pcs, &group, &names) {
+                    Some(d) => res.dapc = Some(DapcOut { column: rep.name.clone(), dapc: d, labels: labs }),
+                    None => res.warnings.push(format!("DAPC on label column {} was skipped: it needs at least 2 label groups with 2 samples each and more samples than PCs", rep.name)),
+                }
             }
             res.label_table = Some(table);
         }
@@ -867,6 +907,34 @@ fn write_outputs(o: &Options, r: &Results) -> Result<()> {
         let _ = writeln!(s, "{}\t{cl}", r.rows[row].id);
     }
     fs::write(o.out.join("clusters.tsv"), s)?;
+    if let Some(dp) = &r.dapc {
+        let axes = dp.dapc.eigenvalues.len();
+        let mut s = String::from("id\tlabel\tassigned\tmatches_label");
+        for a in 0..axes {
+            let _ = write!(s, "\tLD{}", a + 1);
+        }
+        s.push('\n');
+        for (i, &row) in r.included.iter().enumerate() {
+            let label = dp.labels[i].clone().unwrap_or_default();
+            let (asg, ok) = match dp.dapc.assigned[i] {
+                Some(g) => (
+                    dp.dapc.groups[g].clone(),
+                    if dp.labels[i].as_deref() == Some(dp.dapc.groups[g].as_str()) {
+                        "1"
+                    } else {
+                        "0"
+                    },
+                ),
+                None => (String::new(), ""),
+            };
+            let _ = write!(s, "{}\t{label}\t{asg}\t{ok}", r.rows[row].id);
+            for a in 0..axes {
+                let _ = write!(s, "\t{:.4}", dp.dapc.scores[i][a]);
+            }
+            s.push('\n');
+        }
+        fs::write(o.out.join("dapc.tsv"), s)?;
+    }
     if let Some(nw) = &r.newick {
         fs::write(o.out.join("tree.nwk"), format!("{nw}\n"))?;
     }
@@ -939,6 +1007,10 @@ pub fn summary_json(o: &Options, r: &Results) -> Value {
         "ordination": r.ordination.as_ref().map(|x| json!({"method": x.method, "variance_fraction": x.var_frac, "features": x.n_features})),
         "tree": {"written": r.newick.is_some(), "branches_collapsed": r.collapsed},
         "labels": labels,
+        "dapc": r.dapc.as_ref().map(|dp| json!({"column": dp.column, "n_pcs": dp.dapc.n_pcs, "axes": dp.dapc.eigenvalues.len(), "eigenvalues": dp.dapc.eigenvalues,
+            "groups": dp.dapc.groups, "accuracy": dp.dapc.accuracy,
+            "assigned_elsewhere": (0..dp.labels.len()).filter(|&i| dp.dapc.assigned[i].is_some() && dp.labels[i].as_deref() != dp.dapc.assigned[i].map(|g| dp.dapc.groups[g].as_str()))
+                .map(|i| json!({"id": r.rows[r.included[i]].id, "label": dp.labels[i], "assigned": dp.dapc.assigned[i].map(|g| dp.dapc.groups[g].clone())})).collect::<Vec<_>>()})),
         "compare": json!({
             "tree": r.tree_comparison.as_ref().map(|c| json!({"tree_tips": c.tree_tips, "shared": c.shared, "spearman_all_pairs": c.spearman_all,
                 "spearman_closest_half": c.spearman_closest_half,

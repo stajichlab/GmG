@@ -2,6 +2,7 @@
 //! optional pair of half-sketches (alternate reads) for the split-half noise floor, and a small on-disk cache.
 
 use anyhow::{bail, Context, Result};
+use gmg_core::coverage::profile;
 use gmg_core::{FracSketch, SketchFile, DEFAULT_SEED};
 use std::fs::{self, File};
 use std::io::{BufReader, BufWriter};
@@ -15,13 +16,36 @@ pub struct SketchParams {
     pub max_bases: u64,
     /// read only the first file of each sample (R1 or the first lane)
     pub r1_only: bool,
+    /// reads: stop once the k-mer coverage estimated from the reads so far reaches this (checked every `chunk_reads` reads);
+    /// `max_bases` still applies as a ceiling
+    pub target_cov: Option<f64>,
+    /// reads between coverage checks when `target_cov` is set
+    pub chunk_reads: usize,
+}
+
+impl Default for SketchParams {
+    fn default() -> Self {
+        SketchParams {
+            ksize: 21,
+            scaled: 200,
+            max_bases: 1_000_000_000,
+            r1_only: false,
+            target_cov: None,
+            chunk_reads: 200_000,
+        }
+    }
 }
 
 impl SketchParams {
     fn tag(&self) -> String {
         format!(
-            "k={};scaled={};max_bases={};r1_only={}",
-            self.ksize, self.scaled, self.max_bases, self.r1_only
+            "k={};scaled={};max_bases={};r1_only={};target_cov={}",
+            self.ksize,
+            self.scaled,
+            self.max_bases,
+            self.r1_only,
+            self.target_cov
+                .map_or("none".to_string(), |c| format!("{c}"))
         )
     }
 }
@@ -86,6 +110,9 @@ pub fn sketch_sample(
     } else {
         u64::MAX
     };
+    if reads && p.target_cov.is_some() {
+        return sketch_reads_chunked(id, kind, used, p, per_file, want_halves);
+    }
     let k = p.ksize as usize;
     let mut main = FracSketch::new(k, p.scaled, DEFAULT_SEED);
     let halves_wanted = reads && want_halves;
@@ -101,7 +128,7 @@ pub fn sketch_sample(
             let seq = rec.seq();
             main.add_sequence(&seq);
             if halves_wanted {
-                if idx % 2 == 0 {
+                if idx & 1 == 0 {
                     ha.add_sequence(&seq);
                 } else {
                     hb.add_sequence(&seq);
@@ -130,6 +157,162 @@ pub fn sketch_sample(
         spectrum: finish(main, reads),
         counts,
         halves: halves_wanted.then(|| (finish(ha, true), finish(hb, true))),
+    })
+}
+
+/// Merge a chunk's sorted (hash, count) lists into the running sorted lists.
+fn merge_counts(h: &mut Vec<u64>, a: &mut Vec<u32>, nh: Vec<u64>, na: Vec<u32>) {
+    let cap = h.len() + nh.len();
+    let (mut oh, mut oa) = (Vec::with_capacity(cap), Vec::with_capacity(cap));
+    let (mut i, mut j) = (0, 0);
+    while i < h.len() && j < nh.len() {
+        match h[i].cmp(&nh[j]) {
+            std::cmp::Ordering::Less => {
+                oh.push(h[i]);
+                oa.push(a[i]);
+                i += 1;
+            }
+            std::cmp::Ordering::Greater => {
+                oh.push(nh[j]);
+                oa.push(na[j]);
+                j += 1;
+            }
+            std::cmp::Ordering::Equal => {
+                oh.push(h[i]);
+                oa.push(a[i] + na[j]);
+                i += 1;
+                j += 1;
+            }
+        }
+    }
+    oh.extend_from_slice(&h[i..]);
+    oa.extend_from_slice(&a[i..]);
+    oh.extend_from_slice(&nh[j..]);
+    oa.extend_from_slice(&na[j..]);
+    *h = oh;
+    *a = oa;
+}
+
+/// Reads sketched in chunks, with the files of the sample read in lockstep (R1 and R2 alike), stopping once the k-mer coverage
+/// estimated from the reads so far reaches `target_cov`, or at the per-file base ceiling.
+fn sketch_reads_chunked(
+    id: &str,
+    kind: &str,
+    used: &[PathBuf],
+    p: &SketchParams,
+    per_file: u64,
+    want_halves: bool,
+) -> Result<SampleSketch> {
+    let target = p.target_cov.unwrap_or(f64::INFINITY);
+    let k = p.ksize as usize;
+    let mut readers = Vec::new();
+    for f in used {
+        readers.push(Some(
+            needletail::parse_fastx_file(f)
+                .with_context(|| format!("{id}: opening {}", f.display()))?,
+        ));
+    }
+    let new_sketches = || {
+        (
+            FracSketch::new(k, p.scaled, DEFAULT_SEED),
+            FracSketch::new(k, p.scaled, DEFAULT_SEED),
+            FracSketch::new(k, p.scaled, DEFAULT_SEED),
+        )
+    };
+    let (mut cm, mut ca, mut cb) = new_sketches();
+    let (mut mh, mut ma) = (Vec::new(), Vec::new());
+    let (mut ah, mut aa) = (Vec::new(), Vec::new());
+    let (mut bh, mut ba) = (Vec::new(), Vec::new());
+    let mut counts = Counts::default();
+    let mut file_bases = vec![0u64; used.len()];
+    let mut idx = vec![0u64; used.len()];
+    let mut in_chunk = 0usize;
+    let mut flush =
+        |cm: FracSketch, ca: FracSketch, cb: FracSketch, mh: &mut Vec<u64>, ma: &mut Vec<u32>| {
+            let (h, a) = cm.finish_with_abundance();
+            merge_counts(mh, ma, h, a);
+            if want_halves {
+                let (h, a) = ca.finish_with_abundance();
+                merge_counts(&mut ah, &mut aa, h, a);
+                let (h, a) = cb.finish_with_abundance();
+                merge_counts(&mut bh, &mut ba, h, a);
+            }
+        };
+    loop {
+        let mut progressed = false;
+        for fi in 0..readers.len() {
+            let Some(rd) = readers[fi].as_mut() else {
+                continue;
+            };
+            if file_bases[fi] >= per_file {
+                readers[fi] = None;
+                continue;
+            }
+            let Some(rec) = rd.next() else {
+                readers[fi] = None;
+                continue;
+            };
+            let rec = rec.with_context(|| format!("{id}: reading {}", used[fi].display()))?;
+            let seq = rec.seq();
+            cm.add_sequence(&seq);
+            if want_halves {
+                if idx[fi] & 1 == 0 {
+                    ca.add_sequence(&seq);
+                } else {
+                    cb.add_sequence(&seq);
+                }
+            }
+            idx[fi] += 1;
+            counts.reads += 1;
+            counts.bases += seq.len() as u64;
+            counts.non_acgt += seq
+                .iter()
+                .filter(|b| !matches!(b.to_ascii_uppercase(), b'A' | b'C' | b'G' | b'T'))
+                .count() as u64;
+            file_bases[fi] += seq.len() as u64;
+            in_chunk += 1;
+            progressed = true;
+        }
+        if in_chunk >= p.chunk_reads {
+            let fresh = new_sketches();
+            let done = (
+                std::mem::replace(&mut cm, fresh.0),
+                std::mem::replace(&mut ca, fresh.1),
+                std::mem::replace(&mut cb, fresh.2),
+            );
+            flush(done.0, done.1, done.2, &mut mh, &mut ma);
+            in_chunk = 0;
+            if profile(&ma).is_some_and(|c| c.kmer >= target) {
+                break;
+            }
+        }
+        if !progressed {
+            break;
+        }
+    }
+    flush(cm, ca, cb, &mut mh, &mut ma);
+    if counts.reads == 0 {
+        bail!("{id}: no sequence records");
+    }
+    Ok(SampleSketch {
+        id: id.to_string(),
+        kind: kind.to_string(),
+        files: used.to_vec(),
+        spectrum: Spectrum {
+            hashes: mh,
+            abunds: ma,
+        },
+        counts,
+        halves: want_halves.then_some((
+            Spectrum {
+                hashes: ah,
+                abunds: aa,
+            },
+            Spectrum {
+                hashes: bh,
+                abunds: ba,
+            },
+        )),
     })
 }
 
@@ -256,6 +439,7 @@ mod tests {
             scaled: 10,
             max_bases: 100_000,
             r1_only: false,
+            ..SketchParams::default()
         };
         let s = sketch_sample("a", "reads", &[r1.clone(), r2.clone()], &p, true).unwrap();
         // 100,000 bases split over two files = 50,000 bases = 500 reads each
@@ -284,6 +468,7 @@ mod tests {
             scaled: 5,
             max_bases: 0,
             r1_only: false,
+            ..SketchParams::default()
         };
         let s = sketch_sample("s", "reads", &[f], &p, true).unwrap();
         let cd = dir.join("sketches");
@@ -318,11 +503,104 @@ mod tests {
             scaled: 1,
             max_bases: 5,
             r1_only: true,
+            ..SketchParams::default()
         };
         let s = sketch_sample("g", "assembly", &[f], &p, true).unwrap();
         assert!(s.halves.is_none());
         assert!(s.spectrum.abunds.iter().all(|&a| a == 1));
         assert_eq!(s.counts.bases, seq.len() as u64); // the limit does not apply to assemblies
+        fs::remove_dir_all(&dir).ok();
+    }
+
+    /// FASTQ of `n` reads of 150 bases from random positions of a random genome of `len` bases (both files get different reads)
+    fn write_reads(path: &Path, genome: &[u8], n: usize, seed: u64) {
+        let mut x = seed;
+        let mut next = move || {
+            x ^= x << 13;
+            x ^= x >> 7;
+            x ^= x << 17;
+            x
+        };
+        let mut s = String::new();
+        for i in 0..n {
+            let start = (next() % (genome.len() - 150) as u64) as usize;
+            s.push_str(&format!(
+                "@r{i}\n{}\n+\n{}\n",
+                String::from_utf8_lossy(&genome[start..start + 150]),
+                "I".repeat(150)
+            ));
+        }
+        fs::write(path, s).unwrap();
+    }
+
+    fn genome(len: usize, seed: u64) -> Vec<u8> {
+        let mut x = seed;
+        (0..len)
+            .map(|_| {
+                x ^= x << 13;
+                x ^= x >> 7;
+                x ^= x << 17;
+                b"ACGT"[(x % 4) as usize]
+            })
+            .collect()
+    }
+
+    #[test]
+    fn target_coverage_stops_reading_early_and_is_otherwise_the_same_sketch() {
+        let dir = std::env::temp_dir().join(format!("popsketch_target_{}", std::process::id()));
+        fs::create_dir_all(&dir).unwrap();
+        let g = genome(60_000, 5);
+        let (r1, r2) = (dir.join("t_R1.fastq"), dir.join("t_R2.fastq"));
+        write_reads(&r1, &g, 6_000, 11); // two files of 6,000 reads: 30x in total
+        write_reads(&r2, &g, 6_000, 12);
+        let files = [r1, r2];
+        let plain = SketchParams {
+            scaled: 1,
+            max_bases: 0,
+            ..SketchParams::default()
+        };
+        let all = sketch_sample("t", "reads", &files, &plain, false).unwrap();
+        assert_eq!(all.counts.reads, 12_000);
+        // a target that is never reached: the chunked path gives exactly the plain sketch
+        let never = SketchParams {
+            target_cov: Some(1e9),
+            chunk_reads: 500,
+            ..plain.clone()
+        };
+        let chunked = sketch_sample("t", "reads", &files, &never, true).unwrap();
+        assert_eq!(chunked.counts, all.counts);
+        assert_eq!(chunked.spectrum.hashes, all.spectrum.hashes);
+        assert_eq!(chunked.spectrum.abunds, all.spectrum.abunds);
+        let (ha, hb) = chunked.halves.as_ref().unwrap();
+        assert!(ha.hashes.len() > 1000 && hb.hashes.len() > 1000);
+        // a reachable target stops early, in whole rounds over the files, at about that coverage
+        let early = SketchParams {
+            target_cov: Some(8.0),
+            chunk_reads: 500,
+            ..plain.clone()
+        };
+        let s = sketch_sample("t", "reads", &files, &early, false).unwrap();
+        assert!(
+            s.counts.reads < 8_000 && s.counts.reads > 2_000,
+            "reads {}",
+            s.counts.reads
+        );
+        assert_eq!(s.counts.reads % 2, 0, "R1 and R2 are read in lockstep");
+        let cov = gmg_core::coverage::profile(&s.spectrum.abunds)
+            .unwrap()
+            .kmer;
+        assert!((8.0..=12.0).contains(&cov), "coverage {cov}");
+        // the base ceiling still applies
+        let capped = SketchParams {
+            max_bases: 150 * 2_000,
+            ..early.clone()
+        };
+        let c = sketch_sample("t", "reads", &files, &capped, false).unwrap();
+        assert!(c.counts.reads <= 2_000, "reads {}", c.counts.reads);
+        // the cache knows the setting
+        let cd = dir.join("sk");
+        cache_init(&cd, &early).unwrap();
+        assert!(cache_ready(&cd, &early) && !cache_ready(&cd, &plain));
         fs::remove_dir_all(&dir).ok();
     }
 }

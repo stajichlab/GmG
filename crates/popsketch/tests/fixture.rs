@@ -181,12 +181,39 @@ fn audit_finds_exactly_the_planted_problems_and_the_structure_is_recovered() {
     assert_eq!(rep.conflicts[0].id, t.swapped);
     assert_eq!(rep.conflicts[0].label, "group1");
     assert_eq!(rep.conflicts[0].other_label, "group0");
+    // DAPC on the primary label column: two axes for three groups, and only the swapped sample lands in another group
+    let dp = r.dapc.as_ref().expect("dapc");
+    assert_eq!(dp.column, "group");
+    assert_eq!(dp.dapc.eigenvalues.len(), 2);
+    let pos = r
+        .included
+        .iter()
+        .position(|&x| r.rows[x].id == t.swapped)
+        .unwrap();
+    assert_eq!(
+        dp.dapc.assigned[pos].map(|g| dp.dapc.groups[g].as_str()),
+        Some("group0"),
+        "{:?}",
+        dp.dapc.groups
+    );
+    let elsewhere: Vec<usize> = (0..r.included.len())
+        .filter(|&i| {
+            dp.dapc.assigned[i].map(|g| dp.dapc.groups[g].as_str()) != dp.labels[i].as_deref()
+        })
+        .collect();
+    assert_eq!(elsewhere, vec![pos]);
+    assert!(
+        (dp.dapc.accuracy - 26.0 / 27.0).abs() < 1e-9,
+        "{}",
+        dp.dapc.accuracy
+    );
     // the second label column has blanks: its groups are judged only from labelled samples
     assert_eq!(r.label_reports.len(), 2);
     assert!(r.label_reports[1].n_labelled < r.included.len());
     // 7. outputs
     let out = t.dir.join("out_main");
     for f in [
+        "dapc.tsv",
         "qc.tsv",
         "ani.tsv",
         "mash.tsv",
@@ -208,6 +235,7 @@ fn audit_finds_exactly_the_planted_problems_and_the_structure_is_recovered() {
     let html = fs::read_to_string(out.join("report.html")).unwrap();
     assert!(
         html.contains("1. Audit")
+            && html.contains("DAPC on the labels of group")
             && html.contains("What the audit cannot see")
             && html.contains("group1")
             && html.contains("g0s0")

@@ -4,6 +4,7 @@
 pub mod advisor;
 pub mod cluster;
 pub mod compare;
+pub mod dapc;
 pub mod demo;
 pub mod dist;
 pub mod floor;

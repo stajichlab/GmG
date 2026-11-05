@@ -87,6 +87,9 @@ enum Cmd {
         /// read only the first file of each sample (fast mode)
         #[arg(long)]
         r1_only: bool,
+        /// stop reading a sample once its k-mer coverage (from the reads so far) reaches this; --max-bases stays as a ceiling
+        #[arg(long)]
+        target_cov: Option<f64>,
         /// samples with k-mer coverage below this are flagged low_coverage
         #[arg(long, default_value_t = 4.0)]
         min_cov: f64,
@@ -101,6 +104,9 @@ enum Cmd {
         index: Option<PathBuf>,
         #[arg(long, value_enum, default_value = "hash-pca")]
         ordination: OrdArg,
+        /// PCs used by DAPC on the primary label column (0: no DAPC)
+        #[arg(long, default_value_t = 10)]
+        dapc_pcs: usize,
         /// number of components to compute
         #[arg(long, default_value_t = 5)]
         components: usize,
@@ -176,12 +182,14 @@ fn main() -> Result<()> {
             scaled,
             max_bases,
             r1_only,
+            target_cov,
             min_cov,
             max_samples,
             flagged,
             index,
             ordination,
             components,
+            dapc_pcs,
             k,
             cut,
             min_floors,
@@ -207,6 +215,7 @@ fn main() -> Result<()> {
                 scaled,
                 max_bases,
                 r1_only,
+                target_cov,
                 min_cov,
                 max_samples,
                 flagged: match flagged {
@@ -220,6 +229,7 @@ fn main() -> Result<()> {
                     OrdArg::Pcoa => OrdKind::Pcoa,
                 },
                 components,
+                dapc_pcs,
                 k,
                 cut,
                 min_floors,
