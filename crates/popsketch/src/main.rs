@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand, ValueEnum};
-use popsketch::pipeline::{run, FlagMode, Options, OrdKind};
+use popsketch::pipeline::{run, FlagMode, Options, OrdKind, ReportFormat};
 use std::path::PathBuf;
 
 #[derive(Parser)]
@@ -25,13 +25,38 @@ enum FlaggedArg {
 }
 
 #[derive(Clone, Copy, ValueEnum)]
+enum ReportArg {
+    Html,
+    Md,
+    Pdf,
+    All,
+}
+
+#[derive(Clone, Copy, ValueEnum)]
 enum OrdArg {
     HashPca,
     Pcoa,
 }
 
+// the subcommands are parsed once at start-up; the size difference between them does not matter
+#[allow(clippy::large_enum_variant)]
 #[derive(Subcommand)]
 enum Cmd {
+    /// Write a small simulated dataset with planted problems and a swapped label, to try `popsketch run` on
+    #[command(
+        after_long_help = "EXAMPLES\n  popsketch demo -o demo/\n  popsketch run demo/reads -o demo/out --labels demo/labels.tsv --scaled 5 --max-bases 0"
+    )]
+    Demo {
+        /// folder to write (reads/ and labels.tsv are created in it)
+        #[arg(short, long, default_value = "popsketch_demo")]
+        out: PathBuf,
+        /// bases per simulated genome
+        #[arg(long, default_value_t = 120_000)]
+        genome_len: usize,
+        /// k-mer coverage of the clean samples
+        #[arg(long, default_value_t = 12.0)]
+        coverage: f64,
+    },
     /// Sketch the samples, audit them, and write distances, PCA, clusters, a tree and a report
     #[command(
         after_long_help = "EXAMPLES\n  popsketch run reads/ -o out/ --labels labels.tsv\n  popsketch run --sample-sheet samples.tsv -o out/ --flagged mark --index bfd.gmgi"
@@ -63,6 +88,9 @@ enum Cmd {
         /// read only the first file of each sample (fast mode)
         #[arg(long)]
         r1_only: bool,
+        /// stop reading a sample once its k-mer coverage (from the reads so far) reaches this; --max-bases stays as a ceiling
+        #[arg(long)]
+        target_cov: Option<f64>,
         /// samples with k-mer coverage below this are flagged low_coverage
         #[arg(long, default_value_t = 4.0)]
         min_cov: f64,
@@ -77,6 +105,9 @@ enum Cmd {
         index: Option<PathBuf>,
         #[arg(long, value_enum, default_value = "hash-pca")]
         ordination: OrdArg,
+        /// PCs used by DAPC on the primary label column (0: no DAPC)
+        #[arg(long, default_value_t = 10)]
+        dapc_pcs: usize,
         /// number of components to compute
         #[arg(long, default_value_t = 5)]
         components: usize,
@@ -101,9 +132,18 @@ enum Cmd {
         /// samples that get split-half sketches to measure the noise floor (0: fixed fallback)
         #[arg(long, default_value_t = 20)]
         floor_samples: usize,
+        /// Newick tree of the same samples (for example from SNPs) to compare with: distance correlation, and whether each cluster is a clade
+        #[arg(long)]
+        compare_tree: Option<PathBuf>,
+        /// PC scores of the same samples (for example from SNPs; id column then PC columns) to compare with the sketch PCA
+        #[arg(long)]
+        compare_pcs: Option<PathBuf>,
         /// reuse sketches from an earlier run in the same output folder (only sketching is resumed)
         #[arg(long)]
         resume: bool,
+        /// report.html (default), report.md with figures/*.svg, report.pdf, or all three
+        #[arg(long, value_enum, default_value = "html")]
+        report_format: ReportArg,
         #[arg(short, long)]
         quiet: bool,
         #[arg(long)]
@@ -114,6 +154,24 @@ enum Cmd {
 fn main() -> Result<()> {
     let cli = Cli::parse();
     match cli.cmd {
+        Cmd::Demo {
+            out,
+            genome_len,
+            coverage,
+        } => {
+            let d = popsketch::demo::generate(&out, genome_len, coverage)?;
+            eprintln!(
+                "wrote {} samples to {} and the labels to {}\nplanted: low coverage lowcov0 lowcov1; another organism foreign; half the content half; a second genome mixed; the label of {} says group1 but its reads are group0\ntry: popsketch run {} -o {} --labels {} --scaled 5 --max-bases 0",
+                d.group_of.len() + d.problems.len(),
+                d.reads_dir.display(),
+                d.labels.display(),
+                d.swapped,
+                d.reads_dir.display(),
+                out.join("out").display(),
+                d.labels.display()
+            );
+            Ok(())
+        }
         Cmd::Run {
             inputs,
             sample_sheet,
@@ -125,12 +183,14 @@ fn main() -> Result<()> {
             scaled,
             max_bases,
             r1_only,
+            target_cov,
             min_cov,
             max_samples,
             flagged,
             index,
             ordination,
             components,
+            dapc_pcs,
             k,
             cut,
             min_floors,
@@ -138,7 +198,10 @@ fn main() -> Result<()> {
             root,
             tree_floor,
             floor_samples,
+            compare_tree,
+            compare_pcs,
             resume,
+            report_format,
             quiet,
             threads,
         } => {
@@ -153,6 +216,7 @@ fn main() -> Result<()> {
                 scaled,
                 max_bases,
                 r1_only,
+                target_cov,
                 min_cov,
                 max_samples,
                 flagged: match flagged {
@@ -166,6 +230,7 @@ fn main() -> Result<()> {
                     OrdArg::Pcoa => OrdKind::Pcoa,
                 },
                 components,
+                dapc_pcs,
                 k,
                 cut,
                 min_floors,
@@ -173,7 +238,15 @@ fn main() -> Result<()> {
                 root,
                 tree_floor,
                 floor_samples,
+                compare_tree,
+                compare_pcs,
                 resume,
+                report_format: match report_format {
+                    ReportArg::Html => ReportFormat::Html,
+                    ReportArg::Md => ReportFormat::Md,
+                    ReportArg::Pdf => ReportFormat::Pdf,
+                    ReportArg::All => ReportFormat::All,
+                },
                 quiet,
                 threads,
             };

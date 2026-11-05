@@ -270,24 +270,28 @@ pub fn gram_matrix(sets: &[Vec<u64>]) -> Option<(Vec<f64>, usize)> {
         .iter()
         .map(|l| l.iter().map(|&c| mu[c as usize]).sum())
         .collect();
+    // the number of selected hashes two samples share is the popcount of the AND of their bitsets over the selected columns
+    let words = m.div_ceil(64);
+    let bits: Vec<Vec<u64>> = lists
+        .par_iter()
+        .map(|l| {
+            let mut b = vec![0u64; words];
+            for &c in l {
+                b[c as usize / 64] |= 1 << (c as usize % 64);
+            }
+            b
+        })
+        .collect();
     let rows: Vec<Vec<f64>> = (0..n)
         .into_par_iter()
         .map(|i| {
             (i..n)
                 .map(|j| {
-                    let (a, b) = (&lists[i], &lists[j]);
-                    let (mut x, mut y, mut c) = (0, 0, 0u32);
-                    while x < a.len() && y < b.len() {
-                        match a[x].cmp(&b[y]) {
-                            std::cmp::Ordering::Less => x += 1,
-                            std::cmp::Ordering::Greater => y += 1,
-                            std::cmp::Ordering::Equal => {
-                                c += 1;
-                                x += 1;
-                                y += 1;
-                            }
-                        }
-                    }
+                    let c: u32 = bits[i]
+                        .iter()
+                        .zip(&bits[j])
+                        .map(|(x, y)| (x & y).count_ones())
+                        .sum();
                     c as f64 - s_i[i] - s_i[j] + t
                 })
                 .collect()

@@ -3,86 +3,12 @@
 //! generator is deterministic (fixed seeds) and needs no external data or tool.
 
 use popsketch::cluster::Verdict;
-use popsketch::pipeline::{run, FlagMode, Options, Results, Status};
+use popsketch::pipeline::{run, FlagMode, Options, ReportFormat, Results, Status};
 use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-struct Rng(u64);
-impl Rng {
-    fn next(&mut self) -> u64 {
-        self.0 ^= self.0 << 13;
-        self.0 ^= self.0 >> 7;
-        self.0 ^= self.0 << 17;
-        self.0
-    }
-    fn below(&mut self, n: usize) -> usize {
-        (self.next() % n as u64) as usize
-    }
-    fn f(&mut self) -> f64 {
-        (self.next() >> 11) as f64 / (1u64 << 53) as f64
-    }
-}
-
-fn random_genome(len: usize, seed: u64) -> Vec<u8> {
-    let mut r = Rng(seed);
-    (0..len).map(|_| b"ACGT"[r.below(4)]).collect()
-}
-
-/// Substitute a fraction `rate` of the positions with a different base.
-fn mutate(g: &[u8], rate: f64, seed: u64) -> Vec<u8> {
-    let mut r = Rng(seed);
-    g.iter()
-        .map(|&b| {
-            if r.f() < rate {
-                loop {
-                    let c = b"ACGT"[r.below(4)];
-                    if c != b {
-                        break c;
-                    }
-                }
-            } else {
-                b
-            }
-        })
-        .collect()
-}
-
-fn revcomp(s: &[u8]) -> Vec<u8> {
-    s.iter()
-        .rev()
-        .map(|&b| match b {
-            b'A' => b'T',
-            b'C' => b'G',
-            b'G' => b'C',
-            _ => b'A',
-        })
-        .collect()
-}
-
-/// FASTQ text of reads at `cov` x from `g[from..to]`, both strands, with substitution errors.
-fn reads(g: &[u8], from: usize, to: usize, cov: f64, seed: u64, out: &mut String, tag: &str) {
-    let (len, err) = (150usize, 0.003);
-    let mut r = Rng(seed);
-    let n = (cov * (to - from) as f64 / len as f64) as usize;
-    for i in 0..n {
-        let start = from + r.below(to - from - len);
-        let mut s = g[start..start + len].to_vec();
-        for b in s.iter_mut() {
-            if r.f() < err {
-                *b = b"ACGT"[r.below(4)];
-            }
-        }
-        if r.below(2) == 1 {
-            s = revcomp(&s);
-        }
-        out.push_str(&format!(
-            "@{tag}{i}\n{}\n+\n{}\n",
-            String::from_utf8_lossy(&s),
-            "I".repeat(len)
-        ));
-    }
-}
+use popsketch::demo::{generate, mutate, random_genome, reads, Rng};
 
 const GLEN: usize = 120_000;
 const COV: f64 = 12.0;
@@ -98,91 +24,13 @@ struct Truth {
 fn build(name: &str) -> Truth {
     let dir = std::env::temp_dir().join(format!("popsketch_fx_{name}_{}", std::process::id()));
     let _ = fs::remove_dir_all(&dir);
-    fs::create_dir_all(dir.join("reads")).unwrap();
-    let root = random_genome(GLEN, 1);
-    let foreign = random_genome(GLEN, 99);
-    let foreign2 = random_genome(GLEN, 77);
-    let groups: Vec<Vec<u8>> = (0..3).map(|g| mutate(&root, 0.015, 1000 + g)).collect();
-    let mut labels = String::from("id\tgroup\tsource\n");
-    let mut problems = HashSet::new();
-    let mut group_of = Vec::new();
-    let write = |id: &str, text: &str| {
-        fs::write(dir.join("reads").join(format!("{id}.fastq")), text).unwrap()
-    };
-    for (g, gg) in groups.iter().enumerate() {
-        for s in 0..9 {
-            let id = format!("g{g}s{s}");
-            let genome = mutate(gg, 0.0015, 5000 + (g * 100 + s) as u64);
-            let mut t = String::new();
-            reads(
-                &genome,
-                0,
-                GLEN,
-                COV,
-                20_000 + (g * 100 + s) as u64,
-                &mut t,
-                &id,
-            );
-            write(&id, &t);
-            // sample g0s0 is labelled as group 1 (a swap)
-            let lab = if id == "g0s0" { 1 } else { g };
-            labels.push_str(&format!(
-                "{id}\tgroup{lab}\t{}\n",
-                if s % 3 == 0 { "NA" } else { "field" }
-            ));
-            group_of.push((id, g));
-        }
-    }
-    // planted problems
-    for (i, grp) in groups.iter().take(2).enumerate() {
-        let id = format!("lowcov{i}");
-        let mut t = String::new();
-        reads(
-            &mutate(grp, 0.0015, 7000 + i as u64),
-            0,
-            GLEN,
-            0.6,
-            30_000 + i as u64,
-            &mut t,
-            &id,
-        );
-        write(&id, &t);
-        problems.insert(id.clone());
-        labels.push_str(&format!("{id}\tgroup{i}\tNA\n"));
-    }
-    let mut t = String::new();
-    reads(&foreign, 0, GLEN, COV, 31_000, &mut t, "foreign");
-    write("foreign", &t);
-    problems.insert("foreign".to_string());
-    labels.push_str("foreign\t\tNA\n");
-    let mut t = String::new();
-    let g = mutate(&groups[2], 0.0015, 7100);
-    reads(&g, 0, GLEN / 2, COV, 32_000, &mut t, "half"); // only half the genome
-    write("half", &t);
-    problems.insert("half".to_string());
-    labels.push_str("half\tgroup2\tNA\n");
-    let mut t = String::new();
-    reads(
-        &mutate(&groups[1], 0.0015, 7200),
-        0,
-        GLEN,
-        COV,
-        33_000,
-        &mut t,
-        "mixh",
-    );
-    reads(&foreign2, 0, GLEN, COV * 0.8, 34_000, &mut t, "mixc"); // a second genome at 0.8x the host coverage
-    write("mixed", &t);
-    problems.insert("mixed".to_string());
-    labels.push_str("mixed\tgroup1\tNA\n");
-    let lp = dir.join("labels.tsv");
-    fs::write(&lp, labels).unwrap();
+    let d = generate(&dir, GLEN, COV).unwrap();
     Truth {
         dir,
-        labels: lp,
-        problems,
-        swapped: "g0s0".into(),
-        group_of,
+        labels: d.labels,
+        problems: d.problems.into_iter().collect(),
+        swapped: d.swapped,
+        group_of: d.group_of,
     }
 }
 
@@ -333,12 +181,39 @@ fn audit_finds_exactly_the_planted_problems_and_the_structure_is_recovered() {
     assert_eq!(rep.conflicts[0].id, t.swapped);
     assert_eq!(rep.conflicts[0].label, "group1");
     assert_eq!(rep.conflicts[0].other_label, "group0");
+    // DAPC on the primary label column: two axes for three groups, and only the swapped sample lands in another group
+    let dp = r.dapc.as_ref().expect("dapc");
+    assert_eq!(dp.column, "group");
+    assert_eq!(dp.dapc.eigenvalues.len(), 2);
+    let pos = r
+        .included
+        .iter()
+        .position(|&x| r.rows[x].id == t.swapped)
+        .unwrap();
+    assert_eq!(
+        dp.dapc.assigned[pos].map(|g| dp.dapc.groups[g].as_str()),
+        Some("group0"),
+        "{:?}",
+        dp.dapc.groups
+    );
+    let elsewhere: Vec<usize> = (0..r.included.len())
+        .filter(|&i| {
+            dp.dapc.assigned[i].map(|g| dp.dapc.groups[g].as_str()) != dp.labels[i].as_deref()
+        })
+        .collect();
+    assert_eq!(elsewhere, vec![pos]);
+    assert!(
+        (dp.dapc.accuracy - 26.0 / 27.0).abs() < 1e-9,
+        "{}",
+        dp.dapc.accuracy
+    );
     // the second label column has blanks: its groups are judged only from labelled samples
     assert_eq!(r.label_reports.len(), 2);
     assert!(r.label_reports[1].n_labelled < r.included.len());
     // 7. outputs
     let out = t.dir.join("out_main");
     for f in [
+        "dapc.tsv",
         "qc.tsv",
         "ani.tsv",
         "mash.tsv",
@@ -360,6 +235,7 @@ fn audit_finds_exactly_the_planted_problems_and_the_structure_is_recovered() {
     let html = fs::read_to_string(out.join("report.html")).unwrap();
     assert!(
         html.contains("1. Audit")
+            && html.contains("DAPC on the labels of group")
             && html.contains("What the audit cannot see")
             && html.contains("group1")
             && html.contains("g0s0")
@@ -453,4 +329,154 @@ fn a_clonal_set_is_one_population_and_too_many_samples_are_refused() {
     let err = run(&too_many).err().unwrap().to_string();
     assert!(err.contains("--max-samples"), "{err}");
     let _ = fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn comparison_with_an_external_tree_and_pcs_reports_clades_and_matching_planes() {
+    let t = build("compare");
+    // an external "SNP" tree with the three planted groups as clades, and PC scores that place the groups apart
+    let clean: Vec<&(String, usize)> = t.group_of.iter().collect();
+    let mut nwk = String::from("(");
+    for g in 0..3 {
+        if g > 0 {
+            nwk.push(',');
+        }
+        nwk.push('(');
+        let members: Vec<String> = clean
+            .iter()
+            .filter(|x| x.1 == g)
+            .map(|x| format!("{}:0.001", x.0))
+            .collect();
+        nwk.push_str(&members.join(","));
+        nwk.push_str("):0.01");
+    }
+    nwk.push_str(");");
+    fs::write(t.dir.join("snp.nwk"), nwk).unwrap();
+    let centre = [(-10.0, 0.0), (5.0, 8.0), (5.0, -8.0)];
+    let mut pcs = String::from("id\tPC1\tPC2\tPC3\n");
+    let mut r = Rng(4242);
+    for (id, g) in &t.group_of {
+        pcs.push_str(&format!(
+            "{id}\t{:.4}\t{:.4}\t{:.4}\n",
+            centre[*g].0 + r.f() - 0.5,
+            centre[*g].1 + r.f() - 0.5,
+            r.f() - 0.5
+        ));
+    }
+    fs::write(t.dir.join("snp_pcs.tsv"), pcs).unwrap();
+    let mut o = opts(&t, "compare");
+    o.compare_tree = Some(t.dir.join("snp.nwk"));
+    o.compare_pcs = Some(t.dir.join("snp_pcs.tsv"));
+    o.report_format = ReportFormat::All;
+    let r = run(&o).unwrap();
+    assert!(r.warnings.is_empty(), "{:?}", r.warnings);
+    let tc = r.tree_comparison.as_ref().expect("tree comparison");
+    assert_eq!(tc.shared, 27);
+    assert_eq!(tc.clusters.len(), 3);
+    assert!(
+        tc.clusters.iter().all(|c| c.exact_clade),
+        "{:?}",
+        tc.clusters
+    );
+    assert!(tc.spearman_all > 0.7, "{}", tc.spearman_all);
+    let pc = r.pcs_comparison.as_ref().expect("pcs comparison");
+    assert_eq!(pc.shared, 27);
+    let top2 = &pc.cosines.iter().find(|c| c.0 == 2).unwrap().1;
+    assert!(top2.iter().all(|&c| c > 0.9), "{top2:?}");
+    assert!(pc.procrustes_top3.is_some());
+    let json: serde_json::Value = serde_json::from_str(
+        &fs::read_to_string(t.dir.join("out_compare/popsketch.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(
+        json["compare"]["tree"]["clusters"]
+            .as_array()
+            .unwrap()
+            .len(),
+        3
+    );
+    let html = fs::read_to_string(t.dir.join("out_compare/report.html")).unwrap();
+    assert!(
+        html.contains("Comparison with the supplied SNP results")
+            && html.contains("is a clade of the tree")
+    );
+    // the Markdown report: the same sections, figures as standalone SVG files
+    let md = fs::read_to_string(t.dir.join("out_compare/report.md")).unwrap();
+    for needle in [
+        "# popsketch: sample audit and coarse structure",
+        "## 1. Audit",
+        "## 2. Coarse structure (secondary)",
+        "## 4. Comparison with the supplied SNP results",
+        "| flag | samples | which |",
+        "![size_vs_coverage](figures/size_vs_coverage.svg)",
+        "![pca](figures/pca_1.svg)",
+        "![tree](figures/tree.svg)",
+        "What the audit cannot see.",
+    ] {
+        assert!(md.contains(needle), "report.md lacks {needle:?}");
+    }
+    for f in [
+        "size_vs_coverage.svg",
+        "pca_1.svg",
+        "pca_2.svg",
+        "distances.svg",
+        "tree.svg",
+    ] {
+        let svg = fs::read_to_string(t.dir.join("out_compare/figures").join(f))
+            .unwrap_or_else(|_| panic!("{f} missing"));
+        assert!(
+            svg.starts_with("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\""),
+            "{f}: {}",
+            &svg[..60.min(svg.len())]
+        );
+        assert!(svg.contains("<style>") && svg.ends_with("</svg>"), "{f}");
+    }
+    // the PDF report (written by `All`): a real PDF with pages
+    let pdf = fs::read(t.dir.join("out_compare/report.pdf")).unwrap();
+    assert!(
+        pdf.starts_with(b"%PDF-") && pdf.len() > 5_000,
+        "report.pdf: {} bytes",
+        pdf.len()
+    );
+    // the page objects are inside compressed streams: check the trailer instead (the pages were checked with pdfinfo and pdftotext)
+    assert!(
+        pdf.windows(5).rev().take(64).any(|w| w == b"%%EOF"),
+        "no %%EOF trailer"
+    );
+    assert!(String::from_utf8_lossy(&pdf).contains("startxref"));
+    // the default writes the HTML only
+    assert!(!t.dir.join("out_main").join("report.md").exists());
+    // a missing file is a warning, not a failure
+    let mut o2 = opts(&t, "compare2");
+    o2.compare_tree = Some(t.dir.join("nope.nwk"));
+    let r2 = run(&o2).unwrap();
+    assert!(r2.warnings.iter().any(|w| w.contains("--compare-tree")));
+    cleanup(&t);
+}
+
+#[test]
+fn labels_that_do_not_follow_the_structure_give_no_conflicts_and_no_dapc() {
+    let t = build("noise");
+    // alternate two labels across the samples: neither is a coherent cluster of the sketches
+    let mut labels = String::from("id\tnoise\n");
+    for (i, (id, _)) in t.group_of.iter().enumerate() {
+        labels.push_str(&format!("{id}\t{}\n", if i % 2 == 0 { "X" } else { "Y" }));
+    }
+    let lp = t.dir.join("noise_labels.tsv");
+    fs::write(&lp, labels).unwrap();
+    let mut o = opts(&t, "noise");
+    o.labels = Some(lp);
+    let r = run(&o).unwrap();
+    let rep = &r.label_reports[0];
+    assert!(rep.conflicts.is_empty(), "{:?}", rep.conflicts);
+    assert_eq!(rep.unchecked, vec!["X".to_string(), "Y".to_string()]);
+    assert!(r.dapc.is_none());
+    assert!(
+        r.warnings
+            .iter()
+            .any(|w| w.contains("DAPC") && w.contains("coherent")),
+        "{:?}",
+        r.warnings
+    );
+    cleanup(&t);
 }

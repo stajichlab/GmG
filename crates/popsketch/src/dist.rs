@@ -75,7 +75,24 @@ pub fn pair_stats(na: usize, nb: usize, inter: usize, k: u32) -> (f64, f64) {
     (ani, mash)
 }
 
-pub fn compute(sets: &[Vec<u64>], k: u32) -> DistMat {
+fn assemble(n: usize, rows: Vec<Vec<(f64, f64)>>) -> DistMat {
+    let mut ani = vec![0.0; n * n];
+    let mut mash = vec![0.0; n * n];
+    for (i, row) in rows.iter().enumerate() {
+        ani[i * n + i] = 1.0;
+        for (off, &(a, m)) in row.iter().enumerate() {
+            let j = i + 1 + off;
+            ani[i * n + j] = a;
+            ani[j * n + i] = a;
+            mash[i * n + j] = m;
+            mash[j * n + i] = m;
+        }
+    }
+    DistMat { n, ani, mash }
+}
+
+/// All pairs by merging the two sorted hash lists: the cost of a pair is the size of the sets.
+pub fn compute_merge(sets: &[Vec<u64>], k: u32) -> DistMat {
     let n = sets.len();
     let rows: Vec<Vec<(f64, f64)>> = (0..n)
         .into_par_iter()
@@ -88,19 +105,82 @@ pub fn compute(sets: &[Vec<u64>], k: u32) -> DistMat {
                 .collect()
         })
         .collect();
-    let mut ani = vec![0.0; n * n];
-    let mut mash = vec![0.0; n * n];
-    for i in 0..n {
-        ani[i * n + i] = 1.0;
-        for (off, &(a, m)) in rows[i].iter().enumerate() {
-            let j = i + 1 + off;
-            ani[i * n + j] = a;
-            ani[j * n + i] = a;
-            mash[i * n + j] = m;
-            mash[j * n + i] = m;
+    assemble(n, rows)
+}
+
+/// Memory the bitset method may use for the presence matrix.
+const BITSET_MAX_BYTES: usize = 4 << 30;
+/// Below this many samples the merge is fast enough and simpler.
+const BITSET_MIN_SAMPLES: usize = 64;
+
+/// All pairs, exactly, from bitsets. In population data most hashes are shared by everyone, so merging costs the whole set size
+/// for every pair. Here the hashes present in all samples are counted once (`core`), hashes seen in only one sample cannot be
+/// shared, and the rest (the variable hashes) become one bit per sample: the intersection of a pair is `core` plus the popcount
+/// of the AND of their bits. Returns None when the presence matrix would be larger than `BITSET_MAX_BYTES`.
+pub fn compute_bitset(sets: &[Vec<u64>], k: u32) -> Option<DistMat> {
+    let n = sets.len();
+    if n == 0 {
+        return Some(DistMat {
+            n: 0,
+            ani: vec![],
+            mash: vec![],
+        });
+    }
+    let mut freq: std::collections::HashMap<u64, u32> = std::collections::HashMap::new();
+    for s in sets {
+        for &h in s {
+            *freq.entry(h).or_insert(0) += 1;
         }
     }
-    DistMat { n, ani, mash }
+    let core = freq.values().filter(|&&f| f as usize == n).count();
+    let mut cols: Vec<u64> = freq
+        .iter()
+        .filter(|(_, &f)| f >= 2 && (f as usize) < n)
+        .map(|(&h, _)| h)
+        .collect();
+    cols.sort_unstable();
+    let words = cols.len().div_ceil(64);
+    if n.saturating_mul(words).saturating_mul(8) > BITSET_MAX_BYTES {
+        return None;
+    }
+    let bits: Vec<Vec<u64>> = sets
+        .par_iter()
+        .map(|s| {
+            let mut b = vec![0u64; words];
+            for h in s {
+                if let Ok(c) = cols.binary_search(h) {
+                    b[c / 64] |= 1 << (c % 64);
+                }
+            }
+            b
+        })
+        .collect();
+    let rows: Vec<Vec<(f64, f64)>> = (0..n)
+        .into_par_iter()
+        .map(|i| {
+            ((i + 1)..n)
+                .map(|j| {
+                    let shared: u32 = bits[i]
+                        .iter()
+                        .zip(&bits[j])
+                        .map(|(x, y)| (x & y).count_ones())
+                        .sum();
+                    pair_stats(sets[i].len(), sets[j].len(), core + shared as usize, k)
+                })
+                .collect()
+        })
+        .collect();
+    Some(assemble(n, rows))
+}
+
+/// Exact pairwise containment ANI and mash distance of all samples (bitsets for hundreds of samples, merging for few).
+pub fn compute(sets: &[Vec<u64>], k: u32) -> DistMat {
+    if sets.len() >= BITSET_MIN_SAMPLES {
+        if let Some(d) = compute_bitset(sets, k) {
+            return d;
+        }
+    }
+    compute_merge(sets, k)
 }
 
 #[cfg(test)]
@@ -151,5 +231,79 @@ mod tests {
         let s = m.subset(&[2, 0]);
         assert_eq!(s.n, 2);
         assert_eq!(s.ani(0, 1), m.ani(2, 0));
+    }
+
+    /// `n` samples: a core present in all, a pool of variable hashes each sample carries with probability `p`, and private hashes
+    fn population(
+        n: usize,
+        core: u64,
+        pool: u64,
+        p: f64,
+        private: u64,
+        seed: u64,
+    ) -> Vec<Vec<u64>> {
+        let mut x = seed;
+        let mut next = move || {
+            x ^= x << 13;
+            x ^= x >> 7;
+            x ^= x << 17;
+            (x >> 11) as f64 / (1u64 << 53) as f64
+        };
+        (0..n as u64)
+            .map(|i| {
+                let mut h: Vec<u64> = (0..core).collect();
+                h.extend((0..pool).filter(|_| next() < p).map(|v| 1_000_000 + v));
+                h.extend((0..private).map(|v| 100_000_000 + i * 10_000 + v));
+                h
+            })
+            .collect()
+    }
+
+    #[test]
+    fn the_bitset_method_gives_exactly_the_merge_result() {
+        for (n, p) in [(2usize, 0.5), (3, 0.5), (70, 0.4), (90, 0.9)] {
+            let sets = population(n, 400, 600, p, 30, 7 + n as u64);
+            let (a, b) = (compute_merge(&sets, 21), compute_bitset(&sets, 21).unwrap());
+            assert_eq!(a.n, b.n);
+            for (x, y) in a.ani.iter().zip(&b.ani).chain(a.mash.iter().zip(&b.mash)) {
+                assert!((x - y).abs() < 1e-12, "n={n}: {x} vs {y}");
+            }
+        }
+    }
+
+    #[test]
+    fn compute_uses_bitsets_for_many_samples_and_merging_for_few_and_both_agree() {
+        let few = population(10, 200, 300, 0.5, 10, 3);
+        assert_eq!(compute(&few, 21).ani, compute_merge(&few, 21).ani);
+        let many = population(80, 200, 300, 0.5, 10, 4);
+        assert_eq!(
+            compute(&many, 21).ani,
+            compute_bitset(&many, 21).unwrap().ani
+        );
+        assert!(compute_bitset(&[], 21).unwrap().n == 0);
+    }
+
+    /// cargo test -p popsketch --release -- --ignored --nocapture: the two methods on a population-sized problem
+    #[test]
+    #[ignore]
+    fn timing_on_a_population_sized_set() {
+        for n in [300usize, 1500] {
+            let sets = population(n, 120_000, 200_000, 0.3, 500, 11);
+            let t = std::time::Instant::now();
+            let b = compute_bitset(&sets, 21).unwrap();
+            let tb = t.elapsed();
+            let merge = if n == 300 {
+                let t = std::time::Instant::now();
+                let m = compute_merge(&sets, 21);
+                assert_eq!(m.ani, b.ani);
+                Some(t.elapsed())
+            } else {
+                None
+            };
+            eprintln!(
+                "n={n}: bitset {tb:.1?}{}",
+                merge.map_or(String::new(), |m| format!(", merge {m:.1?}"))
+            );
+        }
     }
 }
