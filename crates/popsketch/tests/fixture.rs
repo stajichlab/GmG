@@ -234,6 +234,10 @@ fn audit_finds_exactly_the_planted_problems_and_the_structure_is_recovered() {
     assert!(nwk.contains("g1s4"));
     let html = fs::read_to_string(out.join("report.html")).unwrap();
     assert!(
+        !html.contains("The set spans distant genomes"),
+        "the note appears for a single-species set"
+    );
+    assert!(
         html.contains("1. Audit")
             && html.contains("DAPC on the labels of group")
             && html.contains("What the audit cannot see")
@@ -258,6 +262,13 @@ fn mark_keeps_flagged_samples_in_and_decontaminate_puts_the_mixed_one_back() {
     assert_eq!(*status(&r, "mixed"), Status::Marked);
     assert_eq!(*status(&r, "half"), Status::Marked);
     assert!(r.included.len() > 27);
+    // the unrelated genome stays in, so the set spans distant genomes and the report says so
+    assert_eq!(*status(&r, "foreign"), Status::Marked);
+    let html = fs::read_to_string(t.dir.join("out_mark/report.html")).unwrap();
+    assert!(
+        html.contains("The set spans distant genomes"),
+        "no distant-genomes note"
+    );
     let mut o = opts(&t, "decon");
     o.flagged = FlagMode::Decontaminate;
     let r = run(&o).unwrap();
