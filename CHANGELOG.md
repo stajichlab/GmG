@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Read sets: the abundance cutoff (`auto_min_abund`) and k-mer coverage no longer take a spurious valley from an error-dominated histogram. A valley is accepted only if the hashes at or above it are at least half of the hashes seen twice or more. Before, a read set with essentially no coverage peak (sub-1x, or a low-coverage plateau with no rise after it) could get a cutoff of 15 to 29 and a "coverage" of 23 to 420x, which left 0.1 to 3 Mb of hashes. On the 559 Coccidioides and 334 *B. dendrobatidis* read sets used to check this, exactly four samples change (to cutoff 2 and a coverage of 0.7 to 1.3x) and none of the others do. Calls on read sets with a real peak are unchanged.
+
 ## v0.3.2 (2026-11-04)
 
 Calls and schema 9 are unchanged from v0.3.1; the change is which files are read as sequence. The Python wheels (PyPI `guess-my-genome`) carry it.
