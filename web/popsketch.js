@@ -3,6 +3,7 @@ const $ = (id) => document.getElementById(id);
 let files = [];
 let labelsText = null;
 let treeText = null;
+let indexFile = null;
 let pcsText = null;
 let worker = null;
 
@@ -44,6 +45,11 @@ $("pick-labels").addEventListener("change", async (e) => {
 $("pick-tree").addEventListener("change", async (e) => { const f = e.target.files[0]; treeText = f ? await f.text() : null; });
 $("pick-pcs").addEventListener("change", async (e) => { const f = e.target.files[0]; pcsText = f ? await f.text() : null; });
 
+$("pick-index").addEventListener("change", (e) => {
+  indexFile = e.target.files[0] || null;
+  $("index-name").textContent = indexFile ? indexFile.name : "";
+});
+
 function download(name, text, type) {
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([text], { type }));
@@ -67,14 +73,18 @@ function show(r) {
     row.append(b);
   };
   add("report.html", r.html, "text/html");
+  // Markdown with the figures embedded, so it is one file
+  let md = r.markdown.md;
+  for (const [file, svg] of r.markdown.figures) md = md.split(`](figures/${file})`).join(`](data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))})`);
+  add("report.md", md, "text/markdown");
   add("popsketch.json", JSON.stringify(r.summary, null, 1), "application/json");
-  add("qc.tsv", ["id\tstatus\tflags", ...r.qc.map((q) => `${q.id}\t${q.status}\t${q.flags.map((f) => f.code).join(",")}`)].join("\n") + "\n");
+  add("qc.tsv", ["id\tstatus\tflags\torganism_call\tsecond_taxon\tsecond_fraction", ...r.qc.map((q) => `${q.id}\t${q.status}\t${q.flags.map((f) => f.code).join(";")}\t${q.organism_call ?? ""}\t${q.second_taxon ?? ""}\t${q.second_fraction == null ? "" : q.second_fraction.toFixed(3)}`)].join("\n") + "\n");
   if (r.clusters) add("clusters.tsv", ["id\tcluster", ...r.clusters.map(([id, k]) => `${id}\t${k}`)].join("\n") + "\n");
   if (r.pca) add("pca.tsv", ["id\t" + r.pca[0].pcs.map((_, i) => `PC${i + 1}`).join("\t"), ...r.pca.map((p) => `${p.id}\t${p.pcs.join("\t")}`)].join("\n") + "\n");
   if (r.newick) add("tree.nwk", r.newick + "\n");
 }
 
-$("run").addEventListener("click", () => {
+$("run").addEventListener("click", async () => {
   const samples = refresh();
   if (worker) worker.terminate();
   worker = new Worker("popsketch-worker.js", { type: "module" });
@@ -96,8 +106,9 @@ $("run").addEventListener("click", () => {
       $("run").disabled = false;
     }
   };
+  const index = indexFile ? new Uint8Array(await indexFile.arrayBuffer()) : null;
   worker.postMessage({
-    type: "run", samples, labels: labelsText, compareTree: treeText, comparePcs: pcsText,
+    type: "run", samples, labels: labelsText, compareTree: treeText, comparePcs: pcsText, index,
     opts: { maxReads: Number($("max-reads").value), scaled: Number($("scaled").value), flagged: $("flagged").value },
   });
 });

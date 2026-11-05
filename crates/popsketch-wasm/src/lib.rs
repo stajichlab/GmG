@@ -10,6 +10,7 @@
 //! ```
 //! Reading is the caller's job: the page slices each (decompressed) FASTQ and hands over the bytes.
 
+use gmg_core::RefIndex;
 use popsketch::floor::pick_for_halves;
 use popsketch::pipeline::{analyze, summary_json, Analysis, FlagMode, Options, SampleRow, Status};
 use popsketch::sketch_io::{sketch_bytes, SampleSketch, SketchParams};
@@ -23,6 +24,7 @@ pub struct Session {
     sketches: Vec<SampleSketch>,
     errors: Vec<SampleRow>,
     warnings: Vec<String>,
+    index: Option<RefIndex>,
 }
 
 #[wasm_bindgen]
@@ -40,7 +42,15 @@ impl Session {
             sketches: Vec::new(),
             errors: Vec::new(),
             warnings: Vec::new(),
+            index: None,
         }
+    }
+
+    /// Load a reference index (a `.gmgi` file) so `analyze` also screens each sample against it: the organism and
+    /// mixture calls of the command line's `--index`. The index must use the same k and a scale at least as coarse.
+    pub fn set_index(&mut self, bytes: Vec<u8>) -> Result<(), JsError> {
+        self.index = Some(RefIndex::read_owned(bytes).map_err(|e| JsError::new(&e.to_string()))?);
+        Ok(())
     }
 
     /// The ids (JSON array in, JSON array out) that should be sketched with split halves, the same pseudo-random subset the CLI picks.
@@ -102,6 +112,9 @@ impl Session {
         if labels.is_some() {
             o.labels = Some(PathBuf::from("labels"));
         }
+        if self.index.is_some() {
+            o.index = Some(PathBuf::from("index"));
+        }
         // the report only needs to know that a comparison was asked for
         if compare_tree.is_some() {
             o.compare_tree = Some(PathBuf::from("compare_tree"));
@@ -115,7 +128,7 @@ impl Session {
                 sketches: std::mem::take(&mut self.sketches),
                 errors: std::mem::take(&mut self.errors),
                 warnings: std::mem::take(&mut self.warnings),
-                index: None,
+                index: self.index.as_ref(),
                 labels_text: labels,
                 compare_tree: compare_tree.map(Ok),
                 compare_pcs: compare_pcs.map(Ok),
@@ -144,12 +157,18 @@ impl Session {
             .iter()
             .map(|r| {
                 json!({"id": r.id, "status": r.status.as_str(),
+                       "organism_call": r.index.as_ref().and_then(|c| c.species.clone().or(c.genus.clone())),
+                       "second_taxon": r.index.as_ref().and_then(|c| c.mixture.as_ref().map(|m| m.0.clone())),
+                       "second_fraction": r.index.as_ref().and_then(|c| c.mixture.as_ref().map(|m| m.1)),
                        "flags": r.flags().iter().map(|f| json!({"code": f.code, "detail": f.detail})).collect::<Vec<_>>()})
             })
             .collect();
+        let (md, figures) = popsketch::report::markdown(&o, &res);
+        let markdown = json!({"md": md, "figures": figures});
         Ok(json!({
             "summary": summary_json(&o, &res),
             "html": popsketch::report::html(&o, &res),
+            "markdown": markdown,
             "clusters": clusters,
             "pca": pca,
             "newick": res.newick,

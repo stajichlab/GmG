@@ -38,6 +38,10 @@ self.onmessage = async (e) => {
     await ready;
     const { maxReads, scaled, flagged } = m.opts;
     const s = new Session(21, scaled, 0n, false);
+    if (m.index) {
+      post({ type: "progress", i: 0, n: m.samples.length, id: "loading the index" });
+      s.set_index(m.index);
+    }
     const ids = m.samples.map((x) => x.id);
     const halves = new Set(JSON.parse(s.halves_for(JSON.stringify(ids), 20)));
     for (let i = 0; i < m.samples.length; i++) {
