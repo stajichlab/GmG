@@ -40,6 +40,7 @@ pub enum FlagMode {
 pub enum ReportFormat {
     Html,
     Md,
+    Pdf,
     All,
 }
 
@@ -89,7 +90,7 @@ pub struct Options {
     /// PC scores of (some of) the same samples, for example from SNPs: compared with the sketch PCA
     pub compare_pcs: Option<PathBuf>,
     pub resume: bool,
-    /// `report.html` (default), `report.md` with `figures/*.svg`, or both
+    /// `report.html` (default), `report.md` with `figures/*.svg`, `report.pdf`, or all three
     pub report_format: ReportFormat,
     pub quiet: bool,
     pub threads: Option<usize>,

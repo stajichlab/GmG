@@ -18,7 +18,7 @@ popsketch run --sample-sheet samples.tsv -o out/ --flagged mark --index bfd.gmgi
 - **Assemblies** (FASTA) can be given too. They have no coverage, so the coverage and abundance checks do not apply to them; size and relatedness checks do.
 - Each sample is read up to `--max-bases` (default 1 Gb, shared by its files; `0` = no limit). Equal bases give roughly equal coverage for similar genomes. `--r1-only` reads only the first file of each sample (fast).
 - **Labels** (`--labels`): a table whose first column is the sample id and whose other columns are label sets (species, lineage, source ...). A blank or `NA` cell means unlabelled. The first label column is the primary one (it colours the plots); every column gets its own comparison.
-- Up to `--max-samples` (default 1500) samples: all pairs are compared exactly, which grows with the square of the number of samples. Above the limit the run stops with a message instead of running for hours.
+- Up to `--max-samples` (default 1500) samples: all pairs are compared exactly, which grows with the square of the number of samples. Above the limit the run stops with a message instead of running for hours. Measured on synthetic hash sets (`cargo test -p popsketch --release --test scale -- --ignored --nocapture`), after sketching: 1,500 samples take about 1 minute (distances 0.9 s, clustering 0.02 s, tree 1.3 s, hash PCA 30 s, PCoA 38 s) and 3,000 samples about 4.5 minutes (distances 2.3 s, tree 13 s, hash PCA and PCoA about 125 s each, dominated by the eigen-solver on data with no structure, its slowest case). Larger sets work with a higher `--max-samples`, slower; sketching time depends on the reads (about 45 s per sample per core for 1 Gb).
 
 ## What the audit flags
 
@@ -48,12 +48,14 @@ Every flag is relative to the cohort; nothing needs a reference. Each flag carri
 | `report.html` | one page: audit, plots, labels, structure, resolution statements |
 | `qc.tsv` | every sample: status, flags, reasons, reads, bases, abundance cutoff, estimated size, coverage, index call |
 | `ani.tsv`, `mash.tsv` | pairwise containment ANI and mash distance of the samples in the analysis |
+| `dapc.tsv` | with a label file: DAPC scores on the primary label column, the group each sample is nearest to |
 | `pca.tsv`, `pca_variance.txt` | PC scores (hash PCA by default; `--ordination pcoa` for PCoA of 1 - ANI), cluster per sample |
 | `clusters.tsv` | cluster per sample (`NA` when there is no clear cut) |
 | `tree.nwk` | neighbour-joining tree on mash distance, unrooted unless `--root ID`; branches shorter than the noise floor are collapsed |
 | `label_check.tsv` | samples whose ANI matches another label better than their own |
 | `popsketch.json` | everything above in one machine-readable summary |
 | `report.md`, `figures/*.svg` | with `--report-format md` or `all`: the same report in Markdown with each figure as a standalone SVG |
+| `report.pdf` | with `--report-format pdf` or `all`: the same report as a PDF (A4, selectable text, built with the pure-Rust renderer `gmg run` uses) |
 | `sketches/` | the sketches; `--resume` reuses them (only sketching is resumed; QC, flags and everything after are recomputed) |
 
 ## Clusters
@@ -66,13 +68,21 @@ The **noise floor** is measured, not assumed: alternate reads of 20 samples go i
 
 Measured limits on two real sets: *Coccidioides* (species and a population cluster recover well, matching SNP trees on the top two axes) and *B. dendrobatidis* (nearly clonal: lineages 2, 3 and 4 are not distinguishable). Sketch distances among close pairs agreed poorly with SNP-tree distances (Spearman about 0.05 to 0.3).
 
+## DAPC on the labels
+
+With a label file, the leading PCs of the hash PCA (`--dapc-pcs`, default 10; 0 turns it off) go into a discriminant analysis with the groups of the primary label column. It writes `dapc.tsv` (the discriminant scores, the group each sample is nearest to, and whether that is its own label), plots the first two axes, and lists the samples that are nearest to a group other than their label. This is a second hint, next to the ANI-based conflict check, that a label may be wrong; it needs at least 2 groups with 2 samples each and more samples than PCs.
+
+## Reading less: `--target-cov`
+
+By default each sample is read up to `--max-bases`. `--target-cov C` instead stops reading a sample once the k-mer coverage estimated from the reads so far reaches C (checked every 200,000 reads, with R1 and R2 read in lockstep); `--max-bases` stays as a ceiling. A sample that never reaches the target is read up to the ceiling, as before, and gives the identical sketch. This helps when genome sizes in a set differ a lot, so that the same number of bases is very different coverage.
+
 ## Comparing with SNP results
 
 `--compare-tree TREE.nwk` and `--compare-pcs SCORES.tsv` compare the run with a tree and PC scores you already have (for example from SNPs) for the samples in both (sample ids must match; characters Newick reserves are read as underscores). For the tree: the Spearman correlation of the tree's patristic distance with 1 - ANI (all pairs, and the closest half, where sketches are weakest), and for each cluster whether it is a clade of the tree and the best F1 against any clade or its complement. For the PCs: cosines of the principal angles between the top-2, top-3 and top-5 subspaces, the Procrustes disparity of the top 3, and the Spearman correlation of pairwise distances in the top-5 space. The PC table is tab- or comma-separated with an id column and numeric columns.
 
 ## Key options
 
-`-k` (21), `-s/--scaled` (200), `--max-bases`, `--r1-only`, `--min-cov`, `--max-samples`, `--flagged`, `--index`, `--ordination`, `--components`, `--k`, `--cut`, `--min-floors`, `--no-tree`, `--root`, `--tree-floor`, `--floor-samples`, `--compare-tree`, `--compare-pcs`, `--report-format`, `--resume`, `--threads`. See `popsketch run --help`.
+`-k` (21), `-s/--scaled` (200), `--max-bases`, `--r1-only`, `--min-cov`, `--max-samples`, `--flagged`, `--index`, `--ordination`, `--components`, `--k`, `--cut`, `--min-floors`, `--no-tree`, `--root`, `--tree-floor`, `--floor-samples`, `--target-cov`, `--dapc-pcs`, `--compare-tree`, `--compare-pcs`, `--report-format`, `--resume`, `--threads`. `popsketch demo` writes a simulated example. See `popsketch run --help`.
 
 ## Validation on real read sets
 

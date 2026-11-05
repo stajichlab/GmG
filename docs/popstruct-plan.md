@@ -180,8 +180,23 @@ simulated fixture), not tuned on independent data, and are all options or docume
    with planted problems (a deterministic Rust generator): exactly the planted problems are flagged, the planted groups and the
    swapped label are recovered, a clonal set is one population.
 3. Validation on the real sets (`analysis/popgen_cocci/27-29`; numbers in `docs/popsketch.md`): done for Cocci (559) and Bd (334).
-4. Not done (deferred, as agreed): external comparison (`--compare-tree`, `--compare-pcs`), DAPC, Markdown and PDF reports, a
-   browser build, target-coverage stopping, an inverted index beyond 1,500 samples; a tutorial.
+4. Built after v1 (follow-up PR, same crate): external comparison (`--compare-tree`, `--compare-pcs`: clade test per cluster, distance
+   correlation, principal angles, Procrustes); DAPC on the primary label column (`--dapc-pcs`); the report as Markdown with
+   standalone SVG figures and as PDF (`--report-format html|md|pdf|all`, built once from a small document model);
+   target-coverage stopping (`--target-cov`, R1 and R2 read in lockstep, `--max-bases` as the ceiling); exact all-pairs distances
+   by bitsets (identical result to merging; 7.6 s at 1,500 synthetic samples against roughly 100 s for merging, and the hash-PCA
+   Gram matrix uses the same popcount); `popsketch demo` and a tutorial (`docs/popsketch-tutorial.md`); a shoulder statistic that
+   ignores heterozygosity (see Findings), with a note instead of an exclusion when a shoulder is widespread; the cutoff guard
+   (PR #146).
+5. Not built, with the reason:
+   - **An inverted index.** Population data share most hashes, so an inverted index (hash to samples) costs about as much as merging
+     (every shared hash lists every sample); the bitset method over the variable hashes is the algorithm that helps, and it is in.
+     The remaining cost is the ordination, a dense n x n eigenproblem. Measured on synthetic sets: about 1 minute
+     after sketching at 1,500 samples and about 4.5 minutes at 3,000 (the eigen-solver takes about 125 s each for hash PCA and PCoA
+     at 3,000, on data with no structure, its slowest case). `--max-samples` stays at 1,500 as the default; larger sets work, slower.
+   - **A browser (wasm) build.** It needs a design of its own: file access and threads in the browser, a JavaScript API, the
+     reference index handling, and a size budget for the page. None of that is decided, and the CLI result does not depend on it.
+     This is a separate project, not a missing piece of v1.
 
 ## Findings the design rests on
 

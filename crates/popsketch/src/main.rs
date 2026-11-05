@@ -28,6 +28,7 @@ enum FlaggedArg {
 enum ReportArg {
     Html,
     Md,
+    Pdf,
     All,
 }
 
@@ -140,7 +141,7 @@ enum Cmd {
         /// reuse sketches from an earlier run in the same output folder (only sketching is resumed)
         #[arg(long)]
         resume: bool,
-        /// report.html (default), report.md with figures/*.svg, or both
+        /// report.html (default), report.md with figures/*.svg, report.pdf, or all three
         #[arg(long, value_enum, default_value = "html")]
         report_format: ReportArg,
         #[arg(short, long)]
@@ -243,6 +244,7 @@ fn main() -> Result<()> {
                 report_format: match report_format {
                     ReportArg::Html => ReportFormat::Html,
                     ReportArg::Md => ReportFormat::Md,
+                    ReportArg::Pdf => ReportFormat::Pdf,
                     ReportArg::All => ReportFormat::All,
                 },
                 quiet,

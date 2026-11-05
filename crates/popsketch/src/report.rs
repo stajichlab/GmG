@@ -403,9 +403,11 @@ fn standalone_svg(svg: &str) -> String {
     }
 }
 
-fn render_md(blocks: &[Block], dir: &std::path::Path) -> Result<String> {
-    fs::create_dir_all(dir.join("figures"))?;
+/// The report as Markdown text and its figures (file name, standalone SVG). `pdf` writes the subset the PDF layout understands:
+/// `* ` bullets, no italics and no block quotes.
+fn md_text(blocks: &[Block], pdf: bool) -> (String, Vec<(String, String)>) {
     let mut m = String::new();
+    let mut figs: Vec<(String, String)> = Vec::new();
     for bl in blocks {
         match bl {
             Block::H(l, s) => {
@@ -414,13 +416,17 @@ fn render_md(blocks: &[Block], dir: &std::path::Path) -> Result<String> {
             Block::P(v, tone) => {
                 let text = inl_md(v);
                 let _ = match tone {
-                    Tone::Note => writeln!(m, "*{}*\n", text.trim()),
+                    Tone::Note if !pdf => writeln!(m, "*{}*\n", text.trim()),
                     Tone::Warn | Tone::Bad => writeln!(m, "**Note:** {text}\n"),
-                    Tone::Plain => writeln!(m, "{text}\n"),
+                    _ => writeln!(m, "{text}\n"),
                 };
             }
             Block::Card(v) => {
-                let _ = writeln!(m, "> {}\n", inl_md(v));
+                let _ = if pdf {
+                    writeln!(m, "{}\n", inl_md(v))
+                } else {
+                    writeln!(m, "> {}\n", inl_md(v))
+                };
             }
             Block::Table(head, rows) => {
                 let _ = writeln!(m, "| {} |", head.join(" | "));
@@ -443,7 +449,7 @@ fn render_md(blocks: &[Block], dir: &std::path::Path) -> Result<String> {
             }
             Block::List(items) => {
                 for it in items {
-                    let _ = writeln!(m, "- {}", inl_md(it));
+                    let _ = writeln!(m, "{} {}", if pdf { "*" } else { "-" }, inl_md(it));
                 }
                 m.push('\n');
             }
@@ -454,7 +460,7 @@ fn render_md(blocks: &[Block], dir: &std::path::Path) -> Result<String> {
                     } else {
                         format!("{name}.svg")
                     };
-                    fs::write(dir.join("figures").join(&file), standalone_svg(s))?;
+                    figs.push((file.clone(), standalone_svg(s)));
                     let _ = writeln!(m, "![{name}](figures/{file})\n");
                 }
             }
@@ -471,7 +477,22 @@ fn render_md(blocks: &[Block], dir: &std::path::Path) -> Result<String> {
             }
         }
     }
+    (m, figs)
+}
+
+fn render_md(blocks: &[Block], dir: &std::path::Path) -> Result<String> {
+    fs::create_dir_all(dir.join("figures"))?;
+    let (m, figs) = md_text(blocks, false);
+    for (file, svg) in figs {
+        fs::write(dir.join("figures").join(file), svg)?;
+    }
     Ok(m)
+}
+
+fn render_pdf(blocks: &[Block]) -> Result<Vec<u8>> {
+    let (md, figures) = md_text(blocks, true);
+    gmg_pdf::render_pdf(&gmg_report::Markdown { md, figures }, "popsketch report")
+        .map_err(|e| anyhow::anyhow!("PDF: {e}"))
 }
 
 fn tone_block(v: Vec<In>, tone: Tone) -> Block {
@@ -1094,7 +1115,7 @@ fn build(o: &Options, r: &Results) -> Vec<Block> {
     d
 }
 
-/// Write `report.html` and/or `report.md` (with `figures/*.svg`) as `Options::report_format` asks.
+/// Write `report.html`, `report.md` (with `figures/*.svg`) and/or `report.pdf` as `Options::report_format` asks (`All` writes all three).
 pub fn write(o: &Options, r: &Results) -> Result<()> {
     let blocks = build(o, r);
     if matches!(o.report_format, ReportFormat::Html | ReportFormat::All) {
@@ -1102,6 +1123,9 @@ pub fn write(o: &Options, r: &Results) -> Result<()> {
     }
     if matches!(o.report_format, ReportFormat::Md | ReportFormat::All) {
         fs::write(o.out.join("report.md"), render_md(&blocks, &o.out)?)?;
+    }
+    if matches!(o.report_format, ReportFormat::Pdf | ReportFormat::All) {
+        fs::write(o.out.join("report.pdf"), render_pdf(&blocks)?)?;
     }
     Ok(())
 }

@@ -431,6 +431,19 @@ fn comparison_with_an_external_tree_and_pcs_reports_clades_and_matching_planes()
         );
         assert!(svg.contains("<style>") && svg.ends_with("</svg>"), "{f}");
     }
+    // the PDF report (written by `All`): a real PDF with pages
+    let pdf = fs::read(t.dir.join("out_compare/report.pdf")).unwrap();
+    assert!(
+        pdf.starts_with(b"%PDF-") && pdf.len() > 5_000,
+        "report.pdf: {} bytes",
+        pdf.len()
+    );
+    // the page objects are inside compressed streams: check the trailer instead (the pages were checked with pdfinfo and pdftotext)
+    assert!(
+        pdf.windows(5).rev().take(64).any(|w| w == b"%%EOF"),
+        "no %%EOF trailer"
+    );
+    assert!(String::from_utf8_lossy(&pdf).contains("startxref"));
     // the default writes the HTML only
     assert!(!t.dir.join("out_main").join("report.md").exists());
     // a missing file is a warning, not a failure
