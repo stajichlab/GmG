@@ -157,6 +157,9 @@ impl Session {
             .iter()
             .map(|r| {
                 json!({"id": r.id, "status": r.status.as_str(),
+                       "organism_call": r.index.as_ref().and_then(|c| c.species.clone().or(c.genus.clone())),
+                       "second_taxon": r.index.as_ref().and_then(|c| c.mixture.as_ref().map(|m| m.0.clone())),
+                       "second_fraction": r.index.as_ref().and_then(|c| c.mixture.as_ref().map(|m| m.1)),
                        "flags": r.flags().iter().map(|f| json!({"code": f.code, "detail": f.detail})).collect::<Vec<_>>()})
             })
             .collect();

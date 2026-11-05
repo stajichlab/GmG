@@ -108,6 +108,7 @@ assert.ok(!w4.warnings.some((x) => x.includes("index screen skipped")), "wasm di
 const nativeIdx = fs.readFileSync(path.join(out4, "qc.tsv"), "utf8").trim().split("\n").slice(1).map((l) => l.split("\t")).map((c) => [c[0], c[16]]);
 const wasmIdx = new Map(w4.qc.map((q) => [q.id, q]));
 assert.equal(wasmIdx.size, nativeIdx.length, "qc rows with an index");
+for (const [id, call] of nativeIdx) assert.equal(wasmIdx.get(id).organism_call ?? "", call, `organism call of ${id}`);
 console.log(`index screen: ${nativeIdx.filter((r) => r[1] && r[1] !== "none").length} samples with an organism call in the native run`);
 console.log(`popsketch wasm parity OK: ${ids.length} samples, ${wasm.size} analysed, verdict ${JSON.stringify(w.clusters.gap.verdict)}`);
 fs.rmSync(tmp, { recursive: true, force: true });

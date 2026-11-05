@@ -78,7 +78,7 @@ function show(r) {
   for (const [file, svg] of r.markdown.figures) md = md.split(`](figures/${file})`).join(`](data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))})`);
   add("report.md", md, "text/markdown");
   add("popsketch.json", JSON.stringify(r.summary, null, 1), "application/json");
-  add("qc.tsv", ["id\tstatus\tflags", ...r.qc.map((q) => `${q.id}\t${q.status}\t${q.flags.map((f) => f.code).join(",")}`)].join("\n") + "\n");
+  add("qc.tsv", ["id\tstatus\tflags\torganism_call\tsecond_taxon\tsecond_fraction", ...r.qc.map((q) => `${q.id}\t${q.status}\t${q.flags.map((f) => f.code).join(";")}\t${q.organism_call ?? ""}\t${q.second_taxon ?? ""}\t${q.second_fraction == null ? "" : q.second_fraction.toFixed(3)}`)].join("\n") + "\n");
   if (r.clusters) add("clusters.tsv", ["id\tcluster", ...r.clusters.map(([id, k]) => `${id}\t${k}`)].join("\n") + "\n");
   if (r.pca) add("pca.tsv", ["id\t" + r.pca[0].pcs.map((_, i) => `PC${i + 1}`).join("\t"), ...r.pca.map((p) => `${p.id}\t${p.pcs.join("\t")}`)].join("\n") + "\n");
   if (r.newick) add("tree.nwk", r.newick + "\n");
