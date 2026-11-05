@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>popsketch: audit read sets and see coarse structure</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="page">
+  <header class="top">
+    <div>
+      <div class="eyebrow">GmG · popsketch <span class="tag"><a href="index.html">classify genomes instead</a></span></div>
+      <h1>Audit a set of read files and see coarse structure</h1>
+      <p class="sub">Low coverage, wrong size, a second organism, unrelated samples, label conflicts; then a hash PCA, clusters and a tree. <b>Your files never leave this computer</b>: the first reads of each file are sketched in this tab.</p>
+    </div>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>Read files</h2>
+    <p class="side">FASTQ, plain or .gz. Paired files named <code>_R1/_R2</code> or <code>_1/_2</code> are one sample.</p>
+    <div class="body">
+      <div class="row">
+        <label class="btn" for="pick-files">Choose FASTQ files…</label><input id="pick-files" type="file" multiple hidden>
+        <label class="btn" for="pick-dir">Choose folder…</label><input id="pick-dir" type="file" webkitdirectory hidden>
+        <label class="btn" for="pick-labels">Labels (optional)…</label><input id="pick-labels" type="file" hidden>
+        <span class="muted" id="labels-name"></span>
+        <label class="btn" for="pick-tree" title="A Newick tree of some of the same samples, for example from SNPs">Compare with a tree…</label><input id="pick-tree" type="file" hidden>
+        <label class="btn" for="pick-pcs" title="PC scores of some of the same samples: id, PC1, PC2, …">Compare with PCs…</label><input id="pick-pcs" type="file" hidden>
+      </div>
+      <p class="status" id="queue-status">No files chosen.</p>
+      <details class="opts">
+        <summary>Options</summary>
+        <div class="row">
+          <label class="field">Reads used per file
+            <input id="max-reads" type="number" min="10000" step="10000" value="1000000" title="Memory grows with this number; coverage flags depend on genome size, so check the coverage shown next to each flag">
+          </label>
+          <label class="field">Scaled (1 hash in …)
+            <input id="scaled" type="number" min="1" value="200">
+          </label>
+          <label class="field">Flagged samples
+            <select id="flagged"><option value="exclude">leave out</option><option value="mark">keep and mark</option><option value="decontaminate">decontaminate</option></select>
+          </label>
+        </div>
+      </details>
+      <div class="row">
+        <button id="run" class="btn primary" type="button" disabled>Run</button>
+        <div class="bar grow" id="run-bar" hidden><div></div></div>
+        <span class="status" id="run-status" role="status"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Results</h2>
+    <p class="side" id="summary-line"></p>
+    <div class="body">
+      <div class="row" id="downloads"></div>
+      <iframe id="report" title="popsketch report" sandbox="allow-scripts" style="width:100%;height:80vh;border:1px solid #8884"></iframe>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <a href="https://github.com/stajichlab/GmG">GmG on GitHub</a> · same code as the <code>popsketch</code> command line (docs/popsketch.md). The browser version reads only the first reads of each file and analyses one set at a time (up to about 200 samples).
+  </footer>
+</main>
+<script type="module" src="popsketch.js"></script>
+</body>
+</html>

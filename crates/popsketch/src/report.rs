@@ -1,12 +1,17 @@
 //! `report.html`: one standalone page with inline SVG. The audit comes first; the population structure follows, always with the
 //! resolution limits of the data.
+#![cfg_attr(not(feature = "native"), allow(dead_code))]
 
 use crate::cluster::Verdict;
-use crate::pipeline::{Options, ReportFormat, Results, Status};
+#[cfg(feature = "native")]
+use crate::pipeline::ReportFormat;
+use crate::pipeline::{Options, Results, Status};
 use crate::tree::{root_tree, Rooted};
+#[cfg(feature = "native")]
 use anyhow::Result;
 use std::collections::BTreeMap;
 use std::fmt::Write as _;
+#[cfg(feature = "native")]
 use std::fs;
 
 /// the deepest merge (1 - ANI) at which the set is said to span more than one species
@@ -327,6 +332,11 @@ fn inl_md(v: &[In]) -> String {
         .collect()
 }
 
+/// The HTML report as one string (no files written).
+pub fn html(o: &Options, r: &Results) -> String {
+    render_html(&build(o, r))
+}
+
 fn render_html(blocks: &[Block]) -> String {
     let mut h = format!("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>popsketch report</title><style>{CSS}</style></head><body>");
     for bl in blocks {
@@ -483,6 +493,7 @@ fn md_text(blocks: &[Block], pdf: bool) -> (String, Vec<(String, String)>) {
     (m, figs)
 }
 
+#[cfg(feature = "native")]
 fn render_md(blocks: &[Block], dir: &std::path::Path) -> Result<String> {
     fs::create_dir_all(dir.join("figures"))?;
     let (m, figs) = md_text(blocks, false);
@@ -492,6 +503,7 @@ fn render_md(blocks: &[Block], dir: &std::path::Path) -> Result<String> {
     Ok(m)
 }
 
+#[cfg(feature = "native")]
 fn render_pdf(blocks: &[Block]) -> Result<Vec<u8>> {
     let (md, figures) = md_text(blocks, true);
     gmg_pdf::render_pdf(&gmg_report::Markdown { md, figures }, "popsketch report")
@@ -1133,6 +1145,7 @@ fn build(o: &Options, r: &Results) -> Vec<Block> {
     d
 }
 
+#[cfg(feature = "native")]
 /// Write `report.html`, `report.md` (with `figures/*.svg`) and/or `report.pdf` as `Options::report_format` asks (`All` writes all three).
 pub fn write(o: &Options, r: &Results) -> Result<()> {
     let blocks = build(o, r);

@@ -12,14 +12,22 @@ path = "src/lib.rs"
 [[bin]]
 name = "popsketch"
 path = "src/main.rs"
+required-features = ["native"]
 
 [dependencies]
 gmg-core = { path = "../gmg-core", features = ["json"] }
-gmg-input = { path = "../gmg-input" }
+gmg-input = { path = "../gmg-input", optional = true }
 gmg-report = { path = "../gmg-report" }
-gmg-pdf = { path = "../gmg-pdf" }
+gmg-pdf = { path = "../gmg-pdf", optional = true }
 anyhow = "1"
-clap = { version = "4", features = ["derive"] }
-needletail = "0.7.3"
-rayon = "1"
+clap = { version = "4", features = ["derive"], optional = true }
+needletail = { version = "0.7.3", optional = true }
+rayon = { version = "1", optional = true }
 serde_json = "1"
+
+[features]
+default = ["native"]
+# threads (rayon); without it the same code runs on one thread (the browser build)
+parallel = ["dep:rayon"]
+# everything that touches files or the command line: discovery, needletail, the sketch cache, TSV/Markdown/PDF output, the CLI
+native = ["parallel", "dep:clap", "dep:needletail", "dep:gmg-input", "dep:gmg-pdf"]

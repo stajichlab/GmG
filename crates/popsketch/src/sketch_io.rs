@@ -1,12 +1,21 @@
 //! Sketch one sample (the files of one sample merged): hashes with abundances for reads, plain hashes for assemblies, an
 //! optional pair of half-sketches (alternate reads) for the split-half noise floor, and a small on-disk cache.
 
-use anyhow::{bail, Context, Result};
+#[cfg(feature = "native")]
+use anyhow::Context;
+use anyhow::{bail, Result};
+#[cfg(feature = "native")]
 use gmg_core::coverage::profile;
-use gmg_core::{FracSketch, SketchFile, DEFAULT_SEED};
+#[cfg(feature = "native")]
+use gmg_core::SketchFile;
+use gmg_core::{FracSketch, DEFAULT_SEED};
+#[cfg(feature = "native")]
 use std::fs::{self, File};
+#[cfg(feature = "native")]
 use std::io::{BufReader, BufWriter};
-use std::path::{Path, PathBuf};
+#[cfg(feature = "native")]
+use std::path::Path;
+use std::path::PathBuf;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct SketchParams {
@@ -37,6 +46,7 @@ impl Default for SketchParams {
 }
 
 impl SketchParams {
+    #[cfg(feature = "native")]
     fn tag(&self) -> String {
         format!(
             "k={};scaled={};max_bases={};r1_only={};target_cov={}",
@@ -87,6 +97,71 @@ fn finish(sk: FracSketch, reads: bool) -> Spectrum {
     }
 }
 
+/// Sketch a sample held in memory: `parts` are the (already decompressed) FASTQ or FASTA contents of its files. The same
+/// counting as `sketch_sample` without a coverage target: reads up to `max_bases` shared by the parts, optional split halves.
+pub fn sketch_bytes(
+    id: &str,
+    kind: &str,
+    parts: &[&[u8]],
+    p: &SketchParams,
+    want_halves: bool,
+) -> Result<SampleSketch> {
+    let reads = kind == "reads";
+    let used: &[&[u8]] = if reads && p.r1_only {
+        &parts[..1.min(parts.len())]
+    } else {
+        parts
+    };
+    if used.is_empty() {
+        bail!("{id}: no files");
+    }
+    let per_file = if reads && p.max_bases > 0 {
+        p.max_bases.div_ceil(used.len() as u64)
+    } else {
+        u64::MAX
+    };
+    let k = p.ksize as usize;
+    let mut main = FracSketch::new(k, p.scaled, DEFAULT_SEED);
+    let halves_wanted = reads && want_halves;
+    let mut ha = FracSketch::new(k, p.scaled, DEFAULT_SEED);
+    let mut hb = FracSketch::new(k, p.scaled, DEFAULT_SEED);
+    let mut counts = Counts::default();
+    for bytes in used {
+        let (mut bases, mut idx) = (0u64, 0u64);
+        gmg_core::for_each_record(bytes, &mut |seq: &[u8]| {
+            main.add_sequence(seq);
+            if halves_wanted {
+                if idx & 1 == 0 {
+                    ha.add_sequence(seq);
+                } else {
+                    hb.add_sequence(seq);
+                }
+            }
+            idx += 1;
+            counts.reads += 1;
+            counts.bases += seq.len() as u64;
+            counts.non_acgt += seq
+                .iter()
+                .filter(|b| !matches!(b.to_ascii_uppercase(), b'A' | b'C' | b'G' | b'T'))
+                .count() as u64;
+            bases += seq.len() as u64;
+            bases < per_file
+        });
+    }
+    if counts.reads == 0 {
+        bail!("{id}: no sequence records");
+    }
+    Ok(SampleSketch {
+        id: id.to_string(),
+        kind: kind.to_string(),
+        files: Vec::new(),
+        spectrum: finish(main, reads),
+        counts,
+        halves: halves_wanted.then(|| (finish(ha, true), finish(hb, true))),
+    })
+}
+
+#[cfg(feature = "native")]
 /// Sketch the files of one sample. For reads the base limit is shared by the files (each gets an equal part), and with
 /// `want_halves` the reads of each file are also dealt alternately into two further sketches.
 pub fn sketch_sample(
@@ -160,6 +235,7 @@ pub fn sketch_sample(
     })
 }
 
+#[cfg(feature = "native")]
 /// Merge a chunk's sorted (hash, count) lists into the running sorted lists.
 fn merge_counts(h: &mut Vec<u64>, a: &mut Vec<u32>, nh: Vec<u64>, na: Vec<u32>) {
     let cap = h.len() + nh.len();
@@ -193,6 +269,7 @@ fn merge_counts(h: &mut Vec<u64>, a: &mut Vec<u32>, nh: Vec<u64>, na: Vec<u32>) 
     *a = oa;
 }
 
+#[cfg(feature = "native")]
 /// Reads sketched in chunks, with the files of the sample read in lockstep (R1 and R2 alike), stopping once the k-mer coverage
 /// estimated from the reads so far reaches `target_cov`, or at the per-file base ceiling.
 fn sketch_reads_chunked(
@@ -318,10 +395,12 @@ fn sketch_reads_chunked(
 
 // ---- cache: out/sketches/{id}.gsk, {id}.half_a.gsk, {id}.half_b.gsk, {id}.json, params.txt ---------------------------------
 
+#[cfg(feature = "native")]
 fn gsk_path(dir: &Path, id: &str, part: &str) -> PathBuf {
     dir.join(format!("{id}{part}.gsk"))
 }
 
+#[cfg(feature = "native")]
 fn write_spectrum(path: &Path, p: &SketchParams, name: &str, s: &Spectrum) -> Result<()> {
     let sf = SketchFile {
         ksize: p.ksize,
@@ -336,6 +415,7 @@ fn write_spectrum(path: &Path, p: &SketchParams, name: &str, s: &Spectrum) -> Re
     Ok(())
 }
 
+#[cfg(feature = "native")]
 fn read_spectrum(path: &Path) -> Result<Spectrum> {
     let mut r = BufReader::new(File::open(path)?);
     let sf = SketchFile::read(&mut r)?;
@@ -346,16 +426,19 @@ fn read_spectrum(path: &Path) -> Result<Spectrum> {
     })
 }
 
+#[cfg(feature = "native")]
 pub fn cache_ready(dir: &Path, p: &SketchParams) -> bool {
     fs::read_to_string(dir.join("params.txt")).is_ok_and(|t| t.trim() == p.tag())
 }
 
+#[cfg(feature = "native")]
 pub fn cache_init(dir: &Path, p: &SketchParams) -> Result<()> {
     fs::create_dir_all(dir)?;
     fs::write(dir.join("params.txt"), p.tag())?;
     Ok(())
 }
 
+#[cfg(feature = "native")]
 pub fn cache_write(dir: &Path, s: &SampleSketch, p: &SketchParams) -> Result<()> {
     write_spectrum(&gsk_path(dir, &s.id, ""), p, &s.id, &s.spectrum)?;
     if let Some((a, b)) = &s.halves {
@@ -372,6 +455,7 @@ pub fn cache_write(dir: &Path, s: &SampleSketch, p: &SketchParams) -> Result<()>
     Ok(())
 }
 
+#[cfg(feature = "native")]
 /// A cached sketch, if it is there and has the halves when they are wanted.
 pub fn cache_read(dir: &Path, id: &str, want_halves: bool) -> Option<SampleSketch> {
     let meta: serde_json::Value =
@@ -407,6 +491,7 @@ pub fn cache_read(dir: &Path, id: &str, want_halves: bool) -> Option<SampleSketc
     })
 }
 
+#[cfg(feature = "native")]
 #[cfg(test)]
 mod tests {
     use super::*;

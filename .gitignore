@@ -20,3 +20,5 @@ crates/gmg-wasm/pkg-node/
 crates/gmg-wasm/pkg-web/
 .claude/worktrees/
 *pyc
+crates/popsketch-wasm/pkg-node/
+crates/popsketch-wasm/pkg-web/

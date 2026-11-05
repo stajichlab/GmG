@@ -114,6 +114,14 @@ pub fn sketch_fastx(
     }
 }
 
+/// Call `each` with the sequence of every record of a FASTA or FASTQ held in memory (format from the first byte) until it returns false.
+pub fn for_each_record(bytes: &[u8], each: &mut dyn FnMut(&[u8]) -> bool) {
+    match bytes.first() {
+        Some(b'@') => fastq(bytes, each),
+        _ => fasta(bytes, each),
+    }
+}
+
 fn fasta(bytes: &[u8], each: &mut dyn FnMut(&[u8]) -> bool) {
     let mut seq: Vec<u8> = Vec::new();
     let mut in_rec = false;

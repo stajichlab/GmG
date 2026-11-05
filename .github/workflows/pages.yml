@@ -37,6 +37,7 @@ jobs:
           locked: true
           cache: true
       - run: pixi run wasm
+      - run: pixi run popsketch-wasm
       - name: Fetch the representatives and full indexes of the newest index release
         env:
           GH_TOKEN: ${{ github.token }}

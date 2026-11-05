@@ -5,11 +5,13 @@ pub mod advisor;
 pub mod cluster;
 pub mod compare;
 pub mod dapc;
+#[cfg(feature = "native")]
 pub mod demo;
 pub mod dist;
 pub mod floor;
 pub mod labels;
 pub mod ordination;
+pub mod par;
 pub mod pipeline;
 pub mod qc;
 pub mod report;
