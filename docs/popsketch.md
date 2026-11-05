@@ -68,3 +68,12 @@ Measured limits on two real sets: *Coccidioides* (species and a population clust
 ## Key options
 
 `-k` (21), `-s/--scaled` (200), `--max-bases`, `--r1-only`, `--min-cov`, `--max-samples`, `--flagged`, `--index`, `--ordination`, `--components`, `--k`, `--cut`, `--min-floors`, `--no-tree`, `--root`, `--tree-floor`, `--floor-samples`, `--resume`, `--threads`. See `popsketch run --help`.
+
+## Validation on real read sets
+
+Run on the 559 *Coccidioides* and 334 *B. dendrobatidis* read sets (R1 and R2 merged, 1 Gb per sample, release index) and compared with problems found earlier by other means (`analysis/popgen_cocci/29_check_popsketch.py`):
+
+- ***Coccidioides***: the two species are one clear cut (k=2, a jump of 6.2 noise floors, adjusted Rand index 0.985 against the species label). The label check reports exactly the two samples already known to be mislabelled. All four non-*Coccidioides* read sets (*Histoplasma*, two *Lecanicillium*, *Fusarium*) are flagged, each by the cohort test as well as the index. All 20 mixtures that `gmg run` calls are flagged (20 of 20 with the index; the heavy ones by size or the shoulder alone). The 7% contaminant M223 and all lighter ones are found only through the index. The `center` label column, which does not follow the genetic structure, is reported as not checked instead of producing conflicts.
+- ***B. dendrobatidis***: no clear cut, as expected for a near-clonal set (the top jump is 0.9 floors; the best candidate, 5 clusters, is the five coarse groups found by hand). 54% of all pairs are closer than the noise floor. Lineages 2, 3 and 4 are reported as indistinguishable (not checked). 26 of the 27 samples known to have half their content are flagged `size_low`, with 5 borderline extras; the index-confirmed 6.3% mixture is flagged. 12 samples are flagged `abundance_shoulder`; in a diploid this can be heterozygosity, not a second organism, and I have not separated the two.
+
+Not tested: recombining populations, assemblies as input on real data, and sets of more than about 560 samples.
