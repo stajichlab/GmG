@@ -1076,6 +1076,8 @@ fn build(o: &Options, r: &Results) -> Vec<Block> {
             d.push(Block::H(3, "Principal components".into()));
             d.push(Block::P(vec![t(s)], Tone::Note));
         }
+    } else if o.no_pca && r.dist.is_some() {
+        d.push(Block::P(vec![t("The ordination was switched off (--no-pca); distances and clusters are in the output files.")], Tone::Note));
     } else {
         d.push(Block::P(
             vec![t(

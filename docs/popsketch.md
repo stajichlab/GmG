@@ -82,7 +82,7 @@ By default each sample is read up to `--max-bases`. `--target-cov C` instead sto
 
 ## Key options
 
-`-k` (21), `-s/--scaled` (200), `--max-bases`, `--r1-only`, `--min-cov`, `--max-samples`, `--flagged`, `--index`, `--ordination`, `--components`, `--k`, `--cut`, `--min-floors`, `--no-tree`, `--root`, `--tree-floor`, `--floor-samples`, `--target-cov`, `--dapc-pcs`, `--compare-tree`, `--compare-pcs`, `--report-format`, `--resume`, `--threads`. `popsketch demo` writes a simulated example. See `popsketch run --help`.
+`-k` (21), `-s/--scaled` (200), `--max-bases`, `--r1-only`, `--min-cov`, `--max-samples`, `--flagged`, `--index`, `--ordination`, `--components`, `--k`, `--cut`, `--min-floors`, `--no-tree`, `--root`, `--tree-floor`, `--floor-samples`, `--target-cov`, `--size-z`, `--size-floor`, `--shoulder-z`, `--no-pca`, `--dapc-pcs`, `--compare-tree`, `--compare-pcs`, `--report-format`, `--resume`, `--threads`. `popsketch demo` writes a simulated example. See `popsketch run --help`.
 
 ## Validation on real read sets
 
@@ -96,4 +96,23 @@ The comparison options and DAPC were run on the same sets against SNP results ma
 - ***Coccidioides*** against the 446-tip SNP tree (395 samples in both): the Spearman correlation of the tree's patristic distance with 1 - ANI is 0.85 over all pairs and 0.67 for the closest half of the pairs, and both clusters (the two species) are exact clades of the tree. Against the SNP PCA (393 samples in both): top-2 principal-angle cosines 0.999 and 0.989, Procrustes disparity of the top 3 of 0.016, distance correlation in the top-5 space 0.97. DAPC on the species label assigns 99.6% of the samples to their own species; the two it assigns to the other species are the two the label check reports.
 - ***B. dendrobatidis*** against the genome-wide VCF PCA (241 samples in both): top-3 cosines 0.999, 0.996 and 0.978, Procrustes disparity 0.011, distance correlation 0.97 (the same numbers the earlier Python analysis gave). DAPC leaves out the lineage labels that the sketches cannot tell apart (lineages 2, 3 and 4) instead of reporting them as errors.
 
-Not tested: recombining populations, assemblies as input on real data, and sets of more than about 560 samples.
+**A recombining population** (simulated, `tests/fixture.rs`): 24 samples that are mosaics of three founders in 4 kb blocks give no clear cut (the top jump is 0.7 floors), so recombination does not produce spurious clusters. This is a simulation, not a real recombining population.
+
+**Assemblies as input.** Run on genomes from the BFD clean-genome set (`analysis/popgen_cocci/33_make_assembly_inputs.py`, `34_popsketch_assemblies.sbatch`):
+
+- 27 genomes (22 *Coccidioides*, 3 *Histoplasma* and 2 *A. fumigatus* as planted outgroups) take 3 s. Genus labels are recovered exactly (adjusted Rand index 1.0 at 3 clusters) and species labels exactly at 4. The planted outgroups are **not** flagged: they form groups of their own, and the cohort-relative checks assume most of the set is one organism. One *C. immitis* assembly (`GCA_982397225.1_27-FMI`, 870 contigs) is excluded as `unrelated_to_cohort` (nearest neighbour ANI 0.73 against a cohort median of 0.997); it has a normal size (24.9 Mb) and shares almost nothing with any other genome in the set, so the label or the assembly deserves a look.
+- 1,598 *Aspergillus* genomes (273 species) take 3 min 45 s with 24 threads and 14 GB of memory, so the 1,500-sample design target holds for assemblies. 3 empty files are reported as errors. As a mixed-species cohort it is outside the intended use: 84 divergent species are excluded as `unrelated_to_cohort` and two as `size_high`, the species label is recovered only coarsely (adjusted Rand index 0.66 at the 24 clusters of the largest gap, 0.76 at 195), and the label check proposes relabels that look like taxonomy corrections (for example *A. niger* to *A. costaricensis* and *A. flavus* to *A. oryzae*). Use `popsketch` on one species or genus at a time; the exclusion of distant members is the cohort-relative check doing what it says.
+
+**Threshold sensitivity** (`analysis/popgen_cocci/35_threshold_sweep.sbatch`, `36_summarise_sweep.py`; cached sketches, one threshold changed at a time):
+
+| setting (default) | *Coccidioides*: flagged samples (34 by default) | *B. dendrobatidis*: flagged samples (43 by default) |
+|---|---|---|
+| `--min-floors` 1 to 5 (3) | 34, verdict `clear:2` throughout; 8 gives `no_clear_cut` | 43; `no_clear_cut` except 1, which accepts 5 clusters |
+| `--size-z` 3 / 4 / 6 / 8 / 12 (5) | 39 / 34 / 33 / 33 / 30 | 44 / 43 / 36 / 33 / 33 |
+| `--size-floor` 0.01 / 0.02 / 0.05 / 0.1 (0.03) | 48 / 37 / 33 / 30 | 51 / 43 / 33 / 30 |
+| `--shoulder-z` 3 / 4 / 8 / 12 (5) | 30 / 36 / 32 / 31 | 38 / 43 / 42 / 40 |
+| `--min-cov` 3 / 5 / 8 / 12 (5) | 31 / 34 / 40 / 56 | 43 / 43 / 43 / 44 |
+
+The clustering verdict does not move with the QC thresholds, and the number of clusters stays at 2 for *Coccidioides* across the whole range. Flag counts move by a handful of samples for a factor of about 1.5 in `--size-z`, `--size-floor` or `--shoulder-z`, and more at the extremes: `--size-floor` 0.01 adds 14 to 8 size exclusions of borderline samples, and `--size-z` of 8 or more loses the 10 borderline *B. dendrobatidis* `size_low` calls. `--min-cov` 12 excludes 22 more *Coccidioides* because it drops everything sequenced below 12x. The `--min-floors` gate is what keeps the near-clonal *B. dendrobatidis* set from being cut: at 1 it reports 5 clusters although the top jump is only 1.5 floors. The defaults sit in a flat part of every curve for the species-level conclusions; the number of borderline flagged samples is the part that depends on them.
+
+Not tested: real recombining populations and sets of more than about 1,600 samples.

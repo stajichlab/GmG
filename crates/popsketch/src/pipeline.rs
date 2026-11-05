@@ -66,6 +66,14 @@ pub struct Options {
     /// stop reading a sample once its k-mer coverage reaches this (`--max-bases` stays as a ceiling)
     pub target_cov: Option<f64>,
     pub min_cov: f64,
+    /// |robust z| of the estimated size above this is a size flag
+    pub size_z: f64,
+    /// floor of the size spread, as a fraction of the cohort median size
+    pub size_floor: f64,
+    /// robust z of the abundance shoulder above this flags it
+    pub shoulder_z: f64,
+    /// skip the ordination (and DAPC and the PC comparison): for quick threshold sweeps
+    pub no_pca: bool,
     pub max_samples: usize,
     pub flagged: FlagMode,
     pub index: Option<PathBuf>,
@@ -111,6 +119,10 @@ impl Default for Options {
             r1_only: false,
             target_cov: None,
             min_cov: 4.0,
+            size_z: 5.0,
+            size_floor: 0.03,
+            shoulder_z: 5.0,
+            no_pca: false,
             max_samples: 1500,
             flagged: FlagMode::Exclude,
             index: None,
@@ -384,6 +396,9 @@ pub fn run(o: &Options) -> Result<Results> {
     // ---- audit
     let qp = QcParams {
         min_cov: o.min_cov,
+        size_z: o.size_z,
+        size_floor: o.size_floor,
+        spectrum_z: o.shoulder_z,
         ..QcParams::default()
     };
     let mut qcs = assess(&sketches, o.scaled, &qp);
@@ -659,9 +674,13 @@ pub fn run(o: &Options) -> Result<Results> {
         } else {
             o.components
         };
-        res.ordination = match o.ordination {
-            OrdKind::HashPca => hash_pca(&sets, ncomp),
-            OrdKind::Pcoa => pcoa(&d1, n, ncomp),
+        res.ordination = if o.no_pca {
+            None
+        } else {
+            match o.ordination {
+                OrdKind::HashPca => hash_pca(&sets, ncomp),
+                OrdKind::Pcoa => pcoa(&d1, n, ncomp),
+            }
         };
         // tree
         if o.tree {
