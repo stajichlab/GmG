@@ -26,6 +26,7 @@ them. Raw data and results are not in this repository.
 with the output of a small probe of `gmg-core`'s `auto_min_abund` (see `18_cutoff_compare.py`; the probe is a scratch crate
 that reads `.gsk` files and calls `gmg_core::coverage::auto_min_abund`). Results from before this was found are marked in
 the plan; scripts 19-21 use the corrected cutoff.
+| 22 | `22_abundance_spectrum.py` | can the abundance spectrum alone flag mixed samples (checked against `gmg run --index` mixture calls) |
 | 18-21 | `18_cutoff_compare.py`, `19_rerun_rustcut.sh`, `20_splithalf_*.sh`, `21_splithalf_analyze.py` | Rust vs Python abundance cutoff; reruns with the Rust cutoff; split-half noise floor |
 
 Findings, with their caveats, are summarised in the plan. Several choices (size cut, merged Bd groups, k for k-means)

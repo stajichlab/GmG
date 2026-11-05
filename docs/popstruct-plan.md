@@ -86,11 +86,11 @@ cutoff, QC, flags and everything after depend on the whole cohort and are recomp
 2. **QC.** Flag by cohort-relative size, coverage and shared-hash fraction; low coverage (below 4x; 14 Cocci and 1 Bd
    samples); half-content samples (26 Bd at 11.8 Mb against about 21, robust to the cutoff choice); samples unrelated to the
    cohort (NM_7898, CA10 and CA12 shared almost no hashes). With `--index`, name the organism (CA10 and CA12 were
-   Lecanicillium, NM_7898 Histoplasma). **Open: contamination.** With the proper cutoff a size test does not see contamination
-   at about 1-20%, because contaminant k-mers fall below the cutoff (the 9 strains reported as mixtures by `gmg run` are all at
-   normal size, 25.4-28.4 Mb). Detecting it needs another statistic (the abundance spectrum, or the index's existing
-   `mixture_suspected` / `second_taxon`, which needs `--index`). This sits awkwardly with decision 2 (the index is never
-   required) and needs a decision.
+   Lecanicillium, NM_7898 Histoplasma). **Contamination (cohort-only path): heavy cases only.** A cohort-relative size test
+   catches heavy contamination at low coverage; an abundance-spectrum "shoulder" test catches a contaminant whose own coverage is
+   several-fold; neither sees light contamination (see "Contamination: abundance-spectrum experiment"). The report must state
+   that detection limit. Light contamination (1-7%) is found only with `--index`, via the existing `mixture_suspected` /
+   `second_taxon`. Decision 2 (the index is never required) stands, with that stated limit.
 3. **Distances.** Containment ANI (C^(1/k), C = shared / min size) and mash distance from Jaccard, sorted-hash merges with
    rayon. ANI is labelled an estimate.
 4. **Hash PCA.** Presence/absence over hashes seen in at least 2 samples and not in all. Because a private or error k-mer adds
@@ -131,6 +131,37 @@ samples' own floors), and it could be estimated from a random subset of about 20
 should replace the fixed fallback needs a decision, and a better check than SNP-PC correlation (for example simulated data
 with known branch lengths from the test fixture).
 
+## Contamination: abundance-spectrum experiment (2026-11-04)
+
+Question: can the k-mer abundance spectrum alone, with no index, flag mixed samples? A contaminant at read fraction f has its own
+coverage of about c * f / (1 - f), where c is the host coverage; at 2.6% and 43x that is about 1x, indistinguishable from errors.
+Two cohort-relative statistics (robust z within coverage bins; `analysis/popgen_cocci/22_abundance_spectrum.py`): the
+*shoulder* (hashes at abundance 0.1c-0.6c as a fraction of the genome mass) and its *excess* over a Poisson(c) expectation.
+Samples with c below 6 are not assessable by the spectrum. Truth: `gmg run --index` mixture calls (`second_explained_fraction`),
+which are another method's estimates, not ground truth. Existing results: `~/projects/TE_fungi_copy/results/{cocci,bd}_gmg/out`.
+
+| | Cocci (558) | Bd (334) |
+|---|---|---|
+| index-confirmed mixtures | 20 (7 at 5% or more) | 1 (6.3%) |
+| assessable by the spectrum (c >= 6) | 15 of the 20 | 1 of 1 |
+| detected by the spectrum (z > 3) | 2: B12526 (20%, c=41, z=11.7), B13956 (1%, z=5.3, also size z=7.5) | Sample_55930 (z=3.6) |
+| mixtures at 1-3% | 0 of 13 detected (AUC 0.50, chance) | |
+| not assessable (c < 6) | 5: TX7, M192, M216, M158, NM_0071 (31-46%), all caught by the size test (z 88-100) | |
+| M223 (7%, c=16, own coverage about 1.2x) | missed (z=2.2) | |
+| false positives (z > 5 among non-mixtures) | 7 of 492 (1.4%); at z > 3, 11 of 492 | 7 of 324 (2%); at z > 3, 19 of 324 |
+
+- Size and spectrum are complementary: size catches heavy contamination at low coverage (5 of 7 mixtures at 5% or more); the
+  spectrum catches a contaminant at several-fold coverage (B12526, which size misses at z=0.9). Together 6 of 7 at 5% or more
+  and 0 of 13 at 1-3%.
+- The 7 Cocci "false positives" are not all false: two are cutoff misfires (COCPO_103716, NM_4297, z in the hundreds, 0.1-0.2 Mb
+  of hashes) and the rest are unexplained (B16536, NM_3006, VFC090, NM_4708, B11199); the index may simply not see a contaminant
+  that is not in the reference or is split across taxa. In Bd the z > 5 list includes the half-content samples. Not resolved.
+- Statistical power is poor: only 2 assessable Cocci positives at 5% or more, and one Bd positive. This sets a detection limit;
+  it cannot set thresholds.
+
+Consequence: the cohort-only path reports heavy contamination (roughly 30% or more at low coverage, or about 10% or more at high
+coverage) and says plainly that lighter contamination is not assessable; `--index` adds the light cases.
+
 ## Thresholds still to be tuned (not decided)
 
 The MAD multiplier and floor for QC flags; the gap-ratio threshold of 2; the 1 Gb cap; the collapse floor and its rescaling;
@@ -139,8 +170,10 @@ the 30% flagged warning. Tune on the Cocci and Bd data; the fixture cannot set t
 ## Build order (small PRs)
 
 0. Two experiments, no product code. **Both run 2026-11-04.** (a) gmg-core's `auto_min_abund` on all 559 Cocci and 334 Bd
-   scaled-200 sketches: it works (cutoffs 3-16 Cocci, mostly 4 Bd) and nothing needs porting; the Python prototype's rule
-   returned 2 for almost every sample and was wrong. The 27 samples a first Python rule mishandled are low-coverage (2-9x), not
+   scaled-200 sketches: it gives a sensible cutoff for 556 of 559 Cocci and 333 of 334 Bd (cutoffs 3-16 Cocci, mostly 4 Bd) and
+   nothing needs porting. It misfires on 4 samples (COCPO_103716, NM_4297, B11518, Bd SRR1636747: the valley is placed at
+   15-29 and only 0.1-3 Mb of hashes remain), so the new crate needs a sanity guard (cutoff must stay well below the main peak
+   and keep a plausible share of hashes). The Python prototype's rule returned 2 for almost every sample and was wrong. The 27 samples a first Python rule mishandled are low-coverage (2-9x), not
    high-coverage as first written; the Rust rule returns 2 for them too. (b) the split-half noise floor: see "Noise floor".
 1. Prep PR: extract input discovery, grouping, sample-sheet parsing and resume logic into a small library crate used by
    `gmg run` and the new crate. Behavior-preserving; covered by the existing golden tests.
@@ -164,9 +197,11 @@ the reruns unless marked.
   samples discordant); two `samples.csv` label problems (not re-checked with the corrected cutoff: the rerun applied the
   earlier relabelling).
 - **Retracted:** "31 contaminated Coccidioides samples" and the decontamination gain (32.6 to 27.4 Mb). With the proper cutoff
-  the cohort is tight (25.9 Mb median, 5-95% 25.5-26.7 at 8x or more); 25 of the 33 flagged samples are no longer outliers and
-  the 8 that remain are mostly 2-5x samples. The 9 strains reported as mixtures are at normal size (25.4-28.4 Mb), so size
-  cannot detect contamination at these levels.
+  the cohort is tight (25.9 Mb median, 5-95% 25.5-26.7 at 8x or more); 25 of the 33 flagged samples are no longer outliers. **This
+  retraction overreached for the rest:** five of the 8 samples that remain (TX7, M192, NM_0071, M158, M216, at 2.2-5x
+  coverage and 53-57 Mb) are index-confirmed mixtures (31-46% of hashes explained by a second taxon, mostly Histoplasma), so
+  their size inflation was real contamination. Of the 20 index-confirmed mixtures in the Cocci set, the nine strains first
+  reported are at normal size (25.4-28.4 Mb), so size misses light contamination (see the experiment below).
 - Bd: nearly clonal, all pairs ANI at least 0.98; 5 coarse groups recovered (merged after seeing the ANI table, so not
   independent); the 26 half-content samples stay under 17 Mb with either cutoff; cleaned k-mer PCA matches the genome-wide VCF
   PCA (top-3 cosines 0.998, 0.997, 0.934; distance Spearman 0.968).
@@ -224,8 +259,8 @@ the report charts; deferring external comparison.
 
 Checked and qualified:
 - The reviewer said the Rust cutoff has a known failure on noisy high-coverage histograms and that the fix is to port the Python
-  rule. Tested 2026-11-04: not borne out. The Rust rule works on all 559 Cocci and 334 Bd sketches; the Python rule is the
-  one that is wrong (it returns 2 for almost every sample). The reviewer was right that the two rules differ.
+  rule. Tested 2026-11-04: not borne out. The Rust rule works on 556 of 559 Cocci and 333 of 334 Bd sketches (it misfires on 4,
+  needing a guard); the Python rule is the one that is wrong (it returns 2 for almost every sample). The reviewer was right that the two rules differ.
 - The suggested reuse of `classify.rs:12` (`READS_SPECIES_MIN_ANI`) does not apply: it lowers a species cutoff for
   classification and does not correct an ANI estimate.
 - That min-size normalisation inflates the between-species ANI of 0.978 is a hypothesis to test, not a finding; the two
