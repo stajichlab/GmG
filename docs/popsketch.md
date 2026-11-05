@@ -90,9 +90,13 @@ By default each sample is read up to `--max-bases`. `--target-cov C` instead sto
 
 The code is shared, not copied: `popsketch::pipeline::analyze` takes the sketches and the contents of the label file and returns the results with no file access; `run` is that plus discovery, sketching from files, the cache and the output files. The crate has a `parallel` feature (rayon) and a `native` feature (files, the command line, PDF), both on by default; the browser build turns both off. `popsketch_wasm::Session` sketches each sample from bytes and calls `analyze`. `crates/popsketch-wasm/tests/parity.mjs` (`pixi run popsketch-wasm-test`, also in CI) runs the simulated `popsketch demo` data through the native command and through the wasm build and requires the same sample counts, flags, noise floor, cluster verdict and partition, label check and ordination (numbers equal to 1e-9; the native code sums in parallel, the wasm code on one thread). The page was also driven in a headless browser with the demo reads: 32 samples, 27 in the analysis and a clear cut into 3 clusters, as on the command line.
 
+## Sketching on its own, then analysing later
+
+`popsketch sketch --id ID -o DIR R1.fastq.gz R2.fastq.gz` sketches one sample into a folder of sketches (including the split halves for the noise floor), and `popsketch run --from-sketches DIR -o out/` analyses every sample of the folder without reading any reads. The parameters (`-k`, `--scaled`, `--max-bases`) must match between the two; a mismatch is refused. This is for sets whose reads are not kept: one job per SRA run downloads, sketches and deletes the reads (`analysis/popgen_sra/03_fetch_sketch.sbatch`), and a few hundred KB per sample is all that stays. The result is identical to analysing the reads directly (a test checks this).
+
 ## Key options
 
-`-k` (21), `-s/--scaled` (200), `--max-bases`, `--r1-only`, `--min-cov`, `--max-samples`, `--flagged`, `--index`, `--ordination`, `--components`, `--k`, `--cut`, `--min-floors`, `--no-tree`, `--root`, `--tree-floor`, `--floor-samples`, `--target-cov`, `--size-z`, `--size-floor`, `--shoulder-z`, `--no-pca`, `--dapc-pcs`, `--compare-tree`, `--compare-pcs`, `--report-format`, `--resume`, `--threads`. `popsketch demo` writes a simulated example. See `popsketch run --help`.
+`-k` (21), `-s/--scaled` (200), `--max-bases`, `--r1-only`, `--min-cov`, `--max-samples`, `--flagged`, `--index`, `--ordination`, `--components`, `--k`, `--cut`, `--min-floors`, `--no-tree`, `--root`, `--tree-floor`, `--floor-samples`, `--from-sketches`, `--target-cov`, `--size-z`, `--size-floor`, `--shoulder-z`, `--no-pca`, `--dapc-pcs`, `--compare-tree`, `--compare-pcs`, `--report-format`, `--resume`, `--threads`. `popsketch demo` writes a simulated example. See `popsketch run --help`.
 
 ## Validation on real read sets
 

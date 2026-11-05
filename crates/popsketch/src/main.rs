@@ -42,6 +42,32 @@ enum OrdArg {
 #[allow(clippy::large_enum_variant)]
 #[derive(Subcommand)]
 enum Cmd {
+    /// Sketch the files of ONE sample into a folder of sketches (including the split halves), so the reads can be deleted:
+    /// `popsketch run --from-sketches DIR` analyses the folder later
+    #[command(
+        after_long_help = "EXAMPLES\n  popsketch sketch --id SRR123 -o sketches/ SRR123_1.fastq.gz SRR123_2.fastq.gz\n  popsketch run --from-sketches sketches/ -o out/"
+    )]
+    Sketch {
+        /// the sample's files (R1 and R2 are one sample)
+        #[arg(required = true)]
+        files: Vec<PathBuf>,
+        #[arg(long)]
+        id: String,
+        /// folder of sketches (created; shared by all samples of one set, with the same parameters)
+        #[arg(short, long)]
+        out: PathBuf,
+        /// reads or assembly
+        #[arg(long, default_value = "reads")]
+        kind: String,
+        #[arg(short = 'k', long = "ksize", default_value_t = 21)]
+        ksize: u32,
+        #[arg(short = 's', long, default_value_t = 200)]
+        scaled: u32,
+        #[arg(long, default_value_t = 1_000_000_000)]
+        max_bases: u64,
+        #[arg(long)]
+        r1_only: bool,
+    },
     /// Write a small simulated dataset with planted problems and a swapped label, to try `popsketch run` on
     #[command(
         after_long_help = "EXAMPLES\n  popsketch demo -o demo/\n  popsketch run demo/reads -o demo/out --labels demo/labels.tsv --scaled 5 --max-bases 0"
@@ -153,6 +179,9 @@ enum Cmd {
         /// reuse sketches from an earlier run in the same output folder (only sketching is resumed)
         #[arg(long)]
         resume: bool,
+        /// take the samples from a folder of sketches made by `popsketch sketch` (the inputs are then not needed)
+        #[arg(long)]
+        from_sketches: Option<PathBuf>,
         /// report.html (default), report.md with figures/*.svg, report.pdf, or all three
         #[arg(long, value_enum, default_value = "html")]
         report_format: ReportArg,
@@ -166,6 +195,40 @@ enum Cmd {
 fn main() -> Result<()> {
     let cli = Cli::parse();
     match cli.cmd {
+        Cmd::Sketch {
+            files,
+            id,
+            out,
+            kind,
+            ksize,
+            scaled,
+            max_bases,
+            r1_only,
+        } => {
+            use popsketch::sketch_io::{
+                cache_init, cache_ready, cache_write, sketch_sample, SketchParams,
+            };
+            let params = SketchParams {
+                ksize,
+                scaled,
+                max_bases,
+                r1_only,
+                ..SketchParams::default()
+            };
+            if !cache_ready(&out, &params) {
+                cache_init(&out, &params)?;
+            }
+            // halves always: the noise floor picks its samples when the whole set is known, which is after the reads are gone
+            let s = sketch_sample(&id, &kind, &files, &params, true)?;
+            cache_write(&out, &s, &params)?;
+            eprintln!(
+                "{id}: {} reads, {} bases, {} hashes",
+                s.counts.reads,
+                s.counts.bases,
+                s.spectrum.hashes.len()
+            );
+            Ok(())
+        }
         Cmd::Demo {
             out,
             genome_len,
@@ -217,6 +280,7 @@ fn main() -> Result<()> {
             compare_tree,
             compare_pcs,
             resume,
+            from_sketches,
             report_format,
             quiet,
             threads,
@@ -261,6 +325,7 @@ fn main() -> Result<()> {
                 compare_tree,
                 compare_pcs,
                 resume,
+                from_sketches,
                 report_format: match report_format {
                     ReportArg::Html => ReportFormat::Html,
                     ReportArg::Md => ReportFormat::Md,
