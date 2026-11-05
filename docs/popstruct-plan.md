@@ -28,9 +28,9 @@ Success means "it finds the known problems in the two real datasets", not "the t
 | 6 | Input cap is **fixed bases per sample** (R1 and R2 combined), default about 1 Gb, documented as a default to adjust. The audit reports achieved coverage and warns when its spread across the cohort is large. | Equal reads did not give equal coverage (2x to 59x with a 6M-read cap). Target-coverage stopping is deferred. |
 | 7 | Design and test for about **1,500 samples** with exact all-pairs; refuse above a configurable `--max-samples`, suggesting scaled 1000, a subsample or a split. | About 5e10 comparisons at n = 559 took minutes; n = 1,500 stays tractable; an inverted index is not needed yet. |
 | 8 | **Hash-presence PCA is the default ordination**; PCoA of 1-ANI stays as `--ordination pcoa`, written to a file but not in the headline figure. | Hash PCA tracked SNP PCA better on all four datasets (table below). |
-| 9 | **Clusters:** cut UPGMA at the largest merge-height gap only when gap1/gap2 is at least 2. Otherwise report "no single clear cut" and list the top 3 candidate k with their gaps. k = 1 is allowed. `--k` and `--cut` override. | The rule recovered every SNP-supported split and refused to invent more (table below). The threshold of 2 rests on four datasets; after the cutoff correction Bd's ratio is 1.96 (just under 2) and picks the k=5 that matches the coarse groups, so the threshold needs revisiting. |
+| 9 | **Clusters:** cut UPGMA at the largest merge-height jump only when that jump is at least 3 noise floors (`--min-floors`); otherwise report "no single clear cut" with the top 3 candidate cuts and their jumps. Everything merging below the floor is one population (k = 1). `--k` and `--cut` override. The gap ratio gap1/gap2 is reported with its probability under a structureless coalescent population, but is not the gate. **Changed from the first agreement (ratio of at least 2) on new evidence:** that ratio is at least 2 in about 62% of structureless populations (25% at 5, 10% at 10; `analysis/popgen_cocci/26_gap_null.py`), so it cannot tell structure from the natural asymmetry of a coalescent tree. | The jump must exceed the measured technical noise to count. On the real sets: both Cocci species 6.2 floors (clear, k=2), Bd 0.9 floors (no clear cut; k=5 is the top candidate, matching the five coarse groups found by hand). The threshold of 3 floors is a judgement from these two sets. |
 | 10 | **Tree:** NJ on mash distance with unsupported branches collapsed to polytomies; unrooted by default, `--root ID` available. The collapse floor is the split-half noise floor (see below). | Within-lineage trees were combs; a fully resolved tree would imply resolution the data lacks. Midpoint rooting failed whenever an outlier was present. |
-| 11 | **Resolution limit** comes from a split-half noise floor measured per run, used by both the NJ collapse and the resolution advisor. Experiment run 2026-11-04: the floor predicts which Bd pairs are indistinguishable when it is a high quantile (90th percentile), but not when it is the median, and the second check was inconclusive. See "Noise floor"; **needs revisiting before it is built**. Fallback is a fixed floor of about 10 differing hashes plus the gap ratio. | Bd nearest-neighbor ANI is about 0.9995 and lineages 2/3/4 cannot be told apart even though about 1% of hashes differ, so a hash-count floor is the wrong test. |
+| 11 | **Resolution limit** is a split-half noise floor measured per run: alternate reads of 20 samples go into two sketches and the floor is the 90th percentile of the distance (1 - ANI) between the halves. It collapses NJ branches below it and drives the resolution advisor and the gap rule. With too few read sets to split, a fixed floor of **0.001** is used. **Resolved, with a change:** the fallback is 0.001, not "about 10 differing hashes" (10 hashes is about 3e-6 in distance, three orders of magnitude below the measured floors of 0.0002 to 0.002). | Experiment 2026-11-04: the 90th-percentile floor predicts that Bd lineages 2/3/4 are indistinguishable (99% of those pairs below it) where the median does not (25%). The check against SNP distance was inconclusive; the floor is pessimistic (each half has half the coverage). |
 | 12 | **Home:** a new crate `crates/popsketch` (lib plus bin), added to workspace `members`, after a prep PR that extracts the shared input handling into a small library crate. | The code to reuse (`sample_key`, `group_reads`, `read_sheet`, discovery, `--resume`) is private inside the `gmg` binary crate (`gmg-cli/src/run.rs`) and cannot be imported. Copying it would drift. |
 | 13 | **Tests:** a deterministic generator written in Rust inside the tests plants a population (about 60 samples, 3 groups, known tree) plus problems: 2 low-coverage, 2 contaminated (10-50% foreign reads), 2 half-content, 1 foreign genome, 2 swapped labels. Pass: every planted problem is flagged, no clean sample is, swaps appear as conflicts, planted groups come back. The Cocci and Bd runs on the HPCC remain the check on thresholds. | Real data cannot ship in a public repo. A fixture proves the logic, not that the thresholds are right. |
 
@@ -162,29 +162,26 @@ which are another method's estimates, not ground truth. Existing results: `~/pro
 Consequence: the cohort-only path reports heavy contamination (roughly 30% or more at low coverage, or about 10% or more at high
 coverage) and says plainly that lighter contamination is not assessable; `--index` adds the light cases.
 
-## Thresholds still to be tuned (not decided)
+## Thresholds that remain judgement calls
 
-The MAD multiplier and floor for QC flags; the gap-ratio threshold of 2; the 1 Gb cap; the collapse floor and its rescaling;
-the 30% flagged warning. Tune on the Cocci and Bd data; the fixture cannot set them.
+The MAD multiplier (5) and size floor (3% of the median) for QC flags; 3 floors for a clear cut; the 1 Gb cap; the 90th percentile as
+the floor statistic and 0.001 as its fallback; the shoulder z of 5. They were set from the Coccidioides and Bd sets (and the
+simulated fixture), not tuned on independent data, and are all options or documented constants.
 
-## Build order (small PRs)
+## Build order and status
 
-0. Two experiments, no product code. **Both run 2026-11-04.** (a) gmg-core's `auto_min_abund` on all 559 Cocci and 334 Bd
-   scaled-200 sketches: it gives a sensible cutoff for 556 of 559 Cocci and 333 of 334 Bd (cutoffs 3-16 Cocci, mostly 4 Bd) and
-   nothing needs porting. It misfires on 4 samples (COCPO_103716, NM_4297, B11518, Bd SRR1636747: the valley is placed at
-   15-29 and only 0.1-3 Mb of hashes remain), so the new crate needs a sanity guard (cutoff must stay well below the main peak
-   and keep a plausible share of hashes). The Python prototype's rule returned 2 for almost every sample and was wrong. The 27 samples a first Python rule mishandled are low-coverage (2-9x), not
-   high-coverage as first written; the Rust rule returns 2 for them too. (b) the split-half noise floor: see "Noise floor".
-1. Prep PR: extract input discovery, grouping, sample-sheet parsing and resume logic into a small library crate used by
-   `gmg run` and the new crate. Behavior-preserving; covered by the existing golden tests.
-2. New crate core, with the simulated fixture written alongside so every later step has a test: QC, distances, UPGMA, NJ with
-   collapse, Newick, clusters by the gap rule.
-3. Hash PCA (and PCoA) with an eigensolver.
-4. Labels: multi-column parser, ARI, conflict checks.
-5. CLI and the output schema doc.
-6. Report: scatter with hover, tree with colored tips, QC plot, tables, scalable heatmap.
-7. Resolution advisor.
-8. Validation on the HPCC (Cocci and Bd documented as regression checks) and a tutorial.
+0. Experiments (done 2026-11-04). The existing abundance cutoff works except for four sample histograms; the guard is in
+   PR #146. The split-half floor is usable as a high quantile.
+1. Prep PR: `gmg-input` crate extracted from `gmg run`, behavior-preserving (PR #147).
+2. `popsketch` crate (this PR): sketching with a per-sample base cap and split-half sketches, cohort QC with reasons, the optional
+   index screen, exact distances, hash PCA (Gram matrix with its own eigensolver) and PCoA, UPGMA with the noise-floor cut,
+   collapsed NJ tree with Newick output and rooting, multi-column labels with conflicts and ARI, the resolution advisor, the
+   HTML report, `--flagged exclude|mark|decontaminate`, `--max-samples`. 48 unit tests and 3 end-to-end tests on simulated reads
+   with planted problems (a deterministic Rust generator): exactly the planted problems are flagged, the planted groups and the
+   swapped label are recovered, a clonal set is one population.
+3. Validation on the real sets (`analysis/popgen_cocci/27-29`; numbers in `docs/popsketch.md`): done for Cocci (559) and Bd (334).
+4. Not done (deferred, as agreed): external comparison (`--compare-tree`, `--compare-pcs`), DAPC, Markdown and PDF reports, a
+   browser build, target-coverage stopping, an inverted index beyond 1,500 samples; a tutorial.
 
 ## Findings the design rests on
 

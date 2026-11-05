@@ -68,6 +68,10 @@ column -t -s$'\t' results/results.tsv | less -S                              # o
 run was made. Columns are documented in [docs/results-schema.md](docs/results-schema.md). Other commands: `gmg sketch / build / guess / info / convert / cluster / bench / completions / man`.
 In the browser: [docs/web.md](docs/web.md). Example genomes to try: [examples/](examples/README.md). From Python: [crates/gmg-py](crates/gmg-py/README.md). Step by step: [docs/tutorial.md](docs/tutorial.md); what the results do and do not mean: [docs/limitations.md](docs/limitations.md); every command has examples in `gmg <command> --help`.
 
+## A set of read files: `popsketch`
+
+`popsketch run reads/ -o out/ --labels labels.tsv` sketches every sample (R1/R2 merged), audits the set against itself (samples that are another organism, low coverage, a second genome mixed in, half the content missing, a label the data contradict), and for the samples that pass writes a PCA, clusters, a first-pass tree and an HTML report. It shows coarse structure, not a phylogeny, and it states where the data stop being informative. See [docs/popsketch.md](docs/popsketch.md); the design and its evidence are in [docs/popstruct-plan.md](docs/popstruct-plan.md).
+
 ## Develop (no Homebrew or rustup needed)
 
 Everything runs in a [pixi](https://pixi.sh) environment (Rust, wasm tooling, Node, Python, optional bio tools):
@@ -90,6 +94,8 @@ pixi run -e bio ...  # adds sourmash 4.9.4, mash 2.3, skani 0.3.2, ncbi-datasets
 |---|---|
 | `crates/gmg-core` | FracMinHash sketching (sourmash-compatible), index, search, taxon calls, clustering helpers; no I/O |
 | `crates/gmg-cli` | `gmg sketch / build / guess / info / convert / cluster / bench` |
+| `crates/gmg-input` | finding FASTA/FASTQ files, naming samples, merging R1/R2 and lanes, sample sheets (shared by `gmg run` and `popsketch`) |
+| `crates/popsketch` | `popsketch run`: audit a set of read files and show coarse population structure ([docs/popsketch.md](docs/popsketch.md)) |
 | `crates/gmg-report` | report engine: standalone HTML report with inline SVG charts (no I/O; also runs in WASM) |
 | `crates/gmg-wasm` | JavaScript API (`Index`: load, sketch, guess; `render_report`) |
 | `scripts/` | analysis and audit (Python), `scripts/hpcc/` SLURM jobs |

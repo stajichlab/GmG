@@ -5,7 +5,7 @@ For each species: (1) Spearman correlation of SNP-tree patristic distance vs our
 (2) for each hash-PCA k-means cluster: is it a clade of the SNP tree (exact), and the best-matching split (F1);
 (3) ARI between the SNP tree cut into k clades (average linkage on patristic distance) and our clusters.
 Species/label check uses the all-species tree."""
-import sys, itertools
+import os, sys, itertools
 import numpy as np, pandas as pd
 from scipy.stats import spearmanr
 from scipy.cluster.hierarchy import linkage, fcluster
@@ -18,6 +18,7 @@ BASE = "/bigdata/stajichlab/shared/projects/Onygenales/Popgen/2025_All_Cocci/Gen
 TREES = {"immitis": BASE + "Cocciall_v1.Cimmitis.SNP.mfa.treefile",
          "posadasii": BASE + "Cocciall_v1.Cposadasii.SNP.fasttree.tre",
          "all": BASE + "Cocciall_v1.All.SNP.mfa.treefile"}
+SUF = os.environ.get("SUF", "")  # e.g. _rc: the runs that use the Rust abundance cutoff
 OUT = "/bigdata/stajichlab/jstajich/projects/GmG_popgen/popgen_cocci/"
 
 
@@ -80,7 +81,7 @@ for k, t in trees.items():
 allt = trees["all"]; asets = clade_sets(allt); tips_all = {c.name for c in allt.get_terminals()}
 lab = {}
 for sp in ("immitis", "posadasii"):
-    for i in pd.read_csv(f"{OUT}final_s200_{sp}/groups.tsv", sep="\t").id: lab[i] = sp
+    for i in pd.read_csv(f"{OUT}final_s200_{sp}{SUF}/groups.tsv", sep="\t").id: lab[i] = sp
 common = tips_all & set(lab)
 print(f"\n== species (all-species SNP tree): {len(common)} of {len(lab)} sketch samples are in the tree")
 for sp in ("immitis", "posadasii"):
@@ -105,7 +106,7 @@ rows = []
 K_POS = int(sys.argv[1]) if len(sys.argv) > 1 else 4
 for sp, k in (("immitis", 2), ("posadasii", K_POS)):
     t = trees[sp]; sets = clade_sets(t); tips = {c.name for c in t.get_terminals()}
-    d = f"{OUT}final_s200_{sp}/"
+    d = f"{OUT}final_s200_{sp}{SUF}/"
     h = pd.read_csv(d + "pca_hash.tsv", sep="\t").set_index("id")
     h["cl"] = KMeans(k, n_init=10, random_state=0).fit_predict(h[["PC1", "PC2"]])
     A = pd.read_csv(d + "ani_est.tsv", sep="\t"); A.index = A.columns
