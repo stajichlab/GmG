@@ -28,7 +28,7 @@ Every flag is relative to the cohort; nothing needs a reference. Each flag carri
 |---|---|
 | `low_coverage` | k-mer coverage below `--min-cov` (default 4), or too few repeated k-mers to estimate it. These samples lose k-mers by chance and look more distant than they are. |
 | `size_low` / `size_high` | the estimated genome size (hashes above the abundance cutoff x scaled) is far from the cohort median (robust z above 5, with a floor of 3% of the median so a tight cohort does not flag everything). Low: content is missing. High: a second genome or extra content. |
-| `abundance_shoulder` | k-mers at 0.1 to 0.6 times the main coverage exceed the cohort: a second organism at several-fold coverage. |
+| `abundance_shoulder` | k-mers at 0.1 to 0.4 times the main coverage exceed the cohort after removing the part that tracks the mass at 0.4 to 0.65 times (where a heterozygous peak sits): a second organism at several-fold coverage. A heterozygous or polyploid genome raises both and is mostly absorbed; a contaminant raises only the shoulder. If more than 2% of the cohort carries a shoulder the pattern points to heterozygosity or varying ploidy (as in *B. dendrobatidis*), so it is listed as a **note** and the samples are not excluded. A contaminant near half the coverage cannot be told from heterozygosity. Assessable from a k-mer coverage of about 12. |
 | `unrelated_to_cohort` | the nearest other sample is far below the cohort's usual nearest-neighbour ANI: the sample shares almost nothing with the rest (another species or genus). |
 | `too_few_hashes` | fewer than 500 hashes after the abundance cutoff. |
 | `different_organism`, `mixture_suspected` | with `--index`: the index calls a different genus from most of the cohort, or finds a second taxon explaining at least 1% of the hashes. |
@@ -53,6 +53,7 @@ Every flag is relative to the cohort; nothing needs a reference. Each flag carri
 | `tree.nwk` | neighbour-joining tree on mash distance, unrooted unless `--root ID`; branches shorter than the noise floor are collapsed |
 | `label_check.tsv` | samples whose ANI matches another label better than their own |
 | `popsketch.json` | everything above in one machine-readable summary |
+| `report.md`, `figures/*.svg` | with `--report-format md` or `all`: the same report in Markdown with each figure as a standalone SVG |
 | `sketches/` | the sketches; `--resume` reuses them (only sketching is resumed; QC, flags and everything after are recomputed) |
 
 ## Clusters
@@ -65,15 +66,19 @@ The **noise floor** is measured, not assumed: alternate reads of 20 samples go i
 
 Measured limits on two real sets: *Coccidioides* (species and a population cluster recover well, matching SNP trees on the top two axes) and *B. dendrobatidis* (nearly clonal: lineages 2, 3 and 4 are not distinguishable). Sketch distances among close pairs agreed poorly with SNP-tree distances (Spearman about 0.05 to 0.3).
 
+## Comparing with SNP results
+
+`--compare-tree TREE.nwk` and `--compare-pcs SCORES.tsv` compare the run with a tree and PC scores you already have (for example from SNPs) for the samples in both (sample ids must match; characters Newick reserves are read as underscores). For the tree: the Spearman correlation of the tree's patristic distance with 1 - ANI (all pairs, and the closest half, where sketches are weakest), and for each cluster whether it is a clade of the tree and the best F1 against any clade or its complement. For the PCs: cosines of the principal angles between the top-2, top-3 and top-5 subspaces, the Procrustes disparity of the top 3, and the Spearman correlation of pairwise distances in the top-5 space. The PC table is tab- or comma-separated with an id column and numeric columns.
+
 ## Key options
 
-`-k` (21), `-s/--scaled` (200), `--max-bases`, `--r1-only`, `--min-cov`, `--max-samples`, `--flagged`, `--index`, `--ordination`, `--components`, `--k`, `--cut`, `--min-floors`, `--no-tree`, `--root`, `--tree-floor`, `--floor-samples`, `--resume`, `--threads`. See `popsketch run --help`.
+`-k` (21), `-s/--scaled` (200), `--max-bases`, `--r1-only`, `--min-cov`, `--max-samples`, `--flagged`, `--index`, `--ordination`, `--components`, `--k`, `--cut`, `--min-floors`, `--no-tree`, `--root`, `--tree-floor`, `--floor-samples`, `--compare-tree`, `--compare-pcs`, `--report-format`, `--resume`, `--threads`. See `popsketch run --help`.
 
 ## Validation on real read sets
 
 Run on the 559 *Coccidioides* and 334 *B. dendrobatidis* read sets (R1 and R2 merged, 1 Gb per sample, release index) and compared with problems found earlier by other means (`analysis/popgen_cocci/29_check_popsketch.py`):
 
-- ***Coccidioides***: the two species are one clear cut (k=2, a jump of 6.2 noise floors, adjusted Rand index 0.985 against the species label). The label check reports exactly the two samples already known to be mislabelled. All four non-*Coccidioides* read sets (*Histoplasma*, two *Lecanicillium*, *Fusarium*) are flagged, each by the cohort test as well as the index. All 20 mixtures that `gmg run` calls are flagged (20 of 20 with the index; the heavy ones by size or the shoulder alone). The 7% contaminant M223 and all lighter ones are found only through the index. The `center` label column, which does not follow the genetic structure, is reported as not checked instead of producing conflicts.
-- ***B. dendrobatidis***: no clear cut, as expected for a near-clonal set (the top jump is 0.9 floors; the best candidate, 5 clusters, is the five coarse groups found by hand). 54% of all pairs are closer than the noise floor. Lineages 2, 3 and 4 are reported as indistinguishable (not checked). 26 of the 27 samples known to have half their content are flagged `size_low`, with 5 borderline extras; the index-confirmed 6.3% mixture is flagged. 12 samples are flagged `abundance_shoulder`; in a diploid this can be heterozygosity, not a second organism, and I have not separated the two.
+- ***Coccidioides***: the two species are one clear cut (k=2, a jump of 6.2 noise floors, adjusted Rand index 0.985 against the species label). The label check reports exactly the two samples already known to be mislabelled. All four non-*Coccidioides* read sets (*Histoplasma*, two *Lecanicillium*, *Fusarium*) are flagged, each by the cohort test as well as the index. All 20 mixtures that `gmg run` calls are flagged (20 of 20 with the index; the heavy ones by size or the shoulder alone). M223 (a 7% contaminant) is flagged by the abundance shoulder as well as by the index; lighter ones (1 to 3%) are found only through the index. The `center` label column, which does not follow the genetic structure, is reported as not checked instead of producing conflicts.
+- ***B. dendrobatidis***: no clear cut, as expected for a near-clonal set (the top jump is 0.9 floors; the best candidate, 5 clusters, is the five coarse groups found by hand). 54% of all pairs are closer than the noise floor. Lineages 2, 3 and 4 are reported as indistinguishable (not checked). 26 of the 27 samples known to have half their content are flagged `size_low`, with 5 borderline extras; the index-confirmed 6.3% mixture is flagged. the first version flagged 12 samples `abundance_shoulder` (the shoulder sat at 0.57 times the coverage in flagged and unflagged samples alike, and the flagged ones were barely more heterozygous in the VCF). After removing the part of the shoulder that tracks the heterozygous window, 5 remain; 7 of the original 11 are still above the cut, which looks like varying ploidy. The index finds no mixture in them. Treat the shoulder in a diploid or polyploid organism as unproven.
 
 Not tested: recombining populations, assemblies as input on real data, and sets of more than about 560 samples.

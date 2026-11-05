@@ -37,6 +37,13 @@ pub enum FlagMode {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ReportFormat {
+    Html,
+    Md,
+    All,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum OrdKind {
     HashPca,
     Pcoa,
@@ -73,7 +80,13 @@ pub struct Options {
     pub tree_floor: Option<f64>,
     /// number of samples that get split-half sketches for the noise floor (0: use the fixed fallback)
     pub floor_samples: usize,
+    /// Newick tree of (some of) the same samples, for example from SNPs: compared with the sketch distances and clusters
+    pub compare_tree: Option<PathBuf>,
+    /// PC scores of (some of) the same samples, for example from SNPs: compared with the sketch PCA
+    pub compare_pcs: Option<PathBuf>,
     pub resume: bool,
+    /// `report.html` (default), `report.md` with `figures/*.svg`, or both
+    pub report_format: ReportFormat,
     pub quiet: bool,
     pub threads: Option<usize>,
 }
@@ -104,7 +117,10 @@ impl Default for Options {
             root: None,
             tree_floor: None,
             floor_samples: 20,
+            compare_tree: None,
+            compare_pcs: None,
             resume: false,
+            report_format: ReportFormat::Html,
             quiet: false,
             threads: None,
         }
@@ -176,6 +192,8 @@ pub struct Results {
     pub collapsed: usize,
     pub label_table: Option<LabelTable>,
     pub label_reports: Vec<ColumnReport>,
+    pub tree_comparison: Option<crate::compare::TreeComparison>,
+    pub pcs_comparison: Option<crate::compare::PcsComparison>,
     pub warnings: Vec<String>,
     pub advice: Option<Advice>,
 }
@@ -395,6 +413,15 @@ pub fn run(o: &Options) -> Result<Results> {
             }
         }
     }
+    let noted = qcs
+        .iter()
+        .filter(|q| q.notes.iter().any(|n| n.code == "abundance_shoulder"))
+        .count();
+    if noted > 0 {
+        warnings.push(format!(
+            "{noted} samples have an abundance shoulder that is widespread in this cohort: more likely heterozygosity or varying ploidy than contamination, so they are noted but not excluded"
+        ));
+    }
     // ---- distances among everything with enough hashes, then the unrelated-to-cohort check
     const MIN_HASHES: usize = 500;
     let mut kept: Vec<Vec<u64>> = sketches
@@ -531,6 +558,8 @@ pub fn run(o: &Options) -> Result<Results> {
         collapsed: 0,
         label_table: None,
         label_reports: Vec::new(),
+        tree_comparison: None,
+        pcs_comparison: None,
         warnings,
         advice: None,
     };
@@ -670,6 +699,30 @@ pub fn run(o: &Options) -> Result<Results> {
             }
             res.label_table = Some(table);
         }
+        // comparison with an external SNP tree and PCs
+        let names: Vec<String> = res
+            .included
+            .iter()
+            .map(|&r| res.rows[r].id.clone())
+            .collect();
+        if let Some(p) = &o.compare_tree {
+            match fs::read_to_string(p)
+                .with_context(|| format!("reading {}", p.display()))
+                .and_then(|t| crate::compare::compare_tree(&t, &names, &dist, clusters.as_deref()))
+            {
+                Ok(c) => res.tree_comparison = Some(c),
+                Err(e) => res.warnings.push(format!("--compare-tree: {e:#}")),
+            }
+        }
+        if let (Some(p), Some(ord)) = (&o.compare_pcs, &res.ordination) {
+            match fs::read_to_string(p)
+                .with_context(|| format!("reading {}", p.display()))
+                .and_then(|t| crate::compare::compare_pcs(&t, &names, ord))
+            {
+                Ok(c) => res.pcs_comparison = Some(c),
+                Err(e) => res.warnings.push(format!("--compare-pcs: {e:#}")),
+            }
+        }
         res.advice = Some(advise(&dist, clusters.as_deref(), &floor));
         res.gap = Some(gap);
         res.k_used = k_used;
@@ -707,7 +760,7 @@ fn write_matrix(path: PathBuf, ids: &[String], m: &[f64], n: usize, prec: usize)
 
 fn write_outputs(o: &Options, r: &Results) -> Result<()> {
     // qc.tsv
-    let mut s = String::from("id\tkind\tstatus\tflags\treasons\treads\tbases\thashes\tabundance_cutoff\tkept_hashes\test_size_mb\tkmer_coverage\tcoverage_basis\tsize_z\tshoulder_z\torganism_call\tsecond_taxon\tsecond_fraction\tfiles\n");
+    let mut s = String::from("id\tkind\tstatus\tflags\treasons\tnotes\treads\tbases\thashes\tabundance_cutoff\tkept_hashes\test_size_mb\tkmer_coverage\tcoverage_basis\tsize_z\tshoulder_z\torganism_call\tsecond_taxon\tsecond_fraction\tfiles\n");
     let f = |x: Option<f64>, p: usize| x.map_or(String::new(), |v| format!("{v:.p$}"));
     for row in &r.rows {
         let (flags, reasons) = (
@@ -727,12 +780,13 @@ fn write_outputs(o: &Options, r: &Results) -> Result<()> {
             Some(q) => {
                 let _ = writeln!(
                     s,
-                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{:.2}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}",
+                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{:.2}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}",
                     row.id,
                     row.kind,
                     row.status.as_str(),
                     flags,
                     tsv_cell(&reasons),
+                    tsv_cell(&q.notes.iter().map(|x| x.detail.as_str()).collect::<Vec<_>>().join("; ")),
                     q.reads,
                     q.bases,
                     q.n_hashes,
@@ -754,7 +808,7 @@ fn write_outputs(o: &Options, r: &Results) -> Result<()> {
             None => {
                 let _ = writeln!(
                     s,
-                    "{}\t{}\terror\t\t{}\t\t\t\t\t\t\t\t\t\t\t\t\t\t{}",
+                    "{}\t{}\terror\t\t{}\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t{}",
                     row.id,
                     row.kind,
                     tsv_cell(row.message.as_deref().unwrap_or("")),
@@ -844,10 +898,14 @@ fn write_outputs(o: &Options, r: &Results) -> Result<()> {
 pub fn summary_json(o: &Options, r: &Results) -> Value {
     let mut by_status: HashMap<&str, usize> = HashMap::new();
     let mut by_flag: HashMap<&str, Vec<&str>> = HashMap::new();
+    let mut by_note: HashMap<&str, Vec<&str>> = HashMap::new();
     for row in &r.rows {
         *by_status.entry(row.status.as_str()).or_default() += 1;
         for fl in row.flags() {
             by_flag.entry(fl.code).or_default().push(&row.id);
+        }
+        for n in row.qc.iter().flat_map(|q| &q.notes) {
+            by_note.entry(n.code).or_default().push(&row.id);
         }
     }
     let gap = r.gap.as_ref().map(|g| {
@@ -871,11 +929,19 @@ pub fn summary_json(o: &Options, r: &Results) -> Value {
                     "index": o.index.as_ref().map(|p| p.display().to_string())},
         "samples": {"total": r.rows.len(), "by_status": by_status, "in_analysis": r.included.len()},
         "flags": by_flag,
+        "notes": by_note,
         "noise_floor": {"value": r.floor.value, "source": r.floor.source, "n": r.floor.n, "median": r.floor.median, "p90": r.floor.p90},
         "clusters": {"k_used": r.k_used, "gap": gap},
         "ordination": r.ordination.as_ref().map(|x| json!({"method": x.method, "variance_fraction": x.var_frac, "features": x.n_features})),
         "tree": {"written": r.newick.is_some(), "branches_collapsed": r.collapsed},
         "labels": labels,
+        "compare": json!({
+            "tree": r.tree_comparison.as_ref().map(|c| json!({"tree_tips": c.tree_tips, "shared": c.shared, "spearman_all_pairs": c.spearman_all,
+                "spearman_closest_half": c.spearman_closest_half,
+                "clusters": c.clusters.iter().map(|x| json!({"cluster": x.cluster, "samples": x.n, "exact_clade": x.exact_clade, "best_f1": x.best_f1})).collect::<Vec<_>>()})),
+            "pcs": r.pcs_comparison.as_ref().map(|c| json!({"shared": c.shared, "cosines": c.cosines.iter().map(|(m, v)| json!({"top": m, "cosines": v})).collect::<Vec<_>>(),
+                "procrustes_top3": c.procrustes_top3, "distance_spearman_top5": c.distance_spearman_top5})),
+        }),
         "advice": r.advice.as_ref().map(|a| json!({"fraction_pairs_below_floor": a.frac_pairs_below_floor, "statements": a.statements})),
         "warnings": r.warnings,
     })

@@ -3,6 +3,7 @@
 
 pub mod advisor;
 pub mod cluster;
+pub mod compare;
 pub mod dist;
 pub mod floor;
 pub mod labels;

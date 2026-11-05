@@ -3,7 +3,7 @@
 //! generator is deterministic (fixed seeds) and needs no external data or tool.
 
 use popsketch::cluster::Verdict;
-use popsketch::pipeline::{run, FlagMode, Options, Results, Status};
+use popsketch::pipeline::{run, FlagMode, Options, ReportFormat, Results, Status};
 use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -453,4 +453,114 @@ fn a_clonal_set_is_one_population_and_too_many_samples_are_refused() {
     let err = run(&too_many).err().unwrap().to_string();
     assert!(err.contains("--max-samples"), "{err}");
     let _ = fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn comparison_with_an_external_tree_and_pcs_reports_clades_and_matching_planes() {
+    let t = build("compare");
+    // an external "SNP" tree with the three planted groups as clades, and PC scores that place the groups apart
+    let clean: Vec<&(String, usize)> = t.group_of.iter().collect();
+    let mut nwk = String::from("(");
+    for g in 0..3 {
+        if g > 0 {
+            nwk.push(',');
+        }
+        nwk.push('(');
+        let members: Vec<String> = clean
+            .iter()
+            .filter(|x| x.1 == g)
+            .map(|x| format!("{}:0.001", x.0))
+            .collect();
+        nwk.push_str(&members.join(","));
+        nwk.push_str("):0.01");
+    }
+    nwk.push_str(");");
+    fs::write(t.dir.join("snp.nwk"), nwk).unwrap();
+    let centre = [(-10.0, 0.0), (5.0, 8.0), (5.0, -8.0)];
+    let mut pcs = String::from("id\tPC1\tPC2\tPC3\n");
+    let mut r = Rng(4242);
+    for (id, g) in &t.group_of {
+        pcs.push_str(&format!(
+            "{id}\t{:.4}\t{:.4}\t{:.4}\n",
+            centre[*g].0 + r.f() - 0.5,
+            centre[*g].1 + r.f() - 0.5,
+            r.f() - 0.5
+        ));
+    }
+    fs::write(t.dir.join("snp_pcs.tsv"), pcs).unwrap();
+    let mut o = opts(&t, "compare");
+    o.compare_tree = Some(t.dir.join("snp.nwk"));
+    o.compare_pcs = Some(t.dir.join("snp_pcs.tsv"));
+    o.report_format = ReportFormat::All;
+    let r = run(&o).unwrap();
+    assert!(r.warnings.is_empty(), "{:?}", r.warnings);
+    let tc = r.tree_comparison.as_ref().expect("tree comparison");
+    assert_eq!(tc.shared, 27);
+    assert_eq!(tc.clusters.len(), 3);
+    assert!(
+        tc.clusters.iter().all(|c| c.exact_clade),
+        "{:?}",
+        tc.clusters
+    );
+    assert!(tc.spearman_all > 0.7, "{}", tc.spearman_all);
+    let pc = r.pcs_comparison.as_ref().expect("pcs comparison");
+    assert_eq!(pc.shared, 27);
+    let top2 = &pc.cosines.iter().find(|c| c.0 == 2).unwrap().1;
+    assert!(top2.iter().all(|&c| c > 0.9), "{top2:?}");
+    assert!(pc.procrustes_top3.is_some());
+    let json: serde_json::Value = serde_json::from_str(
+        &fs::read_to_string(t.dir.join("out_compare/popsketch.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(
+        json["compare"]["tree"]["clusters"]
+            .as_array()
+            .unwrap()
+            .len(),
+        3
+    );
+    let html = fs::read_to_string(t.dir.join("out_compare/report.html")).unwrap();
+    assert!(
+        html.contains("Comparison with the supplied SNP results")
+            && html.contains("is a clade of the tree")
+    );
+    // the Markdown report: the same sections, figures as standalone SVG files
+    let md = fs::read_to_string(t.dir.join("out_compare/report.md")).unwrap();
+    for needle in [
+        "# popsketch: sample audit and coarse structure",
+        "## 1. Audit",
+        "## 2. Coarse structure (secondary)",
+        "## 4. Comparison with the supplied SNP results",
+        "| flag | samples | which |",
+        "![size_vs_coverage](figures/size_vs_coverage.svg)",
+        "![pca](figures/pca_1.svg)",
+        "![tree](figures/tree.svg)",
+        "What the audit cannot see.",
+    ] {
+        assert!(md.contains(needle), "report.md lacks {needle:?}");
+    }
+    for f in [
+        "size_vs_coverage.svg",
+        "pca_1.svg",
+        "pca_2.svg",
+        "distances.svg",
+        "tree.svg",
+    ] {
+        let svg = fs::read_to_string(t.dir.join("out_compare/figures").join(f))
+            .unwrap_or_else(|_| panic!("{f} missing"));
+        assert!(
+            svg.starts_with("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\""),
+            "{f}: {}",
+            &svg[..60.min(svg.len())]
+        );
+        assert!(svg.contains("<style>") && svg.ends_with("</svg>"), "{f}");
+    }
+    // the default writes the HTML only
+    assert!(!t.dir.join("out_main").join("report.md").exists());
+    // a missing file is a warning, not a failure
+    let mut o2 = opts(&t, "compare2");
+    o2.compare_tree = Some(t.dir.join("nope.nwk"));
+    let r2 = run(&o2).unwrap();
+    assert!(r2.warnings.iter().any(|w| w.contains("--compare-tree")));
+    cleanup(&t);
 }

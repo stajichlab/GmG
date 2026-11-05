@@ -2,7 +2,7 @@
 //! resolution limits of the data.
 
 use crate::cluster::Verdict;
-use crate::pipeline::{Options, Results, Status};
+use crate::pipeline::{Options, ReportFormat, Results, Status};
 use crate::tree::{root_tree, Rooted};
 use anyhow::Result;
 use std::collections::BTreeMap;
@@ -264,25 +264,256 @@ th{color:var(--mute);font-weight:600}code{background:var(--card);padding:0 3px;b
 .warn{color:var(--warn)}.bad{color:var(--bad)}.grid{display:flex;flex-wrap:wrap;gap:16px}
 "#;
 
-pub fn write(o: &Options, r: &Results) -> Result<()> {
-    let mut h = String::new();
-    let _ = write!(h, "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>popsketch report</title><style>{CSS}</style></head><body>");
+// ---- a small document model rendered to HTML or Markdown ------------------------------------------------------------
+
+enum In {
+    T(String),
+    C(String),
+    B(String),
+    Br,
+}
+
+fn t(s: impl Into<String>) -> In {
+    In::T(s.into())
+}
+fn c(s: impl Into<String>) -> In {
+    In::C(s.into())
+}
+fn b(s: impl Into<String>) -> In {
+    In::B(s.into())
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum Tone {
+    Plain,
+    Note,
+    Warn,
+    Bad,
+}
+
+enum Block {
+    H(u8, String),
+    P(Vec<In>, Tone),
+    Card(Vec<In>),
+    Table(Vec<&'static str>, Vec<Vec<Vec<In>>>),
+    List(Vec<Vec<In>>),
+    /// one or more SVG plots under one name
+    Fig(&'static str, Vec<String>),
+    Legend(Vec<(String, usize)>),
+}
+
+fn inl_html(v: &[In]) -> String {
+    v.iter()
+        .map(|x| match x {
+            In::T(s) => esc(s),
+            In::C(s) => format!("<code>{}</code>", esc(s)),
+            In::B(s) => format!("<b>{}</b>", esc(s)),
+            In::Br => "<br>".to_string(),
+        })
+        .collect()
+}
+
+fn inl_md(v: &[In]) -> String {
+    v.iter()
+        .map(|x| match x {
+            In::T(s) => s.replace('|', "\\|").replace('\n', " "),
+            In::C(s) => format!("`{}`", s.replace('`', "'").replace('|', "\\|")),
+            In::B(s) => format!("**{}**", s.replace('|', "\\|")),
+            In::Br => "<br>".to_string(),
+        })
+        .collect()
+}
+
+fn render_html(blocks: &[Block]) -> String {
+    let mut h = format!("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>popsketch report</title><style>{CSS}</style></head><body>");
+    for bl in blocks {
+        match bl {
+            Block::H(l, s) => {
+                let _ = write!(h, "<h{l}>{}</h{l}>", esc(s));
+            }
+            Block::P(v, tone) => {
+                let cls = match tone {
+                    Tone::Plain => "",
+                    Tone::Note => " class=\"note\"",
+                    Tone::Warn => " class=\"warn\"",
+                    Tone::Bad => " class=\"bad\"",
+                };
+                let _ = write!(h, "<p{cls}>{}</p>", inl_html(v));
+            }
+            Block::Card(v) => {
+                let _ = write!(h, "<div class=\"card\">{}</div>", inl_html(v));
+            }
+            Block::Table(head, rows) => {
+                h.push_str("<table><tr>");
+                for x in head {
+                    let _ = write!(h, "<th>{}</th>", esc(x));
+                }
+                h.push_str("</tr>");
+                for row in rows {
+                    h.push_str("<tr>");
+                    for cell in row {
+                        let _ = write!(h, "<td>{}</td>", inl_html(cell));
+                    }
+                    h.push_str("</tr>");
+                }
+                h.push_str("</table>");
+            }
+            Block::List(items) => {
+                h.push_str("<ul>");
+                for it in items {
+                    let _ = write!(h, "<li>{}</li>", inl_html(it));
+                }
+                h.push_str("</ul>");
+            }
+            Block::Fig(_, svgs) => {
+                if svgs.len() > 1 {
+                    h.push_str("<div class=\"grid\">");
+                }
+                for s in svgs {
+                    h.push_str(s);
+                }
+                if svgs.len() > 1 {
+                    h.push_str("</div>");
+                }
+            }
+            Block::Legend(items) => h.push_str(&legend(items)),
+        }
+    }
+    h.push_str("</body></html>");
+    h
+}
+
+const SVG_CSS: &str = ".frame{fill:none;stroke:#c9cfda}.tick,.axis,.tl{fill:#5b6577;font-family:sans-serif;font-size:10px}.axis{font-size:11px}.floor{stroke:#b3261e;stroke-dasharray:4 3}.br{stroke:#5b6577;fill:none;stroke-width:1}";
+
+/// An SVG that stands on its own: namespace, a width, and the styles the HTML page supplies through its stylesheet.
+fn standalone_svg(svg: &str) -> String {
+    let width = svg
+        .split("viewBox=\"0 0 ")
+        .nth(1)
+        .and_then(|x| x.split_whitespace().next())
+        .unwrap_or("560");
+    let svg = svg.replacen(
+        "<svg ",
+        &format!("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{width}\" "),
+        1,
+    );
+    match svg.find('>') {
+        Some(i) => format!("{}<style>{SVG_CSS}</style>{}", &svg[..=i], &svg[i + 1..]),
+        None => svg,
+    }
+}
+
+fn render_md(blocks: &[Block], dir: &std::path::Path) -> Result<String> {
+    fs::create_dir_all(dir.join("figures"))?;
+    let mut m = String::new();
+    for bl in blocks {
+        match bl {
+            Block::H(l, s) => {
+                let _ = write!(m, "\n{} {}\n\n", "#".repeat(*l as usize), s);
+            }
+            Block::P(v, tone) => {
+                let text = inl_md(v);
+                let _ = match tone {
+                    Tone::Note => writeln!(m, "*{}*\n", text.trim()),
+                    Tone::Warn | Tone::Bad => writeln!(m, "**Note:** {text}\n"),
+                    Tone::Plain => writeln!(m, "{text}\n"),
+                };
+            }
+            Block::Card(v) => {
+                let _ = writeln!(m, "> {}\n", inl_md(v));
+            }
+            Block::Table(head, rows) => {
+                let _ = writeln!(m, "| {} |", head.join(" | "));
+                let _ = writeln!(
+                    m,
+                    "|{}|",
+                    head.iter().map(|_| "---").collect::<Vec<_>>().join("|")
+                );
+                for row in rows {
+                    let _ = writeln!(
+                        m,
+                        "| {} |",
+                        row.iter()
+                            .map(|c| inl_md(c))
+                            .collect::<Vec<_>>()
+                            .join(" | ")
+                    );
+                }
+                m.push('\n');
+            }
+            Block::List(items) => {
+                for it in items {
+                    let _ = writeln!(m, "- {}", inl_md(it));
+                }
+                m.push('\n');
+            }
+            Block::Fig(name, svgs) => {
+                for (i, s) in svgs.iter().enumerate() {
+                    let file = if svgs.len() > 1 {
+                        format!("{name}_{}.svg", i + 1)
+                    } else {
+                        format!("{name}.svg")
+                    };
+                    fs::write(dir.join("figures").join(&file), standalone_svg(s))?;
+                    let _ = writeln!(m, "![{name}](figures/{file})\n");
+                }
+            }
+            Block::Legend(items) => {
+                let _ = writeln!(
+                    m,
+                    "Colours: {}\n",
+                    items
+                        .iter()
+                        .map(|(n, ci)| format!("{n} ({})", PALETTE[ci % PALETTE.len()]))
+                        .collect::<Vec<_>>()
+                        .join("; ")
+                );
+            }
+        }
+    }
+    Ok(m)
+}
+
+fn tone_block(v: Vec<In>, tone: Tone) -> Block {
+    Block::P(v, tone)
+}
+
+/// The report as blocks, shared by the HTML and Markdown renderers.
+fn build(o: &Options, r: &Results) -> Vec<Block> {
+    let mut d: Vec<Block> = Vec::new();
     let n_total = r.rows.len();
     let count = |s: Status| r.rows.iter().filter(|x| x.status == s).count();
-    let _ = write!(
-        h,
-        "<h1>popsketch: sample audit and coarse structure</h1><p class=\"note\">k={}, scaled={}, {} per sample, flagged samples: {:?}. This tool compares sketches, not alignments: it audits a set of read files and shows coarse structure; it does not build a phylogeny.</p>",
-        o.ksize,
-        o.scaled,
-        if o.max_bases == 0 { "no base limit".to_string() } else { format!("up to {} bases", o.max_bases) },
-        o.flagged
-    );
+    d.push(Block::H(
+        1,
+        "popsketch: sample audit and coarse structure".into(),
+    ));
+    d.push(tone_block(
+        vec![t(format!(
+            "k={}, scaled={}, {} per sample, flagged samples: {:?}. This tool compares sketches, not alignments: it audits a set of read files and shows coarse structure; it does not build a phylogeny.",
+            o.ksize,
+            o.scaled,
+            if o.max_bases == 0 { "no base limit".to_string() } else { format!("up to {} bases", o.max_bases) },
+            o.flagged
+        ))],
+        Tone::Note,
+    ));
     // ---- audit
-    let _ = write!(
-        h,
-        "<h2>1. Audit</h2><div class=\"card\"><b>{n_total}</b> samples: <b>{}</b> in the analysis ({} included, {} marked, {} decontaminated), <b>{}</b> excluded, <b>{}</b> unreadable.</div>",
-        r.included.len(), count(Status::Included), count(Status::Marked), count(Status::Decontaminated), count(Status::Excluded), count(Status::Error)
-    );
+    d.push(Block::H(2, "1. Audit".into()));
+    d.push(Block::Card(vec![
+        b(n_total.to_string()),
+        t(" samples: "),
+        b(r.included.len().to_string()),
+        t(format!(
+            " in the analysis ({} included, {} marked, {} decontaminated), ",
+            count(Status::Included),
+            count(Status::Marked),
+            count(Status::Decontaminated)
+        )),
+        b(count(Status::Excluded).to_string()),
+        t(" excluded, "),
+        b(count(Status::Error).to_string()),
+        t(" unreadable."),
+    ]));
     let mut by_flag: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     for row in &r.rows {
         for f in row.flags() {
@@ -290,62 +521,102 @@ pub fn write(o: &Options, r: &Results) -> Result<()> {
         }
     }
     if by_flag.is_empty() {
-        h.push_str("<p>No sample was flagged.</p>");
+        d.push(Block::P(vec![t("No sample was flagged.")], Tone::Plain));
     } else {
-        h.push_str("<table><tr><th>flag</th><th>samples</th><th>which</th></tr>");
-        for (code, ids) in &by_flag {
-            let shown: Vec<&str> = ids.iter().take(12).copied().collect();
-            let more = if ids.len() > 12 {
-                format!(" and {} more", ids.len() - 12)
-            } else {
-                String::new()
-            };
-            let _ = write!(
-                h,
-                "<tr><td><code>{code}</code></td><td>{}</td><td>{}{more}</td></tr>",
-                ids.len(),
-                esc(&shown.join(", "))
-            );
-        }
-        h.push_str("</table><h3>Flagged samples, with the reason</h3><table><tr><th>sample</th><th>status</th><th>reasons</th></tr>");
-        for row in r
+        let rows = by_flag
+            .iter()
+            .map(|(code, ids)| {
+                let shown: Vec<&str> = ids.iter().take(12).copied().collect();
+                let more = if ids.len() > 12 {
+                    format!(" and {} more", ids.len() - 12)
+                } else {
+                    String::new()
+                };
+                vec![
+                    vec![c(*code)],
+                    vec![t(ids.len().to_string())],
+                    vec![t(format!("{}{more}", shown.join(", ")))],
+                ]
+            })
+            .collect();
+        d.push(Block::Table(vec!["flag", "samples", "which"], rows));
+        d.push(Block::H(3, "Flagged samples, with the reason".into()));
+        let rows = r
             .rows
             .iter()
             .filter(|x| x.qc.as_ref().is_some_and(|q| q.flagged()))
-        {
-            let why: Vec<String> = row
-                .flags()
-                .iter()
-                .map(|f| format!("<code>{}</code> {}", f.code, esc(&f.detail)))
-                .collect();
-            let _ = write!(
-                h,
-                "<tr><td>{}</td><td>{}</td><td>{}</td></tr>",
-                esc(&row.id),
-                row.status.as_str(),
-                why.join("<br>")
-            );
-        }
-        h.push_str("</table>");
+            .map(|row| {
+                let mut why: Vec<In> = Vec::new();
+                for (i, f) in row.flags().iter().enumerate() {
+                    if i > 0 {
+                        why.push(In::Br);
+                    }
+                    why.push(c(f.code));
+                    why.push(t(format!(" {}", f.detail)));
+                }
+                vec![vec![t(row.id.clone())], vec![t(row.status.as_str())], why]
+            })
+            .collect();
+        d.push(Block::Table(vec!["sample", "status", "reasons"], rows));
     }
     for row in r.rows.iter().filter(|x| x.status == Status::Error) {
-        let _ = write!(
-            h,
-            "<p class=\"bad\">{}: {}</p>",
-            esc(&row.id),
-            esc(row.message.as_deref().unwrap_or(""))
-        );
+        d.push(Block::P(
+            vec![t(format!(
+                "{}: {}",
+                row.id,
+                row.message.as_deref().unwrap_or("")
+            ))],
+            Tone::Bad,
+        ));
     }
-    h.push_str("<p class=\"note\"><b>What the audit cannot see.</b> Light contamination (about 1 to 7% of the reads) leaves no mark in the abundance spectrum or the size: a contaminant at 1x next to a 40x genome looks like sequencing error. Heavy contamination is caught by size (low coverage) or by an abundance shoulder (a contaminant at several-fold coverage). Giving an index (<code>--index</code>) adds the index's own mixture and organism calls.</p>");
+    let noted: Vec<&crate::pipeline::SampleRow> = r
+        .rows
+        .iter()
+        .filter(|x| x.qc.as_ref().is_some_and(|q| !q.notes.is_empty()))
+        .collect();
+    if !noted.is_empty() {
+        d.push(Block::H(3, "Notes (these samples are not excluded)".into()));
+        let rows = noted
+            .iter()
+            .take(40)
+            .map(|row| {
+                let mut why: Vec<In> = Vec::new();
+                for (i, n) in row.qc.iter().flat_map(|q| &q.notes).enumerate() {
+                    if i > 0 {
+                        why.push(In::Br);
+                    }
+                    why.push(c(n.code));
+                    why.push(t(format!(" {}", n.detail)));
+                }
+                vec![vec![t(row.id.clone())], why]
+            })
+            .collect();
+        d.push(Block::Table(vec!["sample", "note"], rows));
+        if noted.len() > 40 {
+            d.push(Block::P(
+                vec![t(format!("and {} more, in qc.tsv", noted.len() - 40))],
+                Tone::Note,
+            ));
+        }
+    }
+    d.push(Block::P(
+        vec![
+            b("What the audit cannot see."),
+            t(" Light contamination (about 1 to 7% of the reads) leaves no mark in the abundance spectrum or the size: a contaminant at 1x next to a 40x genome looks like sequencing error. Heavy contamination is caught by size (low coverage) or by an abundance shoulder (a contaminant at several-fold coverage). Giving an index ("),
+            c("--index"),
+            t(") adds the index's own mixture and organism calls."),
+        ],
+        Tone::Note,
+    ));
     // size vs coverage
     let pts: Vec<Pt> = r
         .rows
         .iter()
         .filter_map(|row| {
             let q = row.qc.as_ref()?;
-            let c = q.kmer_cov?;
+            let cov = q.kmer_cov?;
             Some(Pt {
-                x: c.max(0.1),
+                x: cov.max(0.1),
                 y: q.est_mb,
                 color: match row.status {
                     Status::Included => 0,
@@ -362,7 +633,7 @@ pub fn write(o: &Options, r: &Results) -> Result<()> {
                     "{}: {:.1} Mb at {:.1}x{}",
                     row.id,
                     q.est_mb,
-                    c,
+                    cov,
                     if q.flagged() {
                         format!(
                             " ({})",
@@ -380,14 +651,17 @@ pub fn write(o: &Options, r: &Results) -> Result<()> {
         })
         .collect();
     if !pts.is_empty() {
-        h.push_str("<h3>Estimated size against k-mer coverage</h3>");
-        h.push_str(&scatter(
-            &pts,
-            "k-mer coverage (log scale)",
-            "estimated size (Mb) = hashes above the cutoff x scaled",
-            true,
+        d.push(Block::H(3, "Estimated size against k-mer coverage".into()));
+        d.push(Block::Fig(
+            "size_vs_coverage",
+            vec![scatter(
+                &pts,
+                "k-mer coverage (log scale)",
+                "estimated size (Mb) = hashes above the cutoff x scaled",
+                true,
+            )],
         ));
-        h.push_str(&legend(&[
+        d.push(Block::Legend(vec![
             ("in the analysis".into(), 0),
             ("excluded (cross)".into(), 4),
             ("marked or decontaminated".into(), 1),
@@ -395,38 +669,81 @@ pub fn write(o: &Options, r: &Results) -> Result<()> {
     }
     // labels
     for rep in &r.label_reports {
-        let _ = write!(h, "<h2>Labels: {}</h2><p class=\"note\">{} labelled samples in the analysis; groups: {}. A blank label means unlabelled.</p>", esc(&rep.name), rep.n_labelled, esc(&rep.groups.iter().map(|(g, n)| format!("{g} ({n})")).collect::<Vec<_>>().join(", ")));
+        d.push(Block::H(2, format!("Labels: {}", rep.name)));
+        d.push(Block::P(
+            vec![t(format!(
+                "{} labelled samples in the analysis; groups: {}. A blank label means unlabelled.",
+                rep.n_labelled,
+                rep.groups
+                    .iter()
+                    .map(|(g, n)| format!("{g} ({n})"))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ))],
+            Tone::Note,
+        ));
         if !rep.unchecked.is_empty() {
-            let _ = write!(h, "<p class=\"note\">Not checked for conflicts, because these labels do not form coherent clusters in the sketches (members are not more similar to each other than to the rest): {}.</p>", esc(&rep.unchecked.join(", ")));
+            d.push(Block::P(vec![t(format!("Not checked for conflicts, because these labels do not form coherent clusters in the sketches (members are not more similar to each other than to the rest): {}.", rep.unchecked.join(", ")))], Tone::Note));
         }
         if rep.conflicts.is_empty() {
-            h.push_str("<p>No sample matches another label better than its own.</p>");
+            d.push(Block::P(
+                vec![t("No sample matches another label better than its own.")],
+                Tone::Plain,
+            ));
         } else {
-            h.push_str("<table><tr><th>sample</th><th>label</th><th>median ANI to own label</th><th>better match</th><th>median ANI there</th><th>nearest sample</th></tr>");
-            for c in &rep.conflicts {
-                let _ = write!(h, "<tr><td>{}</td><td>{}</td><td>{:.4}</td><td><b>{}</b></td><td>{:.4}</td><td>{} ({}, {:.4})</td></tr>", esc(&c.id), esc(&c.label), c.own_median_ani, esc(&c.other_label), c.other_median_ani, esc(&c.nearest), esc(c.nearest_label.as_deref().unwrap_or("unlabelled")), c.nearest_ani);
-            }
-            h.push_str("</table><p class=\"note\">A conflict means the sample's ANI to the members of another label is higher than to its own label by more than the noise floor. It is evidence to check the sample's metadata, not proof of an error.</p>");
+            let rows = rep
+                .conflicts
+                .iter()
+                .map(|x| {
+                    vec![
+                        vec![t(x.id.clone())],
+                        vec![t(x.label.clone())],
+                        vec![t(format!("{:.4}", x.own_median_ani))],
+                        vec![b(x.other_label.clone())],
+                        vec![t(format!("{:.4}", x.other_median_ani))],
+                        vec![t(format!(
+                            "{} ({}, {:.4})",
+                            x.nearest,
+                            x.nearest_label.as_deref().unwrap_or("unlabelled"),
+                            x.nearest_ani
+                        ))],
+                    ]
+                })
+                .collect();
+            d.push(Block::Table(
+                vec![
+                    "sample",
+                    "label",
+                    "median ANI to own label",
+                    "better match",
+                    "median ANI there",
+                    "nearest sample",
+                ],
+                rows,
+            ));
+            d.push(Block::P(vec![t("A conflict means the sample's ANI to the members of another label is higher than to its own label by more than the noise floor. It is evidence to check the sample's metadata, not proof of an error.")], Tone::Note));
         }
         if !rep.ari.is_empty() {
-            h.push_str(
-                "<table><tr><th>clusters</th><th>adjusted Rand index vs this label</th></tr>",
-            );
-            for (k, a) in &rep.ari {
-                let _ = write!(h, "<tr><td>{k}</td><td>{a:.3}</td></tr>");
-            }
-            h.push_str("</table>");
+            let rows = rep
+                .ari
+                .iter()
+                .map(|(k, a)| vec![vec![t(k.to_string())], vec![t(format!("{a:.3}"))]])
+                .collect();
+            d.push(Block::Table(
+                vec!["clusters", "adjusted Rand index vs this label"],
+                rows,
+            ));
         }
     }
     // ---- structure
-    h.push_str("<h2>2. Coarse structure (secondary)</h2>");
-    if let (Some(d), Some(ord)) = (&r.dist, &r.ordination) {
-        let n = d.n;
+    d.push(Block::H(2, "2. Coarse structure (secondary)".into()));
+    if let (Some(dm), Some(ord)) = (&r.dist, &r.ordination) {
+        let n = dm.n;
         let names: Vec<String> = r.included.iter().map(|&i| r.rows[i].id.clone()).collect();
         // colour by the first label column when present, else by cluster
         let (colors, items): (Vec<usize>, Vec<(String, usize)>) =
-            if let (Some(t), Some(_)) = (&r.label_table, r.label_reports.first()) {
-                let labs = crate::labels::column_labels(t, &names, 0);
+            if let (Some(tb), Some(_)) = (&r.label_table, r.label_reports.first()) {
+                let labs = crate::labels::column_labels(tb, &names, 0);
                 let mut uniq: Vec<String> = labs.iter().flatten().cloned().collect();
                 uniq.sort();
                 uniq.dedup();
@@ -447,9 +764,9 @@ pub fn write(o: &Options, r: &Results) -> Result<()> {
             } else if let Some(cl) = &r.clusters {
                 let k = cl.iter().copied().max().map_or(0, |m| m + 1);
                 (
-                    cl.iter().map(|&c| c % 8).collect(),
+                    cl.iter().map(|&x| x % 8).collect(),
                     (0..k)
-                        .map(|c| (format!("cluster {}", c + 1), c % 8))
+                        .map(|x| (format!("cluster {}", x + 1), x % 8))
                         .collect(),
                 )
             } else {
@@ -459,7 +776,7 @@ pub fn write(o: &Options, r: &Results) -> Result<()> {
         let by = if r.label_table.is_some() {
             format!(
                 "label column {}",
-                r.label_reports.first().map_or("", |c| c.name.as_str())
+                r.label_reports.first().map_or("", |x| x.name.as_str())
             )
         } else {
             "cluster".to_string()
@@ -469,11 +786,11 @@ pub fn write(o: &Options, r: &Results) -> Result<()> {
             Status::Decontaminated => 2,
             _ => 0,
         };
-        let pc = |a: usize, b: usize| -> String {
+        let pc = |a: usize, bb: usize| -> String {
             let pts: Vec<Pt> = (0..n)
                 .map(|i| Pt {
                     x: ord.coords[i][a],
-                    y: ord.coords[i][b],
+                    y: ord.coords[i][bb],
                     color: color_of(i),
                     shape: shape(i),
                     title: format!(
@@ -481,85 +798,240 @@ pub fn write(o: &Options, r: &Results) -> Result<()> {
                         names[i],
                         r.clusters
                             .as_ref()
-                            .map_or("NA".to_string(), |c| (c[i] + 1).to_string())
+                            .map_or("NA".to_string(), |x| (x[i] + 1).to_string())
                     ),
                 })
                 .collect();
             scatter(
                 &pts,
                 &format!("PC{} ({:.1}% of variance)", a + 1, ord.var_frac[a] * 100.0),
-                &format!("PC{} ({:.1}%)", b + 1, ord.var_frac[b] * 100.0),
+                &format!("PC{} ({:.1}%)", bb + 1, ord.var_frac[bb] * 100.0),
                 false,
             )
         };
-        let _ = write!(h, "<p class=\"note\">{} on {} {}; coloured by {by}. Triangles are flagged samples kept with <code>--flagged mark</code>, diamonds are decontaminated.</p>", if ord.method == "hash_pca" { "Hash-presence PCA" } else { "PCoA of 1 - ANI" }, ord.n_features, if ord.method == "hash_pca" { "hashes" } else { "samples" });
-        h.push_str("<div class=\"grid\">");
+        d.push(Block::P(
+            vec![
+                t(format!(
+                    "{} on {} {}; coloured by {by}. Triangles are flagged samples kept with ",
+                    if ord.method == "hash_pca" {
+                        "Hash-presence PCA"
+                    } else {
+                        "PCoA of 1 - ANI"
+                    },
+                    ord.n_features,
+                    if ord.method == "hash_pca" {
+                        "hashes"
+                    } else {
+                        "samples"
+                    }
+                )),
+                c("--flagged mark"),
+                t(", diamonds are decontaminated."),
+            ],
+            Tone::Note,
+        ));
+        let mut figs = Vec::new();
         if ord.eigenvalues.len() >= 2 {
-            h.push_str(&pc(0, 1));
+            figs.push(pc(0, 1));
         }
         if ord.eigenvalues.len() >= 3 {
-            h.push_str(&pc(1, 2));
+            figs.push(pc(1, 2));
         }
-        h.push_str("</div>");
-        h.push_str(&legend(&items));
+        d.push(Block::Fig("pca", figs));
+        d.push(Block::Legend(items));
         // clusters
         if let Some(g) = &r.gap {
-            let (say, cls) = match &g.verdict {
-                Verdict::Clear(k) => (format!("The largest jump in the clustering gives <b>{k} clusters</b>: it is {:.1} times the noise floor. A structureless population would show a gap ratio this large with probability {} (ratio {:.1}), so this is evidence of a split larger than the technical noise, not proof of distinct populations.", g.gap_over_floor, if g.null_p < 0.001 { "under 0.001".to_string() } else { format!("{:.3}", g.null_p) }, g.ratio), ""),
-                Verdict::Single => (format!("Everything merges below the noise floor (the last merge is at {:.5}): one population as far as sketches can tell.", g.top_height), ""),
-                Verdict::NoClearCut => (format!("<b>No single clear cut.</b> The largest jump is {:.1} times the noise floor (a cut needs to be at least {:.1}). Candidate cuts: {}. Use <code>--k</code> to choose one.", g.gap_over_floor, o.min_floors, g.candidates.iter().map(|c| format!("{} clusters (jump {:.5})", c.k, c.gap)).collect::<Vec<_>>().join("; ")), "warn"),
-                Verdict::TooFew => ("Too few samples to cluster.".to_string(), "warn"),
+            let (say, tone): (Vec<In>, Tone) = match &g.verdict {
+                Verdict::Clear(k) => (
+                    vec![
+                        t("The largest jump in the clustering gives "),
+                        b(format!("{k} clusters")),
+                        t(format!(
+                            ": it is {:.1} times the noise floor. A structureless population would show a gap ratio this large with probability {} (ratio {:.1}), so this is evidence of a split larger than the technical noise, not proof of distinct populations.",
+                            g.gap_over_floor,
+                            if g.null_p < 0.001 { "under 0.001".to_string() } else { format!("{:.3}", g.null_p) },
+                            g.ratio
+                        )),
+                    ],
+                    Tone::Plain,
+                ),
+                Verdict::Single => (vec![t(format!("Everything merges below the noise floor (the last merge is at {:.5}): one population as far as sketches can tell.", g.top_height))], Tone::Plain),
+                Verdict::NoClearCut => (
+                    vec![
+                        b("No single clear cut."),
+                        t(format!(
+                            " The largest jump is {:.1} times the noise floor (a cut needs to be at least {:.1}). Candidate cuts: {}. Use ",
+                            g.gap_over_floor,
+                            o.min_floors,
+                            g.candidates.iter().map(|x| format!("{} clusters (jump {:.5})", x.k, x.gap)).collect::<Vec<_>>().join("; ")
+                        )),
+                        c("--k"),
+                        t(" to choose one."),
+                    ],
+                    Tone::Warn,
+                ),
+                Verdict::TooFew => (vec![t("Too few samples to cluster.")], Tone::Warn),
             };
-            let forced = if o.k.is_some() || o.cut.is_some() {
-                format!(
+            let mut say = say;
+            if o.k.is_some() || o.cut.is_some() {
+                say.push(t(format!(
                     " Clusters shown use {} clusters, as requested.",
                     r.k_used.unwrap_or(0)
-                )
-            } else {
-                String::new()
-            };
-            let _ = write!(h, "<h3>Clusters</h3><p class=\"{cls}\">{say}{forced}</p>");
+                )));
+            }
+            d.push(Block::H(3, "Clusters".into()));
+            d.push(Block::P(say, tone));
         }
         // distance histogram
         let mut vals = Vec::new();
         for i in 0..n {
             for j in (i + 1)..n {
-                vals.push(1.0 - d.ani(i, j));
+                vals.push(1.0 - dm.ani(i, j));
             }
         }
-        h.push_str("<h3>Pairwise distances</h3>");
-        h.push_str(&histogram(&vals, r.floor.value));
+        d.push(Block::H(3, "Pairwise distances".into()));
+        d.push(Block::Fig(
+            "distances",
+            vec![histogram(&vals, r.floor.value)],
+        ));
         // tree
-        if let Some(nw) = &r.newick {
-            let _ = nw;
-            let t = {
-                let mut tr = crate::tree::neighbor_joining(&d.mash, n, names.clone());
+        if r.newick.is_some() {
+            let tr = {
+                let mut tr = crate::tree::neighbor_joining(&dm.mash, n, names.clone());
                 crate::tree::collapse(&mut tr, o.tree_floor.unwrap_or(r.floor.value));
                 root_tree(&tr, o.root.as_deref())
             };
-            let _ = write!(h, "<h3>Tree</h3><p class=\"note\">Neighbour-joining on mash distance; {} branches shorter than the noise floor were collapsed, so unresolved parts are drawn as polytomies. {} Tips are coloured as above. This is a first-pass clustering tree, not a phylogeny: recombination, accessory content and uneven coverage distort it.</p>", r.collapsed, if o.root.is_some() { "Rooted on the named sample." } else { "Unrooted (drawn from an arbitrary node)." });
-            h.push_str(&draw_tree(&t, &names, &color_of, 120));
-            h.push_str("<p class=\"note\">The full tree is in <code>tree.nwk</code>.</p>");
+            d.push(Block::H(3, "Tree".into()));
+            d.push(Block::P(
+                vec![t(format!(
+                    "Neighbour-joining on mash distance; {} branches shorter than the noise floor were collapsed, so unresolved parts are drawn as polytomies. {} Tips are coloured as above. This is a first-pass clustering tree, not a phylogeny: recombination, accessory content and uneven coverage distort it.",
+                    r.collapsed,
+                    if o.root.is_some() { "Rooted on the named sample." } else { "Unrooted (drawn from an arbitrary node)." }
+                ))],
+                Tone::Note,
+            ));
+            d.push(Block::Fig(
+                "tree",
+                vec![draw_tree(&tr, &names, &color_of, 120)],
+            ));
+            d.push(Block::P(
+                vec![t("The full tree is in "), c("tree.nwk"), t(".")],
+                Tone::Note,
+            ));
         }
         // advisor
         if let Some(a) = &r.advice {
-            h.push_str("<h2>3. Resolution: what these data can and cannot say</h2><ul>");
-            for s in &a.statements {
-                let _ = write!(h, "<li>{}</li>", esc(s));
+            d.push(Block::H(
+                2,
+                "3. Resolution: what these data can and cannot say".into(),
+            ));
+            d.push(Block::List(
+                a.statements.iter().map(|s| vec![t(s.clone())]).collect(),
+            ));
+        }
+        // comparison with an external tree and PCs
+        if r.tree_comparison.is_some() || r.pcs_comparison.is_some() {
+            d.push(Block::H(
+                2,
+                "4. Comparison with the supplied SNP results".into(),
+            ));
+        }
+        if let Some(cmp) = &r.tree_comparison {
+            d.push(Block::H(3, "Tree".into()));
+            d.push(Block::P(
+                vec![t(format!(
+                    "{} samples are in both the run and the tree ({} tips). Spearman correlation of the tree's patristic distance with the sketch distance: {:.2} for all pairs, {:.2} for the closest half of the pairs (where sketches have the least to say).",
+                    cmp.shared, cmp.tree_tips, cmp.spearman_all, cmp.spearman_closest_half
+                ))],
+                Tone::Note,
+            ));
+            if !cmp.clusters.is_empty() {
+                let rows = cmp
+                    .clusters
+                    .iter()
+                    .map(|x| {
+                        vec![
+                            vec![t(x.cluster.to_string())],
+                            vec![t(x.n.to_string())],
+                            vec![t(if x.exact_clade { "yes" } else { "no" })],
+                            vec![t(format!("{:.3}", x.best_f1))],
+                        ]
+                    })
+                    .collect();
+                d.push(Block::Table(
+                    vec![
+                        "cluster",
+                        "samples in the tree",
+                        "is a clade of the tree",
+                        "best match (F1) with any clade or its complement",
+                    ],
+                    rows,
+                ));
             }
-            h.push_str("</ul>");
+        }
+        if let Some(cmp) = &r.pcs_comparison {
+            let mut s = format!("{} samples are in both. Cosines of the principal angles between the top-m subspaces (1 = the same plane): ", cmp.shared);
+            for (m, v) in &cmp.cosines {
+                let _ = write!(
+                    s,
+                    "top {m}: {}; ",
+                    v.iter()
+                        .map(|x| format!("{x:.2}"))
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                );
+            }
+            let _ = write!(s, "Procrustes disparity of the top 3 (0 = identical up to rotation): {}. Spearman correlation of pairwise distances in the top-5 PC space: {:.2}.", cmp.procrustes_top3.map_or("n/a".to_string(), |x| format!("{x:.2}")), cmp.distance_spearman_top5);
+            d.push(Block::H(3, "Principal components".into()));
+            d.push(Block::P(vec![t(s)], Tone::Note));
         }
     } else {
-        h.push_str("<p class=\"warn\">Too few samples passed the audit for distances, ordination or a tree.</p>");
+        d.push(Block::P(
+            vec![t(
+                "Too few samples passed the audit for distances, ordination or a tree.",
+            )],
+            Tone::Warn,
+        ));
     }
     if !r.warnings.is_empty() {
-        h.push_str("<h2>Warnings</h2><ul>");
-        for w in &r.warnings {
-            let _ = write!(h, "<li>{}</li>", esc(w));
-        }
-        h.push_str("</ul>");
+        d.push(Block::H(2, "Warnings".into()));
+        d.push(Block::List(
+            r.warnings.iter().map(|w| vec![t(w.clone())]).collect(),
+        ));
     }
-    h.push_str("<p class=\"note\">Files: <code>qc.tsv</code> (every sample, flags with reasons), <code>ani.tsv</code>, <code>mash.tsv</code>, <code>pca.tsv</code>, <code>clusters.tsv</code>, <code>tree.nwk</code>, <code>label_check.tsv</code>, <code>popsketch.json</code>.</p></body></html>");
-    fs::write(o.out.join("report.html"), h)?;
+    d.push(Block::P(
+        vec![
+            t("Files: "),
+            c("qc.tsv"),
+            t(" (every sample, flags with reasons), "),
+            c("ani.tsv"),
+            t(", "),
+            c("mash.tsv"),
+            t(", "),
+            c("pca.tsv"),
+            t(", "),
+            c("clusters.tsv"),
+            t(", "),
+            c("tree.nwk"),
+            t(", "),
+            c("label_check.tsv"),
+            t(", "),
+            c("popsketch.json"),
+            t("."),
+        ],
+        Tone::Note,
+    ));
+    d
+}
+
+/// Write `report.html` and/or `report.md` (with `figures/*.svg`) as `Options::report_format` asks.
+pub fn write(o: &Options, r: &Results) -> Result<()> {
+    let blocks = build(o, r);
+    if matches!(o.report_format, ReportFormat::Html | ReportFormat::All) {
+        fs::write(o.out.join("report.html"), render_html(&blocks))?;
+    }
+    if matches!(o.report_format, ReportFormat::Md | ReportFormat::All) {
+        fs::write(o.out.join("report.md"), render_md(&blocks, &o.out)?)?;
+    }
     Ok(())
 }

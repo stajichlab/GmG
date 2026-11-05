@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand, ValueEnum};
-use popsketch::pipeline::{run, FlagMode, Options, OrdKind};
+use popsketch::pipeline::{run, FlagMode, Options, OrdKind, ReportFormat};
 use std::path::PathBuf;
 
 #[derive(Parser)]
@@ -22,6 +22,13 @@ enum FlaggedArg {
     Mark,
     /// remove contamination with the cohort vote and put them back (other flagged samples stay out)
     Decontaminate,
+}
+
+#[derive(Clone, Copy, ValueEnum)]
+enum ReportArg {
+    Html,
+    Md,
+    All,
 }
 
 #[derive(Clone, Copy, ValueEnum)]
@@ -101,9 +108,18 @@ enum Cmd {
         /// samples that get split-half sketches to measure the noise floor (0: fixed fallback)
         #[arg(long, default_value_t = 20)]
         floor_samples: usize,
+        /// Newick tree of the same samples (for example from SNPs) to compare with: distance correlation, and whether each cluster is a clade
+        #[arg(long)]
+        compare_tree: Option<PathBuf>,
+        /// PC scores of the same samples (for example from SNPs; id column then PC columns) to compare with the sketch PCA
+        #[arg(long)]
+        compare_pcs: Option<PathBuf>,
         /// reuse sketches from an earlier run in the same output folder (only sketching is resumed)
         #[arg(long)]
         resume: bool,
+        /// report.html (default), report.md with figures/*.svg, or both
+        #[arg(long, value_enum, default_value = "html")]
+        report_format: ReportArg,
         #[arg(short, long)]
         quiet: bool,
         #[arg(long)]
@@ -138,7 +154,10 @@ fn main() -> Result<()> {
             root,
             tree_floor,
             floor_samples,
+            compare_tree,
+            compare_pcs,
             resume,
+            report_format,
             quiet,
             threads,
         } => {
@@ -173,7 +192,14 @@ fn main() -> Result<()> {
                 root,
                 tree_floor,
                 floor_samples,
+                compare_tree,
+                compare_pcs,
                 resume,
+                report_format: match report_format {
+                    ReportArg::Html => ReportFormat::Html,
+                    ReportArg::Md => ReportFormat::Md,
+                    ReportArg::All => ReportFormat::All,
+                },
                 quiet,
                 threads,
             };

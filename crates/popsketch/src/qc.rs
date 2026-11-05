@@ -5,8 +5,11 @@
 //! * `size_high` / `size_low`: the estimated size (hashes above the abundance cutoff x scaled) is far from the cohort median
 //!   (robust z, with a floor so a tight cohort does not flag everything). Heavy contamination (a second genome) shows as
 //!   `size_high`; a sample missing half its content as `size_low`.
-//! * `abundance_shoulder`: hashes at low-but-real abundance (0.1c-0.6c) beyond what a single genome predicts, standardised
+//! * `abundance_shoulder`: hashes at low-but-real abundance (0.1c-0.4c) beyond what a single genome predicts, standardised
 //!   within coverage bins. Catches a contaminant whose own coverage is several-fold; it cannot see lighter contamination.
+//!   The window stops at 0.4c on purpose: a heterozygous diploid has a peak at about half the main coverage (on 334 Bd read
+//!   sets the shoulder sat at 0.57c in flagged and unflagged samples alike), so a contaminant near half the coverage cannot
+//!   be told from heterozygosity and is not looked for.
 
 use crate::sketch_io::SampleSketch;
 use crate::stats::{mad_sd, median, robust_z};
@@ -62,6 +65,8 @@ pub struct SampleQc {
     pub shoulder_z: Option<f64>,
     pub size_z: Option<f64>,
     pub flags: Vec<Flag>,
+    /// observations that do not exclude the sample (an abundance shoulder in a cohort where it is widespread)
+    pub notes: Vec<Flag>,
 }
 
 impl SampleQc {
@@ -84,10 +89,19 @@ fn poisson_pmf(lambda: f64, amax: usize) -> Vec<f64> {
     p
 }
 
-/// Shoulder statistic: hashes with abundance in [lo, hi), lo = max(3, 0.1c), hi = ceil(0.6c), as a fraction of the genome
-/// mass (hashes at or above hi). Also returns the excess over the Poisson(c) expectation, for tests and the JSON.
+/// Shoulder statistic: hashes with abundance in [lo, hi), lo = max(3, 0.1c), hi = ceil(0.4c) (below the heterozygous peak at
+/// about 0.5c), as a fraction of the genome mass (hashes at or above 0.6c). Also returns the excess over the Poisson(c)
+/// expectation, for tests and the JSON. Needs c of about 12 or more for the window to hold more than a couple of bins.
 pub fn shoulder_features(abunds: &[u32], c: f64) -> Option<(f64, f64)> {
-    let hi = (0.6 * c).ceil() as usize;
+    window_fractions(abunds, c).map(|(s, excess, _)| (s, excess))
+}
+
+/// (shoulder fraction, its excess over Poisson(c), heterozygous-window fraction): the last is the share of the genome mass at
+/// 0.4c to 0.65c, where a heterozygous peak sits. Heterozygosity raises it and, through its lower tail, the shoulder;
+/// a contaminant raises the shoulder without raising it.
+pub fn window_fractions(abunds: &[u32], c: f64) -> Option<(f64, f64, f64)> {
+    let mass_from = (0.6 * c).ceil() as usize;
+    let hi = (0.4 * c).ceil() as usize;
     let lo = ((0.1 * c).floor() as usize).max(3);
     if hi <= lo + 1 {
         return None;
@@ -97,17 +111,20 @@ pub fn shoulder_features(abunds: &[u32], c: f64) -> Option<(f64, f64)> {
     for &a in abunds {
         h[(a as usize).min(BINS - 1)] += 1.0;
     }
-    let mass: f64 = h[hi.min(BINS - 1)..].iter().sum();
-    let pmf = poisson_pmf(c, hi + 1);
-    let below_hi: f64 = pmf[..hi].iter().sum();
-    let tail = 1.0 - below_hi;
+    let mass: f64 = h[mass_from.min(BINS - 1)..].iter().sum();
+    let pmf = poisson_pmf(c, mass_from + 1);
+    let below_mass: f64 = pmf[..mass_from].iter().sum();
+    let tail = 1.0 - below_mass;
     if mass <= 0.0 || tail <= 1e-9 {
         return None;
     }
     let genome = mass / tail;
     let obs: f64 = h[lo..hi].iter().sum();
     let exp = genome * pmf[lo..hi].iter().sum::<f64>();
-    Some((obs / mass, (obs - exp) / mass))
+    let het_lo = (0.4 * c).ceil() as usize;
+    let het_hi = (0.65 * c).ceil() as usize;
+    let het: f64 = h[het_lo.min(BINS - 1)..het_hi.min(BINS - 1)].iter().sum();
+    Some((obs / mass, (obs - exp) / mass, het / mass))
 }
 
 const COV_BINS: [f64; 7] = [0.0, 6.0, 10.0, 15.0, 25.0, 40.0, f64::INFINITY];
@@ -122,7 +139,7 @@ fn cov_bin(c: f64) -> usize {
 /// QC every sample against its cohort (reads and assemblies are compared within their own kind).
 pub fn assess(samples: &[SampleSketch], scaled: u32, p: &QcParams) -> Vec<SampleQc> {
     let mut out: Vec<SampleQc> = Vec::with_capacity(samples.len());
-    let mut shoulder_raw: Vec<Option<f64>> = Vec::new();
+    let mut shoulder_raw: Vec<Option<(f64, f64)>> = Vec::new();
     for s in samples {
         let reads = s.kind == "reads";
         let (cutoff, cov) = if reads {
@@ -140,7 +157,9 @@ pub fn assess(samples: &[SampleSketch], scaled: u32, p: &QcParams) -> Vec<Sample
             None => (None, "none"),
         };
         let shoulder = match kmer_cov {
-            Some(c) if reads && c >= 6.0 => shoulder_features(&s.spectrum.abunds, c).map(|x| x.0),
+            Some(c) if reads && c >= 6.0 => {
+                window_fractions(&s.spectrum.abunds, c).map(|x| (x.0, x.2))
+            }
             _ => None,
         };
         shoulder_raw.push(shoulder);
@@ -155,10 +174,11 @@ pub fn assess(samples: &[SampleSketch], scaled: u32, p: &QcParams) -> Vec<Sample
             est_mb: kept as f64 * scaled as f64 / 1e6,
             kmer_cov,
             cov_basis: basis,
-            shoulder,
+            shoulder: shoulder.map(|x| x.0),
             shoulder_z: None,
             size_z: None,
             flags: Vec::new(),
+            notes: Vec::new(),
         });
     }
     // coverage
@@ -213,33 +233,65 @@ pub fn assess(samples: &[SampleSketch], scaled: u32, p: &QcParams) -> Vec<Sample
         }
         let _ = mad_sd(&sizes);
     }
-    // abundance shoulder, standardised within coverage bins
-    for b in 0..COV_BINS.len() - 1 {
-        let idx: Vec<usize> = out
-            .iter()
-            .enumerate()
-            .filter(|(i, q)| {
-                shoulder_raw[*i].is_some()
-                    && !q.has("size_low")
-                    && cov_bin(q.kmer_cov.unwrap_or(0.0)) == b
-            })
-            .map(|(i, _)| i)
-            .collect();
-        if idx.len() < p.min_cohort {
-            continue;
+    // abundance shoulder: the part of the shoulder that the heterozygous-window mass does not explain, standardised within
+    // coverage bins. A heterozygous (or polyploid) genome raises both; a contaminant raises only the shoulder.
+    let cand: Vec<usize> = (0..out.len())
+        .filter(|&i| shoulder_raw[i].is_some() && !out[i].has("size_low"))
+        .collect();
+    if cand.len() >= p.min_cohort {
+        let pts: Vec<(f64, f64)> = cand.iter().map(|&i| shoulder_raw[i].unwrap()).collect();
+        // robust line s ~ a + b h: median of pairwise slopes over a fixed set of pairs, then the median intercept
+        let n = pts.len();
+        let mut slopes = Vec::new();
+        for k in 0..4000.min(n * (n - 1) / 2) {
+            let (i, j) = (k % n, (k * 7919 + 13) % n);
+            if i != j && (pts[i].1 - pts[j].1).abs() > 1e-3 {
+                slopes.push((pts[i].0 - pts[j].0) / (pts[i].1 - pts[j].1));
+            }
         }
-        let vals: Vec<f64> = idx.iter().map(|&i| shoulder_raw[i].unwrap()).collect();
-        for &i in &idx {
-            let z = robust_z(shoulder_raw[i].unwrap(), &vals, 0.001);
+        let slope = if slopes.is_empty() {
+            0.0
+        } else {
+            median(&slopes)
+        };
+        let icpt = median(&pts.iter().map(|(s, h)| s - slope * h).collect::<Vec<_>>());
+        let resid: Vec<f64> = pts.iter().map(|(s, h)| s - (icpt + slope * h)).collect();
+        let mut zs: Vec<Option<f64>> = vec![None; n];
+        for b in 0..COV_BINS.len() - 1 {
+            let idx: Vec<usize> = (0..n)
+                .filter(|&k| cov_bin(out[cand[k]].kmer_cov.unwrap_or(0.0)) == b)
+                .collect();
+            if idx.len() < p.min_cohort {
+                continue;
+            }
+            let vals: Vec<f64> = idx.iter().map(|&k| resid[k]).collect();
+            for &k in &idx {
+                zs[k] = Some(robust_z(resid[k], &vals, 0.001));
+            }
+        }
+        let assessed = zs.iter().flatten().count();
+        let hits = zs.iter().flatten().filter(|&&z| z > p.spectrum_z).count();
+        // many samples with a shoulder means heterozygosity or varying ploidy, not contamination: note it, do not exclude
+        let widespread = hits > 3 && hits as f64 > 0.02 * assessed as f64;
+        for (k, &i) in cand.iter().enumerate() {
+            let Some(z) = zs[k] else { continue };
             out[i].shoulder_z = Some(z);
             if z > p.spectrum_z {
                 let c = out[i].kmer_cov.unwrap_or(0.0);
-                out[i].flags.push(Flag {
-                    code: "abundance_shoulder",
-                    detail: format!(
-                        "k-mers at 0.1-0.6x the main coverage ({c:.0}x) exceed the cohort (z {z:+.1}): a second organism at several-fold coverage or, in a diploid, heterozygosity (a peak at half the coverage)"
-                    ),
-                });
+                let base = format!(
+                    "k-mers at 0.1-0.4x the main coverage ({c:.0}x) exceed what the heterozygous-window mass explains (z {z:+.1})"
+                );
+                if widespread {
+                    out[i].notes.push(Flag {
+                        code: "abundance_shoulder",
+                        detail: format!("{base}; {hits} of {assessed} samples ({:.1}%) show this, which points to heterozygosity or varying ploidy in this organism, not contamination, so the sample is not excluded", 100.0 * hits as f64 / assessed as f64),
+                    });
+                } else {
+                    out[i].flags.push(Flag {
+                        code: "abundance_shoulder",
+                        detail: format!("{base}: a second organism at several-fold coverage"),
+                    });
+                }
             }
         }
     }
@@ -316,6 +368,120 @@ mod tests {
             },
             halves: None,
         }
+    }
+
+    /// like `fake`, with any number of extra components (hashes, coverage): a heterozygous peak, a contaminant, a triploid third
+    fn fake_with(
+        id: &str,
+        g: usize,
+        c: f64,
+        comps: &[(usize, f64)],
+        err: usize,
+        seed: u64,
+    ) -> SampleSketch {
+        let mut r = Rng(seed);
+        let mut abunds: Vec<u32> = (0..g).map(|_| r.poisson(c)).filter(|&a| a > 0).collect();
+        for &(n, c2) in comps {
+            abunds.extend((0..n).map(|_| r.poisson(c2)).filter(|&a| a > 0));
+        }
+        abunds.extend(std::iter::repeat_n(1, err));
+        let hashes: Vec<u64> = (0..abunds.len() as u64).collect();
+        SampleSketch {
+            id: id.into(),
+            kind: "reads".into(),
+            files: vec![],
+            spectrum: Spectrum { hashes, abunds },
+            counts: Counts {
+                reads: 1,
+                bases: 1,
+                non_acgt: 0,
+            },
+            halves: None,
+        }
+    }
+
+    #[test]
+    fn varying_heterozygosity_is_not_a_shoulder_but_a_contaminant_is() {
+        // 36 samples whose heterozygous peak (at half the coverage) varies from none to large; one also carries a contaminant at a quarter
+        let mut s: Vec<SampleSketch> = (0..36u64)
+            .map(|i| {
+                fake_with(
+                    &format!("h{i}"),
+                    20_000,
+                    36.0 + (i % 5) as f64 * 2.0,
+                    &[(((i % 6) as usize) * 1500, 20.0)],
+                    40_000,
+                    300 + i,
+                )
+            })
+            .collect();
+        s.push(fake_with(
+            "contam",
+            20_000,
+            40.0,
+            &[(3000, 20.0), (8000, 10.0)],
+            40_000,
+            999,
+        ));
+        let q = assess(&s, 200, &QcParams::default());
+        assert!(
+            flags_of(&q, "contam").contains(&"abundance_shoulder"),
+            "{:?} z={:?}",
+            flags_of(&q, "contam"),
+            q.last().unwrap().shoulder_z
+        );
+        for i in 0..36 {
+            let f = flags_of(&q, &format!("h{i}"));
+            assert!(
+                !f.contains(&"abundance_shoulder"),
+                "h{i} (het {}): {f:?}",
+                (i % 6) * 1500
+            );
+        }
+        assert!(
+            q.iter().all(|x| x.notes.is_empty()),
+            "one hit is not widespread"
+        );
+    }
+
+    #[test]
+    fn a_widespread_shoulder_is_a_note_and_not_an_exclusion() {
+        // a polyploid-like cohort: a minority of samples carry a component at a third of the coverage, in varying amounts
+        let s: Vec<SampleSketch> = (0..36u64)
+            .map(|i| {
+                let extra = if i % 6 == 0 {
+                    vec![(1200 + 200 * (i as usize / 6), 40.0 / 3.0)]
+                } else {
+                    vec![]
+                };
+                fake_with(&format!("p{i}"), 20_000, 40.0, &extra, 40_000, 500 + i)
+            })
+            .collect();
+        // the rule is about how many samples hit, not the z value: a lower z puts six of 36 over it
+        let q = assess(
+            &s,
+            200,
+            &QcParams {
+                spectrum_z: 2.5,
+                ..QcParams::default()
+            },
+        );
+        let noted: Vec<&SampleQc> = q.iter().filter(|x| !x.notes.is_empty()).collect();
+        assert!(
+            !noted.is_empty(),
+            "z values: {:?}",
+            q.iter()
+                .map(|x| x.shoulder_z.map(|z| (z * 10.0).round() / 10.0))
+                .collect::<Vec<_>>()
+        );
+        assert!(noted.iter().all(|x| !x.has("abundance_shoulder")
+            && x.notes[0]
+                .detail
+                .contains("heterozygosity or varying ploidy")));
+        assert!(
+            noted.iter().all(|x| !x.flagged()),
+            "a note must not exclude the sample"
+        );
     }
 
     fn cohort() -> Vec<SampleSketch> {
@@ -417,6 +583,34 @@ mod tests {
         assert!(assess(&s2, 200, &QcParams::default())
             .iter()
             .all(|x| x.size_z.is_none()));
+    }
+
+    #[test]
+    fn a_heterozygous_peak_at_half_coverage_is_not_a_shoulder_but_a_contaminant_at_a_quarter_is() {
+        let mut r = Rng(11);
+        let host: Vec<u32> = (0..20_000)
+            .map(|_| r.poisson(40.0))
+            .filter(|&a| a > 0)
+            .collect();
+        let (clean, _) = shoulder_features(&host, 40.0).unwrap();
+        // 8,000 heterozygous sites: their k-mers are seen at half the coverage
+        let mut het = host.clone();
+        het.extend((0..8_000).map(|_| r.poisson(20.0)).filter(|&a| a > 0));
+        let (with_het, _) = shoulder_features(&het, 40.0).unwrap();
+        // a second organism of 8,000 hashes at a quarter of the coverage
+        let mut mixed = host.clone();
+        mixed.extend((0..8_000).map(|_| r.poisson(10.0)).filter(|&a| a > 0));
+        let (with_contaminant, _) = shoulder_features(&mixed, 40.0).unwrap();
+        // the lower tail of a half-coverage peak reaches into the window, but far less than a real contaminant does
+        let (het_effect, contaminant_effect) = (with_het - clean, with_contaminant - clean);
+        assert!(
+            contaminant_effect > 0.15,
+            "contaminant {with_contaminant} vs clean {clean}"
+        );
+        assert!(
+            het_effect < 0.25 * contaminant_effect,
+            "het effect {het_effect} vs contaminant effect {contaminant_effect}"
+        );
     }
 
     #[test]
