@@ -307,7 +307,7 @@ pub fn compare_tree(
                     b.iter()
                         .enumerate()
                         .map(|(w, v)| {
-                            !v & if w + 1 == words && m % 64 != 0 {
+                            !v & if w + 1 == words && m & 63 != 0 {
                                 (1u64 << (m % 64)) - 1
                             } else {
                                 u64::MAX

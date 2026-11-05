@@ -37,6 +37,8 @@ enum OrdArg {
     Pcoa,
 }
 
+// the subcommands are parsed once at start-up; the size difference between them does not matter
+#[allow(clippy::large_enum_variant)]
 #[derive(Subcommand)]
 enum Cmd {
     /// Write a small simulated dataset with planted problems and a swapped label, to try `popsketch run` on
