@@ -25,6 +25,11 @@ const MAX_BIN: usize = 4096;
 /// A peak must hold at least this many hashes (smoothed) and exceed the valley by this factor.
 const PEAK_MIN_HASHES: f64 = 8.0;
 const PEAK_OVER_VALLEY: f64 = 1.3;
+/// A valley is only accepted if the hashes seen at least that often make up at least this share of the hashes seen twice or
+/// more. A real coverage peak holds most of the non-error hashes (about 98% in a healthy 40x sample); a "valley" with a
+/// sliver above it is noise in the tail of an error-dominated histogram (sub-1x samples, or a plateau at low coverage with no
+/// rise after it), where the walk below would otherwise run on to a spurious minimum and leave almost no hashes.
+const PEAK_MASS_SHARE: f64 = 0.5;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Coverage {
@@ -65,6 +70,11 @@ fn valley_peak(h: &[u64]) -> Option<(usize, usize)> {
         return None;
     }
     let valley = a;
+    let above: f64 = h[valley..].iter().map(|&c| c as f64).sum();
+    let twice_or_more: f64 = h[2..].iter().map(|&c| c as f64).sum();
+    if above < PEAK_MASS_SHARE * twice_or_more {
+        return None;
+    }
     let mut peak = valley + 1;
     for b in valley + 1..=last {
         if smooth(h, b) > smooth(h, peak) {
@@ -191,6 +201,79 @@ mod tests {
         assert_eq!(auto_min_abund(&poisson_hist(20000, 0.5, 100)), 2); // no peak
         let v = auto_min_abund(&poisson_hist(4000, 20.0, 800));
         assert!((2..=8).contains(&v), "valley {v}");
+    }
+
+    /// Expand the first bins of a real histogram (counts of hashes seen 1, 2, 3, ... times) into abundances.
+    fn from_bins(bins: &[u32], tail: &[(u32, u32)]) -> Vec<u32> {
+        let mut out = Vec::new();
+        for (i, &n) in bins.iter().enumerate() {
+            out.extend(std::iter::repeat_n(i as u32 + 1, n as usize));
+        }
+        for &(a, n) in tail {
+            out.extend(std::iter::repeat_n(a, n as usize));
+        }
+        out
+    }
+
+    /// Histograms of read sets where the valley search used to land on noise far above the real (missing or very low) peak and
+    /// leave 0.1-3 Mb of hashes (scaled 200): a sub-1x sample, a low-coverage plateau with no rise, and a Bd sub-2x sample.
+    #[test]
+    fn no_spurious_valley_in_error_dominated_histograms() {
+        // sub-1x: error tail plus a thin scatter of repeat k-mers out to high abundance
+        let sub1x = from_bins(
+            &[
+                47862, 12802, 3049, 727, 253, 137, 63, 51, 51, 46, 24, 22, 24, 16, 12, 19, 21, 25,
+                21, 29, 22, 31, 26, 28, 25, 6, 20, 27, 18, 14, 19, 9, 10, 8, 8, 7, 8, 3, 4, 1,
+            ],
+            &[(60, 10), (80, 5), (100, 3), (150, 2), (400, 1)],
+        );
+        assert_eq!(auto_min_abund(&sub1x), 2, "sub-1x");
+        assert_eq!(profile(&sub1x).unwrap().basis, "poisson");
+        // plateau at 4-7 over a huge error tail, no rise after it
+        let plateau = from_bins(
+            &[
+                1252617, 67902, 28616, 21793, 21254, 20054, 17468, 13978, 10408, 6812, 4323, 2622,
+                1631, 1003, 660, 425, 306, 249, 242, 183, 159, 145, 120, 120, 98, 106, 86, 53, 75,
+                63, 67, 51, 40, 61, 38, 38, 40, 31, 23, 25,
+            ],
+            &[(50, 600), (100, 100)],
+        );
+        assert_eq!(auto_min_abund(&plateau), 2, "plateau");
+        // sub-2x with a long thin tail
+        let sub2x = from_bins(
+            &[
+                379049, 43550, 14214, 5400, 2372, 1241, 794, 535, 354, 263, 214, 192, 147, 138,
+                106, 107, 77, 80, 69, 70, 34, 31, 32, 24, 34, 29, 20, 28, 28, 28, 31, 32, 32, 24,
+                22, 12, 20, 22, 26, 27,
+            ],
+            &[(60, 400), (80, 700), (100, 2000), (150, 3000)],
+        );
+        assert_eq!(auto_min_abund(&sub2x), 2, "sub-2x");
+    }
+
+    #[test]
+    fn a_real_peak_still_gets_its_valley() {
+        // shape of a healthy 14x read set (scaled 200): error tail, valley near 10, peak near 38 (first 40 bins) then the rest
+        let healthy = from_bins(
+            &[
+                356742, 9265, 1485, 581, 304, 236, 179, 143, 146, 105, 114, 107, 119, 134, 118,
+                122, 144, 155, 162, 211, 219, 291, 334, 403, 474, 619, 769, 979, 1312, 1597, 1976,
+                2302, 2742, 3284, 3809, 4185, 4809, 5243, 5699, 6024,
+            ],
+            &[
+                (43, 25616),
+                (47, 22450),
+                (51, 15436),
+                (55, 8424),
+                (59, 3911),
+                (63, 1477),
+                (67, 523),
+                (71, 222),
+            ],
+        );
+        let v = auto_min_abund(&healthy);
+        assert!((8..=20).contains(&v), "valley {v}");
+        assert_eq!(profile(&healthy).unwrap().basis, "peak");
     }
 
     #[test]
