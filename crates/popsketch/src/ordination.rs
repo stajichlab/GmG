@@ -6,7 +6,7 @@
 //! (X - 1 mu^T)(X - 1 mu^T)^T = X X^T - s 1^T - 1 s^T + t 11^T, where s_i = sum of mu over the hashes of sample i and
 //! t = sum of mu^2. The eigenvectors of this matrix, scaled by the square root of their eigenvalue, are the PC scores.
 
-use rayon::prelude::*;
+use crate::par::*;
 use std::collections::HashMap;
 
 #[derive(Clone, Debug)]

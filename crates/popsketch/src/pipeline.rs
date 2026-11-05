@@ -4,25 +4,34 @@
 use crate::advisor::{advise, Advice};
 use crate::cluster::{cut_k, gap_rule, upgma, GapCall, Verdict};
 use crate::dist::{compute, DistMat};
-use crate::floor::{estimate, pick_for_halves, Floor};
+#[cfg(feature = "native")]
+use crate::floor::pick_for_halves;
+use crate::floor::{estimate, Floor};
 use crate::labels::{
     analyze_column, column_labels, parse as parse_labels, ColumnReport, LabelTable,
 };
 use crate::ordination::{hash_pca, pcoa, Ordination};
+use crate::par::*;
 use crate::qc::{assess, kept_hashes, Flag, QcParams, SampleQc};
-use crate::sketch_io::{
-    cache_init, cache_read, cache_ready, cache_write, sketch_sample, SampleSketch, SketchParams,
-};
+use crate::sketch_io::SampleSketch;
+#[cfg(feature = "native")]
+use crate::sketch_io::SketchParams;
+#[cfg(feature = "native")]
+use crate::sketch_io::{cache_init, cache_read, cache_ready, cache_write, sketch_sample};
 use crate::stats::{mad_sd, median};
 use crate::tree::{collapse, neighbor_joining, newick, root_tree};
-use anyhow::{bail, Context, Result};
+use anyhow::Result;
+#[cfg(feature = "native")]
+use anyhow::{bail, Context};
 use gmg_core::classify::{classify, Context as RefContext, Item};
 use gmg_core::{max_hash_for_scaled, RefIndex, SeqStats, SketchFile, Thresholds, DEFAULT_SEED};
+#[cfg(feature = "native")]
 use gmg_input::{discover, DiscoverArgs};
-use rayon::prelude::*;
 use serde_json::{json, Value};
 use std::collections::{HashMap, HashSet};
+#[cfg(feature = "native")]
 use std::fmt::Write as _;
+#[cfg(feature = "native")]
 use std::fs;
 use std::path::PathBuf;
 
@@ -299,6 +308,7 @@ fn say(o: &Options, msg: &str) {
     }
 }
 
+#[cfg(feature = "native")]
 pub fn run(o: &Options) -> Result<Results> {
     if let Some(t) = o.threads {
         rayon::ThreadPoolBuilder::new()
@@ -393,6 +403,68 @@ pub fn run(o: &Options) -> Result<Results> {
     if sketches.is_empty() {
         bail!("no sample could be read");
     }
+    let index_ix = match &o.index {
+        Some(path) => {
+            let bytes = fs::read(path).with_context(|| format!("opening {}", path.display()))?;
+            Some(
+                RefIndex::read_owned(bytes)
+                    .with_context(|| format!("reading index {}", path.display()))?,
+            )
+        }
+        None => None,
+    };
+    let labels_text = match &o.labels {
+        Some(lp) => {
+            Some(fs::read_to_string(lp).with_context(|| format!("reading {}", lp.display()))?)
+        }
+        None => None,
+    };
+    let read_to = |p: &Option<PathBuf>| {
+        p.as_ref()
+            .map(|p| fs::read_to_string(p).map_err(|e| format!("reading {}: {e}", p.display())))
+    };
+    let res = analyze(
+        o,
+        Analysis {
+            sketches,
+            errors: rows,
+            warnings,
+            index: index_ix.as_ref(),
+            labels_text,
+            compare_tree: read_to(&o.compare_tree),
+            compare_pcs: read_to(&o.compare_pcs),
+        },
+    )?;
+    write_outputs(o, &res)?;
+    crate::report::write(o, &res)?;
+    Ok(res)
+}
+
+/// What `analyze` needs: the sketches and everything that `run` reads from files, as values.
+pub struct Analysis<'a> {
+    pub sketches: Vec<SampleSketch>,
+    /// rows of the samples that could not be sketched (status `Error`); their messages are in `warnings`
+    pub errors: Vec<SampleRow>,
+    pub warnings: Vec<String>,
+    pub index: Option<&'a RefIndex>,
+    /// contents of the label file
+    pub labels_text: Option<String>,
+    /// contents of the `--compare-tree` / `--compare-pcs` files, or the reason they could not be read
+    pub compare_tree: Option<Result<String, String>>,
+    pub compare_pcs: Option<Result<String, String>>,
+}
+
+/// Everything after sketching, with no file access: the audit, distances, clusters, ordination, tree and label analysis.
+pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
+    let Analysis {
+        sketches,
+        errors: rows,
+        mut warnings,
+        index,
+        labels_text,
+        compare_tree,
+        compare_pcs,
+    } = a;
     // ---- audit
     let qp = QcParams {
         min_cov: o.min_cov,
@@ -403,10 +475,7 @@ pub fn run(o: &Options) -> Result<Results> {
     };
     let mut qcs = assess(&sketches, o.scaled, &qp);
     let mut idx_calls: Vec<Option<IndexCall>> = vec![None; sketches.len()];
-    if let Some(path) = &o.index {
-        let bytes = fs::read(path).with_context(|| format!("opening {}", path.display()))?;
-        let ix = RefIndex::read_owned(bytes)
-            .with_context(|| format!("reading index {}", path.display()))?;
+    if let Some(ix) = index {
         if ix.ksize != o.ksize || ix.scaled < o.scaled {
             warnings.push(format!(
                 "index screen skipped: the index has k={} scaled={}; samples are sketched at k={} scaled={} (the index must use the same k and a scale at least as coarse)",
@@ -414,10 +483,10 @@ pub fn run(o: &Options) -> Result<Results> {
             ));
         } else {
             let th = Thresholds::default();
-            let ctx = RefContext::new(&ix);
+            let ctx = RefContext::new(ix);
             idx_calls = sketches
                 .par_iter()
-                .map(|s| screen(&ix, &th, &ctx, s))
+                .map(|s| screen(ix, &th, &ctx, s))
                 .collect();
             let mut modes: HashMap<&str, usize> = HashMap::new();
             for c in idx_calls.iter().flatten() {
@@ -701,10 +770,8 @@ pub fn run(o: &Options) -> Result<Results> {
             res.newick = Some(newick(&root_tree(&t, o.root.as_deref()), &names));
         }
         // labels
-        if let Some(lp) = &o.labels {
-            let text =
-                fs::read_to_string(lp).with_context(|| format!("reading {}", lp.display()))?;
-            let table = parse_labels(&text)?;
+        if let Some(text) = &labels_text {
+            let table = parse_labels(text)?;
             let ids: Vec<String> = res
                 .included
                 .iter()
@@ -776,18 +843,20 @@ pub fn run(o: &Options) -> Result<Results> {
             .iter()
             .map(|&r| res.rows[r].id.clone())
             .collect();
-        if let Some(p) = &o.compare_tree {
-            match fs::read_to_string(p)
-                .with_context(|| format!("reading {}", p.display()))
+        if let Some(t) = &compare_tree {
+            match t
+                .clone()
+                .map_err(|e| anyhow::anyhow!(e))
                 .and_then(|t| crate::compare::compare_tree(&t, &names, &dist, clusters.as_deref()))
             {
                 Ok(c) => res.tree_comparison = Some(c),
                 Err(e) => res.warnings.push(format!("--compare-tree: {e:#}")),
             }
         }
-        if let (Some(p), Some(ord)) = (&o.compare_pcs, &res.ordination) {
-            match fs::read_to_string(p)
-                .with_context(|| format!("reading {}", p.display()))
+        if let (Some(t), Some(ord)) = (&compare_pcs, &res.ordination) {
+            match t
+                .clone()
+                .map_err(|e| anyhow::anyhow!(e))
                 .and_then(|t| crate::compare::compare_pcs(&t, &names, ord))
             {
                 Ok(c) => res.pcs_comparison = Some(c),
@@ -804,15 +873,15 @@ pub fn run(o: &Options) -> Result<Results> {
             "only {n} samples passed the audit: no distances, ordination or tree"
         ));
     }
-    write_outputs(o, &res)?;
-    crate::report::write(o, &res)?;
     Ok(res)
 }
 
+#[cfg(feature = "native")]
 fn tsv_cell(s: &str) -> String {
     s.replace(['\t', '\n', '\r'], " ")
 }
 
+#[cfg(feature = "native")]
 fn write_matrix(path: PathBuf, ids: &[String], m: &[f64], n: usize, prec: usize) -> Result<()> {
     let mut s = String::from("id");
     for id in ids {
@@ -829,6 +898,7 @@ fn write_matrix(path: PathBuf, ids: &[String], m: &[f64], n: usize, prec: usize)
     fs::write(&path, s).with_context(|| path.display().to_string())
 }
 
+#[cfg(feature = "native")]
 fn write_outputs(o: &Options, r: &Results) -> Result<()> {
     // qc.tsv
     let mut s = String::from("id\tkind\tstatus\tflags\treasons\tnotes\treads\tbases\thashes\tabundance_cutoff\tkept_hashes\test_size_mb\tkmer_coverage\tcoverage_basis\tsize_z\tshoulder_z\torganism_call\tsecond_taxon\tsecond_fraction\tfiles\n");

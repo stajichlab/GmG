@@ -1,0 +1,15 @@
+[package]
+name = "popsketch-wasm"
+description = "popsketch for the browser / Node: sketch reads held in memory, then audit them and draw coarse structure"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+popsketch = { path = "../popsketch", default-features = false }
+serde_json = "1"
+# keep equal to the wasm-bindgen-cli version in pixi.toml
+wasm-bindgen = "=0.2.129"

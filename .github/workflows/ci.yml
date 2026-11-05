@@ -63,6 +63,7 @@ jobs:
           locked: true
           cache: true
       - run: pixi run wasm-test
+      - run: pixi run popsketch-wasm-test
       - run: pixi run web-test
 
   container:

@@ -60,6 +60,20 @@ wasm-bindgen --target web --out-dir crates/gmg-wasm/pkg-web target/wasm32-unknow
 depends-on = ["wasm", "build"]
 cmd = "node crates/gmg-wasm/tests/smoke.mjs && node crates/gmg-wasm/tests/parity.mjs"
 
+[tasks.popsketch-wasm-build]
+cmd = "cargo build --release --target wasm32-unknown-unknown -p popsketch-wasm"
+
+[tasks.popsketch-wasm]
+depends-on = ["popsketch-wasm-build"]
+cmd = """
+wasm-bindgen --target nodejs --out-dir crates/popsketch-wasm/pkg-node target/wasm32-unknown-unknown/release/popsketch_wasm.wasm &&
+wasm-bindgen --target web --out-dir crates/popsketch-wasm/pkg-web target/wasm32-unknown-unknown/release/popsketch_wasm.wasm
+"""
+
+[tasks.popsketch-wasm-test]
+depends-on = ["popsketch-wasm"]
+cmd = "cargo build --release -p popsketch && node crates/popsketch-wasm/tests/parity.mjs"
+
 [tasks.web-test]
 # the browser app's zip / tar / tar.gz unpacking (web/archive.js), run under Node; needs the zip and tar commands
 cmd = "node --test tests/web/archive.test.mjs"

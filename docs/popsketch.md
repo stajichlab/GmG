@@ -80,6 +80,16 @@ By default each sample is read up to `--max-bases`. `--target-cov C` instead sto
 
 `--compare-tree TREE.nwk` and `--compare-pcs SCORES.tsv` compare the run with a tree and PC scores you already have (for example from SNPs) for the samples in both (sample ids must match; characters Newick reserves are read as underscores). For the tree: the Spearman correlation of the tree's patristic distance with 1 - ANI (all pairs, and the closest half, where sketches are weakest), and for each cluster whether it is a clade of the tree and the best F1 against any clade or its complement. For the PCs: cosines of the principal angles between the top-2, top-3 and top-5 subspaces, the Procrustes disparity of the top 3, and the Spearman correlation of pairwise distances in the top-5 space. The PC table is tab- or comma-separated with an id column and numeric columns.
 
+## In the browser
+
+`crates/popsketch-wasm` builds the same analysis for WebAssembly (`pixi run popsketch-wasm`; about 1 MB), and `web/popsketch.html` is a page for it: choose FASTQ files or a folder and an optional label table, and get the report, the TSV and JSON files and the tree, with nothing uploaded. It differs from the command line in these ways:
+
+- It reads only the first reads of each file (1,000,000 per file by default, set on the page), gunzipped with `DecompressionStream`, so the coverage and size flags depend on the genome size; read the coverage shown next to each flag.
+- It runs on one thread (no `SharedArrayBuffer`, so no special server headers) and is meant for up to about 200 samples.
+- No sketch cache or `--resume`, no `--index` screen, no `--compare-tree` or `--compare-pcs`, and only the HTML report (no Markdown or PDF).
+
+The code is shared, not copied: `popsketch::pipeline::analyze` takes the sketches and the contents of the label file and returns the results with no file access; `run` is that plus discovery, sketching from files, the cache and the output files. The crate has a `parallel` feature (rayon) and a `native` feature (files, the command line, PDF), both on by default; the browser build turns both off. `popsketch_wasm::Session` sketches each sample from bytes and calls `analyze`. `crates/popsketch-wasm/tests/parity.mjs` (`pixi run popsketch-wasm-test`, also in CI) runs the simulated `popsketch demo` data through the native command and through the wasm build and requires the same sample counts, flags, noise floor, cluster verdict and partition, label check and ordination (numbers equal to 1e-9; the native code sums in parallel, the wasm code on one thread). The page was also driven in a headless browser with the demo reads: 32 samples, 27 in the analysis and a clear cut into 3 clusters, as on the command line.
+
 ## Key options
 
 `-k` (21), `-s/--scaled` (200), `--max-bases`, `--r1-only`, `--min-cov`, `--max-samples`, `--flagged`, `--index`, `--ordination`, `--components`, `--k`, `--cut`, `--min-floors`, `--no-tree`, `--root`, `--tree-floor`, `--floor-samples`, `--target-cov`, `--size-z`, `--size-floor`, `--shoulder-z`, `--no-pca`, `--dapc-pcs`, `--compare-tree`, `--compare-pcs`, `--report-format`, `--resume`, `--threads`. `popsketch demo` writes a simulated example. See `popsketch run --help`.

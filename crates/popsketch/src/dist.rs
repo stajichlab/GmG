@@ -1,6 +1,6 @@
 //! Pairwise containment ANI and mash distance between sorted hash sets.
 
-use rayon::prelude::*;
+use crate::par::*;
 
 #[derive(Clone, Debug)]
 pub struct DistMat {
