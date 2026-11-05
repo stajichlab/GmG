@@ -1,5 +1,5 @@
 // Web Worker for popsketch: reads each sample's first reads, sketches them, then runs the analysis. One thread, no files uploaded.
-// In:  {type:'run', samples:[{id, files:[File]}], labels:string|null, opts:{maxReads, scaled, flagged}}
+// In:  {type:'run', samples:[{id, files:[File]}], labels:string|null, compareTree:string|null, comparePcs:string|null, opts:{maxReads, scaled, flagged}}
 // Out: {type:'progress', i, n, id} {type:'done', result} {type:'error', message}
 import init, { Session } from "./pkg-ps/popsketch_wasm.js";
 
@@ -49,7 +49,7 @@ self.onmessage = async (e) => {
     }
     post({ type: "progress", i: m.samples.length, n: m.samples.length, id: "analysing" });
     await new Promise((r) => setTimeout(r));
-    const result = JSON.parse(s.analyze(m.labels || undefined, JSON.stringify({ flagged })));
+    const result = JSON.parse(s.analyze(m.labels || undefined, JSON.stringify({ flagged }), m.compareTree || undefined, m.comparePcs || undefined));
     s.free();
     post({ type: "done", result });
   } catch (err) {

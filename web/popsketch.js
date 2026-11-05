@@ -2,6 +2,8 @@
 const $ = (id) => document.getElementById(id);
 let files = [];
 let labelsText = null;
+let treeText = null;
+let pcsText = null;
 let worker = null;
 
 // sample id and mate: sampleA_R1.fastq.gz / sampleA_1.fq -> {id: sampleA, mate: 1}
@@ -38,6 +40,9 @@ $("pick-labels").addEventListener("change", async (e) => {
   labelsText = f ? await f.text() : null;
   $("labels-name").textContent = f ? f.name : "";
 });
+
+$("pick-tree").addEventListener("change", async (e) => { const f = e.target.files[0]; treeText = f ? await f.text() : null; });
+$("pick-pcs").addEventListener("change", async (e) => { const f = e.target.files[0]; pcsText = f ? await f.text() : null; });
 
 function download(name, text, type) {
   const a = document.createElement("a");
@@ -92,7 +97,7 @@ $("run").addEventListener("click", () => {
     }
   };
   worker.postMessage({
-    type: "run", samples, labels: labelsText,
+    type: "run", samples, labels: labelsText, compareTree: treeText, comparePcs: pcsText,
     opts: { maxReads: Number($("max-reads").value), scaled: Number($("scaled").value), flagged: $("flagged").value },
   });
 });

@@ -5,7 +5,7 @@
 //! const s = new Session(21, 200, 0n, false);                      // k, scaled, max bases per sample (0 = all), R1 only
 //! const withHalves = JSON.parse(s.halves_for(JSON.stringify(ids), 20));   // ids that need split halves (noise floor)
 //! s.add_sample(id, "reads", r1Bytes, r2BytesOrEmpty, withHalves.includes(id));
-//! const out = JSON.parse(s.analyze(labelsTextOrUndefined, JSON.stringify({ min_cov: 4 })));
+//! const out = JSON.parse(s.analyze(labelsTextOrUndefined, JSON.stringify({ min_cov: 4 }), newickTextOrUndefined, pcsTextOrUndefined));
 //! // out.summary (the popsketch.json document), out.html, out.clusters, out.pca, out.newick, out.qc
 //! ```
 //! Reading is the caller's job: the page slices each (decompressed) FASTQ and hands over the bytes.
@@ -87,6 +87,8 @@ impl Session {
         &mut self,
         labels: Option<String>,
         options_json: &str,
+        compare_tree: Option<String>,
+        compare_pcs: Option<String>,
     ) -> Result<String, JsError> {
         let mut o = Options {
             ksize: self.params.ksize,
@@ -100,6 +102,13 @@ impl Session {
         if labels.is_some() {
             o.labels = Some(PathBuf::from("labels"));
         }
+        // the report only needs to know that a comparison was asked for
+        if compare_tree.is_some() {
+            o.compare_tree = Some(PathBuf::from("compare_tree"));
+        }
+        if compare_pcs.is_some() {
+            o.compare_pcs = Some(PathBuf::from("compare_pcs"));
+        }
         let res = analyze(
             &o,
             Analysis {
@@ -108,8 +117,8 @@ impl Session {
                 warnings: std::mem::take(&mut self.warnings),
                 index: None,
                 labels_text: labels,
-                compare_tree: None,
-                compare_pcs: None,
+                compare_tree: compare_tree.map(Ok),
+                compare_pcs: compare_pcs.map(Ok),
             },
         )
         .map_err(|e| JsError::new(&format!("{e:#}")))?;
