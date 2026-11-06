@@ -76,4 +76,4 @@ cmd = "cargo build --release -p popsketch && node crates/popsketch-wasm/tests/pa
 
 [tasks.web-test]
 # the browser app's zip / tar / tar.gz unpacking (web/archive.js), run under Node; needs the zip and tar commands
-cmd = "node --test tests/web/archive.test.mjs"
+cmd = "node --test tests/web/"

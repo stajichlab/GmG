@@ -6,6 +6,7 @@ let treeText = null;
 let indexFile = null;
 let pcsText = null;
 let worker = null;
+import { findRuns, labelsText as enaLabels } from "./ena.js";
 
 // sample id and mate: sampleA_R1.fastq.gz / sampleA_1.fq -> {id: sampleA, mate: 1}
 function parse(name) {
@@ -25,12 +26,15 @@ function group(list) {
   return [...by].map(([id, fs]) => ({ id, files: fs.filter(Boolean) })).sort((a, b) => a.id.localeCompare(b.id));
 }
 
+const ACC = /^[SED]RR\d+$/i; // a sample id that is an SRA/ENA run accession
+
 function refresh() {
   const samples = group(files);
   $("queue-status").textContent = samples.length
     ? `${samples.length} samples (${samples.reduce((n, s) => n + s.files.length, 0)} files).` + (samples.length > 200 ? " More than about 200 samples is slow in a browser; consider the command line." : "")
     : "No FASTQ files chosen.";
   $("run").disabled = samples.length < 4;
+  $("ena-labels").disabled = !samples.some((s) => ACC.test(s.id));
   return samples;
 }
 
@@ -48,6 +52,22 @@ $("pick-pcs").addEventListener("change", async (e) => { const f = e.target.files
 $("pick-index").addEventListener("change", (e) => {
   indexFile = e.target.files[0] || null;
   $("index-name").textContent = indexFile ? indexFile.name : "";
+});
+
+$("ena-labels").addEventListener("click", async () => {
+  const st = $("ena-status");
+  const ids = group(files).map((s) => s.id).filter((id) => ACC.test(id));
+  try {
+    st.textContent = "Asking ENA…";
+    const found = [];
+    for (let i = 0; i < ids.length; i += 100) found.push(...(await findRuns(ids.slice(i, i + 100).join(" "), { limit: 1000 })));
+    if (!found.length) { st.textContent = `ENA knows none of the ${ids.length} accessions.`; return; }
+    labelsText = enaLabels(found);
+    $("labels-name").textContent = "labels from ENA (country, study, host, strain, species)";
+    st.textContent = `Labels found for ${found.length} of ${ids.length} run accessions; the other samples stay unlabelled.`;
+  } catch (err) {
+    st.textContent = `Error: ${err.message}`;
+  }
 });
 
 function download(name, text, type) {
