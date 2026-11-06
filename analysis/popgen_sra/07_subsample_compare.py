@@ -2,13 +2,14 @@
 """Compare the sketch-level answer from subsamples with the whole run (output of 06_subsample_test.sbatch).
 usage (from GmG_popgen): 07_subsample_compare.py subtest SLUG [SLUG ...]   (BIN=path to popsketch)
 For each variant (full, stride1g, stride300, head300, head100) popsketch is run on the folder of sketches with --flagged mark (so all samples
-get distances), then against `full`: distances (1 - ANI) of all sample pairs (Pearson r, mean and max absolute difference, and the mean
+get distances), then against `full` (or REF=<variant>): distances (1 - ANI) of all sample pairs (Pearson r, mean and max absolute difference, and the mean
 difference as a multiple of the variant's noise floor), nearest neighbour agreement, and the coverage and size estimates per sample."""
 import csv, json, math, os, subprocess, sys
 
 BIN = os.environ.get("BIN", "popsketch_build/target/release/popsketch")
 VARIANTS = os.environ.get("VARIANTS", "full,stride1g,stride300,head300,head100").split(",")
 # --from-sketches wants the parameters the sketches were made with
+REF = os.environ.get("REF", "full")  # the variant everything is compared with
 MAX_BASES = {"full": 0, "stride1g": 1_000_000_000, "stride300": 300_000_000, "head300": 300_000_000, "head100": 100_000_000}
 
 
@@ -45,23 +46,23 @@ for slug in sys.argv[2:]:
     data = {v: ani(outs[v]) for v in VARIANTS}
     q = {v: qc(outs[v]) for v in VARIANTS}
     floor = {v: json.load(open(f"{outs[v]}/popsketch.json"))["noise_floor"]["value"] for v in VARIANTS}
-    ids0, dfull = data["full"]
+    ids0, dref = data[REF]
     ids = [i for i in ids0 if all(i in data[v][0] for v in VARIANTS)]
     pairs = [(a, b) for a in ids for b in ids if a < b]
-    nfull = nn(ids, dfull)
-    print(f"\n{slug}: {len(ids)} samples, {len(pairs)} pairs; noise floor (1 - ANI) full {floor['full']:.4f}")
+    nref = nn(ids, dref)
+    print(f"\n{slug}: {len(ids)} samples, {len(pairs)} pairs; noise floor (1 - ANI) full {floor[REF]:.4f}")
     print(f"{'variant':10} {'floor':>7} {'r vs full':>9} {'mean |d|':>9} {'max |d|':>8} {'mean|d|/floor':>13} {'NN same':>8} {'cov med':>8} {'size med Mb':>11}")
     for v in VARIANTS:
         dv = data[v][1]
-        x = [dfull[p] for p in pairs]; y = [dv[p] for p in pairs]
+        x = [dref[p] for p in pairs]; y = [dv[p] for p in pairs]
         diff = [abs(a - b) for a, b in zip(x, y)]
         nv = nn(ids, dv)
-        same = sum(nv[i] == nfull[i] for i in ids) / len(ids)
+        same = sum(nv[i] == nref[i] for i in ids) / len(ids)
         cov = sorted(float(q[v][i]["kmer_coverage"] or 0) for i in ids)[len(ids) // 2]
         size = sorted(float(q[v][i]["est_size_mb"] or 0) for i in ids)[len(ids) // 2]
         print(f"{v:10} {floor[v]:7.4f} {pearson(x, y):9.4f} {sum(diff)/len(diff):9.5f} {max(diff):8.5f} {sum(diff)/len(diff)/floor[v]:13.2f} {same:8.2f} {cov:8.1f} {size:11.1f}")
     # per-sample coverage and size against the whole run
     for v in VARIANTS[1:]:
-        dc = [float(q[v][i]["kmer_coverage"] or 0) / max(float(q["full"][i]["kmer_coverage"] or 0), 1e-9) for i in ids]
-        ds = [float(q[v][i]["est_size_mb"] or 0) / max(float(q["full"][i]["est_size_mb"] or 0), 1e-9) for i in ids]
+        dc = [float(q[v][i]["kmer_coverage"] or 0) / max(float(q[REF][i]["kmer_coverage"] or 0), 1e-9) for i in ids]
+        ds = [float(q[v][i]["est_size_mb"] or 0) / max(float(q[REF][i]["est_size_mb"] or 0), 1e-9) for i in ids]
         print(f"  {v:10} coverage / full: median {sorted(dc)[len(dc)//2]:.2f} range {min(dc):.2f}-{max(dc):.2f};  size / full: median {sorted(ds)[len(ds)//2]:.2f} range {min(ds):.2f}-{max(ds):.2f}")

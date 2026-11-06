@@ -117,12 +117,56 @@ Is a sketch of part of a run the same as a sketch of the whole run? Tested on 12
 What this shows, and what it does not:
 
 - Distances between lineages (*C. neoformans*, differences up to about 0.1) are preserved at every depth (r 0.998), but the numbers move: a 1 Gb sketch is off by about 0.008 on average, which is more than the noise floor (0.0025) of that species, so a distance from a subsample is not interchangeable with one from the whole run.
-- Distances within a population (*Z. tritici*, mostly below 0.005) are mostly lost: at 1 Gb the correlation with the whole run is 0.62 and a sample's nearest neighbour is the same in one case in three; at 300 Mb or less it is essentially noise. A "no clear cut" for a recombining species from 1 Gb sketches therefore means the sketches cannot resolve fine structure, not that there is none. Use more of the run (not tested: 2 to 4 Gb) for within-population work.
+- Distances within a population (*Z. tritici*, mostly below 0.005) are mostly lost: at 1 Gb the correlation with the whole run is 0.62 and a sample's nearest neighbour is the same in one case in three; at 300 Mb or less it is essentially noise. A "no clear cut" for a recombining species from 1 Gb sketches therefore means the sketches cannot resolve fine structure, not that there is none. Use more of the run (not tested: 2 to 4 Gb) for within-population work. The depth series below qualifies this: in a second set of 12 deeper *Z. tritici* runs, whose distances span 0.01 to 0.04, sketches at 1, 2, 4 and 6 Gb agree with each other (r 0.998 or better), so the loss here is partly that this first set's distances were small compared with the sampling difference, and partly that the whole run is not a reliable reference when it is very deep.
 - Taking the start of the reads (`head`) instead of every Nth pair made no clear difference at 300 Mb: both are limited by depth, not by position in the file (r 0.998 against 0.998 and 0.21 against 0.09 are within what 12 samples can show). This test cannot tell whether the first reads are biased at greater depth.
 - The genome size estimate is stable down to 300 Mb (0.89 to 1.0 of the whole run's median) and breaks at 100 Mb (0.46 for *Z. tritici*).
 - Limits: two species, 12 runs each, noise floors estimated from 12 samples, one subsample per run. It is a first look, not a validation.
 
 **Do not go much deeper than about 100x k-mer coverage.** The coverage and genome size estimates come from the peak of the k-mer abundance histogram. In a set of 8 *C. neoformans* runs (genome about 18 Mb) sketched at 1, 2, 4 and 6 Gb and as the whole run (7 to 9 Gb), the peak was found for 7 of 8 samples at 1 Gb (about 55x) and at 2 Gb (about 110x), 5 of 8 at 4 Gb, 3 of 8 at 6 Gb and 1 of 8 for the whole run (about 400x). When it is not found the sample falls back to a low-coverage estimate (coverage about 0.6, size 40 to 200 Mb, abundance cutoff 2, so error k-mers stay in the distances) and is usually flagged `size_high` or `abundance_shoulder` for the wrong reason. The default `--max-bases 1000000000` and `--target-cov` keep ordinary fungal genomes below that; `--max-bases 0` on deep runs does not. Loosening the peak test does not fix it (it takes high-copy bumps of shallow samples for the genome peak), see issue #157.
+
+### Depth series: 1, 2, 4, 6 Gb and the whole run
+
+Twelve deep runs each of *C. neoformans* (7 to 9 Gb, about 18 Mb genome) and *Z. tritici* (14 to 40 Gb, about 35 Mb genome) were each fetched once and sketched at 1, 2, 4 and 6 Gb of bases (every pair kept with the same probability, evenly spaced) and as the whole run (`08_depth_series.sbatch`, compared with `07_subsample_compare.py`; set `REF=s6g` to compare against another depth than the whole run). All five sketches of a run use the same parameters (`--max-bases 0`). Pairwise distances (1 - ANI) over the 66 pairs of 12 samples, with the 6 Gb sketch as the reference:
+
+| | depth | Pearson r vs 6 Gb | mean abs. difference | nearest neighbour same | median k-mer coverage | runs with the abundance peak found |
+|---|---|---|---|---|---|---|
+| *Z. tritici* | 4 Gb | 0.9989 | 0.00011 | 92% | 74x | 12 of 12 |
+| | 2 Gb | 0.9981 | 0.00015 | 83% | 37x | 12 of 12 |
+| | 1 Gb | 0.9983 | 0.00019 | 83% | 18x | 12 of 12 |
+| | whole run | -0.14 | 0.0196 | 8% | 0.6x | 2 of 12 |
+| *C. neoformans* | 4 Gb | 0.78 | 0.0114 | 67% | 0.8x | 5 of 12 |
+| | 2 Gb | 0.39 | 0.0236 | 33% | 71x | 11 of 12 |
+| | 1 Gb | 0.42 | 0.0239 | 25% | 35x | 11 of 12 |
+| | whole run | 0.88 | 0.0115 | 92% | 0.8x | 1 of 12 |
+
+(The "peak found" count for the 6 Gb reference is 11 of 12 for *Z. tritici* and 3 of 12 for *C. neoformans*. The *Z. tritici* run SRR5829692 has no peak at 6 Gb and falls back to the low-coverage estimate.)
+
+- ***Z. tritici***: from 1 Gb (about 18x) up, the distances do not change with depth beyond about 0.0002, which is below the noise floor of the sketches (0.0011 at 1 Gb), and the strain order is stable (83 to 92% same nearest neighbour). More bases did not buy resolution here. The whole run is the outlier, not the subsamples: at 15 to 40 Gb (400x or more) the peak is not found, the abundance cutoff falls to 2, error k-mers stay in, and every distance shifts by about 0.02. A whole run that deep is a worse answer than 1 Gb, not a better one.
+- ***C. neoformans***: the numbers do not show what depth does to resolution, because the estimate fails at 4 Gb and above (5 of 12 peaks at 4 Gb, 3 of 12 at 6 Gb, 1 of 12 whole), and distances move with the cutoff, not with the data. The "r vs 6 Gb" column mostly measures which runs lost their peak. Only 1 and 2 Gb (about 55x and 110x) have a working estimate for 11 of 12 runs, and those two agree with each other better than with the deep ones. No claim is made about 4 Gb or more for this species until the estimator is fixed (issue #157).
+- So the practical guidance is the existing default: about 1 Gb (20 to 100x k-mer coverage for a fungal genome), not the whole run. The test did not show a gain from going deeper; it showed a loss for the very deep.
+- Limits: two species, 12 runs each, one subsample per depth, and the 6 Gb reference is itself a subsample (and fails the estimate for 9 of 12 *C. neoformans* runs).
+
+### Seven population sets from SRA
+
+`analysis/popgen_sra/` fetched 2,002 runs (1 Gb of bases each, every Nth pair) for seven species and analysed each set (`04_run_species.sh`, `05_ordinations.sh`). The clusters are the gap rule at the default `--min-floors 3`; "country" and "study" are the labels from ENA (best adjusted Rand index over the candidate cuts reported by the label check). No clear cut means the largest gap between merge heights is not larger than a random tree of the same data (the null p-value is in `popsketch.json`).
+
+| species | samples analysed | clusters | gap / noise floor (null p) | PC1, PC2 variance | best ARI: country, study |
+|---|---|---|---|---|---|
+| *Z. tritici* | 259 | no clear cut (1) | 0.4 (0.52) | 15%, 6% | 0.01, 0.14 |
+| *C. neoformans* | 264 | clear: 2 (262 + 2) | 26.9 (0.06) | 64%, 18% | 0.01, 0.07 |
+| *C. beticola* | 282 | no clear cut (1) | 0.1 (0.96) | 19%, 11% | 0.16, 0.07 |
+| *P. nodorum* | 265 | no clear cut (1) | 0.4 (0.38) | 14%, 6% | 0.61, 0.22 |
+| *B. cinerea* | 294 | no clear cut (1) | 0.6 (0.41) | 21%, 8% | 0.04, 0.10 |
+| *N. discreta* | 203 | no clear cut (1) | 2.7 (0.78) | 43%, 27% | 0.19, 0.30 |
+| *P. oryzae* | 251 | no clear cut (1) | 0.8 (0.76) | 64%, 13% | 0.27, 0.09 |
+
+- Six of seven sets have no cut the gap rule trusts. For *Z. tritici* the depth series above says the 1 Gb sketches resolve distances of this size, so for that species "no clear cut" is a property of the population (a recombining one) and not of the sketch depth. It is not shown for the other species.
+- *C. neoformans*: the one clear cut separates two samples, SRR34066268 and SRR34066269, both from PRJNA1279655, from the other 262. That is an outlier pair, not a lineage structure; the PC1 share (64%) is mostly those two. What they are has not been checked (a different species, a contaminant, or an aneuploid isolate are all possible). The label check reports 9 samples whose country label disagrees with their nearest neighbours (for example a Colombia-labelled sample closest to a China one) and 15 for study; these are listed in `label_check.tsv`.
+- *P. nodorum*: country ARI 0.61 at 13 clusters may be mostly the sampling: 187 of 265 samples are Australian, so a country label here is close to a study label (study ARI is 0.22) and the two are not separated. Not checked beyond that.
+- *P. oryzae*: PC1 holds 64% of the variance but the tree has no gap: a gradient, not groups. 5 country conflicts. 22 samples are flagged low coverage and 8 unrelated to the cohort (six are consecutive runs, ERR1976666 to ERR1976671).
+- *N. discreta* has the largest gap relative to the noise floor (2.7) but a random tree of the same data gives a gap that large 78% of the time, so it is not a cut; its PCA shows two lobes (70% of the variance in two axes).
+- Flags: low coverage is common (*P. nodorum* 34 of 265, *P. oryzae* 22, *Z. tritici* 39); `size_high` in *C. neoformans* (21) is at least in part the estimator failure described above for runs deeper than 100x and has not been checked sample by sample.
+- Not checked: whether any of these sets contains duplicates, clones or mixed-species runs beyond what the flags say; the ordination figures and trees (`<slug>_pcoa/figures`, `tree.nwk`) were not inspected by eye for this note.
 
 ## Key options
 
