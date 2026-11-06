@@ -122,6 +122,8 @@ What this shows, and what it does not:
 - The genome size estimate is stable down to 300 Mb (0.89 to 1.0 of the whole run's median) and breaks at 100 Mb (0.46 for *Z. tritici*).
 - Limits: two species, 12 runs each, noise floors estimated from 12 samples, one subsample per run. It is a first look, not a validation.
 
+**Do not go much deeper than about 100x k-mer coverage.** The coverage and genome size estimates come from the peak of the k-mer abundance histogram. In a set of 8 *C. neoformans* runs (genome about 18 Mb) sketched at 1, 2, 4 and 6 Gb and as the whole run (7 to 9 Gb), the peak was found for 7 of 8 samples at 1 Gb (about 55x) and at 2 Gb (about 110x), 5 of 8 at 4 Gb, 3 of 8 at 6 Gb and 1 of 8 for the whole run (about 400x). When it is not found the sample falls back to a low-coverage estimate (coverage about 0.6, size 40 to 200 Mb, abundance cutoff 2, so error k-mers stay in the distances) and is usually flagged `size_high` or `abundance_shoulder` for the wrong reason. The default `--max-bases 1000000000` and `--target-cov` keep ordinary fungal genomes below that; `--max-bases 0` on deep runs does not. Loosening the peak test does not fix it (it takes high-copy bumps of shallow samples for the genome peak), see issue #157.
+
 ## Key options
 
 `-k` (21), `-s/--scaled` (200), `--max-bases`, `--r1-only`, `--min-cov`, `--max-samples`, `--flagged`, `--index`, `--ordination`, `--components`, `--k`, `--cut`, `--min-floors`, `--no-tree`, `--root`, `--tree-floor`, `--floor-samples`, `--from-sketches`, `--target-cov`, `--size-z`, `--size-floor`, `--shoulder-z`, `--no-pca`, `--dapc-pcs`, `--compare-tree`, `--compare-pcs`, `--report-format`, `--resume`, `--threads`. `popsketch demo` writes a simulated example. See `popsketch run --help`.

@@ -7,14 +7,14 @@ difference as a multiple of the variant's noise floor), nearest neighbour agreem
 import csv, json, math, os, subprocess, sys
 
 BIN = os.environ.get("BIN", "popsketch_build/target/release/popsketch")
-VARIANTS = ["full", "stride1g", "stride300", "head300", "head100"]
+VARIANTS = os.environ.get("VARIANTS", "full,stride1g,stride300,head300,head100").split(",")
 # --from-sketches wants the parameters the sketches were made with
 MAX_BASES = {"full": 0, "stride1g": 1_000_000_000, "stride300": 300_000_000, "head300": 300_000_000, "head100": 100_000_000}
 
 
 def run(base, slug, v):
     out = f"{base}/{slug}/_out_{v}"
-    subprocess.run([BIN, "run", "--from-sketches", f"{base}/{slug}/{v}", "-o", out, "--max-bases", str(MAX_BASES[v]), "--flagged", "mark", "--min-cov", "0", "--no-pca", "--no-tree", "--threads", "4", "-q"], check=True)
+    subprocess.run([BIN, "run", "--from-sketches", f"{base}/{slug}/{v}", "-o", out, "--max-bases", str(MAX_BASES.get(v, 0)), "--flagged", "mark", "--min-cov", "0", "--no-pca", "--no-tree", "--threads", "4", "-q"], check=True)
     return out
 
 
