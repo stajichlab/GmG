@@ -10,7 +10,7 @@
 <main class="page">
   <header class="top">
     <div>
-      <div class="eyebrow">GmG · popsketch <span class="tag"><a href="index.html">classify genomes instead</a></span></div>
+      <div class="eyebrow">GmG · popsketch <span class="tag"><a href="gmg.html">classify genomes instead</a> · <a href="index.html">all tools</a></span></div>
       <h1>Audit a set of read files and see coarse structure</h1>
       <p class="sub">Low coverage, wrong size, a second organism, unrelated samples, label conflicts; then a hash PCA, clusters and a tree. <b>Your files never leave this computer</b>: the first reads of each file are sketched in this tab.</p>
     </div>
@@ -49,6 +49,30 @@
         <button id="run" class="btn primary" type="button" disabled>Run</button>
         <div class="bar grow" id="run-bar" hidden><div></div></div>
         <span class="status" id="run-status" role="status"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="bundle">
+    <h2>Or open a sketch bundle</h2>
+    <p class="side">A bundle is a set of sketches made earlier on a computer or cluster with <code>popsketch sketch</code> and packed with <code>scripts/popsketch_bundle.py</code>: a few MB per sample instead of the reads. Open one from your disk or from a link (the server must allow cross-origin requests). The page also reads <code>?data=URL</code>.</p>
+    <div class="body">
+      <div class="row">
+        <label class="btn" for="pick-bundle">Open bundle…</label><input id="pick-bundle" type="file" accept=".gz,.tgz,.tar,.zip" hidden>
+        <input id="bundle-url" class="grow" type="url" placeholder="https://…/bundle.tar.gz" aria-label="bundle URL">
+        <button id="bundle-load" class="btn" type="button">Load</button>
+      </div>
+      <p class="status" id="bundle-status" role="status"></p>
+    </div>
+  </section>
+
+  <section class="card" id="ena">
+    <h2>Labels from ENA (optional)</h2>
+    <p class="side">If your files are named by run accession (<code>SRR1713175_1.fastq.gz</code>), fetch country, study, host, strain and species for them from ENA and use those as labels. Only the accessions are sent to ENA; your reads stay here.</p>
+    <div class="body">
+      <div class="row">
+        <button id="ena-labels" class="btn" type="button" disabled>Fetch labels from ENA</button>
+        <span class="status" id="ena-status" role="status"></span>
       </div>
     </div>
   </section>

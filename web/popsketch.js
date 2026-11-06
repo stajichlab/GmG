@@ -6,6 +6,9 @@ let treeText = null;
 let indexFile = null;
 let pcsText = null;
 let worker = null;
+import { findRuns, labelsText as enaLabels } from "./ena.js";
+import { readBundle, fetchBundle } from "./bundle.js";
+let bundle = null; // a loaded sketch bundle; cleared when FASTQ files are chosen
 
 // sample id and mate: sampleA_R1.fastq.gz / sampleA_1.fq -> {id: sampleA, mate: 1}
 function parse(name) {
@@ -25,17 +28,26 @@ function group(list) {
   return [...by].map(([id, fs]) => ({ id, files: fs.filter(Boolean) })).sort((a, b) => a.id.localeCompare(b.id));
 }
 
+const ACC = /^[SED]RR\d+$/i; // a sample id that is an SRA/ENA run accession
+
 function refresh() {
+  if (bundle) {
+    $("queue-status").textContent = `${bundle.sketches.length} sketches from a bundle (k=${bundle.k}, scaled ${bundle.scaled}).`;
+    $("run").disabled = bundle.sketches.length < 4;
+    $("ena-labels").disabled = true;
+    return [];
+  }
   const samples = group(files);
   $("queue-status").textContent = samples.length
     ? `${samples.length} samples (${samples.reduce((n, s) => n + s.files.length, 0)} files).` + (samples.length > 200 ? " More than about 200 samples is slow in a browser; consider the command line." : "")
     : "No FASTQ files chosen.";
   $("run").disabled = samples.length < 4;
+  $("ena-labels").disabled = !samples.some((s) => ACC.test(s.id));
   return samples;
 }
 
-$("pick-files").addEventListener("change", (e) => { files = [...e.target.files]; refresh(); });
-$("pick-dir").addEventListener("change", (e) => { files = [...e.target.files]; refresh(); });
+$("pick-files").addEventListener("change", (e) => { files = [...e.target.files]; bundle = null; refresh(); });
+$("pick-dir").addEventListener("change", (e) => { files = [...e.target.files]; bundle = null; refresh(); });
 $("pick-labels").addEventListener("change", async (e) => {
   const f = e.target.files[0];
   labelsText = f ? await f.text() : null;
@@ -49,6 +61,54 @@ $("pick-index").addEventListener("change", (e) => {
   indexFile = e.target.files[0] || null;
   $("index-name").textContent = indexFile ? indexFile.name : "";
 });
+
+$("ena-labels").addEventListener("click", async () => {
+  const st = $("ena-status");
+  const ids = group(files).map((s) => s.id).filter((id) => ACC.test(id));
+  try {
+    st.textContent = "Asking ENA…";
+    const found = [];
+    for (let i = 0; i < ids.length; i += 100) found.push(...(await findRuns(ids.slice(i, i + 100).join(" "), { limit: 1000 })));
+    if (!found.length) { st.textContent = `ENA knows none of the ${ids.length} accessions.`; return; }
+    labelsText = enaLabels(found);
+    $("labels-name").textContent = "labels from ENA (country, study, host, strain, species)";
+    st.textContent = `Labels found for ${found.length} of ${ids.length} run accessions; the other samples stay unlabelled.`;
+  } catch (err) {
+    st.textContent = `Error: ${err.message}`;
+  }
+});
+
+async function openBundle(file) {
+  const st = $("bundle-status");
+  try {
+    st.textContent = "Reading the bundle…";
+    bundle = await readBundle(file);
+    files = [];
+    if (bundle.labels) {
+      labelsText = bundle.labels;
+      $("labels-name").textContent = "labels from the bundle";
+    }
+    st.textContent = `${bundle.sketches.length} sketches, k=${bundle.k}, scaled ${bundle.scaled}` + (bundle.labels ? ", with labels" : "") + (bundle.note ? `. ${bundle.note}` : ".");
+    refresh();
+  } catch (err) {
+    bundle = null;
+    st.textContent = `Error: ${err.message}`;
+  }
+}
+$("pick-bundle").addEventListener("change", (e) => { if (e.target.files[0]) openBundle(e.target.files[0]); });
+async function loadBundleUrl(url) {
+  $("bundle-status").textContent = "Downloading the bundle…";
+  try {
+    await openBundle(await fetchBundle(url));
+  } catch (err) {
+    $("bundle-status").textContent = `Error: ${err.message}` + (err instanceof TypeError ? " (the server may not allow cross-origin requests)" : "");
+  }
+}
+$("bundle-load").addEventListener("click", () => { const u = $("bundle-url").value.trim(); if (u) loadBundleUrl(u); });
+{
+  const u = new URLSearchParams(location.search).get("data");
+  if (u) { $("bundle-url").value = u; loadBundleUrl(u); }
+}
 
 function download(name, text, type) {
   const a = document.createElement("a");
@@ -108,7 +168,7 @@ $("run").addEventListener("click", async () => {
   };
   const index = indexFile ? new Uint8Array(await indexFile.arrayBuffer()) : null;
   worker.postMessage({
-    type: "run", samples, labels: labelsText, compareTree: treeText, comparePcs: pcsText, index,
+    type: "run", samples, bundle, labels: labelsText, compareTree: treeText, comparePcs: pcsText, index,
     opts: { maxReads: Number($("max-reads").value), scaled: Number($("scaled").value), flagged: $("flagged").value },
   });
 });

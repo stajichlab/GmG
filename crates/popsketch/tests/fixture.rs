@@ -578,3 +578,44 @@ fn threshold_options_and_no_pca_take_effect() {
     assert!(r2.clusters.is_none());
     cleanup(&t);
 }
+
+#[test]
+fn analysing_a_folder_of_sketches_gives_the_same_results_as_analysing_the_reads() {
+    use popsketch::sketch_io::{cache_init, cache_write, sketch_sample, SketchParams};
+    let t = build("fromsk");
+    let direct = run(&opts(&t, "direct")).unwrap();
+    // sketch every sample on its own, as the per-run jobs do (with halves), then forget the reads
+    let params = SketchParams {
+        scaled: 5,
+        max_bases: 0,
+        ..SketchParams::default()
+    };
+    let skdir = t.dir.join("sk");
+    cache_init(&skdir, &params).unwrap();
+    for e in fs::read_dir(t.dir.join("reads")).unwrap() {
+        let p = e.unwrap().path();
+        let id = p.file_stem().unwrap().to_string_lossy().to_string();
+        let s = sketch_sample(&id, "reads", &[p], &params, true).unwrap();
+        cache_write(&skdir, &s, &params).unwrap();
+    }
+    fs::remove_dir_all(t.dir.join("reads")).unwrap();
+    let mut o = opts(&t, "fromsk");
+    o.inputs = vec![];
+    o.from_sketches = Some(skdir.clone());
+    let r = run(&o).unwrap();
+    assert_eq!(flagged(&r), flagged(&direct));
+    assert_eq!(r.included.len(), direct.included.len());
+    assert_eq!(r.floor.value, direct.floor.value);
+    assert_eq!(r.clusters, direct.clusters);
+    // other parameters than the sketches were made with are refused
+    let mut bad = opts(&t, "fromsk_bad");
+    bad.inputs = vec![];
+    bad.from_sketches = Some(skdir);
+    bad.scaled = 7;
+    let err = match run(&bad) {
+        Ok(_) => panic!("mismatched parameters were accepted"),
+        Err(e) => e.to_string(),
+    };
+    assert!(err.contains("other parameters"), "{err}");
+    cleanup(&t);
+}

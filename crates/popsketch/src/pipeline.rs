@@ -4,9 +4,7 @@
 use crate::advisor::{advise, Advice};
 use crate::cluster::{cut_k, gap_rule, upgma, GapCall, Verdict};
 use crate::dist::{compute, DistMat};
-#[cfg(feature = "native")]
-use crate::floor::pick_for_halves;
-use crate::floor::{estimate, Floor};
+use crate::floor::{estimate, pick_for_halves, Floor};
 use crate::labels::{
     analyze_column, column_labels, parse as parse_labels, ColumnReport, LabelTable,
 };
@@ -107,6 +105,8 @@ pub struct Options {
     /// PC scores of (some of) the same samples, for example from SNPs: compared with the sketch PCA
     pub compare_pcs: Option<PathBuf>,
     pub resume: bool,
+    /// take the samples from a folder of sketches made by `popsketch sketch` (no reads are read; the parameters must match)
+    pub from_sketches: Option<PathBuf>,
     /// `report.html` (default), `report.md` with `figures/*.svg`, `report.pdf`, or all three
     pub report_format: ReportFormat,
     pub quiet: bool,
@@ -148,6 +148,7 @@ impl Default for Options {
             compare_tree: None,
             compare_pcs: None,
             resume: false,
+            from_sketches: None,
             report_format: ReportFormat::Html,
             quiet: false,
             threads: None,
@@ -308,6 +309,37 @@ fn say(o: &Options, msg: &str) {
     }
 }
 
+/// The samples of a folder of sketches (one `<id>.json` per sample, next to `params.txt`).
+#[cfg(feature = "native")]
+fn inputs_from_sketches(dir: &std::path::Path) -> Result<Vec<gmg_input::Input>> {
+    let mut v = Vec::new();
+    for e in fs::read_dir(dir).with_context(|| dir.display().to_string())? {
+        let p = e?.path();
+        if p.extension().and_then(|x| x.to_str()) != Some("json") {
+            continue;
+        }
+        let meta: Value = serde_json::from_str(&fs::read_to_string(&p)?)
+            .with_context(|| p.display().to_string())?;
+        let (Some(id), Some(kind)) = (meta["id"].as_str(), meta["kind"].as_str()) else {
+            continue;
+        };
+        v.push(gmg_input::Input {
+            path: PathBuf::new(),
+            files: Vec::new(),
+            id: id.to_string(),
+            kind: if kind == "reads" { "reads" } else { "assembly" },
+            expected: None,
+            ref_id: None,
+            explicit: true,
+        });
+    }
+    v.sort_by(|a, b| a.id.cmp(&b.id));
+    if v.is_empty() {
+        bail!("no sketches (*.json) in {}", dir.display());
+    }
+    Ok(v)
+}
+
 #[cfg(feature = "native")]
 pub fn run(o: &Options) -> Result<Results> {
     if let Some(t) = o.threads {
@@ -316,14 +348,18 @@ pub fn run(o: &Options) -> Result<Results> {
             .build_global()
             .ok();
     }
-    let inputs = discover(&DiscoverArgs {
-        inputs: &o.inputs,
-        list: None,
-        group: !o.no_group,
-        quiet: o.quiet,
-        sample_sheet: o.sample_sheet.as_deref(),
-        kind: &o.kind,
-    })?;
+    let inputs = if let Some(dir) = &o.from_sketches {
+        inputs_from_sketches(dir)?
+    } else {
+        discover(&DiscoverArgs {
+            inputs: &o.inputs,
+            list: None,
+            group: !o.no_group,
+            quiet: o.quiet,
+            sample_sheet: o.sample_sheet.as_deref(),
+            kind: &o.kind,
+        })?
+    };
     if inputs.len() > o.max_samples {
         bail!(
             "{} samples is more than --max-samples {}: exact all-pairs distances grow with the square of the number of samples. \
@@ -347,9 +383,19 @@ pub fn run(o: &Options) -> Result<Results> {
         .map(|i| i.id.clone())
         .collect();
     let halves_for = pick_for_halves(&read_ids, o.floor_samples);
-    let cache_dir = o.out.join("sketches");
-    let reuse = o.resume && cache_ready(&cache_dir, &params);
-    if !reuse {
+    let cache_dir = o
+        .from_sketches
+        .clone()
+        .unwrap_or_else(|| o.out.join("sketches"));
+    let reuse = o.from_sketches.is_some() || (o.resume && cache_ready(&cache_dir, &params));
+    if o.from_sketches.is_some() {
+        if !cache_ready(&cache_dir, &params) {
+            bail!(
+                "the sketches in {} were made with other parameters than -k {} --scaled {} --max-bases {}: use the same ones as `popsketch sketch`",
+                cache_dir.display(), o.ksize, o.scaled, o.max_bases
+            );
+        }
+    } else if !reuse {
         cache_init(&cache_dir, &params)?;
     }
     say(
@@ -374,6 +420,9 @@ pub fn run(o: &Options) -> Result<Results> {
                 if let Some(s) = cache_read(&cache_dir, &inp.id, want) {
                     return Ok(s);
                 }
+            }
+            if o.from_sketches.is_some() {
+                bail!("{}: no usable sketch in {}", inp.id, cache_dir.display());
             }
             let s = sketch_sample(&inp.id, inp.kind, &inp.files, &params, want)?;
             cache_write(&cache_dir, &s, &params)?;
@@ -457,7 +506,7 @@ pub struct Analysis<'a> {
 /// Everything after sketching, with no file access: the audit, distances, clusters, ordination, tree and label analysis.
 pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
     let Analysis {
-        sketches,
+        mut sketches,
         errors: rows,
         mut warnings,
         index,
@@ -465,6 +514,19 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
         compare_tree,
         compare_pcs,
     } = a;
+    // the split-half noise floor uses the same pseudo-random subset of samples whoever made the sketches: sketches made on their own
+    // (`popsketch sketch`) carry halves for every sample, and using all of them would not match a run that sketched the reads itself
+    let read_ids: Vec<String> = sketches
+        .iter()
+        .filter(|s| s.kind == "reads")
+        .map(|s| s.id.clone())
+        .collect();
+    let with_halves = pick_for_halves(&read_ids, o.floor_samples);
+    for s in &mut sketches {
+        if !with_halves.contains(&s.id) {
+            s.halves = None;
+        }
+    }
     // ---- audit
     let qp = QcParams {
         min_cov: o.min_cov,

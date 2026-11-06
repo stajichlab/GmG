@@ -7,6 +7,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import assert from "node:assert/strict";
+import { readBundle } from "../../../web/bundle.js";
 
 const require = createRequire(import.meta.url);
 const here = path.dirname(new URL(import.meta.url).pathname);
@@ -110,5 +111,39 @@ const wasmIdx = new Map(w4.qc.map((q) => [q.id, q]));
 assert.equal(wasmIdx.size, nativeIdx.length, "qc rows with an index");
 for (const [id, call] of nativeIdx) assert.equal(wasmIdx.get(id).organism_call ?? "", call, `organism call of ${id}`);
 console.log(`index screen: ${nativeIdx.filter((r) => r[1] && r[1] !== "none").length} samples with an organism call in the native run`);
+// sketches made earlier by `popsketch sketch` (one command per sample), analysed natively with --from-sketches and in wasm through add_sketch
+const skdir = path.join(tmp, "sk");
+files.forEach((f, i) => execFileSync(bin, ["sketch", "--id", ids[i], "-o", skdir, "--scaled", "5", "--max-bases", "0", path.join(tmp, "reads", f)], { stdio: ["ignore", "ignore", "inherit"] }));
+const out5 = path.join(tmp, "out5");
+execFileSync(bin, ["run", "--from-sketches", skdir, "--labels", path.join(tmp, "labels.tsv"), "-o", out5, "--scaled", "5", "--max-bases", "0", "--floor-samples", "20", "--threads", "2", "--quiet"], { stdio: ["ignore", "ignore", "inherit"] });
+const native5 = JSON.parse(fs.readFileSync(path.join(out5, "popsketch.json"), "utf8"));
+const s5 = new Session(21, 5, 0n, false);
+const rb = (n) => new Uint8Array(fs.readFileSync(path.join(skdir, n)));
+ids.forEach((id) => s5.add_sketch(rb(id + ".json"), rb(id + ".gsk"), rb(id + ".half_a.gsk"), rb(id + ".half_b.gsk")));
+const w5 = JSON.parse(s5.analyze(fs.readFileSync(path.join(tmp, "labels.tsv"), "utf8"), "{}", undefined, undefined)).summary;
+same(w5.samples, native5.samples, "sketch input: sample counts");
+same(w5.flags, native5.flags, "sketch input: flags");
+same(w5.clusters, native5.clusters, "sketch input: clusters");
+same(w5.ordination, native5.ordination, "sketch input: ordination");
+assert.ok(Math.abs(w5.noise_floor.value - native5.noise_floor.value) < 1e-12, "sketch input: noise floor");
+assert.equal(w5.noise_floor.source, "split_half");
+// a sketch of another scale is refused
+const bad = new Session(21, 7, 0n, false);
+assert.throws(() => bad.add_sketch(rb(ids[0] + ".json"), rb(ids[0] + ".gsk"), new Uint8Array(0), new Uint8Array(0)), /scaled=5/);
+console.log(`sketch input: ${ids.length} samples, verdict ${JSON.stringify(w5.clusters.gap.verdict)}, same as the native --from-sketches run`);
+
+// the same sketches through a packed bundle (scripts/popsketch_bundle.py) and web/bundle.js, as the page loads them
+const bundlePath = path.join(tmp, "set.tar.gz");
+execFileSync("python3", [path.join(here, "../../../scripts/popsketch_bundle.py"), skdir, "-o", bundlePath, "--labels", path.join(tmp, "labels.tsv")], { stdio: ["ignore", "ignore", "inherit"] });
+const bundle = await readBundle(new File([fs.readFileSync(bundlePath)], "set.tar.gz"));
+assert.equal(bundle.scaled, 5);
+assert.equal(bundle.sketches.length, ids.length);
+// the packer carries halves for the samples popsketch itself would pick (its fnv1a ordering is re-implemented in Python)
+assert.deepEqual(bundle.sketches.filter((x) => x.a.length).map((x) => x.id).sort(), [...withHalves].sort(), "halves packed for the samples popsketch picks");
+const s6 = new Session(bundle.k, bundle.scaled, 0n, false);
+bundle.sketches.forEach((x) => s6.add_sketch(x.meta, x.whole, x.a, x.b));
+const w6 = JSON.parse(s6.analyze(bundle.labels, "{}", undefined, undefined)).summary;
+same(w6, w5, "bundle input equals the loose sketches");
+console.log(`bundle input: ${bundle.sketches.length} samples, ${(fs.statSync(bundlePath).size / 1e3).toFixed(0)} kB, same summary as the loose sketches`);
 console.log(`popsketch wasm parity OK: ${ids.length} samples, ${wasm.size} analysed, verdict ${JSON.stringify(w.clusters.gap.verdict)}`);
 fs.rmSync(tmp, { recursive: true, force: true });
