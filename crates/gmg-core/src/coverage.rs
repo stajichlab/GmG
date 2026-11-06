@@ -30,6 +30,11 @@ const PEAK_OVER_VALLEY: f64 = 1.3;
 /// sliver above it is noise in the tail of an error-dominated histogram (sub-1x samples, or a plateau at low coverage with no
 /// rise after it), where the walk below would otherwise run on to a spurious minimum and leave almost no hashes.
 const PEAK_MASS_SHARE: f64 = 0.5;
+/// Deep samples (about 150x and more) fail that test although the peak is clear: recurrent sequencing errors seen 2 to 30
+/// times form a long tail that holds more hashes than the peak (share 0.37 to 0.46 in *C. neoformans* at 4 Gb, #157). A peak
+/// is also accepted when the hashes within 40% of its position make up at least this share of the hashes seen twice or more.
+/// False peaks (high-copy bumps, noise) hold 0.10 or less of them in the sets checked.
+const PEAK_WINDOW_SHARE: f64 = 0.3;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Coverage {
@@ -72,14 +77,19 @@ fn valley_peak(h: &[u64]) -> Option<(usize, usize)> {
     let valley = a;
     let above: f64 = h[valley..].iter().map(|&c| c as f64).sum();
     let twice_or_more: f64 = h[2..].iter().map(|&c| c as f64).sum();
-    if above < PEAK_MASS_SHARE * twice_or_more {
-        return None;
-    }
     let mut peak = valley + 1;
     for b in valley + 1..=last {
         if smooth(h, b) > smooth(h, peak) {
             peak = b;
         }
+    }
+    let (lo, hi) = (
+        ((peak as f64 * 0.6) as usize).max(valley),
+        (peak as f64 * 1.4).ceil() as usize,
+    );
+    let window: f64 = h[lo..=hi.min(h.len() - 1)].iter().map(|&c| c as f64).sum();
+    if above < PEAK_MASS_SHARE * twice_or_more && window < PEAK_WINDOW_SHARE * twice_or_more {
+        return None;
     }
     let (sp, sv) = (smooth(h, peak), smooth(h, valley));
     (sp >= PEAK_MIN_HASHES && sp >= PEAK_OVER_VALLEY * sv).then_some((valley, peak))
@@ -175,6 +185,41 @@ mod tests {
             );
             assert!(c.valley.unwrap() < lambda as u32);
         }
+    }
+
+    /// Deep sample: a Poisson peak at `lambda` over a long error tail (errors seen 1 to 30 times, falling slowly), as in the
+    /// real 4 Gb histograms of #157. Without the window rule the tail outweighs the peak and no peak is reported.
+    fn deep_hist(n: usize, lambda: f64) -> Vec<u32> {
+        let mut v = poisson_hist(n, lambda, 0);
+        for a in 1..=30u32 {
+            let count = (n as f64 * 3.0 / (a as f64).powf(2.2)) as usize;
+            v.extend(std::iter::repeat_n(a, count));
+        }
+        v
+    }
+
+    #[test]
+    fn peak_is_found_at_very_high_coverage_with_a_heavy_error_tail() {
+        for lambda in [100.0f64, 150.0, 300.0] {
+            let c = profile(&deep_hist(60000, lambda)).unwrap();
+            assert_eq!(c.basis, "peak", "lambda {lambda}");
+            assert!(
+                (c.kmer - lambda).abs() <= lambda * 0.1,
+                "lambda {lambda}: got {}",
+                c.kmer
+            );
+            assert!(c.valley.unwrap() >= 2 && c.valley.unwrap() < lambda as u32);
+        }
+    }
+
+    #[test]
+    fn a_small_high_copy_bump_over_an_error_tail_is_not_a_peak() {
+        // error tail with 400 hashes in a bump at 90: far below the share of the hashes seen twice or more
+        let mut v: Vec<u32> = (1..=30u32)
+            .flat_map(|a| std::iter::repeat_n(a, (20000.0 / (a as f64).powf(2.0)) as usize))
+            .collect();
+        v.extend(std::iter::repeat_n(90, 400));
+        assert_ne!(profile(&v).map(|c| c.basis), Some("peak"));
     }
 
     #[test]
