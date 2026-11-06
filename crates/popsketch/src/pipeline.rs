@@ -4,9 +4,7 @@
 use crate::advisor::{advise, Advice};
 use crate::cluster::{cut_k, gap_rule, upgma, GapCall, Verdict};
 use crate::dist::{compute, DistMat};
-#[cfg(feature = "native")]
-use crate::floor::pick_for_halves;
-use crate::floor::{estimate, Floor};
+use crate::floor::{estimate, pick_for_halves, Floor};
 use crate::labels::{
     analyze_column, column_labels, parse as parse_labels, ColumnReport, LabelTable,
 };
@@ -508,7 +506,7 @@ pub struct Analysis<'a> {
 /// Everything after sketching, with no file access: the audit, distances, clusters, ordination, tree and label analysis.
 pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
     let Analysis {
-        sketches,
+        mut sketches,
         errors: rows,
         mut warnings,
         index,
@@ -516,6 +514,19 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
         compare_tree,
         compare_pcs,
     } = a;
+    // the split-half noise floor uses the same pseudo-random subset of samples whoever made the sketches: sketches made on their own
+    // (`popsketch sketch`) carry halves for every sample, and using all of them would not match a run that sketched the reads itself
+    let read_ids: Vec<String> = sketches
+        .iter()
+        .filter(|s| s.kind == "reads")
+        .map(|s| s.id.clone())
+        .collect();
+    let with_halves = pick_for_halves(&read_ids, o.floor_samples);
+    for s in &mut sketches {
+        if !with_halves.contains(&s.id) {
+            s.halves = None;
+        }
+    }
     // ---- audit
     let qp = QcParams {
         min_cov: o.min_cov,

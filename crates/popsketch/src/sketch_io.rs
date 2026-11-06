@@ -6,9 +6,7 @@ use anyhow::Context;
 use anyhow::{bail, Result};
 #[cfg(feature = "native")]
 use gmg_core::coverage::profile;
-#[cfg(feature = "native")]
-use gmg_core::SketchFile;
-use gmg_core::{FracSketch, DEFAULT_SEED};
+use gmg_core::{FracSketch, SketchFile, DEFAULT_SEED};
 #[cfg(feature = "native")]
 use std::fs::{self, File};
 #[cfg(feature = "native")]
@@ -418,11 +416,77 @@ fn write_spectrum(path: &Path, p: &SketchParams, name: &str, s: &Spectrum) -> Re
 #[cfg(feature = "native")]
 fn read_spectrum(path: &Path) -> Result<Spectrum> {
     let mut r = BufReader::new(File::open(path)?);
-    let sf = SketchFile::read(&mut r)?;
+    spectrum_from_reader(&mut r, None, &path.display().to_string())
+}
+
+/// One `.gsk` sketch from any reader. When `want` is given, the sketch must have been made with that k and scale: sketches of
+/// other parameters cannot be compared and are refused rather than mixed.
+fn spectrum_from_reader(
+    r: &mut impl std::io::Read,
+    want: Option<&SketchParams>,
+    what: &str,
+) -> Result<Spectrum> {
+    let sf = SketchFile::read(r).map_err(|e| anyhow::anyhow!("{what}: {e}"))?;
+    if let Some(p) = want {
+        if sf.ksize != p.ksize || sf.scaled != p.scaled {
+            bail!(
+                "{what}: sketched with k={} scaled={}, not k={} scaled={}",
+                sf.ksize,
+                sf.scaled,
+                p.ksize,
+                p.scaled
+            );
+        }
+    }
     let abunds = sf.abunds.unwrap_or_else(|| vec![1; sf.hashes.len()]);
     Ok(Spectrum {
         hashes: sf.hashes,
         abunds,
+    })
+}
+
+/// A sample from the contents of its sketch files, as `popsketch sketch` wrote them: the `<id>.json` metadata, `<id>.gsk`,
+/// and the two half sketches when the sample has them. No file access, so it also builds for the browser.
+pub fn sketch_from_bytes(
+    meta_json: &[u8],
+    whole: &[u8],
+    halves: Option<(&[u8], &[u8])>,
+    p: &SketchParams,
+) -> Result<SampleSketch> {
+    let meta: serde_json::Value = serde_json::from_slice(meta_json)
+        .map_err(|e| anyhow::anyhow!("sketch metadata is not JSON: {e}"))?;
+    let id = meta["id"]
+        .as_str()
+        .ok_or_else(|| anyhow::anyhow!("sketch metadata has no id"))?
+        .to_string();
+    let kind = meta["kind"]
+        .as_str()
+        .ok_or_else(|| anyhow::anyhow!("{id}: sketch metadata has no kind"))?
+        .to_string();
+    let spectrum = spectrum_from_reader(&mut &whole[..], Some(p), &id)?;
+    let halves = match halves {
+        Some((a, b)) if kind == "reads" => Some((
+            spectrum_from_reader(&mut &a[..], Some(p), &format!("{id} half a"))?,
+            spectrum_from_reader(&mut &b[..], Some(p), &format!("{id} half b"))?,
+        )),
+        _ => None,
+    };
+    let num = |k: &str| {
+        meta[k]
+            .as_u64()
+            .ok_or_else(|| anyhow::anyhow!("{id}: sketch metadata has no {k}"))
+    };
+    Ok(SampleSketch {
+        id: id.clone(),
+        kind,
+        files: Vec::new(),
+        spectrum,
+        counts: Counts {
+            reads: num("reads")?,
+            bases: num("bases")?,
+            non_acgt: meta["non_acgt"].as_u64().unwrap_or(0),
+        },
+        halves,
     })
 }
 
@@ -510,6 +574,54 @@ mod tests {
             s.push_str(&format!("@r{i}\n{seq}\n+\n{}\n", "I".repeat(len)));
         }
         fs::write(path, s).unwrap();
+    }
+
+    #[test]
+    fn a_sketch_read_from_bytes_equals_the_one_read_from_the_cache() {
+        let dir = std::env::temp_dir().join(format!("popsketch_bytes_{}", std::process::id()));
+        fs::create_dir_all(&dir).unwrap();
+        let (r1, r2) = (dir.join("b_R1.fastq"), dir.join("b_R2.fastq"));
+        write_fastq(&r1, 1500, 100);
+        write_fastq(&r2, 1500, 100);
+        let p = SketchParams {
+            scaled: 10,
+            max_bases: 0,
+            ..SketchParams::default()
+        };
+        let s = sketch_sample("b", "reads", &[r1, r2], &p, true).unwrap();
+        let cache = dir.join("cache");
+        cache_init(&cache, &p).unwrap();
+        cache_write(&cache, &s, &p).unwrap();
+        let rd = |n: &str| fs::read(cache.join(n)).unwrap();
+        let from_bytes = sketch_from_bytes(
+            &rd("b.json"),
+            &rd("b.gsk"),
+            Some((&rd("b.half_a.gsk"), &rd("b.half_b.gsk"))),
+            &p,
+        )
+        .unwrap();
+        let from_cache = cache_read(&cache, "b", true).unwrap();
+        assert_eq!(from_bytes.id, from_cache.id);
+        assert_eq!(from_bytes.kind, from_cache.kind);
+        assert_eq!(from_bytes.counts, from_cache.counts);
+        assert_eq!(from_bytes.spectrum.hashes, from_cache.spectrum.hashes);
+        assert_eq!(from_bytes.spectrum.abunds, from_cache.spectrum.abunds);
+        let (a, b) = from_bytes.halves.as_ref().unwrap();
+        let (ca, cb) = from_cache.halves.as_ref().unwrap();
+        assert_eq!((&a.hashes, &b.hashes), (&ca.hashes, &cb.hashes));
+        // without the halves the sample has none; a sketch of another scale is refused, not mixed
+        assert!(sketch_from_bytes(&rd("b.json"), &rd("b.gsk"), None, &p)
+            .unwrap()
+            .halves
+            .is_none());
+        let other = SketchParams {
+            scaled: 50,
+            ..p.clone()
+        };
+        let err = sketch_from_bytes(&rd("b.json"), &rd("b.gsk"), None, &other).unwrap_err();
+        assert!(err.to_string().contains("scaled=10"), "{err}");
+        assert!(sketch_from_bytes(b"not json", &rd("b.gsk"), None, &p).is_err());
+        fs::remove_dir_all(&dir).ok();
     }
 
     #[test]

@@ -110,5 +110,25 @@ const wasmIdx = new Map(w4.qc.map((q) => [q.id, q]));
 assert.equal(wasmIdx.size, nativeIdx.length, "qc rows with an index");
 for (const [id, call] of nativeIdx) assert.equal(wasmIdx.get(id).organism_call ?? "", call, `organism call of ${id}`);
 console.log(`index screen: ${nativeIdx.filter((r) => r[1] && r[1] !== "none").length} samples with an organism call in the native run`);
+// sketches made earlier by `popsketch sketch` (one command per sample), analysed natively with --from-sketches and in wasm through add_sketch
+const skdir = path.join(tmp, "sk");
+files.forEach((f, i) => execFileSync(bin, ["sketch", "--id", ids[i], "-o", skdir, "--scaled", "5", "--max-bases", "0", path.join(tmp, "reads", f)], { stdio: ["ignore", "ignore", "inherit"] }));
+const out5 = path.join(tmp, "out5");
+execFileSync(bin, ["run", "--from-sketches", skdir, "--labels", path.join(tmp, "labels.tsv"), "-o", out5, "--scaled", "5", "--max-bases", "0", "--floor-samples", "20", "--threads", "2", "--quiet"], { stdio: ["ignore", "ignore", "inherit"] });
+const native5 = JSON.parse(fs.readFileSync(path.join(out5, "popsketch.json"), "utf8"));
+const s5 = new Session(21, 5, 0n, false);
+const rb = (n) => new Uint8Array(fs.readFileSync(path.join(skdir, n)));
+ids.forEach((id) => s5.add_sketch(rb(id + ".json"), rb(id + ".gsk"), rb(id + ".half_a.gsk"), rb(id + ".half_b.gsk")));
+const w5 = JSON.parse(s5.analyze(fs.readFileSync(path.join(tmp, "labels.tsv"), "utf8"), "{}", undefined, undefined)).summary;
+same(w5.samples, native5.samples, "sketch input: sample counts");
+same(w5.flags, native5.flags, "sketch input: flags");
+same(w5.clusters, native5.clusters, "sketch input: clusters");
+same(w5.ordination, native5.ordination, "sketch input: ordination");
+assert.ok(Math.abs(w5.noise_floor.value - native5.noise_floor.value) < 1e-12, "sketch input: noise floor");
+assert.equal(w5.noise_floor.source, "split_half");
+// a sketch of another scale is refused
+const bad = new Session(21, 7, 0n, false);
+assert.throws(() => bad.add_sketch(rb(ids[0] + ".json"), rb(ids[0] + ".gsk"), new Uint8Array(0), new Uint8Array(0)), /scaled=5/);
+console.log(`sketch input: ${ids.length} samples, verdict ${JSON.stringify(w5.clusters.gap.verdict)}, same as the native --from-sketches run`);
 console.log(`popsketch wasm parity OK: ${ids.length} samples, ${wasm.size} analysed, verdict ${JSON.stringify(w.clusters.gap.verdict)}`);
 fs.rmSync(tmp, { recursive: true, force: true });

@@ -8,12 +8,13 @@
 //! const out = JSON.parse(s.analyze(labelsTextOrUndefined, JSON.stringify({ min_cov: 4 }), newickTextOrUndefined, pcsTextOrUndefined));
 //! // out.summary (the popsketch.json document), out.html, out.clusters, out.pca, out.newick, out.qc
 //! ```
-//! Reading is the caller's job: the page slices each (decompressed) FASTQ and hands over the bytes.
+//! Reading is the caller's job: the page slices each (decompressed) FASTQ and hands over the bytes, or hands over sketches that
+//! `popsketch sketch` made earlier (`add_sketch`), so the reads are not needed at all.
 
 use gmg_core::RefIndex;
 use popsketch::floor::pick_for_halves;
 use popsketch::pipeline::{analyze, summary_json, Analysis, FlagMode, Options, SampleRow, Status};
-use popsketch::sketch_io::{sketch_bytes, SampleSketch, SketchParams};
+use popsketch::sketch_io::{sketch_bytes, sketch_from_bytes, SampleSketch, SketchParams};
 use serde_json::{json, Value};
 use std::path::PathBuf;
 use wasm_bindgen::prelude::*;
@@ -84,6 +85,23 @@ impl Session {
                 });
             }
         }
+    }
+
+    /// Add a sample that was already sketched, from the contents of its files as `popsketch sketch` writes them: `<id>.json`,
+    /// `<id>.gsk` and the two half sketches (`<id>.half_a.gsk`, `<id>.half_b.gsk`; pass empty arrays for a sample without
+    /// them). The sketch must have the session's k and scale, or this throws and the sample is not added.
+    pub fn add_sketch(
+        &mut self,
+        meta_json: &[u8],
+        whole: &[u8],
+        half_a: &[u8],
+        half_b: &[u8],
+    ) -> Result<(), JsError> {
+        let halves = (!half_a.is_empty() && !half_b.is_empty()).then_some((half_a, half_b));
+        let s = sketch_from_bytes(meta_json, whole, halves, &self.params)
+            .map_err(|e| JsError::new(&format!("{e:#}")))?;
+        self.sketches.push(s);
+        Ok(())
     }
 
     pub fn n_samples(&self) -> usize {
