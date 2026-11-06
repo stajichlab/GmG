@@ -7,6 +7,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import assert from "node:assert/strict";
+import { readBundle } from "../../../web/bundle.js";
 
 const require = createRequire(import.meta.url);
 const here = path.dirname(new URL(import.meta.url).pathname);
@@ -130,5 +131,19 @@ assert.equal(w5.noise_floor.source, "split_half");
 const bad = new Session(21, 7, 0n, false);
 assert.throws(() => bad.add_sketch(rb(ids[0] + ".json"), rb(ids[0] + ".gsk"), new Uint8Array(0), new Uint8Array(0)), /scaled=5/);
 console.log(`sketch input: ${ids.length} samples, verdict ${JSON.stringify(w5.clusters.gap.verdict)}, same as the native --from-sketches run`);
+
+// the same sketches through a packed bundle (scripts/popsketch_bundle.py) and web/bundle.js, as the page loads them
+const bundlePath = path.join(tmp, "set.tar.gz");
+execFileSync("python3", [path.join(here, "../../../scripts/popsketch_bundle.py"), skdir, "-o", bundlePath, "--labels", path.join(tmp, "labels.tsv")], { stdio: ["ignore", "ignore", "inherit"] });
+const bundle = await readBundle(new File([fs.readFileSync(bundlePath)], "set.tar.gz"));
+assert.equal(bundle.scaled, 5);
+assert.equal(bundle.sketches.length, ids.length);
+// the packer carries halves for the samples popsketch itself would pick (its fnv1a ordering is re-implemented in Python)
+assert.deepEqual(bundle.sketches.filter((x) => x.a.length).map((x) => x.id).sort(), [...withHalves].sort(), "halves packed for the samples popsketch picks");
+const s6 = new Session(bundle.k, bundle.scaled, 0n, false);
+bundle.sketches.forEach((x) => s6.add_sketch(x.meta, x.whole, x.a, x.b));
+const w6 = JSON.parse(s6.analyze(bundle.labels, "{}", undefined, undefined)).summary;
+same(w6, w5, "bundle input equals the loose sketches");
+console.log(`bundle input: ${bundle.sketches.length} samples, ${(fs.statSync(bundlePath).size / 1e3).toFixed(0)} kB, same summary as the loose sketches`);
 console.log(`popsketch wasm parity OK: ${ids.length} samples, ${wasm.size} analysed, verdict ${JSON.stringify(w.clusters.gap.verdict)}`);
 fs.rmSync(tmp, { recursive: true, force: true });

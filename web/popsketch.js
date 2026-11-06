@@ -7,6 +7,8 @@ let indexFile = null;
 let pcsText = null;
 let worker = null;
 import { findRuns, labelsText as enaLabels } from "./ena.js";
+import { readBundle, fetchBundle } from "./bundle.js";
+let bundle = null; // a loaded sketch bundle; cleared when FASTQ files are chosen
 
 // sample id and mate: sampleA_R1.fastq.gz / sampleA_1.fq -> {id: sampleA, mate: 1}
 function parse(name) {
@@ -29,6 +31,12 @@ function group(list) {
 const ACC = /^[SED]RR\d+$/i; // a sample id that is an SRA/ENA run accession
 
 function refresh() {
+  if (bundle) {
+    $("queue-status").textContent = `${bundle.sketches.length} sketches from a bundle (k=${bundle.k}, scaled ${bundle.scaled}).`;
+    $("run").disabled = bundle.sketches.length < 4;
+    $("ena-labels").disabled = true;
+    return [];
+  }
   const samples = group(files);
   $("queue-status").textContent = samples.length
     ? `${samples.length} samples (${samples.reduce((n, s) => n + s.files.length, 0)} files).` + (samples.length > 200 ? " More than about 200 samples is slow in a browser; consider the command line." : "")
@@ -38,8 +46,8 @@ function refresh() {
   return samples;
 }
 
-$("pick-files").addEventListener("change", (e) => { files = [...e.target.files]; refresh(); });
-$("pick-dir").addEventListener("change", (e) => { files = [...e.target.files]; refresh(); });
+$("pick-files").addEventListener("change", (e) => { files = [...e.target.files]; bundle = null; refresh(); });
+$("pick-dir").addEventListener("change", (e) => { files = [...e.target.files]; bundle = null; refresh(); });
 $("pick-labels").addEventListener("change", async (e) => {
   const f = e.target.files[0];
   labelsText = f ? await f.text() : null;
@@ -69,6 +77,38 @@ $("ena-labels").addEventListener("click", async () => {
     st.textContent = `Error: ${err.message}`;
   }
 });
+
+async function openBundle(file) {
+  const st = $("bundle-status");
+  try {
+    st.textContent = "Reading the bundle…";
+    bundle = await readBundle(file);
+    files = [];
+    if (bundle.labels) {
+      labelsText = bundle.labels;
+      $("labels-name").textContent = "labels from the bundle";
+    }
+    st.textContent = `${bundle.sketches.length} sketches, k=${bundle.k}, scaled ${bundle.scaled}` + (bundle.labels ? ", with labels" : "") + (bundle.note ? `. ${bundle.note}` : ".");
+    refresh();
+  } catch (err) {
+    bundle = null;
+    st.textContent = `Error: ${err.message}`;
+  }
+}
+$("pick-bundle").addEventListener("change", (e) => { if (e.target.files[0]) openBundle(e.target.files[0]); });
+async function loadBundleUrl(url) {
+  $("bundle-status").textContent = "Downloading the bundle…";
+  try {
+    await openBundle(await fetchBundle(url));
+  } catch (err) {
+    $("bundle-status").textContent = `Error: ${err.message}` + (err instanceof TypeError ? " (the server may not allow cross-origin requests)" : "");
+  }
+}
+$("bundle-load").addEventListener("click", () => { const u = $("bundle-url").value.trim(); if (u) loadBundleUrl(u); });
+{
+  const u = new URLSearchParams(location.search).get("data");
+  if (u) { $("bundle-url").value = u; loadBundleUrl(u); }
+}
 
 function download(name, text, type) {
   const a = document.createElement("a");
@@ -128,7 +168,7 @@ $("run").addEventListener("click", async () => {
   };
   const index = indexFile ? new Uint8Array(await indexFile.arrayBuffer()) : null;
   worker.postMessage({
-    type: "run", samples, labels: labelsText, compareTree: treeText, comparePcs: pcsText, index,
+    type: "run", samples, bundle, labels: labelsText, compareTree: treeText, comparePcs: pcsText, index,
     opts: { maxReads: Number($("max-reads").value), scaled: Number($("scaled").value), flagged: $("flagged").value },
   });
 });

@@ -2,7 +2,7 @@
 #SBATCH -p short -N1 -n1 -c4 --mem=12G -t 2:00:00 -J popsra -o logs/%x_%A_%a.out
 # One SRA run per array task: parallel-fastq-dump to scratch, keep every Nth read pair (about 1 Gb of bases in all: old SRA FASTQs
 # are position-sorted, so the first reads would come from one region), sketch it into the species' folder of sketches, delete the reads.
-# Only the sketch (a few hundred KB) lands under /bigdata.
+# Only the sketch (about 8 MB with its split halves) lands under /bigdata.
 # usage: N=$(( $(wc -l < <SLUG>/runs_ftp.tsv) - 1 )); sbatch --array=1-$N%12 --export=ALL,SLUG=<slug> 03_fetch_sketch.sbatch
 set -uo pipefail
 module load sratoolkit/3.2.0 parallel-fastq-dump/0.6.7 2>/dev/null || true

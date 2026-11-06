@@ -53,6 +53,19 @@
     </div>
   </section>
 
+  <section class="card" id="bundle">
+    <h2>Or open a sketch bundle</h2>
+    <p class="side">A bundle is a set of sketches made earlier on a computer or cluster with <code>popsketch sketch</code> and packed with <code>scripts/popsketch_bundle.py</code>: a few MB per sample instead of the reads. Open one from your disk or from a link (the server must allow cross-origin requests). The page also reads <code>?data=URL</code>.</p>
+    <div class="body">
+      <div class="row">
+        <label class="btn" for="pick-bundle">Open bundle…</label><input id="pick-bundle" type="file" accept=".gz,.tgz,.tar,.zip" hidden>
+        <input id="bundle-url" class="grow" type="url" placeholder="https://…/bundle.tar.gz" aria-label="bundle URL">
+        <button id="bundle-load" class="btn" type="button">Load</button>
+      </div>
+      <p class="status" id="bundle-status" role="status"></p>
+    </div>
+  </section>
+
   <section class="card" id="ena">
     <h2>Labels from ENA (optional)</h2>
     <p class="side">If your files are named by run accession (<code>SRR1713175_1.fastq.gz</code>), fetch country, study, host, strain and species for them from ENA and use those as labels. Only the accessions are sent to ENA; your reads stay here.</p>
