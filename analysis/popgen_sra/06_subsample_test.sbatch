@@ -15,7 +15,7 @@ BIN=$P/popsketch_build/target/release/popsketch
 cd $P
 read -r slug run bases < <(awk -F'\t' -v n=$SLURM_ARRAY_TASK_ID 'NR==n' subtest/tasks.tsv)
 T=subtest/$slug; mkdir -p $T/stride1g
-[[ -s $T/stride1g/$run.json ]] || cp popsra/$slug/sketches/$run.json popsra/$slug/sketches/params.txt $T/stride1g/ 2>/dev/null || true
+[[ -s $T/stride1g/$run.json ]] || cp popsra/$slug/sketches/$run.* popsra/$slug/sketches/params.txt $T/stride1g/ 2>/dev/null || true
 [[ -s $T/head100/$run.json ]] && { echo "skip $run"; exit 0; }
 work=$(mktemp -d "${SCRATCH:-/tmp}/subtest.$run.XXXXXX"); trap 'rm -rf "$work"' EXIT
 parallel-fastq-dump --sra-id $run --threads 4 --split-files --gzip --tmpdir $work -O $work/raw >$work/dump.log 2>&1 || { echo "FAIL dump $run"; tail -5 $work/dump.log; exit 1; }

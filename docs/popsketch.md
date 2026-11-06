@@ -99,6 +99,29 @@ The code is shared, not copied: `popsketch::pipeline::analyze` takes the sketche
 
 `scripts/popsketch_bundle.py SKETCH_DIR -o set.tar.gz [--labels labels.tsv] [--note TEXT]` packs a folder of sketches into one `.tar.gz`: a manifest (`popsketch-bundle.json`, format 1, with k, scale and the sample ids), the optional label table, and each sample's `<id>.json`, `<id>.gsk` and split-half sketches. It refuses a sample with a missing file, so a bundle is complete. The web page opens a bundle from your disk or from a link (`popsketch.html?data=URL`, the server must allow cross-origin requests) and does the audit, clusters, PCA, tree and report in the tab, so the reads are fetched and sketched once on a computer or cluster and the page is used to look at them and change thresholds. A bundle carries the split halves for the 20 samples the noise floor uses, not for all of them (the rest would not be used and are two thirds of the bytes), so it is about 3 MB per sample before gzip. The page reads sketches through `Session.add_sketch` (`sketch_from_bytes` in the crate), checked against `popsketch run --from-sketches` in the wasm parity test, which also found and fixed a difference: halves are used for the same pseudo-random subset of samples (`--floor-samples`) whoever made the sketches.
 
+### How much of a run is enough
+
+Is a sketch of part of a run the same as a sketch of the whole run? Tested on 12 runs each of *C. neoformans* (2.2 to 6.2 Gb of bases per run, whole-run k-mer coverage about 119x) and *Z. tritici* (about 37x), by sketching each run five ways (`analysis/popgen_sra/06_subsample_test.sbatch`, `07_subsample_compare.py`): the whole run, every Nth read pair to 1 Gb (`stride1g`, what the population sets use) and to 300 Mb, and the first 300 Mb and 100 Mb of reads. Distances (1 - ANI) of all 66 pairs against the whole run:
+
+| | variant | Pearson r | mean abs. difference | nearest neighbour same | median coverage (whole run 119x / 37x) |
+|---|---|---|---|---|---|
+| *C. neoformans* | stride 1 Gb | 0.998 | 0.0081 | 75% | 31x |
+| | stride 300 Mb | 0.998 | 0.0111 | 42% | 10x |
+| | first 300 Mb | 0.998 | 0.0107 | 50% | 10x |
+| | first 100 Mb | 0.998 | 0.0207 | 25% | 3x |
+| *Z. tritici* | stride 1 Gb | 0.62 | 0.0016 | 33% | 13x |
+| | stride 300 Mb | 0.09 | 0.0072 | 25% | 4x |
+| | first 300 Mb | 0.21 | 0.0066 | 8% | 3x |
+| | first 100 Mb | 0.20 | 0.0311 | 0% | 2x |
+
+What this shows, and what it does not:
+
+- Distances between lineages (*C. neoformans*, differences up to about 0.1) are preserved at every depth (r 0.998), but the numbers move: a 1 Gb sketch is off by about 0.008 on average, which is more than the noise floor (0.0025) of that species, so a distance from a subsample is not interchangeable with one from the whole run.
+- Distances within a population (*Z. tritici*, mostly below 0.005) are mostly lost: at 1 Gb the correlation with the whole run is 0.62 and a sample's nearest neighbour is the same in one case in three; at 300 Mb or less it is essentially noise. A "no clear cut" for a recombining species from 1 Gb sketches therefore means the sketches cannot resolve fine structure, not that there is none. Use more of the run (not tested: 2 to 4 Gb) for within-population work.
+- Taking the start of the reads (`head`) instead of every Nth pair made no clear difference at 300 Mb: both are limited by depth, not by position in the file (r 0.998 against 0.998 and 0.21 against 0.09 are within what 12 samples can show). This test cannot tell whether the first reads are biased at greater depth.
+- The genome size estimate is stable down to 300 Mb (0.89 to 1.0 of the whole run's median) and breaks at 100 Mb (0.46 for *Z. tritici*).
+- Limits: two species, 12 runs each, noise floors estimated from 12 samples, one subsample per run. It is a first look, not a validation.
+
 ## Key options
 
 `-k` (21), `-s/--scaled` (200), `--max-bases`, `--r1-only`, `--min-cov`, `--max-samples`, `--flagged`, `--index`, `--ordination`, `--components`, `--k`, `--cut`, `--min-floors`, `--no-tree`, `--root`, `--tree-floor`, `--floor-samples`, `--from-sketches`, `--target-cov`, `--size-z`, `--size-floor`, `--shoulder-z`, `--no-pca`, `--dapc-pcs`, `--compare-tree`, `--compare-pcs`, `--report-format`, `--resume`, `--threads`. `popsketch demo` writes a simulated example. See `popsketch run --help`.
