@@ -47,7 +47,7 @@ Prefer (a) if it costs under 0.1 MB per sample (measure).
 - A visible provenance line: sketch parameters, build date, binary version, so a result can be tied to its inputs.
 
 ### 6. Hosting
-- **Decided (2026-11-07): NRP Ceph S3**, existing bucket `s3://stajichlab`, prefix `sketch/fungi/`, uploaded with `s3cmd -P` (public read) using the owner's `~/.s3cfg` from the laptop, never from HPCC. GCP or R2 stay the fallback. Public read bucket, CORS allowing GET/HEAD from `https://gmg.fungalgenomes.org` (and localhost for tests), exposing `Content-Length` and `ETag`. Serve the files uncompressed: delta-coded hashes barely gzip.
+- **Decided (2026-11-07): NRP Ceph S3**, existing bucket `s3://stajichlab`, prefix `sketch/fungi/`, uploaded with `s3cmd -P` (public read) using the owner's `~/.s3cfg` (laptop or HPCC). GCP or R2 stay the fallback. Public read bucket, CORS allowing GET/HEAD from `https://gmg.fungalgenomes.org` (and localhost for tests), exposing `Content-Length` and `ETag`. Serve the files uncompressed: delta-coded hashes barely gzip.
 - Content-hashed file names with `Cache-Control: immutable`; short TTL on the catalog.
 - One config value (`SKETCH_BASE_URL`) on the site; catalogs hold relative paths.
 - GCP: egress is the cost (about $0.12/GB, so about $0.05 for a 400-sample run); a budget alert does not cap spend, so consider R2 (no egress fees) or a CDN with rate limits. NRP: unknown limits and end of the free period; the sketches are rebuildable but URLs in docs and bundles would break, so keep the base URL in one place.
@@ -56,7 +56,7 @@ Prefer (a) if it costs under 0.1 MB per sample (measure).
 
 ### 7. HPCC work
 - Packing the existing 2,002: CPU only, no downloads, a few minutes to an hour (est.). Run as an array with a low priority and `ArrayTaskThrottle`, outside the queue crowding of other jobs.
-- Do not put a bucket credential on shared HPCC. Copy the packed files off HPCC and upload from CI (OIDC) or from a laptop.
+- Credentials: the owner's `~/.s3cfg` is on the laptop and on HPCC (owner's home only); run `s3cmd` from either. Do not copy it into shared folders, job scripts or CI.
 - Re-sketching is not needed. Measurement and parity are the only compute.
 
 ## Steps and gates
