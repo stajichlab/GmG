@@ -12,6 +12,14 @@ Can we, for thousands of strains across several species: download each run, subs
 - Code for distances, ordination and tree is in `crates/popsketch`, not `gmg-core`. `DistMat` holds dense n x n f64 for both `ani` and `mash`. Tree = neighbour-joining on mash (Jaccard); PCoA = containment ANI over the smaller set, which hides extra content. *(review)*
 - Measured: 8-13 min wall on 4 cores per run at about 1 Gb (including download); native analysis about 1 min at 1,500 samples and 4.5 min at 3,000 (synthetic hashes).
 
+## Working rules (owner, 2026-11-07)
+
+1. **HPCC only.** All analysis and data processing runs on HPCC; the laptop is the orchestrator. Exceptions that need a laptop (to be confirmed with the owner): browser timings in T5 and T7b, and the S3 upload and CORS check in T8 (credentials are on the laptop, never on HPCC).
+2. **Purgeable folders.** One-off and exploratory work lives under `~/projects/GmG/` on HPCC in named folders: `bench/<test-id>_<what>/` (T-numbered, safe to delete after the ledger is written), `scratch_notes/`, and `results/` only for what a document cites. Anything not under `bench/`, `analysis/` or `results/` is not kept.
+3. **Temp files in `$SCRATCH`.** Downloads (.sra, FASTQ), subsamples and anything in-silico mixed are written to `$SCRATCH` (`/scratch/jstajich/`) inside the task and removed on exit; only sketches, traces and tables are kept. Nextflow `work/` holds only the declared small outputs.
+4. **Code and tests.** Scripts under `analysis/` or `bench/`, Rust in `crates/popsketch` (and `popsketch-wasm`). Finished code is documented in `docs/popsketch.md`; each test above gets an automated check (a small fixture run in CI, a scale test marked `--ignored`, and the benchmark itself), not only a one-off run.
+5. **PopSeq owns metadata.** Runs, accessions, genome sizes, labels and panels come from the PopSeq catalog (`/bigdata/stajichlab/shared/projects/Fungi/PopSeq`: `catalog/index.json`, `catalog/runs`, `catalog/genome_sizes.csv` with 113 species, `uv run popseq panel --min-depth ...`). GmG only reads them. If a field is missing or wrong, or another NCBI/SRA query is needed, the fix is proposed in PopSeq. Consequence: `analysis/popgen_sra/01_select_runs.py` and `02_ena_urls.py` duplicate PopSeq and should be replaced by a manifest built from `popseq panel`; the per-species base cap (genome size x target) reads `genome_sizes.csv`.
+
 ## Method
 
 Each test has a question, a dataset, a metric, a pass criterion set **before** running, and a resource record. Order is cheap to expensive; a failed gate stops dependent tests. A failed gate changes the plan; the criterion is not relaxed afterwards.
