@@ -5,7 +5,7 @@ For whoever continues this (a person or another Claude session). Results are in 
 ## State at the end of the session
 - Merged: #156 (sketch command, bundles, ENA labels, landing/gmg/popsketch pages, SRA scripts), #158 (estimator fix for #157).
 - Branch `plan-web-sketches`: `docs/plan_web_sketches.md` (compact hosted sketches), reviewed by Opus, not built.
-- Site `gmg.fungalgenomes.org` is deployed (repo variable `PAGES_ENABLED=true` was empty before; the workflow is skipped without it, and a push made before the variable is set is not retried: run `workflow_dispatch`). HTTPS enforcement is still off (owner's setting).
+- Site `gmg.fungalgenomes.org` is deployed (repo variable `PAGES_ENABLED=true` was empty before; the workflow is skipped without it, and a push made before the variable is set is not retried: run `workflow_dispatch`). Update 2026-11-07: DNS, certificate (approved, expires 2027-01-27) and HTTPS enforcement are all on; http redirects with 301.
 - Open issues: #159 (validate the estimator fix), #155 (real recombining population), #154 (five *B. dendrobatidis* samples with a shoulder). No open PRs.
 - Nothing of ours is running on HPCC.
 
@@ -31,7 +31,7 @@ For whoever continues this (a person or another Claude session). Results are in 
 
 ## Operating notes (HPCC and tools)
 - Slurm over plain ssh needs `bash -lc`. Interactive runs: `srun -p short` (max 2 h). Do not rebuild a binary while jobs use it; build with a separate `CARGO_TARGET_DIR`. `scontrol update ArrayTaskThrottle` changes the concurrency of a running array.
-- `parallel-fastq-dump` (NCBI) gets reads; `sra-stat` 404 means the run is not at NCBI (21 *P. oryzae* ERR runs, skipped by decision, `popsra/p_oryzae_missing.txt`). 7 other failures were transient and succeeded on rerun; concurrency was not shown to be the cause.
+- `parallel-fastq-dump` (NCBI) gets reads; `sra-stat` 404 means the run is not at NCBI (21 *P. oryzae* ERR runs, dropped by decision (final, 2026-11-07), `popsra/p_oryzae_missing.txt`). 7 other failures were transient and succeeded on rerun; concurrency was not shown to be the cause.
 - ENA portal API allows CORS (metadata works in the browser); ENA's FASTQ host was too slow and unreliable here; AWS Open Data S3 has no CORS and holds `.sra`. So streaming reads in a browser is parked; sketches must be pre-built.
 - Old SRA files are position-sorted, so keep every Nth pair, not the first reads.
 - macOS `sed -i` needs `''`; use Python for edits in scripts. `build_site.sh` deletes the output dir: restart any `http.server` afterwards, and new web files must be in its copy list (`ena.js`, `bundle.js` were missed once).
@@ -49,7 +49,7 @@ For whoever continues this (a person or another Claude session). Results are in 
 - Skip the 21 *P. oryzae* runs. Merging PRs, enabling Pages and HTTPS, DNS: the owner decides (the owner did enable Pages and merge on request this session).
 - Flat site layout: `/gmg.html`, `/popsketch.html`, landing at `index.html`.
 - ENA is used for metadata only; the web page takes only the user's own files or a hosted bundle.
-- Hosting for pre-built sketches: GCP storage or a free S3 on NRP once the sketches exist; plan first, build when HPCC load is lower.
+- Hosting for pre-built sketches: decided on NRP S3 `s3://stajichlab/sketch/fungi/` with `s3cmd -P` (2026-11-07), once the sketches exist; plan first, build when HPCC load is lower.
 
 ## Next, in order
 1. Review the PCA/PCoA figures and trees (cheap); identify the two *C. neoformans* outliers.

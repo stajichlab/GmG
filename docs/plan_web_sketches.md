@@ -37,7 +37,7 @@ Prefer (a) if it costs under 0.1 MB per sample (measure).
 - Parity tests: native `run --from-sketches` on the original sketches against the compact files, covering random subsets of different sizes (QC is cohort-relative: size_z, shoulder, `unrelated_to_cohort`, and the picked halves all depend on the subset), not only the seven whole species; plus wasm against native, as `parity.mjs` does. Expect exact identity of ani, flags and clusters; any difference blocks the plan until explained. Not yet checked: whether `dist::compute` is bit-identical between native and wasm.
 
 ### 4. Catalog
-`catalog.json` per species: accession, biosample, study, species, country, strain, host, bases, file size, URL, plus sketch parameters. Built from `runs.tsv` and ENA metadata. Samples excluded for failure (the 21 *P. oryzae* 404s) are listed with the reason, not silently absent.
+`catalog.json` per species: accession, biosample, study, species, country, strain, host, bases, file size, URL, plus sketch parameters. Built from `runs.tsv` and ENA metadata. Samples excluded for failure (the 21 *P. oryzae* runs that are not at NCBI or ENA; dropped by decision, 2026-11-07) are listed with the reason, not silently absent.
 
 ### 5. Page
 - Species picker or accession paste; shows the catalog rows, total download size, a cap (for example 400 samples), a progress bar, and cancels cleanly.
@@ -47,7 +47,7 @@ Prefer (a) if it costs under 0.1 MB per sample (measure).
 - A visible provenance line: sketch parameters, build date, binary version, so a result can be tied to its inputs.
 
 ### 6. Hosting
-- GCP Cloud Storage bucket or NRP S3, public read, CORS allowing GET/HEAD from `https://gmg.fungalgenomes.org` (and localhost for tests), exposing `Content-Length` and `ETag`. Serve the files uncompressed: delta-coded hashes barely gzip.
+- **Decided (2026-11-07): NRP Ceph S3**, existing bucket `s3://stajichlab`, prefix `sketch/fungi/`, uploaded with `s3cmd -P` (public read) using the owner's `~/.s3cfg` from the laptop, never from HPCC. GCP or R2 stay the fallback. Public read bucket, CORS allowing GET/HEAD from `https://gmg.fungalgenomes.org` (and localhost for tests), exposing `Content-Length` and `ETag`. Serve the files uncompressed: delta-coded hashes barely gzip.
 - Content-hashed file names with `Cache-Control: immutable`; short TTL on the catalog.
 - One config value (`SKETCH_BASE_URL`) on the site; catalogs hold relative paths.
 - GCP: egress is the cost (about $0.12/GB, so about $0.05 for a 400-sample run); a budget alert does not cap spend, so consider R2 (no egress fees) or a CDN with rate limits. NRP: unknown limits and end of the free period; the sketches are rebuildable but URLs in docs and bundles would break, so keep the base URL in one place.
