@@ -1,87 +1,96 @@
-# Plan: a test framework for "popsketch at scale" (draft v1, 2026-11-07)
+# Plan: a test framework for "popsketch at scale" (draft v2, reviewed)
 
 ## The question
 
-Can we, for thousands of strains across several species: download each run, subsample to about 20-30x, sketch it at a good size/sensitivity trade-off, and then give a browser (WASM) page the means to make tables, PCoA/PCA, trees, hypothesis tests and a query over the sketches? This plan is not the build plan (see `plan_web_sketches.md`). It is the set of measurements that tells us (1) what is possible and how well, and (2) what resources it takes, before we commit.
+Can we, for thousands of strains across several species: download each run, subsample to about 20-30x, sketch it at a good size/sensitivity trade-off, and give a browser (WASM) page the means to make tables, PCoA/PCA, trees, hypothesis tests and a query over the sketches? This is not the build plan (see `plan_web_sketches.md`). It is the set of measurements that tells us (1) what is possible and how well, and (2) what resources it takes, before we commit. v2 folds in an independent review (Fable) that checked this plan against the code; changes are marked *(review)*.
 
-## Corrections to what we believed
+## Facts corrected or added
 
-- The fetch script (`03_fetch_sketch.sbatch`) keeps every Nth read pair of the whole run (systematic subsample), not the first reads. It must download and decompress the whole run, so cost scales with run size, not with the 1 Gb we keep.
-- "20-30x" is a per-species base cap (genome size x 25), not a constant. The fixed 1 Gb used so far gives 20-100x for 18-35 Mb genomes and would give about 3x for a 300 Mb genome.
-- Known and measured: 8-13 min wall on 4 cores per run at 1 Gb (including download); native analysis 1 min at 1,500 samples and 4.5 min at 3,000 (synthetic hashes); 8 MB per sample now (about 1 MB planned compact). Everything else below is an estimate until a test replaces it.
+- The fetch script (`03_fetch_sketch.sbatch`) keeps every Nth read pair of the whole run, so cost scales with the run size. `step = ceil(bases/1e9)`, so it keeps between 0.5 and 1 Gb (a 1.01 Gb run keeps about 0.5 Gb): depth already varies twofold across the 2,002 sketches. `08_depth_series.sbatch` uses a fractional evenly spaced sampler instead. *(review)*
+- "20-30x" must say which coverage. At 1 Gb, *Z. tritici* has about 18x k-mer coverage and about 28-55x in bases for 18-35 Mb genomes (my earlier "20-100x" was loose). The cap is per species (genome size x target), and the bases actually kept must be logged. *(review)*
+- Sizes: a `.gsk` stores u64 hash + u32 abundance, 12 B per hash, and a read sketch keeps error k-mers below the cutoff (about 3 MB, not 1.2 MB). "5 B per hash" holds only for delta-varint hashes above the cutoff with abundances dropped (the compact format). *(review)*
+- Code for distances, ordination and tree is in `crates/popsketch`, not `gmg-core`. `DistMat` holds dense n x n f64 for both `ani` and `mash`. Tree = neighbour-joining on mash (Jaccard); PCoA = containment ANI over the smaller set, which hides extra content. *(review)*
+- Measured: 8-13 min wall on 4 cores per run at about 1 Gb (including download); native analysis about 1 min at 1,500 samples and 4.5 min at 3,000 (synthetic hashes).
 
 ## Method
 
-Each test has: a question, a dataset, a metric, a pass criterion set **before** running, and a resource record. Tests are ordered cheap to expensive, and a failed gate stops the later tests that depend on it.
+Each test has a question, a dataset, a metric, a pass criterion set **before** running, and a resource record. Order is cheap to expensive; a failed gate stops dependent tests. A failed gate changes the plan; the criterion is not relaxed afterwards.
 
-**Resource record.** Every job writes one line to `analysis/bench/results.tsv`: test id, sample id, wall s, CPU s, max RSS, bytes downloaded, bytes written, scratch peak, node type, exit state. Slurm `sacct` fields plus `/usr/bin/time -v` for anything run outside Slurm; browser runs record `performance.now`, `performance.memory` where available, and transferred bytes. Costs are extrapolated from fits (cost = a + b x run size), not from single points.
+**Execution layer: Nextflow** on HPCC (modules exist; run the head job there). One task per run reads a manifest (`runs.tsv`), works in node `$SCRATCH` (about 1 TB transient is fine), and declares only the sketch as output, so `work/` holds sketches and logs (about 40 GB at 8 MB x 5,000, about 5 GB compact) under `~/projects`, not the shared folder. `-resume` gives "what has run / what is left"; `maxForks` and `queueSize` keep NCBI and the queue polite; permanent failures (404) go to a failure list that feeds `DATA_PROBLEMS.md` and `analysis/popgen_sra/excluded_runs.tsv`. Laptop needs under 1 GB. **The resource record is Nextflow's `trace.txt`** (wall, CPU, peak RSS, bytes read/written, exit status), plus browser timings for T5/T7b; costs are fitted (cost = a + b x run size), not single points. Bases actually kept and k-mer coverage are logged per sample.
 
-**Data.** Existing: the 7 SRA population sets (2,002 sketches, 1 Gb each), the Coccidioides and B. dendrobatidis sets with known problems, the 12-run deep sets of C. neoformans and Z. tritici. Needed: runs of a larger genome (100-300 Mb, species to be chosen) so the depth cap is tested where it bites. Synthetic data only for pure scaling (n), never for accuracy claims.
+**Data.** Existing: the 7 SRA sets (2,002 sketches), the Coccidioides and *B. dendrobatidis* sets, the 12-run deep sets (`08_select_deep.py`). Needed: a larger-genome species (100-300 Mb). Synthetic data only for pure scaling in n.
 
-**Reference.** Never a very deep whole run (shown unreliable). Use the 6 Gb subsample for small genomes and report the dependence of Pearson r on the span of diversity in the set, not r alone.
+**Truth.** *(review)* No test judges itself by a deep run of the same pipeline: the old 6 Gb reference had a failed peak estimate for 9 of 12 *C. neoformans* runs (before #157) and is shallower than 30x for a 300 Mb genome. Use outside truth where it exists: SNP trees and distances for Cocci (446-tip tree) and Bd (VCF), public VCFs for *Z. tritici* and *C. neoformans*, scored with `--compare-tree` and `--compare-pcs`. Freeze one noise floor, measured at the reference depth, so shallow depths cannot pass by having a bigger floor.
+
+## Order (most learned per core-hour) *(review)*
+
+1. **Analytic and no-HPCC:** A1 (memory and time arithmetic), A2 (sampling variance and saturation), T8 (hosting throwaway file).
+2. **T2 + T10 + T11** on the already listed deep runs, with the SNP truth and in-silico mixtures.
+3. **T4, T5, T6, T9, T7b** on the results.
+4. **T1**, cut down, last on HPCC. **T7** after the T6 decision.
 
 ## Tests
 
-### T1. Acquisition cost and failure rate (resources)
-60 runs stratified by size (0.5, 2, 8, 30 Gb). Compare: current `parallel-fastq-dump` + awk subsample; `fasterq-dump`; ENA FASTQ over HTTPS streamed through `head`-style truncation (cheap, but biased: SRA FASTQ is position-sorted for old runs); `prefetch` then dump. Record wall, CPU, bytes in, scratch peak, failure rate, retries. Output: cost model per method, and whether streaming a truncated prefix is ever acceptable (T2 decides).
+### A1. Memory and time arithmetic (before any benchmark)
+`DistMat` is 2 n² f64, plus a subset copy, `one_minus_ani`, and squared and centred PCoA matrices: about 7 n² f64 arrays, roughly 5.6 GB at 10k samples (not 800 MB). NJ is cubic: 1.3 s at 1,500 and 13 s at 3,000 projects to about 8 min at 10k. Compute n_max for a 4 GB / 60 s budget on paper, then refactor candidates (condensed f32 triangle, one distance only, RapidNJ or a faster NJ, partial/randomized eigen) and benchmark those.
 
-### T2. Subsample design and depth (what is possible)
-From one download per run produce: every-Nth at 5, 10, 15, 20, 30, 50x; first-N reads; a random subset. 12 runs each of C. neoformans, Z. tritici and one genome >= 100 Mb. Metrics against the reference: Pearson r and mean absolute difference of the pair distances, nearest-neighbour agreement, ARI of the clusters, estimator "peak found" rate, noise floor, sketch size. Pass: nearest-neighbour agreement >= 95% and mean difference below the noise floor at the chosen depth; the smallest depth that passes per species gives the per-species cap rule (cap = f x genome size) and the saving in T1 cost.
+### A2. FracMinHash validity (predict first)
+At scaled 200 a 20 Mb genome gives about 100k hashes; sampling SD of 1 - ANI near 0.001 is about 2e-5, far below the measured floors (0.001-0.0025). So floors come from reads, errors and the cutoff, not from sampling. At the other end, below about 80% ANI, C^(1/21) rests on a handful of shared hashes (saturation). Predict both regimes; run only scaled 200 and 1000 at k=21 unless the prediction fails (so k=17/25 are dropped).
 
-### T3. Sketch parameters: size versus sensitivity
-Same reads, k in {17, 21, 25}, scaled in {100, 200, 500, 1000}. Metrics: bytes per sample (hash count x 5 B), distance fidelity versus k=21/scaled 100, and the resolution: distance divided by split-half noise floor for known close pairs, and recovery of known clades (Cocci, Bd sets). Pass: the cheapest setting that keeps the cluster and NN results of T2 within tolerance. Also gives the real size for the hosting plan.
+### T2. Subsample design and depth
+From one download per run: fractional even sampler at 5, 10, 15, 20, 30, 50x (bases and k-mer coverage both stated); first-N reads; a random subset. 12 runs each of *C. neoformans*, *Z. tritici* and one genome >= 100 Mb; the reads are kept for the job (the 03 script deletes them). Metrics against outside truth and the frozen floor: Spearman correlation of pairs above the floor, mean difference versus the frozen floor, ARI of clusters, and nearest-neighbour agreement **counted only where the gap between the first and second neighbour exceeds the floor** (near-clonal sets like Bd, where 54% of pairs are below the floor, and *Z. tritici* at 83-92% between 1 and 6 Gb, cannot reach a flat 95%). Output: per-species cap rule and the T1 cost saved.
+
+### T3. Sketch parameters
+Scaled 200 and 1000, k=21, same reads. Bytes per sample in the compact format (stated assumptions, see above), and resolution on known close pairs and clade recovery (Cocci, Bd). Other k and scaled only if A2's prediction fails.
 
 ### T4. Native scaling in n
-Real sketches replicated by resampling to n = 500, 1k, 2k, 5k, 10k, plus real 2,002. Time and RSS for distances, tree, hash PCA, PCoA, clustering. Check the n^2 matrix memory (10k samples = 800 MB as f64) and where the eigen-solver dominates; evaluate randomized/partial eigen-solvers and a condensed (f32, upper triangle) matrix if superlinear. Pass: a stated n_max for a 4 GB / 60 s budget.
+After A1: real sketches resampled to n = 500, 1k, 2k, 5k, 10k, for the current code and the refactored candidates. Time and RSS per stage. Pass: stated n_max for 4 GB / 60 s.
 
 ### T5. WASM and the page
-Same n in Chrome, Firefox and Safari, desktop and one phone; in a worker. Record load/parse time, compute time, peak memory, native-to-wasm ratio, and bytes fetched. wasm32 has a 4 GB address-space ceiling, so find the real out-of-memory n. Parity with native on every n (extends the existing wasm parity test). Pass: n_max_browser per device class, and time to first plot.
+Chrome, Firefox, Safari, desktop and one phone, in a worker. Load and parse time, compute time, peak memory, native/wasm ratio, bytes fetched; real OOM n (wasm32 ceiling). Parity with native at every n. **Design decision made now:** the page fetches precomputed condensed matrices and ordinations per species (about 50 MB at 5k in f32); sketches (about 3 MB per sample in a bundle, about 15 GB at 5,000) are loaded only for a query or added samples. Pass: time to first plot.
 
 ### T6. Cross-species behaviour
-Pool all 7 species (+ distant controls): do 1 - ANI and containment separate within-species, between-species and between-genus, and where does the ANI estimate saturate at scaled 200? Pass: a written rule for when two samples are comparable, and whether the page must group by species before ordinating (expected: yes).
+Pool the 7 species plus distant controls: do 1 - ANI and containment separate within-species, between-species and between-genus, and where do they saturate. Pass: a written rule for when two samples are comparable (expected: group by species before ordinating).
 
 ### T7. Query tier
-Build a hash-to-sample inverted index for the 2,002 sketches and for a replicated 5,000. Index size and build time, latency for "closest samples to this sketch" and "samples containing this sequence", versus brute force over sketches. Shards by hash prefix so it works on a host without byte-range requests. Pass: latency under 2 s at 5,000 samples with an index small enough to hold per species.
+Hash-to-sample inverted index for 2,002 and replicated 5,000 samples: size, build time, "closest samples to this sketch" and "contains this sequence" latency versus brute force; sharded by hash prefix (no Range on the host). Pass: under 2 s at 5,000 with a per-species index small enough to hold. Waits on T6.
+
+### T7b. Browser-side database
+Whole-file `fetch` from S3 (CORS only, no Range) into DuckDB-wasm (`registerFileBuffer`, Parquet catalog) and into Rust/WASM (sorted delta-coded inverted index shard), thrown away on tab close. 300 and 1,000 samples per species: memory, load time, query latency, desktop and phone. About 90k hashes per *C. neoformans* sample means 27M rows at 300 samples; cross-species tables are too large, so shard per species or hash prefix. Expectation, not measured: DuckDB for metadata, Rust for the hash index.
 
 ### T8. Hosting and transfer
-On NRP S3 (`s3://stajichlab/sketch/fungi/`, owner's credentials, laptop only): CORS from `https://gmg.fungalgenomes.org`, `ETag`/`Content-Length` exposed, whether Range works, concurrent GET throughput from a browser, time to first view for 100/1,000 samples, egress limits. Use a throwaway file before any real upload. Pass: first view of a species under 30 s on a good connection.
+NRP S3 `s3://stajichlab/sketch/fungi/` (owner's `~/.s3cfg`, laptop only, `s3cmd -P`), throwaway file first: CORS from `https://gmg.fungalgenomes.org`, exposed `ETag`/`Content-Length`, Range support, concurrent GET throughput, egress limits. Pass: first view of a precomputed species under 30 s on a good connection (met by T5's design, not by fetching sketches).
 
 ### T9. Hypothesis tests
-PERMANOVA (and nearest-neighbour label purity) on the distance matrix by label (country, study, host) on sets with known structure and on label-permuted copies. Runtime in wasm, calibration (false positive rate near the nominal level under permutation), and sensitivity to the sampling imbalance already seen (P. nodorum: 187 of 265 from Australia). Pass: calibrated p-values; warnings when groups are confounded.
+*(review)* No PERMANOVA exists in the code yet. Build it with PERMDISP (unequal spread is mistaken for a location effect when groups are unbalanced, as in *P. nodorum*). Permute within study (studies are clustered and often clonal, so samples are not exchangeable), not all labels; add planted-effect sets to measure power. Pass: calibrated p-values and a confounding warning.
+
+### T10. Heterozygosity, ploidy and contamination at the capped depth *(review, new)*
+At 20-30x, heterozygous k-mers sit near 10-15x, close to the abundance cutoff, and the shoulder test needs about 12x k-mer coverage. Mix reads in silico: a contaminant at 1/3/10/30% (a second species), and a diploid such as *C. albicans*, at each depth. Report both distances (the tree uses mash, PCoA uses containment ANI, so they disagree under extra content) and flag recall (`size_high`, `abundance_shoulder`, `unrelated_to_cohort`). May change go/no-go for the depth cap.
+
+### T11. Reads versus assemblies *(review, new)*
+The database will mix SRA read sketches and assemblies. Take strains with both (BFD/Cocci sets) and measure the offset in both distances; decide whether they may share an ordination.
+
+### T1. Acquisition cost (cut down, last)
+20 runs x 2 methods (current `parallel-fastq-dump` + sampler; `fasterq-dump`), stratified by run size, timed at several hours of the day. Add ENA streaming truncation only if T2 shows first-N reads are acceptable. Record wall, CPU, bytes in, scratch peak (fasterq-dump scratch is about 10x the .sra size), failure rate. A 300 Mb genome at 30x needs about 9 Gb kept, several times the cost of the small ones.
 
 ## Resource ledger (to fill in)
 
 | item | per sample | per 5,000 samples | source |
 |---|---|---|---|
-| download+subsample wall, core-hours | T1 | | |
-| scratch peak | T1 | | |
-| sketch bytes, compact | T3 | | |
-| analysis time native / wasm | T4 / T5 | | |
-| browser memory | T5 | | |
-| storage + egress | T8 | | |
+| download+subsample core-hours (0.5-0.9 at 1 Gb) | T1/T2 | | trace.txt |
+| scratch peak | T1 | | trace.txt |
+| compact sketch bytes | T3 | | |
+| analysis time and RAM, native / wasm | A1, T4 / T5 | | |
+| browser memory | T5, T7b | | |
+| storage, egress | T8 | | |
 | index | T7 | | |
 
-Planning estimates (not measured): T1+T2 about 250 core-hours, T3 reuses T2 reads, T4 about 10 core-hours, T5-T9 laptop. Under 1 TB transient scratch, about one week wall, run when HPCC load is low.
+Budgets are separate: T2/T10 about 36 deep runs of reads kept (core-hour estimate to be made from T1's fit, not assumed); T1 20 runs x 2 methods; T4 small; T5-T9 on the laptop. Estimates only until A1 and the first trace exist. Under 1 TB transient scratch; run when HPCC load is low.
 
 ## Decisions the results feed
 
-- depth cap rule per species, and the subsample method;
-- k, scaled and file format (size per sample);
-- per-species n_max for native and browser, and whether a server tier is needed beyond that;
-- whether the query tier is a static sharded index or a service;
-- host, and cost per 1,000 views.
-
-## Order and gates
-
-1. Harness and resource record (`analysis/bench/`), T8 on a throwaway file, T4 (no HPCC).
-2. T1, then T2 and T3 from the same downloads (HPCC, low load).
-3. T5, T6, T9 on the results; T7.
-4. Write the ledger, decide the build plan.
-A gate fails if a pass criterion above is missed; that changes the plan, it is not a reason to relax the criterion afterwards.
+Depth cap rule and subsample method; k, scaled, file format; per-species n_max (native and browser) and whether a server tier is needed beyond it; static sharded index or service; reads-and-assemblies policy; host and cost per 1,000 views.
 
 ## Risks
 
-- Reference bias (see Method); small samples of runs per species; one large genome may not represent others.
-- NCBI/ENA throughput varies by hour; time T1 at several hours of the day.
-- Browser memory differs a lot by device; the phone result may force a smaller n.
-- Cross-species result may show the sketch cannot compare beyond genus, which limits the "multiple species" view to a catalog and search.
+Truth only exists for some species; small numbers of runs per species; one large genome may not represent others; NCBI/ENA throughput varies by hour; browser memory differs by device; T6 may show the sketch cannot compare beyond genus, which limits the multi-species view to a catalog plus search.
