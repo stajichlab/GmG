@@ -14,7 +14,7 @@ Can we, for thousands of strains across several species: download each run, subs
 
 ## Working rules (owner, 2026-11-07)
 
-1. **HPCC only.** All analysis and data processing runs on HPCC; the laptop is the orchestrator. Exceptions that need a laptop (to be confirmed with the owner): browser timings in T5 and T7b, and the S3 upload and CORS check in T8 (credentials are on the laptop, never on HPCC).
+1. **HPCC only.** All analysis and data processing runs on HPCC; the laptop is the orchestrator. The one exception (confirmed) is the browser timings in T5 and T7b, which need a real browser. `~/.s3cfg` is on both machines, so `s3cmd` (T8 and the upload) runs on HPCC too, from the owner's home; the credential is not copied anywhere else.
 2. **Purgeable folders.** One-off and exploratory work lives under `~/projects/GmG/` on HPCC in named folders: `bench/<test-id>_<what>/` (T-numbered, safe to delete after the ledger is written), `scratch_notes/`, and `results/` only for what a document cites. Anything not under `bench/`, `analysis/` or `results/` is not kept.
 3. **Temp files in `$SCRATCH`.** Downloads (.sra, FASTQ), subsamples and anything in-silico mixed are written to `$SCRATCH` (`/scratch/jstajich/`) inside the task and removed on exit; only sketches, traces and tables are kept. Nextflow `work/` holds only the declared small outputs.
 4. **Code and tests.** Scripts under `analysis/` or `bench/`, Rust in `crates/popsketch` (and `popsketch-wasm`). Finished code is documented in `docs/popsketch.md`; each test above gets an automated check (a small fixture run in CI, a scale test marked `--ignored`, and the benchmark itself), not only a one-off run.
@@ -67,7 +67,7 @@ Hash-to-sample inverted index for 2,002 and replicated 5,000 samples: size, buil
 Whole-file `fetch` from S3 (CORS only, no Range) into DuckDB-wasm (`registerFileBuffer`, Parquet catalog) and into Rust/WASM (sorted delta-coded inverted index shard), thrown away on tab close. 300 and 1,000 samples per species: memory, load time, query latency, desktop and phone. About 90k hashes per *C. neoformans* sample means 27M rows at 300 samples; cross-species tables are too large, so shard per species or hash prefix. Expectation, not measured: DuckDB for metadata, Rust for the hash index.
 
 ### T8. Hosting and transfer
-NRP S3 `s3://stajichlab/sketch/fungi/` (owner's `~/.s3cfg`, laptop only, `s3cmd -P`), throwaway file first: CORS from `https://gmg.fungalgenomes.org`, exposed `ETag`/`Content-Length`, Range support, concurrent GET throughput, egress limits. Pass: first view of a precomputed species under 30 s on a good connection (met by T5's design, not by fetching sketches).
+NRP S3 `s3://stajichlab/sketch/fungi/` (owner's `~/.s3cfg`, on laptop and HPCC, `s3cmd -P`), throwaway file first: CORS from `https://gmg.fungalgenomes.org`, exposed `ETag`/`Content-Length`, Range support, concurrent GET throughput, egress limits. Pass: first view of a precomputed species under 30 s on a good connection (met by T5's design, not by fetching sketches).
 
 ### T9. Hypothesis tests
 *(review)* No PERMANOVA exists in the code yet. Build it with PERMDISP (unequal spread is mistaken for a location effect when groups are unbalanced, as in *P. nodorum*). Permute within study (studies are clustered and often clonal, so samples are not exchangeable), not all labels; add planted-effect sets to measure power. Pass: calibrated p-values and a confounding warning.
