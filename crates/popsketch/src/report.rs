@@ -792,7 +792,7 @@ fn build(o: &Options, r: &Results) -> Vec<Block> {
                         vec![t(format!("{:.3}", res.r2))],
                         vec![t(fp(res.p))],
                         vec![t(fp(res.disp_p))],
-                        vec![t(g.strata.clone().unwrap_or_else(|| "none".into()))],
+                        vec![t(g.strata.clone().unwrap_or_else(|| "none".to_string()))],
                     ]);
                     for w in &res.warnings {
                         notes.push(format!("{}: {w}", g.column));
@@ -801,12 +801,12 @@ fn build(o: &Options, r: &Results) -> Vec<Block> {
                 None => {
                     rows.push(vec![
                         vec![t(g.column.clone())],
-                        vec![t("0".into())],
-                        vec![t("0".into())],
-                        vec![t("n/a".into())],
-                        vec![t("n/a".into())],
-                        vec![t("n/a".into())],
-                        vec![t(g.strata.clone().unwrap_or_else(|| "none".into()))],
+                        vec![t("0")],
+                        vec![t("0")],
+                        vec![t("n/a")],
+                        vec![t("n/a")],
+                        vec![t("n/a")],
+                        vec![t(g.strata.clone().unwrap_or_else(|| "none".to_string()))],
                     ]);
                     notes.push(format!(
                         "{}: fewer than two groups with two or more samples",
