@@ -53,6 +53,7 @@ Every flag is relative to the cohort; nothing needs a reference. Each flag carri
 | `clusters.tsv` | cluster per sample (`NA` when there is no clear cut) |
 | `tree.nwk` | neighbour-joining tree on mash distance, unrooted unless `--root ID`; branches shorter than the noise floor are collapsed |
 | `label_check.tsv` | samples whose ANI matches another label better than their own |
+| `group_tests.tsv` | for each label column: PERMANOVA (R2, pseudo-F, p), PERMDISP p, the stratum column, warnings |
 | `popsketch.json` | everything above in one machine-readable summary |
 | `report.md`, `figures/*.svg` | with `--report-format md` or `all`: the same report in Markdown with each figure as a standalone SVG |
 | `report.pdf` | with `--report-format pdf` or `all`: the same report as a PDF (A4, selectable text, built with the pure-Rust renderer `gmg run` uses) |
@@ -69,6 +70,8 @@ The **noise floor** is measured, not assumed: alternate reads of 20 samples go i
 Measured limits on two real sets: *Coccidioides* (species and a population cluster recover well, matching SNP trees on the top two axes) and *B. dendrobatidis* (nearly clonal: lineages 2, 3 and 4 are not distinguishable). Sketch distances among close pairs agreed poorly with SNP-tree distances (Spearman about 0.05 to 0.3).
 
 ## DAPC on the labels
+
+**Do the labels explain the distances?** With a label file, `popsketch run` also tests each label column on the 1 - ANI matrix: PERMANOVA (does the label explain more of the squared distances than shuffled labels do, `--permutations`, default 999, 0 turns it off) and PERMDISP (do the groups differ in spread). `--strata COLUMN` names a label column, usually the study, and the permutations then shuffle labels only among samples with the same value there, because samples from one study are often near-clonal or sampled together and are not exchangeable across labels. Warnings: the label never varies inside a stratum (it is the study: no p-value); PERMANOVA and PERMDISP both significant (different spread, so not evidence of different centres); unequal group sizes with possibly unequal spread; groups under 5 samples; distances that are not Euclidean. Groups with one sample are left out. Results are in `group_tests.tsv`, `popsketch.json` (`group_tests`) and a report section; the page has fields for the strata column and the permutations. Limits: PERMDISP permutes the distances to the centroids by label (an approximation to permuting residuals); the test uses the samples in the analysis (flagged ones left out by default); it says nothing about causes. Code: `crates/popsketch/src/permanova.rs`; tests: its unit tests (calibration over 200 null sets, planted location and spread effects, within-study permutation) and `tests/fixture.rs`.
 
 With a label file, the leading PCs of the hash PCA (`--dapc-pcs`, default 10; 0 turns it off) go into a discriminant analysis with the groups of the primary label column. It writes `dapc.tsv` (the discriminant scores, the group each sample is nearest to, and whether that is its own label), plots the first two axes, and lists the samples that are nearest to a group other than their label. This is a second hint, next to the ANI-based conflict check, that a label may be wrong; it needs at least 2 groups with 2 samples each and more samples than PCs.
 
@@ -170,7 +173,7 @@ Twelve deep runs each of *C. neoformans* (7 to 9 Gb, about 18 Mb genome) and *Z.
 
 ## Key options
 
-`-k` (21), `-s/--scaled` (200), `--max-bases`, `--r1-only`, `--min-cov`, `--max-samples`, `--flagged`, `--index`, `--ordination`, `--components`, `--k`, `--cut`, `--min-floors`, `--no-tree`, `--root`, `--tree-floor`, `--floor-samples`, `--from-sketches`, `--target-cov`, `--size-z`, `--size-floor`, `--shoulder-z`, `--no-pca`, `--dapc-pcs`, `--compare-tree`, `--compare-pcs`, `--report-format`, `--resume`, `--threads`. `popsketch demo` writes a simulated example. See `popsketch run --help`.
+`-k` (21), `-s/--scaled` (200), `--max-bases`, `--r1-only`, `--min-cov`, `--max-samples`, `--flagged`, `--index`, `--ordination`, `--components`, `--k`, `--cut`, `--min-floors`, `--no-tree`, `--root`, `--tree-floor`, `--floor-samples`, `--from-sketches`, `--target-cov`, `--size-z`, `--size-floor`, `--shoulder-z`, `--no-pca`, `--dapc-pcs`, `--strata`, `--permutations`, `--compare-tree`, `--compare-pcs`, `--report-format`, `--resume`, `--threads`. `popsketch demo` writes a simulated example. See `popsketch run --help`.
 
 ## Validation on real read sets
 

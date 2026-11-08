@@ -619,3 +619,60 @@ fn analysing_a_folder_of_sketches_gives_the_same_results_as_analysing_the_reads(
     assert!(err.contains("other parameters"), "{err}");
     cleanup(&t);
 }
+
+#[test]
+fn label_tests_find_the_real_grouping_stay_inside_strata_and_can_be_turned_off() {
+    let t = build("permanova");
+    // group: the planted groups; study: spread over the samples so every group occurs in every study; noise: alternating
+    let mut labels = String::from("id\tgroup\tstudy\tnoise\n");
+    for (i, (id, g)) in t.group_of.iter().enumerate() {
+        labels.push_str(&format!(
+            "{id}\tg{g}\tstudy{}\t{}\n",
+            i % 3,
+            if i % 2 == 0 { "X" } else { "Y" }
+        ));
+    }
+    let lp = t.dir.join("perm_labels.tsv");
+    fs::write(&lp, labels).unwrap();
+    let mut o = opts(&t, "permanova");
+    o.labels = Some(lp.clone());
+    o.strata = Some("study".into());
+    o.permutations = 199;
+    let r = run(&o).unwrap();
+    let cols: Vec<&str> = r.group_tests.iter().map(|g| g.column.as_str()).collect();
+    assert_eq!(cols, ["group", "noise"], "the strata column is not tested");
+    let grp = r.group_tests[0].result.as_ref().unwrap();
+    assert!(grp.p.unwrap() <= 0.05, "planted groups, p = {:?}", grp.p);
+    assert!(grp.r2 > 0.3, "r2 = {}", grp.r2);
+    assert_eq!(r.group_tests[0].strata.as_deref(), Some("study"));
+    let noise = r.group_tests[1].result.as_ref().unwrap();
+    assert!(noise.p.unwrap() > 0.01, "noise p = {:?}", noise.p);
+    let tsv = fs::read_to_string(o.out.join("group_tests.tsv")).unwrap();
+    assert!(tsv.starts_with("label_column\tstrata\t"), "{tsv}");
+    assert_eq!(tsv.lines().count(), 3);
+    let html = fs::read_to_string(o.out.join("popsketch.html")).unwrap_or_default();
+    let json = fs::read_to_string(o.out.join("popsketch.json")).unwrap();
+    assert!(json.contains("\"group_tests\""));
+    if !html.is_empty() {
+        assert!(html.contains("Do the labels explain the distances?"));
+    }
+    // a strata column that does not exist: warning, free permutation
+    let mut o2 = opts(&t, "permanova2");
+    o2.labels = Some(lp.clone());
+    o2.strata = Some("nope".into());
+    o2.permutations = 99;
+    let r2 = run(&o2).unwrap();
+    assert!(r2
+        .warnings
+        .iter()
+        .any(|w| w.contains("no such label column")));
+    assert_eq!(r2.group_tests.len(), 4 - 1);
+    // permutations 0: no tests, no file
+    let mut o3 = opts(&t, "permanova3");
+    o3.labels = Some(lp);
+    o3.permutations = 0;
+    let r3 = run(&o3).unwrap();
+    assert!(r3.group_tests.is_empty());
+    assert!(!exists(&o3.out.join("group_tests.tsv")));
+    cleanup(&t);
+}

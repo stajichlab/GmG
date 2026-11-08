@@ -776,6 +776,63 @@ fn build(o: &Options, r: &Results) -> Vec<Block> {
             ));
         }
     }
+    // does each label explain the distances?
+    if !r.group_tests.is_empty() {
+        d.push(Block::H(2, "Do the labels explain the distances?".into()));
+        let mut rows = Vec::new();
+        let mut notes: Vec<String> = Vec::new();
+        for g in &r.group_tests {
+            let fp = |x: Option<f64>| x.map_or("n/a".to_string(), |v| format!("{v:.3}"));
+            match &g.result {
+                Some(res) => {
+                    rows.push(vec![
+                        vec![t(g.column.clone())],
+                        vec![t(res.n.to_string())],
+                        vec![t(res.n_groups.to_string())],
+                        vec![t(format!("{:.3}", res.r2))],
+                        vec![t(fp(res.p))],
+                        vec![t(fp(res.disp_p))],
+                        vec![t(g.strata.clone().unwrap_or_else(|| "none".to_string()))],
+                    ]);
+                    for w in &res.warnings {
+                        notes.push(format!("{}: {w}", g.column));
+                    }
+                }
+                None => {
+                    rows.push(vec![
+                        vec![t(g.column.clone())],
+                        vec![t("0")],
+                        vec![t("0")],
+                        vec![t("n/a")],
+                        vec![t("n/a")],
+                        vec![t("n/a")],
+                        vec![t(g.strata.clone().unwrap_or_else(|| "none".to_string()))],
+                    ]);
+                    notes.push(format!(
+                        "{}: fewer than two groups with two or more samples",
+                        g.column
+                    ));
+                }
+            }
+        }
+        d.push(Block::Table(
+            vec![
+                "label",
+                "samples",
+                "groups",
+                "R2",
+                "PERMANOVA p",
+                "PERMDISP p",
+                "permuted inside",
+            ],
+            rows,
+        ));
+        let perms = r.group_tests.first().map_or(0, |g| g.permutations);
+        d.push(Block::P(vec![t(format!("R2 is the share of the squared distances the label explains. PERMANOVA p asks whether that is more than chance when the labels are shuffled ({perms} permutations, among the samples of one stratum when a stratum column is given). PERMDISP p asks whether the groups differ in spread; if it is small, a small PERMANOVA p may reflect spread and not different centres."))], Tone::Note));
+        for w in notes {
+            d.push(Block::P(vec![t(w)], Tone::Warn));
+        }
+    }
     // ---- structure
     d.push(Block::H(2, "2. Coarse structure (secondary)".into()));
     if let (Some(dm), Some(ord)) = (&r.dist, &r.ordination) {

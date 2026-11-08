@@ -43,6 +43,12 @@
           <label class="field">Flagged samples
             <select id="flagged"><option value="exclude">leave out</option><option value="mark">keep and mark</option><option value="decontaminate">decontaminate</option></select>
           </label>
+          <label class="field">Label column to permute inside (for example study)
+            <input id="strata" type="text" placeholder="none" title="Name of a column in the label file. The group tests shuffle labels only among samples with the same value in this column, so a label that just tracks the study is not called an effect. Leave empty to shuffle freely.">
+          </label>
+          <label class="field">Permutations (0: no group tests)
+            <input id="permutations" type="number" min="0" step="100" value="999" title="PERMANOVA and PERMDISP for each label column; the time grows with the number of samples">
+          </label>
         </div>
       </details>
       <div class="row">

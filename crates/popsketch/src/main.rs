@@ -146,6 +146,12 @@ enum Cmd {
         /// PCs used by DAPC on the primary label column (0: no DAPC)
         #[arg(long, default_value_t = 10)]
         dapc_pcs: usize,
+        /// label column whose groups (for example the study) the permutation tests stay inside
+        #[arg(long, value_name = "COLUMN")]
+        strata: Option<String>,
+        /// permutations for the PERMANOVA/PERMDISP test of each label column (0: no test)
+        #[arg(long, default_value_t = 999)]
+        permutations: usize,
         /// number of components to compute
         #[arg(long, default_value_t = 5)]
         components: usize,
@@ -270,6 +276,8 @@ fn main() -> Result<()> {
             ordination,
             components,
             dapc_pcs,
+            strata,
+            permutations,
             k,
             cut,
             min_floors,
@@ -315,6 +323,8 @@ fn main() -> Result<()> {
                 },
                 components,
                 dapc_pcs,
+                strata,
+                permutations,
                 k,
                 cut,
                 min_floors,
