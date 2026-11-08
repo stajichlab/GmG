@@ -1,0 +1,29 @@
+== n1001 (1200 samples), --no-pca
+stage audit_and_kept_hashes: 9.6 s
+stage distances_all: 50.7 s
+stage noise_floor: 0.1 s
+1200 samples, 1200 in the analysis; noise floor 0.00292 (split_half)
+stage distances_included: 1.6 s
+stage upgma_and_gap: 0.1 s
+stage ordination: 0.0 s
+stage tree: 2.4 s
+stage labels_tests_dapc_compare: 0.0 s
+stage rest: 0.0 s
+1200 samples, 62 flagged, 1200 in the analysis; report: /scratch/jstajich/31869899/a1t_work/out_n1001/report.html
+exit 0
+== n2002 (2002 samples), --no-pca
+stage audit_and_kept_hashes: 17.7 s
+stage distances_all: 154.0 s
+stage noise_floor: 0.1 s
+2002 samples, 2002 in the analysis; noise floor 0.00339 (split_half)
+stage distances_included: 2.8 s
+stage upgma_and_gap: 0.3 s
+stage ordination: 0.0 s
+stage tree: 12.0 s
+stage labels_tests_dapc_compare: 0.0 s
+stage rest: 0.2 s
+2002 samples, 415 flagged, 2002 in the analysis; report: /scratch/jstajich/31869899/a1t_work/out_n2002/report.html
+exit 0
+== n4004 (4004 samples), --no-pca
+stage audit_and_kept_hashes: 41.1 s
+exit 124
