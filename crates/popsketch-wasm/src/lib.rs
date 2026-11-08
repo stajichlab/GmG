@@ -110,7 +110,7 @@ impl Session {
 
     /// Audit, distances, clusters, hash PCA, tree and label analysis. `options_json` may set `min_cov`, `size_z`,
     /// `size_floor`, `shoulder_z`, `min_floors`, `k`, `components`, `floor_samples`, `tree`, `no_pca`, `flagged`
-    /// (`exclude`, `mark`, `decontaminate`), `root`. Returns one JSON document.
+    /// (`exclude`, `mark`, `decontaminate`), `root`, `strata` (a label column name), `permutations`. Returns one JSON document.
     pub fn analyze(
         &mut self,
         labels: Option<String>,
@@ -225,6 +225,8 @@ fn apply(o: &mut Options, json_text: &str) -> Result<(), String> {
             "tree" => o.tree = b()?,
             "no_pca" => o.no_pca = b()?,
             "root" => o.root = val.as_str().map(str::to_string),
+            "strata" => o.strata = val.as_str().map(str::to_string),
+            "permutations" => o.permutations = u()? as usize,
             "flagged" => {
                 o.flagged = match val.as_str() {
                     Some("exclude") => FlagMode::Exclude,

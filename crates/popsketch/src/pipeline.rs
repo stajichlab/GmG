@@ -88,6 +88,10 @@ pub struct Options {
     pub components: usize,
     /// PCs used by DAPC on the primary label column (0: no DAPC); needs a label file
     pub dapc_pcs: usize,
+    /// label column whose groups (for example the study) the permutations stay inside; the other label columns are tested within it
+    pub strata: Option<String>,
+    /// permutations for the PERMANOVA/PERMDISP test of each label column (0: no test)
+    pub permutations: usize,
     /// force this many clusters
     pub k: Option<usize>,
     /// cut the clustering at this distance (1 - ANI)
@@ -138,6 +142,8 @@ impl Default for Options {
             ordination: OrdKind::HashPca,
             components: 5,
             dapc_pcs: 10,
+            strata: None,
+            permutations: 999,
             k: None,
             cut: None,
             min_floors: 3.0,
@@ -206,6 +212,14 @@ impl SampleRow {
     }
 }
 
+/// PERMANOVA and PERMDISP of one label column (`result` is None when fewer than two groups of two or more samples).
+pub struct GroupTest {
+    pub column: String,
+    pub strata: Option<String>,
+    pub permutations: usize,
+    pub result: Option<crate::permanova::TestResult>,
+}
+
 /// DAPC on the primary label column.
 pub struct DapcOut {
     pub column: String,
@@ -229,6 +243,7 @@ pub struct Results {
     pub collapsed: usize,
     pub label_table: Option<LabelTable>,
     pub label_reports: Vec<ColumnReport>,
+    pub group_tests: Vec<GroupTest>,
     pub tree_comparison: Option<crate::compare::TreeComparison>,
     pub pcs_comparison: Option<crate::compare::PcsComparison>,
     pub dapc: Option<DapcOut>,
@@ -726,6 +741,7 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
         collapsed: 0,
         label_table: None,
         label_reports: Vec::new(),
+        group_tests: Vec::new(),
         tree_comparison: None,
         pcs_comparison: None,
         dapc: None,
@@ -872,6 +888,46 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                 }
                 res.label_reports
                     .push(analyze_column(name, &labs, &ids, &dist, &sets, margin));
+            }
+            // does each label explain the distances (PERMANOVA), and do its groups differ in spread (PERMDISP)?
+            if o.permutations > 0 {
+                let strata_col = match &o.strata {
+                    Some(sc) => match table.columns.iter().position(|c| c == sc) {
+                        Some(i) => Some((i, sc.clone())),
+                        None => {
+                            res.warnings.push(format!(
+                                "--strata {sc}: no such label column; the tests permute freely"
+                            ));
+                            None
+                        }
+                    },
+                    None => None,
+                };
+                let strata_labs = strata_col
+                    .as_ref()
+                    .map(|(i, _)| column_labels(&table, &ids, *i));
+                let popts = crate::permanova::Options {
+                    n_perm: o.permutations,
+                    seed: 1,
+                };
+                for (c, name) in table.columns.iter().enumerate() {
+                    if strata_col.as_ref().is_some_and(|(i, _)| *i == c) {
+                        continue;
+                    }
+                    let labs = column_labels(&table, &ids, c);
+                    res.group_tests.push(GroupTest {
+                        column: name.clone(),
+                        strata: strata_col.as_ref().map(|(_, n)| n.clone()),
+                        permutations: o.permutations,
+                        result: crate::permanova::test(
+                            &d1,
+                            n,
+                            &labs,
+                            strata_labs.as_deref(),
+                            &popts,
+                        ),
+                    });
+                }
             }
             // DAPC on the primary label column
             if let (Some(ord), true, Some(rep)) =
@@ -1097,6 +1153,36 @@ fn write_outputs(o: &Options, r: &Results) -> Result<()> {
     if let Some(nw) = &r.newick {
         fs::write(o.out.join("tree.nwk"), format!("{nw}\n"))?;
     }
+    // group_tests.tsv
+    if !r.group_tests.is_empty() {
+        let mut s = String::from("label_column\tstrata\tn\tgroups\tpseudo_f\tr2\tp\tpermdisp_f\tpermdisp_p\tinformative_fraction\twarnings\n");
+        for g in &r.group_tests {
+            match &g.result {
+                Some(t) => {
+                    let f = |x: Option<f64>| x.map_or("NA".to_string(), |v| format!("{v:.4}"));
+                    let _ = writeln!(
+                        s,
+                        "{}\t{}\t{}\t{}\t{:.4}\t{:.4}\t{}\t{:.4}\t{}\t{:.3}\t{}",
+                        g.column,
+                        g.strata.clone().unwrap_or_default(),
+                        t.n,
+                        t.n_groups,
+                        t.f,
+                        t.r2,
+                        f(t.p),
+                        t.disp_f,
+                        f(t.disp_p),
+                        t.informative_fraction,
+                        t.warnings.join("; ")
+                    );
+                }
+                None => {
+                    let _ = writeln!(s, "{}\t{}\t0\t0\tNA\tNA\tNA\tNA\tNA\tNA\tfewer than two groups with two or more samples", g.column, g.strata.clone().unwrap_or_default());
+                }
+            }
+        }
+        fs::write(o.out.join("group_tests.tsv"), s)?;
+    }
     // label_check.tsv
     if !r.label_reports.is_empty() {
         let mut s = String::from("label_column\tid\tlabel\town_median_ani\tbetter_matching_label\tits_median_ani\tnearest_sample\tnearest_label\tnearest_ani\n");
@@ -1166,6 +1252,7 @@ pub fn summary_json(o: &Options, r: &Results) -> Value {
         "ordination": r.ordination.as_ref().map(|x| json!({"method": x.method, "variance_fraction": x.var_frac, "features": x.n_features})),
         "tree": {"written": r.newick.is_some(), "branches_collapsed": r.collapsed},
         "labels": labels,
+        "group_tests": r.group_tests.iter().map(|g| json!({"column": g.column, "strata": g.strata, "permutations": g.permutations, "result": g.result.as_ref().map(|t| t.to_json())})).collect::<Vec<_>>(),
         "dapc": r.dapc.as_ref().map(|dp| json!({"column": dp.column, "n_pcs": dp.dapc.n_pcs, "axes": dp.dapc.eigenvalues.len(), "eigenvalues": dp.dapc.eigenvalues,
             "groups": dp.dapc.groups, "accuracy": dp.dapc.accuracy,
             "assigned_elsewhere": (0..dp.labels.len()).filter(|&i| dp.dapc.assigned[i].is_some() && dp.labels[i].as_deref() != dp.dapc.assigned[i].map(|g| dp.dapc.groups[g].as_str()))
