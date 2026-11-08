@@ -7,7 +7,7 @@
 set -uo pipefail
 REPO=${REPO:?set REPO to the repository root}
 P=/bigdata/stajichlab/jstajich/projects/GmG_popgen/popsra
-OUTD=$(cd "$(dirname "$0")" && pwd)
+OUTD="$REPO/bench/A1_measure"   # not dirname $0: Slurm runs a spooled copy of this script
 export CARGO_TARGET_DIR=$SCRATCH/a1_target
 ( cd "$REPO" && cargo build --release -p popsketch ) || exit 1
 BIN=$CARGO_TARGET_DIR/release/popsketch
@@ -39,6 +39,7 @@ run() { # set variant extra-args...
   local n=$(ls "$W/$set"/*.json | wc -l)
   /usr/bin/time -v -o "$W/time.txt" timeout 1500 "$BIN" run --from-sketches "$W/$set" -o "$W/out_$set$var" --threads 8 --max-samples 7000 --flagged mark -q "$@" > "$W/log_$set$var.txt" 2>&1
   local ec=$?
+  [[ $ec -ne 0 ]] && { echo "run $set$var failed ($ec):"; tail -5 "$W/log_$set$var.txt"; }
   local rss=$(awk '/Maximum resident/{printf "%.2f",$6/1048576}' "$W/time.txt")
   local wall=$(awk '/Elapsed/{n=split($NF,a,":"); s=0; for(i=1;i<=n;i++) s=s*60+a[i]; print s}' "$W/time.txt")
   local ina=$(python3 -c "import json;print(json.load(open('$W/out_$set$var/popsketch.json'))['samples']['in_analysis'])" 2>/dev/null || echo NA)
