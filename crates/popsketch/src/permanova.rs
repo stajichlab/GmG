@@ -22,7 +22,10 @@ pub struct Options {
 
 impl Default for Options {
     fn default() -> Self {
-        Options { n_perm: 999, seed: 1 }
+        Options {
+            n_perm: 999,
+            seed: 1,
+        }
     }
 }
 
@@ -80,7 +83,11 @@ pub fn test(
     for l in labels.iter().flatten() {
         *count.entry(l.as_str()).or_default() += 1;
     }
-    let singles: Vec<&str> = count.iter().filter(|(_, &c)| c < 2).map(|(&l, _)| l).collect();
+    let singles: Vec<&str> = count
+        .iter()
+        .filter(|(_, &c)| c < 2)
+        .map(|(&l, _)| l)
+        .collect();
     if !singles.is_empty() {
         warnings.push(format!(
             "{} group(s) with one sample were left out: {}",
@@ -88,7 +95,11 @@ pub fn test(
             singles.join(", ")
         ));
     }
-    let names: Vec<&str> = count.iter().filter(|(_, &c)| c >= 2).map(|(&l, _)| l).collect();
+    let names: Vec<&str> = count
+        .iter()
+        .filter(|(_, &c)| c >= 2)
+        .map(|(&l, _)| l)
+        .collect();
     if names.len() < 2 {
         return None;
     }
@@ -99,7 +110,12 @@ pub fn test(
     let g = names.len();
     let lab: Vec<usize> = idx
         .iter()
-        .map(|&i| names.iter().position(|&x| Some(x) == labels[i].as_deref()).unwrap())
+        .map(|&i| {
+            names
+                .iter()
+                .position(|&x| Some(x) == labels[i].as_deref())
+                .unwrap()
+        })
         .collect();
     let mut d2 = vec![0.0f64; m * m];
     for a in 0..m {
@@ -133,14 +149,21 @@ pub fn test(
     }
     let informative: usize = by_stratum
         .values()
-        .filter(|v| v.iter().map(|&k| lab[k]).collect::<std::collections::BTreeSet<_>>().len() > 1)
+        .filter(|v| {
+            v.iter()
+                .map(|&k| lab[k])
+                .collect::<std::collections::BTreeSet<_>>()
+                .len()
+                > 1
+        })
         .map(|v| v.len())
         .sum();
     let informative_fraction = informative as f64 / m as f64;
     let strata_used = strata.is_some();
     if strata_used && informative == 0 {
         warnings.push(
-            "the label never varies inside a stratum (it is confounded with the study): no p-value".to_string(),
+            "the label never varies inside a stratum (it is confounded with the study): no p-value"
+                .to_string(),
         );
     } else if strata_used && informative_fraction < 0.5 {
         warnings.push(format!(
@@ -149,14 +172,21 @@ pub fn test(
         ));
     }
 
-    let sizes: Vec<usize> = (0..g).map(|j| lab.iter().filter(|&&l| l == j).count()).collect();
+    let sizes: Vec<usize> = (0..g)
+        .map(|j| lab.iter().filter(|&&l| l == j).count())
+        .collect();
     let (smin, smax) = (*sizes.iter().min().unwrap(), *sizes.iter().max().unwrap());
     if smin < 5 {
-        warnings.push(format!("smallest group has {smin} samples; the test has little power for it"));
+        warnings.push(format!(
+            "smallest group has {smin} samples; the test has little power for it"
+        ));
     }
 
     // PERMANOVA
-    let total: f64 = (0..m).map(|a| (a + 1..m).map(|b| d2[a * m + b]).sum::<f64>()).sum::<f64>() / m as f64;
+    let total: f64 = (0..m)
+        .map(|a| (a + 1..m).map(|b| d2[a * m + b]).sum::<f64>())
+        .sum::<f64>()
+        / m as f64;
     let ss_w = |labs: &[usize]| -> f64 {
         let mut members: Vec<Vec<usize>> = vec![Vec::new(); g];
         for (k, &l) in labs.iter().enumerate() {
@@ -178,7 +208,11 @@ pub fn test(
     let pseudo_f = |sw: f64| ((total - sw) / (g - 1) as f64) / (sw / (m - g) as f64);
     let sw_obs = ss_w(&lab);
     let f_obs = pseudo_f(sw_obs);
-    let r2 = if total > 0.0 { (total - sw_obs) / total } else { 0.0 };
+    let r2 = if total > 0.0 {
+        (total - sw_obs) / total
+    } else {
+        0.0
+    };
 
     // PERMDISP: distance of each sample to its group centroid, from the squared distances alone
     let mut z = vec![0.0f64; m];
@@ -223,7 +257,11 @@ pub fn test(
             gm[j] /= gn[j].max(1) as f64;
         }
         let ssb: f64 = (0..g).map(|j| gn[j] as f64 * (gm[j] - mean).powi(2)).sum();
-        let ssw: f64 = zz.iter().enumerate().map(|(k, &x)| (x - gm[labs[k]]).powi(2)).sum();
+        let ssw: f64 = zz
+            .iter()
+            .enumerate()
+            .map(|(k, &x)| (x - gm[labs[k]]).powi(2))
+            .sum();
         (ssb / (g - 1) as f64) / (ssw / (m - g) as f64)
     };
     let disp_obs = anova_f(&z, &lab);
@@ -341,7 +379,12 @@ mod tests {
         let mut d = vec![0.0; n * n];
         for a in 0..n {
             for b in 0..n {
-                d[a * n + b] = pts[a].iter().zip(&pts[b]).map(|(x, y)| (x - y).powi(2)).sum::<f64>().sqrt();
+                d[a * n + b] = pts[a]
+                    .iter()
+                    .zip(&pts[b])
+                    .map(|(x, y)| (x - y).powi(2))
+                    .sum::<f64>()
+                    .sqrt();
             }
         }
         (d, n, labs)
@@ -358,8 +401,21 @@ mod tests {
                 d[a * n + b] = (x[a] - x[b] as f64).abs();
             }
         }
-        let labs: Vec<Option<String>> = ["a", "a", "b", "b"].iter().map(|s| Some(s.to_string())).collect();
-        let r = test(&d, n, &labs, None, &Options { n_perm: 99, seed: 3 }).unwrap();
+        let labs: Vec<Option<String>> = ["a", "a", "b", "b"]
+            .iter()
+            .map(|s| Some(s.to_string()))
+            .collect();
+        let r = test(
+            &d,
+            n,
+            &labs,
+            None,
+            &Options {
+                n_perm: 99,
+                seed: 3,
+            },
+        )
+        .unwrap();
         // SS_T = (sum d^2)/4 = (1+100+121+81+100+1)/4 = 101; SS_W = 1/2 + 1/2 = 1; F = (100/1)/(1/2) = 200
         assert!((r.f - 200.0).abs() < 1e-9, "F = {}", r.f);
         assert!((r.r2 - 100.0 / 101.0).abs() < 1e-9);
@@ -382,7 +438,10 @@ mod tests {
     fn null_p_values_are_calibrated() {
         // 200 null data sets, alpha 0.1: the false-positive rate should be near 0.1 (binomial sd 0.021)
         let mut hits = 0;
-        let o = Options { n_perm: 199, seed: 5 };
+        let o = Options {
+            n_perm: 199,
+            seed: 5,
+        };
         for s in 0..200u64 {
             let (d, n, l) = planted(&[12, 12, 12], &[0.0; 3], &[1.0; 3], 4, 1000 + s);
             if test(&d, n, &l, None, &o).unwrap().p.unwrap() <= 0.1 {
@@ -399,15 +458,32 @@ mod tests {
         let mut found = 0;
         for s in 0..20u64 {
             let (d, n, l) = planted(&[40, 6], &[0.0, 0.0], &[0.3, 3.0], 3, 50 + s);
-            let r = test(&d, n, &l, None, &Options { n_perm: 499, seed: s }).unwrap();
+            let r = test(
+                &d,
+                n,
+                &l,
+                None,
+                &Options {
+                    n_perm: 499,
+                    seed: s,
+                },
+            )
+            .unwrap();
             assert!(r.disp_p.unwrap() < 0.05, "PERMDISP missed: {:?}", r.disp_p);
             if r.p.unwrap() < 0.05 {
                 found += 1;
-                assert!(r.warnings.iter().any(|w| w.contains("PERMDISP")), "no warning: {:?}", r.warnings);
+                assert!(
+                    r.warnings.iter().any(|w| w.contains("PERMDISP")),
+                    "no warning: {:?}",
+                    r.warnings
+                );
             }
         }
         // the point of the warning: PERMANOVA alone often calls this a location effect
-        assert!(found > 0, "expected PERMANOVA to be misled at least once in 20");
+        assert!(
+            found > 0,
+            "expected PERMANOVA to be misled at least once in 20"
+        );
     }
 
     #[test]
@@ -423,16 +499,22 @@ mod tests {
             pts.push(vec![study as f64 * 5.0 + rng_f(&mut r), rng_f(&mut r)]);
             // the label follows the study (a in studies 0-1, b in 2-3) except for every 7th sample, which is flipped
             let base = study < 2;
-            labs.push(Some(if base != (i % 7 == 0) { "a" } else { "b" }.to_string()));
+            labs.push(Some(
+                if base != (i % 7 == 0) { "a" } else { "b" }.to_string(),
+            ));
             st.push(Some(format!("s{study}")));
         }
         let mut d = vec![0.0; n * n];
         for a in 0..n {
             for b in 0..n {
-                d[a * n + b] = ((pts[a][0] - pts[b][0]).powi(2) + (pts[a][1] - pts[b][1]).powi(2)).sqrt();
+                d[a * n + b] =
+                    ((pts[a][0] - pts[b][0]).powi(2) + (pts[a][1] - pts[b][1]).powi(2)).sqrt();
             }
         }
-        let o = Options { n_perm: 499, seed: 1 };
+        let o = Options {
+            n_perm: 499,
+            seed: 1,
+        };
         let free = test(&d, n, &labs, None, &o).unwrap();
         let strat = test(&d, n, &labs, Some(&st), &o).unwrap();
         // the unrestricted test calls the label an effect because it tracks the study; staying inside studies does not
@@ -447,7 +529,11 @@ mod tests {
         let st: Vec<Option<String>> = l.clone(); // study == label
         let r = test(&d, n, &l, Some(&st), &Options::default()).unwrap();
         assert!(r.p.is_none() && r.disp_p.is_none());
-        assert!(r.warnings.iter().any(|w| w.contains("confounded")), "{:?}", r.warnings);
+        assert!(
+            r.warnings.iter().any(|w| w.contains("confounded")),
+            "{:?}",
+            r.warnings
+        );
     }
 
     #[test]
@@ -459,14 +545,19 @@ mod tests {
         assert_eq!(r.n, 19);
         assert!(r.warnings.iter().any(|w| w.contains("one sample")));
         // fewer than two usable groups
-        let only: Vec<Option<String>> = (0..n).map(|i| if i < 2 { Some("x".into()) } else { None }).collect();
+        let only: Vec<Option<String>> = (0..n)
+            .map(|i| if i < 2 { Some("x".into()) } else { None })
+            .collect();
         assert!(test(&d, n, &only, None, &Options::default()).is_none());
     }
 
     #[test]
     fn same_seed_same_answer() {
         let (d, n, l) = planted(&[20, 20], &[0.0, 1.0], &[1.0, 1.0], 3, 41);
-        let o = Options { n_perm: 199, seed: 9 };
+        let o = Options {
+            n_perm: 199,
+            seed: 9,
+        };
         let a = test(&d, n, &l, None, &o).unwrap();
         let b = test(&d, n, &l, None, &o).unwrap();
         assert_eq!(a.p, b.p);
