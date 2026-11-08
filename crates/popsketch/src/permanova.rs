@@ -104,7 +104,7 @@ pub fn test(
         return None;
     }
     let idx: Vec<usize> = (0..n)
-        .filter(|&i| labels[i].as_deref().map_or(false, |l| names.contains(&l)))
+        .filter(|&i| labels[i].as_deref().is_some_and(|l| names.contains(&l)))
         .collect();
     let m = idx.len();
     let g = names.len();
@@ -398,7 +398,7 @@ mod tests {
         let mut d = vec![0.0; 16];
         for a in 0..n {
             for b in 0..n {
-                d[a * n + b] = (x[a] - x[b] as f64).abs();
+                d[a * n + b] = (x[a] - x[b]).abs();
             }
         }
         let labs: Vec<Option<String>> = ["a", "a", "b", "b"]
