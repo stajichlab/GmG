@@ -393,7 +393,7 @@ mod tests {
     #[test]
     fn matches_a_hand_computed_pseudo_f() {
         // 4 points on a line at 0, 1, 10, 11; groups {0,1} and {10,11}
-        let x = [0.0, 1.0, 10.0, 11.0];
+        let x: [f64; 4] = [0.0, 1.0, 10.0, 11.0];
         let n = 4;
         let mut d = vec![0.0; 16];
         for a in 0..n {
