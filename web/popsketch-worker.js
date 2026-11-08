@@ -1,5 +1,5 @@
 // Web Worker for popsketch: reads each sample's first reads, sketches them, then runs the analysis. One thread, no files uploaded.
-// In:  {type:'run', samples:[{id, files:[File]}] or bundle:{k, scaled, sketches:[{id, meta, whole, a, b}]} (finished sketches), labels:string|null, compareTree:string|null, comparePcs:string|null, opts:{maxReads, scaled, flagged}}
+// In:  {type:'run', samples:[{id, files:[File]}] or bundle:{k, scaled, sketches:[{id, meta, whole, a, b}]} (finished sketches), labels:string|null, compareTree:string|null, comparePcs:string|null, opts:{maxReads, scaled, flagged, strata, permutations}}
 // Out: {type:'progress', i, n, id} {type:'done', result} {type:'error', message}
 import init, { Session } from "./pkg-ps/popsketch_wasm.js";
 
@@ -36,7 +36,8 @@ self.onmessage = async (e) => {
   if (m.type !== "run") return;
   try {
     await ready;
-    const { maxReads, scaled, flagged } = m.opts;
+    const { maxReads, scaled, flagged, strata, permutations } = m.opts;
+    const aopts = JSON.stringify({ flagged, ...(strata ? { strata } : {}), ...(Number.isFinite(permutations) ? { permutations } : {}) });
     // a bundle of finished sketches sets k and the scale itself; the sketches are not made here
     const s = m.bundle ? new Session(m.bundle.k, m.bundle.scaled, 0n, false) : new Session(21, scaled, 0n, false);
     if (m.index) {
@@ -52,7 +53,7 @@ self.onmessage = async (e) => {
       }
       post({ type: "progress", i: n, n, id: "analysing" });
       await new Promise((r) => setTimeout(r));
-      const result = JSON.parse(s.analyze(m.labels || undefined, JSON.stringify({ flagged }), m.compareTree || undefined, m.comparePcs || undefined));
+      const result = JSON.parse(s.analyze(m.labels || undefined, aopts, m.compareTree || undefined, m.comparePcs || undefined));
       s.free();
       post({ type: "done", result });
       return;
@@ -68,7 +69,7 @@ self.onmessage = async (e) => {
     }
     post({ type: "progress", i: m.samples.length, n: m.samples.length, id: "analysing" });
     await new Promise((r) => setTimeout(r));
-    const result = JSON.parse(s.analyze(m.labels || undefined, JSON.stringify({ flagged }), m.compareTree || undefined, m.comparePcs || undefined));
+    const result = JSON.parse(s.analyze(m.labels || undefined, aopts, m.compareTree || undefined, m.comparePcs || undefined));
     s.free();
     post({ type: "done", result });
   } catch (err) {
