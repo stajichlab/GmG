@@ -16,6 +16,7 @@ W=$SCRATCH/a1_work; rm -rf "$W"; mkdir -p "$W"
 mkset() { # name reps slug...
   local name=$1 reps=$2; shift 2
   mkdir -p "$W/$name"
+  cp "$P/${1}/sketches/params.txt" "$W/$name/params.txt"   # the folder must carry the parameters it was made with
   for slug in "$@"; do
     for j in "$P/$slug"/sketches/*.json; do
       id=$(basename "$j" .json)
