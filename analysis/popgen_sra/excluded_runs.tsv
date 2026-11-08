@@ -1,0 +1,4 @@
+# slug	run	reason	status
+c_neoformans	SRR34066268	outlier pair with SRR34066269 (both PRJNA1279655); makes the only clear cut and most of PC1; identity unchecked	suppressed
+c_neoformans	SRR34066269	see SRR34066268	suppressed
+# c_neoformans SRR27558955 (second genome, PRJNA1065146) is in DATA_PROBLEMS.md but not suppressed
