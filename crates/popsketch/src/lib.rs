@@ -12,6 +12,7 @@ pub mod floor;
 pub mod labels;
 pub mod ordination;
 pub mod par;
+pub mod permanova;
 pub mod pipeline;
 pub mod qc;
 pub mod report;
