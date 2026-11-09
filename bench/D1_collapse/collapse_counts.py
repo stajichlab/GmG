@@ -9,7 +9,7 @@ usage: collapse_counts.py SLUG ani.tsv  >> results.tsv   (columns: slug n thresh
 
 With a noise floor (popsketch.json "noise_floor.value": the 90th percentile of split-half 1 - ANI), the thresholds are
 1 - m * floor for m in FLOOR_MULTIPLES, and the representatives for one multiple are written to a file:
-usage: collapse_counts.py SLUG ani.tsv --floor F --reps-at M --reps-out reps.txt  >> results_floor.tsv
+usage: collapse_counts.py SLUG ani.tsv --floor F --reps-at M --reps-out reps   (writes reps.1, reps.2, reps.3)  >> results_floor.tsv
 (columns: slug n floor multiple threshold leaders components largest_leader)
 """
 import argparse
@@ -74,7 +74,7 @@ def main():
     ap.add_argument("slug")
     ap.add_argument("ani")
     ap.add_argument("--floor", type=float)
-    ap.add_argument("--reps-at", type=float, help="floor multiple whose representatives are written")
+    ap.add_argument("--reps-at", type=float, help="unused; representatives are written for multiples 1, 2 and 3")
     ap.add_argument("--reps-out")
     g = ap.parse_args()
     a = load(g.ani)
@@ -89,8 +89,8 @@ def main():
         reps = []
         sz = leaders(a, t, reps)
         print(f"{g.slug}\t{a.shape[0]}\t{g.floor:.5f}\t{m}\t{t:.5f}\t{len(sz)}\t{components(a, t)}\t{max(sz)}", flush=True)
-        if g.reps_out and m == g.reps_at:
-            with open(g.reps_out, "w") as f:
+        if g.reps_out and m in (1, 2, 3):
+            with open(f"{g.reps_out}.{m}", "w") as f:
                 f.write("\n".join(ids[i] for i in reps) + "\n")
 
 
