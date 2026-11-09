@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH -p short -N1 -c16 --mem=64G -t 4:00:00 -J f1genomes -o %x_%j.out
+#SBATCH -p epyc -N1 -c16 --mem=64G -t 4:00:00 -J f1genomes -o %x_%j.out
 # F1 step 2: sketch the fusarioid BFD genomes, all-pairs sketch ANI, and gmg leave-out benchmarks over index resolution.
 # usage: REPO=<checkout> W=<build dir> sbatch run_genomes.sbatch
 # Writes $W/genomes (lists), $W/sketch (k21 s1000 .gsk, purgeable), $W/ani_s1000.tsv, $W/bench/*.tsv
