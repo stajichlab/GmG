@@ -48,7 +48,9 @@ def build(rows, collapse):
         name, abbr = clean_complex(r["complex"])
         sp = r["species"]
         # a group that is just the species' own genus (e.g. Atractium) says nothing beyond the genus call
-        if name and name != sp.split()[0] and len(sp.split()) >= 2 and " sp." not in sp:
+        # informal taxa (`Fusarium sp. 3 in FOSC (Crous et al. 2021)`) stay in: they are labels in FusariumID-labelled
+        # references, and leaving them out sent FOSC genomes to "not in a complex" (F1 complex_effect check)
+        if name and name != sp.split()[0] and len(sp.split()) >= 2:
             votes[sp][(name, abbr)] += 1
     table = {}
     for sp, c in votes.items():
@@ -57,7 +59,7 @@ def build(rows, collapse):
     for sp in list(table):
         g, ep = sp.split()[0], sp.split()[1]
         alias = f"Fusarium {ep}"
-        if g == "Neocosmospora" and alias not in table:
+        if g == "Neocosmospora" and ep != "sp." and alias not in table:
             table[alias] = table[sp]
     return table
 

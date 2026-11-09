@@ -36,4 +36,4 @@ def test_build():
     assert t["Fusarium graminearum"] == ("Fusarium sambucinum species complex (FSAMSC)", 0)
     assert t["Fusarium solani"] == t["Neocosmospora solani"]  # NCBI-style alias
     assert "Atractium stilbaster" not in t  # group is just the genus
-    assert not any(" sp." in k for k in t)
+    assert t["Fusarium sp. FTSC 18 (Laraba et al. 2022)"] == ("Fusarium tricinctum species complex (FTSC)", 0)
