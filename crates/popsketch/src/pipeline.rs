@@ -118,6 +118,8 @@ pub struct Options {
     pub bitset_max_bytes: usize,
     /// collapse near-identical samples to representatives before ordination, tree, clusters and label tests
     pub collapse: Option<crate::collapse::Rule>,
+    /// visit the samples in a pseudo-random order (seed) instead of least noisy first when collapsing (order-dependence tests)
+    pub collapse_seed: Option<u64>,
     /// Newick tree of (some of) the same samples, for example from SNPs: compared with the sketch distances and clusters
     pub compare_tree: Option<PathBuf>,
     /// PC scores of (some of) the same samples, for example from SNPs: compared with the sketch PCA
@@ -167,6 +169,7 @@ impl Default for Options {
             floor_samples: 20,
             bitset_max_bytes: crate::dist::BITSET_MAX_BYTES,
             collapse: None,
+            collapse_seed: None,
             compare_tree: None,
             compare_pcs: None,
             resume: false,
@@ -881,7 +884,14 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                         .unwrap_or(median)
                 })
                 .collect();
-            let c = crate::collapse::collapse(&dist.one_minus_ani(), n, &noise, rule, median);
+            let c = crate::collapse::collapse(
+                &dist.one_minus_ani(),
+                n,
+                &noise,
+                rule,
+                median,
+                o.collapse_seed,
+            );
             if c.reps.len() >= 3 {
                 let ids: Vec<String> = res
                     .included
