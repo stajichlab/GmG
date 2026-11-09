@@ -6,6 +6,7 @@ set -uo pipefail
 REPO=${REPO:?set REPO to the repository root}
 P=/bigdata/stajichlab/jstajich/projects/GmG_popgen/popsra
 OUTD="$REPO/bench/D1_collapse"   # not dirname $0: Slurm runs a spooled copy
+module load miniconda3   # python3 with numpy
 export CARGO_TARGET_DIR=$SCRATCH/d1_target
 ( cd "$REPO" && cargo build --release -p popsketch ) || exit 1
 BIN=$CARGO_TARGET_DIR/release/popsketch
