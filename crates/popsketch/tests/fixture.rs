@@ -733,3 +733,54 @@ fn collapse_runs_the_analysis_on_representatives_writes_collapse_tsv_and_tests_l
     assert_eq!(g.n, off.group_tests[0].result.as_ref().unwrap().n);
     cleanup(&t);
 }
+
+#[test]
+fn label_aware_collapse_never_merges_samples_with_different_labels() {
+    let t = build("collapse_within");
+    // a label that does not follow the structure, so near-identical samples often differ in it
+    let mut labels = String::from("id\tgroup\tbatch\n");
+    for (i, (id, g)) in t.group_of.iter().enumerate() {
+        labels.push_str(&format!("{id}\tg{g}\tb{}\n", i % 2));
+    }
+    let lp = t.dir.join("within_labels.tsv");
+    fs::write(&lp, labels).unwrap();
+    let mk = |name: &str, within: &[&str]| {
+        let mut o = opts(&t, name);
+        o.labels = Some(lp.clone());
+        o.permutations = 0;
+        o.floor_samples = 1000;
+        o.collapse = Some(popsketch::collapse::Rule::Max);
+        o.collapse_within = within.iter().map(|s| s.to_string()).collect();
+        o
+    };
+    let free = run(&mk("within_none", &[])).unwrap();
+    let o = mk("within_batch", &["batch"]);
+    let aware = run(&o).unwrap();
+    let c = aware.collapse.as_ref().unwrap();
+    assert_eq!(c.within, vec!["batch".to_string()]);
+    // every cluster has one batch: a sample's batch equals its representative's
+    let batch_of: std::collections::HashMap<String, String> = fs::read_to_string(&lp)
+        .unwrap()
+        .lines()
+        .skip(1)
+        .map(|l| {
+            let f: Vec<&str> = l.split('\t').collect();
+            (f[0].to_string(), f[2].to_string())
+        })
+        .collect();
+    for (id, rep, _, _, _) in &c.rows {
+        assert_eq!(batch_of[id], batch_of[rep], "{id} merged into {rep}");
+    }
+    // restricting the merges cannot give fewer representatives than the free collapse
+    assert!(c.kept >= free.collapse.as_ref().unwrap().kept);
+    // `all` uses every label column; an unknown column is ignored with a warning
+    let all = run(&mk("within_all", &["all"])).unwrap();
+    assert_eq!(all.collapse.as_ref().unwrap().within, ["group", "batch"]);
+    let bad = run(&mk("within_bad", &["nope"])).unwrap();
+    assert!(bad
+        .warnings
+        .iter()
+        .any(|w| w.contains("no such label column")));
+    assert!(bad.collapse.as_ref().unwrap().within.is_empty());
+    cleanup(&t);
+}
