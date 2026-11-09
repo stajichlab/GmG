@@ -198,6 +198,36 @@ def main():
             "los_genus_correct", "median_top_ani", "los_top_ani_q90"]
     write_tsv(os.path.join(a.outdir, "bench_summary.tsv"), bench_rows, cols)
 
+    # 2b. per species complex (fid labels), fusarioid-only reference set
+    cxmap = {}
+    recp = os.path.join(a.w, "fid", "records.tsv")
+    if os.path.exists(recp):
+        for r in read_tsv(recp):
+            cxmap.setdefault(r["species"], r["complex"].split(" (")[0])
+    cx_rows = []
+    for p in sorted(glob.glob(os.path.join(a.w, "bench", "fus_loo_s*.tsv"))):
+        scaled = int(re.search(r"_s(\d+)\.tsv", p).group(1))
+        lp = p.replace("_loo_", "_los_")
+        los = {r["id"]: float(r["ani"]) for r in read_tsv(lp)} if os.path.exists(lp) else {}
+        st = collections.defaultdict(lambda: [0, 0, 0, 0, 0])
+        for r in read_tsv(p):
+            f, t = fid.get(r["id"]), fid.get(r["top_id"])
+            if not f or not t or fid_count[f] < 2:
+                continue
+            s = st[cxmap.get(f.split(";")[0], "?")]
+            ok, gate = f == t, float(r["ani"]) >= SPECIES_ANI
+            s[0] += 1
+            s[1] += ok
+            s[2] += gate
+            s[3] += gate and ok
+            s[4] += los.get(r["id"], 0.0) >= SPECIES_ANI
+        for c, s in sorted(st.items(), key=lambda kv: -kv[1][0]):
+            cx_rows.append(
+                dict(scaled=scaled, complex=c, n=s[0], top_correct=f"{s[1] / s[0]:.4f}", gated_called=f"{s[2] / s[0]:.4f}",
+                     gated_precision=f"{s[3] / s[2]:.4f}" if s[2] else "", los_above_gate=f"{s[4] / s[0]:.4f}")
+            )
+    write_tsv(os.path.join(a.outdir, "complex_bench.tsv"), cx_rows)
+
     # 3. ANI gap
     pairs = []
     ap_ = os.path.join(a.w, "ani_s1000.tsv")
