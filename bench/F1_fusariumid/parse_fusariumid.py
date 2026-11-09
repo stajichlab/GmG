@@ -24,6 +24,26 @@ def clean(s):
     return html.unescape(TAG.sub("", s)).strip()
 
 
+SYNONYM = re.compile(r"now synonym of ([A-Z][a-z]+ [a-z-]+)")
+
+
+def normalize_species(name):
+    """Species label used for scoring.
+
+    - `X (now synonym of Y)` -> Y
+    - informal taxa (`Fusarium sp. FTSC 18 (Laraba et al. 2022)`) keep the whole name, so different `sp.` taxa stay apart
+    - otherwise the binomial: annotations such as `(status unclear)`, `(nom. inval. ...)`, `(as 'x')` and `f.sp. ...` are dropped
+    """
+    name = " ".join(name.split())
+    m = SYNONYM.search(name)
+    if m:
+        return m.group(1)
+    w = AS_NAME.sub("", name).split()
+    if len(w) >= 2 and w[1] == "sp.":
+        return " ".join(w)
+    return " ".join(w[:2])
+
+
 def parse_header(h):
     """Return a dict of fields from one FusariumID header (without '>')."""
     parts = h.split("|")
@@ -33,8 +53,7 @@ def parse_header(h):
     locus = parts[-1].split("(")[0].strip()
     desc = "|".join(parts[3:-1])
     fields = [clean(f) for f in desc.split(",")]
-    species = AS_NAME.sub("", fields[0]).strip()
-    species = " ".join(species.split()[:2]) if species.split()[:1] else species
+    species = normalize_species(fields[0])
     complex_ = fields[1] if len(fields) > 1 else ""
     ex_type = int("ex-type of" in desc)
     return {
