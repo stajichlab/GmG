@@ -51,6 +51,8 @@ pub struct TestResult {
     /// share of the samples that sit in a stratum where the label varies (1 without strata)
     pub informative_fraction: f64,
     pub strata_used: bool,
+    /// the sums of squares were weighted (collapsed representatives)
+    pub weighted: bool,
     pub warnings: Vec<String>,
 }
 
@@ -67,15 +69,29 @@ impl SplitMix {
 
 /// Run both tests. `d` is n x n row-major; `labels` and `strata` have length n. Returns `None` when fewer than two
 /// groups with at least two samples remain.
+///
+/// `weights` (length n, positive; for example the number of samples each representative stands for after collapsing
+/// near-identical samples) turns the sums of squares into their weighted forms: a pair counts `w_a w_b` times and a
+/// group's size is the sum of its weights. With all weights 1 the result is the unweighted test. The degrees of freedom
+/// still use the number of rows (not the sum of weights), so collapsed samples are not counted as independent replicates;
+/// the PERMDISP centroids are weighted but its ANOVA on the distances to the centroids is not.
 pub fn test(
     d: &[f64],
     n: usize,
     labels: &[Option<String>],
     strata: Option<&[Option<String>]>,
+    weights: Option<&[f64]>,
     o: &Options,
 ) -> Option<TestResult> {
     assert_eq!(d.len(), n * n);
     assert_eq!(labels.len(), n);
+    if let Some(w) = weights {
+        assert_eq!(w.len(), n);
+        assert!(
+            w.iter().all(|&x| x > 0.0 && x.is_finite()),
+            "weights must be positive"
+        );
+    }
     let mut warnings = Vec::new();
 
     // keep labelled samples whose group has at least 2 members
@@ -117,6 +133,10 @@ pub fn test(
                 .unwrap()
         })
         .collect();
+    let w: Vec<f64> = match weights {
+        Some(w) => idx.iter().map(|&i| w[i]).collect(),
+        None => vec![1.0; m],
+    };
     let mut d2 = vec![0.0f64; m * m];
     for a in 0..m {
         for b in 0..m {
@@ -183,10 +203,11 @@ pub fn test(
     }
 
     // PERMANOVA
+    let wsum: f64 = w.iter().sum();
     let total: f64 = (0..m)
-        .map(|a| (a + 1..m).map(|b| d2[a * m + b]).sum::<f64>())
+        .map(|a| (a + 1..m).map(|b| w[a] * w[b] * d2[a * m + b]).sum::<f64>())
         .sum::<f64>()
-        / m as f64;
+        / wsum;
     let ss_w = |labs: &[usize]| -> f64 {
         let mut members: Vec<Vec<usize>> = vec![Vec::new(); g];
         for (k, &l) in labs.iter().enumerate() {
@@ -198,10 +219,14 @@ pub fn test(
                 let mut s = 0.0;
                 for (x, &a) in mem.iter().enumerate() {
                     for &b in &mem[x + 1..] {
-                        s += d2[a * m + b];
+                        s += w[a] * w[b] * d2[a * m + b];
                     }
                 }
-                s / mem.len().max(1) as f64
+                s / mem
+                    .iter()
+                    .map(|&a| w[a])
+                    .sum::<f64>()
+                    .max(f64::MIN_POSITIVE)
             })
             .sum()
     };
@@ -223,15 +248,15 @@ pub fn test(
             members[l].push(k);
         }
         for mem in &members {
-            let ng = mem.len() as f64;
+            let ng: f64 = mem.iter().map(|&a| w[a]).sum();
             let mut within = 0.0;
             for &a in mem {
                 for &b in mem {
-                    within += d2[a * m + b];
+                    within += w[a] * w[b] * d2[a * m + b];
                 }
             }
             for &a in mem {
-                let row: f64 = mem.iter().map(|&b| d2[a * m + b]).sum::<f64>() / ng;
+                let row: f64 = mem.iter().map(|&b| w[b] * d2[a * m + b]).sum::<f64>() / ng;
                 let v = row - within / (2.0 * ng * ng);
                 if v < 0.0 {
                     negative += 1;
@@ -328,6 +353,7 @@ pub fn test(
         groups,
         informative_fraction,
         strata_used,
+        weighted: weights.is_some(),
         warnings,
     })
 }
@@ -337,7 +363,7 @@ impl TestResult {
         serde_json::json!({
             "n": self.n, "n_groups": self.n_groups, "pseudo_f": self.f, "r2": self.r2, "p": self.p,
             "permdisp_f": self.disp_f, "permdisp_p": self.disp_p,
-            "strata_used": self.strata_used, "informative_fraction": self.informative_fraction,
+            "strata_used": self.strata_used, "weighted": self.weighted, "informative_fraction": self.informative_fraction,
             "groups": self.groups.iter().map(|g| serde_json::json!({
                 "label": g.label, "n": g.n, "mean_dispersion": g.mean_dispersion})).collect::<Vec<_>>(),
             "warnings": self.warnings,
@@ -410,6 +436,7 @@ mod tests {
             n,
             &labs,
             None,
+            None,
             &Options {
                 n_perm: 99,
                 seed: 3,
@@ -426,11 +453,11 @@ mod tests {
     #[test]
     fn detects_a_location_effect_and_not_a_null() {
         let (d, n, l) = planted(&[30, 30], &[0.0, 3.0], &[1.0, 1.0], 3, 11);
-        let r = test(&d, n, &l, None, &Options::default()).unwrap();
+        let r = test(&d, n, &l, None, None, &Options::default()).unwrap();
         assert!(r.p.unwrap() <= 0.01, "p = {:?}", r.p);
         assert!(r.disp_p.unwrap() > 0.01, "equal spreads: {:?}", r.disp_p);
         let (d, n, l) = planted(&[30, 30], &[0.0, 0.0], &[1.0, 1.0], 3, 12);
-        let r = test(&d, n, &l, None, &Options::default()).unwrap();
+        let r = test(&d, n, &l, None, None, &Options::default()).unwrap();
         assert!(r.p.unwrap() > 0.01, "null p = {:?}", r.p);
     }
 
@@ -444,7 +471,7 @@ mod tests {
         };
         for s in 0..200u64 {
             let (d, n, l) = planted(&[12, 12, 12], &[0.0; 3], &[1.0; 3], 4, 1000 + s);
-            if test(&d, n, &l, None, &o).unwrap().p.unwrap() <= 0.1 {
+            if test(&d, n, &l, None, None, &o).unwrap().p.unwrap() <= 0.1 {
                 hits += 1;
             }
         }
@@ -462,6 +489,7 @@ mod tests {
                 &d,
                 n,
                 &l,
+                None,
                 None,
                 &Options {
                     n_perm: 499,
@@ -515,8 +543,8 @@ mod tests {
             n_perm: 499,
             seed: 1,
         };
-        let free = test(&d, n, &labs, None, &o).unwrap();
-        let strat = test(&d, n, &labs, Some(&st), &o).unwrap();
+        let free = test(&d, n, &labs, None, None, &o).unwrap();
+        let strat = test(&d, n, &labs, Some(&st), None, &o).unwrap();
         // the unrestricted test calls the label an effect because it tracks the study; staying inside studies does not
         assert!(free.p.unwrap() <= 0.01, "unrestricted p = {:?}", free.p);
         assert!(strat.p.unwrap() > 0.05, "within-study p = {:?}", strat.p);
@@ -527,7 +555,7 @@ mod tests {
     fn a_label_that_is_the_study_gets_no_p_value() {
         let (d, n, l) = planted(&[15, 15], &[0.0, 4.0], &[1.0, 1.0], 3, 21);
         let st: Vec<Option<String>> = l.clone(); // study == label
-        let r = test(&d, n, &l, Some(&st), &Options::default()).unwrap();
+        let r = test(&d, n, &l, Some(&st), None, &Options::default()).unwrap();
         assert!(r.p.is_none() && r.disp_p.is_none());
         assert!(
             r.warnings.iter().any(|w| w.contains("confounded")),
@@ -540,7 +568,7 @@ mod tests {
     fn missing_and_singleton_labels_are_left_out() {
         let (d, n, mut l) = planted(&[10, 10, 1], &[0.0, 3.0, 9.0], &[1.0; 3], 3, 31);
         l[3] = None;
-        let r = test(&d, n, &l, None, &Options::default()).unwrap();
+        let r = test(&d, n, &l, None, None, &Options::default()).unwrap();
         assert_eq!(r.n_groups, 2);
         assert_eq!(r.n, 19);
         assert!(r.warnings.iter().any(|w| w.contains("one sample")));
@@ -548,7 +576,7 @@ mod tests {
         let only: Vec<Option<String>> = (0..n)
             .map(|i| if i < 2 { Some("x".into()) } else { None })
             .collect();
-        assert!(test(&d, n, &only, None, &Options::default()).is_none());
+        assert!(test(&d, n, &only, None, None, &Options::default()).is_none());
     }
 
     #[test]
@@ -558,9 +586,76 @@ mod tests {
             n_perm: 199,
             seed: 9,
         };
-        let a = test(&d, n, &l, None, &o).unwrap();
-        let b = test(&d, n, &l, None, &o).unwrap();
+        let a = test(&d, n, &l, None, None, &o).unwrap();
+        let b = test(&d, n, &l, None, None, &o).unwrap();
         assert_eq!(a.p, b.p);
         assert_eq!(a.disp_p, b.disp_p);
+    }
+
+    /// 3 well separated groups; one sample of group 0 is duplicated `k` times (copies at distance 0 from it)
+    fn dup_fixture(k: usize) -> (Vec<f64>, usize, Vec<Option<String>>, Vec<f64>) {
+        let (d0, n0, l0) = planted(&[6, 6, 6], &[0.0, 1.0, 2.5], &[0.4, 0.4, 0.4], 3, 77);
+        let n = n0 + k;
+        let src = |i: usize| if i < n0 { i } else { 0 };
+        let mut d = vec![0.0; n * n];
+        for a in 0..n {
+            for b in 0..n {
+                let (x, y) = (src(a), src(b));
+                // two copies of the same sample are at distance 0
+                d[a * n + b] = if x == y { 0.0 } else { d0[x * n0 + y] };
+            }
+        }
+        let mut l = l0.clone();
+        l.extend(std::iter::repeat_n(l0[0].clone(), k));
+        let mut w = vec![1.0; n0];
+        w[0] = 1.0 + k as f64;
+        (d, n, l, w)
+    }
+
+    #[test]
+    fn weights_of_one_are_the_unweighted_test() {
+        let (d, n, l) = planted(&[8, 8], &[0.0, 1.0], &[0.5, 0.5], 3, 5);
+        let o = Options {
+            n_perm: 99,
+            seed: 2,
+        };
+        let a = test(&d, n, &l, None, None, &o).unwrap();
+        let ones = vec![1.0; n];
+        let b = test(&d, n, &l, None, Some(&ones), &o).unwrap();
+        assert!((a.f - b.f).abs() < 1e-9 && (a.r2 - b.r2).abs() < 1e-12);
+        assert_eq!(a.p, b.p);
+        assert!(!a.weighted && b.weighted);
+    }
+
+    #[test]
+    fn a_weight_of_k_plus_one_gives_the_same_sums_of_squares_as_k_exact_copies() {
+        let (d, n, l, _) = dup_fixture(4);
+        let (d0, n0, l0, w) = {
+            let (d0, n0, l0) = planted(&[6, 6, 6], &[0.0, 1.0, 2.5], &[0.4, 0.4, 0.4], 3, 77);
+            let mut w = vec![1.0; n0];
+            w[0] = 5.0;
+            (d0, n0, l0, w)
+        };
+        let o = Options { n_perm: 9, seed: 1 };
+        let dup = test(&d, n, &l, None, None, &o).unwrap();
+        let wtd = test(&d0, n0, &l0, None, Some(&w), &o).unwrap();
+        assert!((dup.r2 - wtd.r2).abs() < 1e-9, "{} vs {}", dup.r2, wtd.r2);
+    }
+
+    #[test]
+    fn collapsed_copies_do_not_inflate_the_degrees_of_freedom() {
+        // the weighted test keeps n rows: its pseudo-F is the duplicated one scaled by the degrees of freedom only
+        let (d, n, l, _) = dup_fixture(30);
+        let (d0, n0, l0) = planted(&[6, 6, 6], &[0.0, 1.0, 2.5], &[0.4, 0.4, 0.4], 3, 77);
+        let mut w = vec![1.0; n0];
+        w[0] = 31.0;
+        let o = Options { n_perm: 9, seed: 1 };
+        let dup = test(&d, n, &l, None, None, &o).unwrap();
+        let wtd = test(&d0, n0, &l0, None, Some(&w), &o).unwrap();
+        assert_eq!(dup.n, n0 + 30);
+        assert_eq!(wtd.n, n0);
+        // same R2, but the weighted F is smaller: it does not count the copies as independent samples
+        assert!((dup.r2 - wtd.r2).abs() < 1e-9);
+        assert!(wtd.f < dup.f, "{} !< {}", wtd.f, dup.f);
     }
 }

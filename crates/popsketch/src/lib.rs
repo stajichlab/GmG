@@ -3,6 +3,7 @@
 
 pub mod advisor;
 pub mod cluster;
+pub mod collapse;
 pub mod compare;
 pub mod dapc;
 #[cfg(feature = "native")]
