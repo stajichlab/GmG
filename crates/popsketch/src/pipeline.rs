@@ -1131,6 +1131,14 @@ fn write_outputs(o: &Options, r: &Results) -> Result<()> {
         write_matrix(o.out.join("ani.tsv"), &ids, &d.ani, d.n, 5)?;
         write_matrix(o.out.join("mash.tsv"), &ids, &d.mash, d.n, 6)?;
     }
+    // split_half.tsv: each sample's own split-half distance (the technical noise of a comparison involving it)
+    if !r.floor.per_sample.is_empty() {
+        let mut s = String::from("id\tsplit_half_distance\n");
+        for (id, d) in &r.floor.per_sample {
+            let _ = writeln!(s, "{}\t{d:.6}", tsv_cell(id));
+        }
+        fs::write(o.out.join("split_half.tsv"), s)?;
+    }
     // pca.tsv, clusters.tsv
     if let Some(ord) = &r.ordination {
         let k = ord.eigenvalues.len();

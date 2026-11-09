@@ -97,6 +97,7 @@ mod tests {
             median: v / 5.0,
             p90: v,
             source: "split_half",
+            per_sample: vec![],
         }
     }
 
