@@ -123,7 +123,23 @@ Genome ANI gap (all-pairs sketch ANI at scaled 1000, max-containment; `genomes_a
 | FFSC | 240 | 27 | 0.975 | 0.852 | 0.984 / 0.988 / 0.994 | 0 |
 | *Neocosmospora* | 163 | 22 | 0.939 | 0.682 | 0.984 / 0.992 / 1.000 | 4.3% |
 
-## What GmG could do (proposals, not built)
+## Species-complex rule (built, schema 10)
+
+gmg now reports the species complex of the species vote (embedded table `crates/gmg-core/data/species_complexes.tsv`,
+806 fusarioid names from FusariumID) when the genus is called and the top hit is within ANI 0.98, and for FOSC reports
+the complex instead of a species. Effect on this benchmark (`complex_effect.py`, same rule applied to the bench output,
+FusariumID labels, fusarioid-only references; identical at scaled 1000, 10000 and 50000):
+
+| | species calls | species precision | complex calls | complex precision |
+|---|---|---|---|---|
+| before | 1,616 | 0.966 | - | - |
+| after | 919 | 0.998 | 806 (FOSC) | 0.990 |
+
+The 0.98 floor: the closest any non-FOSC genome comes to a FOSC genome is ANI 0.957; 1 of 812 FOSC genomes has its
+nearest FOSC genome below 0.98 (0.9786). The first table version left out informal FusariumID taxa (`Fusarium sp. 1-3
+in FOSC`), which made 22 FOSC genomes look like non-FOSC genomes at ANI up to 0.9999; they are in the table now.
+
+## What GmG could do (proposals; 2 is built, see above)
 
 1. **Name Fusarium genomes with FusariumID-consistent labels.** The sketch side is ready (even the 50000-scaled web tier
    resolves these species); the reference labels are not. The genome -> FusariumID table here is a candidate
