@@ -176,6 +176,9 @@ enum Cmd {
         /// samples that get split-half sketches to measure the noise floor (0: fixed fallback)
         #[arg(long, default_value_t = 20)]
         floor_samples: usize,
+        /// largest presence matrix (GiB) for the fast distance method; above it the slow pairwise merge is used
+        #[arg(long, default_value_t = 4.0)]
+        bitset_max_gib: f64,
         /// Newick tree of the same samples (for example from SNPs) to compare with: distance correlation, and whether each cluster is a clade
         #[arg(long)]
         compare_tree: Option<PathBuf>,
@@ -285,6 +288,7 @@ fn main() -> Result<()> {
             root,
             tree_floor,
             floor_samples,
+            bitset_max_gib,
             compare_tree,
             compare_pcs,
             resume,
@@ -332,6 +336,7 @@ fn main() -> Result<()> {
                 root,
                 tree_floor,
                 floor_samples,
+                bitset_max_bytes: (bitset_max_gib.max(0.0) * (1u64 << 30) as f64) as usize,
                 compare_tree,
                 compare_pcs,
                 resume,

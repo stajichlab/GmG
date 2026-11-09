@@ -3,7 +3,7 @@
 
 use crate::advisor::{advise, Advice};
 use crate::cluster::{cut_k, gap_rule, upgma, GapCall, Verdict};
-use crate::dist::{compute, DistMat};
+use crate::dist::{compute_planned, DistMat};
 use crate::floor::{estimate, pick_for_halves, Floor};
 use crate::labels::{
     analyze_column, column_labels, parse as parse_labels, ColumnReport, LabelTable,
@@ -104,6 +104,8 @@ pub struct Options {
     pub tree_floor: Option<f64>,
     /// number of samples that get split-half sketches for the noise floor (0: use the fixed fallback)
     pub floor_samples: usize,
+    /// largest presence matrix (bytes) for the fast distance method
+    pub bitset_max_bytes: usize,
     /// Newick tree of (some of) the same samples, for example from SNPs: compared with the sketch distances and clusters
     pub compare_tree: Option<PathBuf>,
     /// PC scores of (some of) the same samples, for example from SNPs: compared with the sketch PCA
@@ -151,6 +153,7 @@ impl Default for Options {
             root: None,
             tree_floor: None,
             floor_samples: 20,
+            bitset_max_bytes: crate::dist::BITSET_MAX_BYTES,
             compare_tree: None,
             compare_pcs: None,
             resume: false,
@@ -661,7 +664,8 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
         .collect();
     let cand_sets: Vec<Vec<u64>> = cand.iter().map(|&i| kept[i].clone()).collect();
     tm.mark(o, "audit_and_kept_hashes");
-    let d_all = compute(&cand_sets, o.ksize);
+    let (d_all, plan_all) = compute_planned(&cand_sets, o.ksize, o.bitset_max_bytes);
+    say(o, &plan_all.describe());
     tm.mark(o, "distances_all");
     let unflagged: Vec<usize> = (0..cand.len())
         .filter(|&c| !qcs[cand[c]].flagged())
@@ -824,7 +828,9 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
             .iter()
             .any(|r| statuses[inv[r]] == Status::Decontaminated);
         let dist = if decon_changed {
-            compute(&sets, o.ksize)
+            let (d, plan) = compute_planned(&sets, o.ksize, o.bitset_max_bytes);
+            say(o, &plan.describe());
+            d
         } else {
             let pos: HashMap<usize, usize> =
                 cand.iter().enumerate().map(|(c, &s)| (s, c)).collect();
