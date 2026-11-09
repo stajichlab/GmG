@@ -45,6 +45,23 @@ Each test has a question, a dataset, a metric, a pass criterion set **before** r
 **Measured 2026-11-08 (`bench/A1_memory_arithmetic/README.md`, `bench/A1_measure/`):** the matrix arithmetic below is right but small; peak RSS was 17 GB at 2,002 samples (about 7-9 MB per sample, the sketches themselves), distances dominate time, and pooled sets above about 2,000 samples fall off a cliff when the presence bitset exceeds 4 GiB (by the code; not yet confirmed). Implications: precomputed per-species matrices for the page, group by species, drop unused split halves.
 `DistMat` is 2 n² f64, plus a subset copy, `one_minus_ani`, and squared and centred PCoA matrices: about 7 n² f64 arrays, roughly 5.6 GB at 10k samples (not 800 MB). NJ is cubic: 1.3 s at 1,500 and 13 s at 3,000 projects to about 8 min at 10k. Compute n_max for a 4 GB / 60 s budget on paper, then refactor candidates (condensed f32 triangle, one distance only, RapidNJ or a faster NJ, partial/randomized eigen) and benchmark those.
 
+### D1. Keep n small enough for the bitset path: collapse near-identical samples *(owner decision 2026-11-08)*
+Design: analyse **per species**; before ordination and tree, collapse samples whose ANI to a representative is at or above a threshold, keep one representative per cluster and carry the cluster size as a weight, so nothing is silently dropped. The cap on n is then set by the bitset limit (`n x V / 8 <= BITSET_MAX_BYTES`, now 4 GiB) on the representatives, not by raw sample count. Also report the distance method and V in the `distances_all` stage line, and make the limit a flag. Label tests must use the weights (clonal samples are not independent replicates).
+
+**Measured (`bench/D1_collapse/`, HPCC job 31876237, 95 s, existing sketches, flagged samples excluded so n is below 300):** representatives left by leader clustering (every member within the threshold of its representative); `components` is the chained upper bound on collapse.
+
+| set (n) | ANI 0.99 | 0.995 | 0.999 | 0.9995 | 0.9999 |
+|---|---|---|---|---|---|
+| z_tritici (259) | 160 | 187 | 197 | 203 | 236 |
+| c_neoformans (268) | 5 | 21 | 61 | 71 | 175 |
+| c_beticola (282) | 1 | 8 | 168 | 173 | 202 |
+| p_nodorum (265) | 1 | 86 | 196 | 199 | 231 |
+| b_cinerea (294) | 1 | 34 | 179 | 187 | 250 |
+| n_discreta (203) | 9 | 11 | 119 | 166 | 203 |
+| p_oryzae (251) | 6 | 12 | 124 | 182 | 245 |
+
+What it says: only the clonal sets collapse a lot at a tight threshold (C. neoformans 268 to 61 at 0.999; P. oryzae and N. discreta about half). The other sets keep 60-80% of samples at 0.999, so collapse alone will not make a 10,000-strain species fit; the n cap still has to bite. Thresholds of 0.995 and below merge whole populations (c_beticola, p_nodorum, b_cinerea go to 1-34 clusters), so they are not usable for collapse. **Not yet answered:** what threshold is distinguishable from sketch noise at the capped depth. At 0.9999 most samples stay separate, which suggests the noise floor, not biology, sets the usable threshold. Next measurement: take the split-half ANI of each sample (already in the sketches) as the floor and choose the threshold from it; then recount, and measure pooled V for the representatives to turn the cap into a number.
+
 ### A2. FracMinHash validity (predict first)
 At scaled 200 a 20 Mb genome gives about 100k hashes; sampling SD of 1 - ANI near 0.001 is about 2e-5, far below the measured floors (0.001-0.0025). So floors come from reads, errors and the cutoff, not from sampling. At the other end, below about 80% ANI, C^(1/21) rests on a handful of shared hashes (saturation). Predict both regimes; run only scaled 200 and 1000 at k=21 unless the prediction fails (so k=17/25 are dropped).
 
