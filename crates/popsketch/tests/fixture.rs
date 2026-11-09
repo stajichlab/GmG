@@ -678,7 +678,8 @@ fn label_tests_find_the_real_grouping_stay_inside_strata_and_can_be_turned_off()
 }
 
 #[test]
-fn collapse_runs_the_analysis_on_representatives_writes_collapse_tsv_and_weights_the_label_test() {
+fn collapse_runs_the_analysis_on_representatives_writes_collapse_tsv_and_tests_labels_on_all_samples(
+) {
     let t = build("collapse");
     let mut labels = String::from("id\tgroup\n");
     for (id, g) in t.group_of.iter() {
@@ -726,9 +727,9 @@ fn collapse_runs_the_analysis_on_representatives_writes_collapse_tsv_and_weights
     assert!(json.contains("\"collapse\"") && json.contains("\"representatives\""));
     // the ordination, tree and distances have one row per representative
     assert_eq!(r.dist.as_ref().unwrap().n, c.kept);
-    if let Some(g) = r.group_tests.first().and_then(|g| g.result.as_ref()) {
-        assert!(g.weighted);
-        assert!(g.n <= c.kept);
-    }
+    // the label test runs on all samples, not on the representatives, and is not weighted
+    let g = r.group_tests[0].result.as_ref().unwrap();
+    assert!(!g.weighted);
+    assert_eq!(g.n, off.group_tests[0].result.as_ref().unwrap().n);
     cleanup(&t);
 }

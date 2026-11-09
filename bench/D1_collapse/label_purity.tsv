@@ -1,0 +1,15 @@
+slug	column	clusters	multi_member	mixed_clusters	mixed_share_of_multi	samples_differing_from_rep
+z_tritici	study	196	13	8	0.62	51
+z_tritici	country	196	13	2	0.15	11
+c_neoformans	study	95	31	20	0.65	143
+c_neoformans	country	95	31	16	0.52	43
+c_beticola	study	150	53	4	0.08	4
+c_beticola	country	150	53	9	0.17	44
+p_nodorum	study	185	47	8	0.17	11
+p_nodorum	country	185	47	13	0.28	17
+b_cinerea	study	170	62	8	0.13	11
+b_cinerea	country	170	62	10	0.16	12
+n_discreta	study	65	24	20	0.83	85
+n_discreta	country	65	24	10	0.42	58
+p_oryzae	study	69	34	25	0.74	149
+p_oryzae	country	69	34	20	0.59	52

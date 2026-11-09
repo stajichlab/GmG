@@ -862,7 +862,9 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
         };
         tm.mark(o, "distances_included");
         // collapse near-identical samples; from here on the analysis runs on the representatives
-        let mut weights: Option<Vec<f64>> = None;
+        // the label tests run on all samples: collapsed clusters often mix labels (D1h), so a representative's label would
+        // misstate them
+        let mut full_for_tests: Option<(Vec<String>, Vec<f64>)> = None;
         if let Some(rule) = o.collapse {
             let by_id: HashMap<&str, f64> = floor
                 .per_sample
@@ -930,10 +932,10 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                         c.reps.len()
                     ),
                 );
+                full_for_tests = Some((ids.clone(), dist.one_minus_ani()));
                 dist = dist.subset(&c.reps);
                 sets = c.reps.iter().map(|&k| sets[k].clone()).collect();
                 res.included = c.reps.iter().map(|&k| res.included[k]).collect();
-                weights = Some(c.sizes.iter().map(|&s| s as f64).collect());
             } else {
                 say(
                     o,
@@ -1054,9 +1056,13 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                     },
                     None => None,
                 };
+                let (t_ids, t_d, t_n): (&[String], &[f64], usize) = match &full_for_tests {
+                    Some((i, d)) => (i.as_slice(), d.as_slice(), i.len()),
+                    None => (ids.as_slice(), d1.as_slice(), n),
+                };
                 let strata_labs = strata_col
                     .as_ref()
-                    .map(|(i, _)| column_labels(&table, &ids, *i));
+                    .map(|(i, _)| column_labels(&table, t_ids, *i));
                 let popts = crate::permanova::Options {
                     n_perm: o.permutations,
                     seed: 1,
@@ -1065,17 +1071,17 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                     if strata_col.as_ref().is_some_and(|(i, _)| *i == c) {
                         continue;
                     }
-                    let labs = column_labels(&table, &ids, c);
+                    let labs = column_labels(&table, t_ids, c);
                     res.group_tests.push(GroupTest {
                         column: name.clone(),
                         strata: strata_col.as_ref().map(|(_, n)| n.clone()),
                         permutations: o.permutations,
                         result: crate::permanova::test(
-                            &d1,
-                            n,
+                            t_d,
+                            t_n,
                             &labs,
                             strata_labs.as_deref(),
-                            weights.as_deref(),
+                            None,
                             &popts,
                         ),
                     });

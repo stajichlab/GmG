@@ -837,7 +837,7 @@ fn build(o: &Options, r: &Results) -> Vec<Block> {
     if let Some(c) = &r.collapse {
         d.push(Block::P(
             vec![t(format!(
-                "Near-identical samples were collapsed (rule: {}): {} samples were reduced to {} representatives, and the structure, tree, clusters and label tests below use the representatives (the label tests weight each by the number of samples it stands for). Which sample stands for which is in collapse.tsv.",
+                "Near-identical samples were collapsed (rule: {}): {} samples were reduced to {} representatives, and the structure, tree and clusters below use the representatives. The label tests use all samples, because a collapsed cluster often mixes labels (a representative's label would misstate its members). Which sample stands for which is in collapse.tsv.",
                 c.rule, c.input, c.kept
             ))],
             Tone::Note,
