@@ -168,6 +168,9 @@ pub fn render(
     md.push_str("## All inputs\n\n| input | status | phylum | deepest rank | call | ANI | flags |\n|---|---|---|---|---|---|---|\n");
     for r in recs.iter().take(opts.max_rows) {
         let call = match (r.call_name(), &r.tentative_genus) {
+            _ if r.collapsed_complex().is_some() => {
+                r.collapsed_complex().unwrap_or_default().to_string()
+            }
             ("", Some((t, _, _))) => format!("{t} (tentative genus)"),
             (c, _) => c.to_string(),
         };

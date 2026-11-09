@@ -41,7 +41,11 @@ pub fn guess_json(index: &RefIndex, g: &Guess, query: &str, top: usize) -> Value
         .tentative_genus
         .as_ref()
         .map(|t| json!({"taxon": t.taxon, "ani": t.ani, "consistency": t.consistency}));
-    json!({"query": query, "query_hashes": g.query_hashes, "top": top_json, "calls": calls, "tentative_genus": tentative, "hits": hits})
+    let complex = g.species_complex.as_ref().map(
+        |c| json!({"complex": c.complex, "nearest_species": c.nearest_species, "collapsed": c.collapsed}),
+    );
+    json!({"query": query, "query_hashes": g.query_hashes, "top": top_json, "calls": calls, "tentative_genus": tentative,
+           "species_complex": complex, "hits": hits})
 }
 
 impl Thresholds {

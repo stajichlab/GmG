@@ -84,6 +84,9 @@ pub(crate) fn reasons(r: &Rec, th: &Th) -> Vec<(usize, String)> {
             continue;
         }
         let cons = r.calls[i].consistency;
+        if let (5, Some((cx, near, true))) = (i, &r.species_complex) {
+            return vec![(i, format!("The nearest genomes are in the {cx}. Its species are 99.6-99.99% genome ANI apart, too close to name from a genome sketch, so the complex is reported instead of a species (nearest: {near})"))];
+        }
         let text = if r.calls[i].vote.is_none() {
             format!("The nearest reference genomes have no {k} recorded in the reference metadata, so there is nothing to call. This reflects the reference annotation, not weak evidence")
         } else if cons < th.min_cons[i] {
@@ -116,7 +119,14 @@ fn ladder(r: &Rec) -> String {
         } else {
             None
         };
-        let name = if let Some((t, _, _)) = tent {
+        let cx = if i == 5 && !called {
+            r.collapsed_complex()
+        } else {
+            None
+        };
+        let name = if let Some(c) = cx {
+            c.to_string()
+        } else if let Some((t, _, _)) = tent {
             format!("{t} (tentative)")
         } else if called {
             r.call(i).to_string()
@@ -125,7 +135,9 @@ fn ladder(r: &Rec) -> String {
         } else {
             "withheld".into()
         };
-        let tip = if let Some((t, a, c)) = tent {
+        let tip = if let Some(c) = cx {
+            format!("species: {c}; its species are not separable from a genome sketch")
+        } else if let Some((t, a, c)) = tent {
             format!("genus: {t} is the nearest genus but is only tentative (ANI {a:.3} is below the genus cutoff; vote consistency {c:.2})")
         } else if called {
             format!("{k}: {} · vote consistency {cons:.2}", r.call(i))
@@ -223,6 +235,9 @@ fn card(r: &Rec, th: &Th, open: bool) -> String {
         call
     };
     let call = match (&r.tentative_genus, call.is_empty()) {
+        _ if r.collapsed_complex().is_some() => {
+            r.collapsed_complex().unwrap_or_default().to_string()
+        }
         (Some((t, _, _)), true) => format!("{t} (tentative)"),
         _ => call,
     };

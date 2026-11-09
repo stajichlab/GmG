@@ -7,7 +7,7 @@ use serde_json::{json, Value};
 use std::collections::HashMap;
 
 /// Bump when a column of results.tsv / hits.tsv or a key of results.jsonl / run.json changes meaning.
-pub const SCHEMA_VERSION: u32 = 9; // 9: routing_hint in the record (results.jsonl, Python, wasm; the TSV columns are unchanged). 8: explained_fraction, second_taxon, second_explained_fraction columns, mixture_suspected flag. 7: coverage_est column (reads). 6: taxid_<rank> columns, top_hit_label. 5: withheld column. 4: expected, expected_match columns (sample sheet). 2: tentative_genus column; balanced default thresholds. 3: error_code column, plain error messages
+pub const SCHEMA_VERSION: u32 = 10; // 10: species_complex (record guess.species_complex and TSV column; FOSC species calls withheld as species_complex). 9: routing_hint in the record (results.jsonl, Python, wasm; the TSV columns are unchanged). 8: explained_fraction, second_taxon, second_explained_fraction columns, mixture_suspected flag. 7: coverage_est column (reads). 6: taxid_<rank> columns, top_hit_label. 5: withheld column. 4: expected, expected_match columns (sample sheet). 2: tentative_genus column; balanced default thresholds. 3: error_code column, plain error messages
 
 /// Species ANI cutoff for read sets (#32): repeated sequencing errors lower the containment ANI of a read set, so the
 /// assembly cutoff (0.9938) leaves 8-15% of correct species unnamed. With *C. immitis* left out of the reference its reads
@@ -565,6 +565,7 @@ pub fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
         "explained_fraction",
         "second_taxon",
         "second_explained_fraction",
+        "species_complex",
         "schema_version",
     ] {
         header.push(c.to_string());
@@ -644,6 +645,7 @@ pub fn results_tsv(results: &[Value]) -> (Vec<String>, Vec<Vec<String>>) {
             } else {
                 String::new()
             },
+            tsv_cell(&g["species_complex"]["complex"]),
             SCHEMA_VERSION.to_string(),
         ]);
         rows.push(row);
@@ -660,7 +662,9 @@ pub fn expected_match(r: &Value) -> String {
         r["guess"]["calls"][k]["taxon"]
             .as_str()
             .is_some_and(|t| t.eq_ignore_ascii_case(e))
-    });
+    }) || r["guess"]["species_complex"]["complex"]
+        .as_str()
+        .is_some_and(|c| c.eq_ignore_ascii_case(e));
     if hit { "yes" } else { "no" }.to_string()
 }
 

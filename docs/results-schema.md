@@ -40,13 +40,14 @@ Empty cell = not applicable / not called. TSV cells never contain tabs or newlin
 | `error_code` | `empty_file`, `no_sequence_records`, `not_sequence_file`, `bad_gzip`, `unreadable`, `too_short`, `parse_error`, `internal_error`, `stdin`; blank unless `status` is `error`. `results.jsonl` also has `error_action`, what to do about it |
 | `taxid_phylum` .. `taxid_species` | the NCBI taxid of each called taxon (docs/taxonomy.md); blank for a rank that was not called or has no NCBI taxon |
 | `top_hit_label` | the original label of the top-hit genome in the source collection, next to the NCBI `top_hit_species` |
-| `withheld` | why the first uncalled rank was not called, e.g. `genus: ani_below_cutoff (ANI 0.8870 < 0.9000)`; codes: `no_hits`, `too_few_shared_hashes`, `ani_below_cutoff`, `low_agreement`; blank when a species was called |
+| `withheld` | why the first uncalled rank was not called, e.g. `genus: ani_below_cutoff (ANI 0.8870 < 0.9000)`; codes: `no_hits`, `too_few_shared_hashes`, `ani_below_cutoff`, `low_agreement`, `species_complex` (the species vote is in a complex whose species gmg does not name, see `species_complex`); blank when a species was called |
 | `expected` | the label from the sample sheet, if one was given |
 | `expected_match` | `yes` if `expected` equals the call at some rank (case-insensitive), `no` if not, blank without an `expected` |
 | `coverage_est` | reads only: estimated genome coverage of the sketched reads (see `qc.coverage_est`), blank otherwise |
 | `explained_fraction` | share of the query's hashes found in any reference genome of the genus of the best hit (`qc.mixture.explained_fraction`); blank without a best hit or when the input is `not_fungal` |
 | `second_taxon`, `second_explained_fraction` | only when `mixture_suspected` is flagged: the second genus (a different genus from the best hit's) and the share of **all** query hashes that only it explains, i.e. hashes that no genome of the best hit's genus has. About the share of the sample's DNA that is the second organism (assemblies; reads: the share of the k-mers above the abundance cutoff) |
-| `schema_version` | 9 |
+| `species_complex` | the named species complex of the species vote (embedded table from the FusariumID database, `crates/gmg-core/data/species_complexes.tsv`), when the genus is called and the top-hit ANI is at least 0.98; blank otherwise. For the *Fusarium oxysporum* species complex (FOSC) the complex **replaces** the species call: `call_species` is empty, `withheld` is `species: species_complex`, and the JSON keeps the nearest species (`guess.species_complex.nearest_species`), because FOSC species are 99.6-99.99% genome ANI apart (`bench/F1_fusariumid/`). For other complexes it is an annotation next to the species call |
+| `schema_version` | 10 |
 
 ### Thresholds
 

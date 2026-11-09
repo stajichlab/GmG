@@ -18,7 +18,10 @@ mod packed;
 mod sketch;
 mod skfile;
 
-pub use call::{guess, guess_from_hits, Guess, RankVote, Tentative, Thresholds, TopHit, Withheld};
+pub mod complexes;
+pub use call::{
+    guess, guess_from_hits, ComplexCall, Guess, RankVote, Tentative, Thresholds, TopHit, Withheld,
+};
 pub use fastx::{for_each_record, sketch_fastx, sketch_fastx_stats, SeqStats};
 pub use index::{Explained, GenomeMeta, Hit, IndexBuilder, RefIndex, RANKS};
 #[cfg(feature = "json")]
