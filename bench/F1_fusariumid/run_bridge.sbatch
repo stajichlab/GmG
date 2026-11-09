@@ -17,7 +17,8 @@ for l in $LOCI; do cat "$W/fid/loci/$l.fa" >> "$Q"; done
 OUT="$W/bridge/calls_$I.tsv"
 python3 -I "$F1/genome_markers.py" --header x /dev/null "$W/fid/records.tsv" | head -1 > "$OUT"
 n=0
-awk -v n=$N -v i=$I '(NR-1) % n == i' "$W/genomes/paths.txt" | while read -r f; do
+mapfile -t FILES < <(awk -v n=$N -v i=$I '(NR-1) % n == i' "$W/genomes/paths.txt")
+for f in "${FILES[@]}"; do
   id=$(basename "$f" .fa.gz)
   t0=$(date +%s)
   zcat "$f" > "$SCRATCH/g.fa"
@@ -26,6 +27,7 @@ awk -v n=$N -v i=$I '(NR-1) % n == i' "$W/genomes/paths.txt" | while read -r f; 
     -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend qlen sstart send bitscore" > "$SCRATCH/hits.tsv"
   python3 -I "$F1/genome_markers.py" "$id" "$SCRATCH/hits.tsv" "$W/fid/records.tsv" >> "$OUT"
   echo "$id $(( $(date +%s) - t0 ))s"
-  n=$((n+1)); [ "$LIMIT" -gt 0 ] && [ $n -ge "$LIMIT" ] && break
   rm -f "$SCRATCH"/g.*
+  n=$((n+1))
+  if [ "$LIMIT" -gt 0 ] && [ $n -ge "$LIMIT" ]; then break; fi
 done
