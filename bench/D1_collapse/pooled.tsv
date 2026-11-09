@@ -1,0 +1,5 @@
+set	n_in	distance_line	wall_s
+all	1822	distance method bitset: 2787023 variable hashes, presence matrix 0.59 GiB (limit 4.00 GiB) 	59
+reps1	612	distance method bitset: 2440258 variable hashes, presence matrix 0.17 GiB (limit 4.00 GiB) 	18
+reps2	235	distance method bitset: 1786703 variable hashes, presence matrix 0.05 GiB (limit 4.00 GiB) 	5
+reps3	104	distance method bitset: 1307146 variable hashes, presence matrix 0.02 GiB (limit 4.00 GiB) 	3

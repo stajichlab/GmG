@@ -1,0 +1,14 @@
+sketching 1822 samples (k=21, scaled=200, up to 1000000000 bases each)
+stage audit_and_kept_hashes: 10.6 s
+distance method bitset: 2787023 variable hashes, presence matrix 0.59 GiB (limit 4.00 GiB)
+stage distances_all: 35.7 s
+stage noise_floor: 0.1 s
+1822 samples, 1554 in the analysis; noise floor 0.00321 (split_half)
+stage distances_included: 1.7 s
+stage upgma_and_gap: 0.1 s
+stage ordination: 0.0 s
+stage tree: 2.7 s
+stage labels_tests_dapc_compare: 0.0 s
+stage rest: 0.1 s
+1822 samples, 268 flagged, 1554 in the analysis; report: /scratch/jstajich/31880606/d1b/out_all/report.html
+exit 0
