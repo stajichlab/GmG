@@ -25,6 +25,8 @@ import glob
 import os
 import re
 
+SPECIES_ANI = 0.9938  # gmg_core::call::Thresholds::default().min_ani[5]
+
 
 def read_tsv(path):
     with open(path) as f:
@@ -156,6 +158,11 @@ def main():
             called = sum(bool(r["species_vote"]) for r in ans)
             fa = [r for r in rows if fid.get(r["id"]) and fid_count[fid[r["id"]]] >= 2 and fid.get(r["top_id"])]
             fid_ok = sum(fid[r["top_id"]] == fid[r["id"]] for r in fa)
+            # bench writes the raw vote; gmg's species call also needs top ANI >= SPECIES_ANI (other gates ignored here)
+            g_ans = [r for r in ans if float(r["ani"]) >= SPECIES_ANI]
+            g_ok = sum(r["species_top"] == r["species_true"] for r in g_ans)
+            g_fa = [r for r in fa if float(r["ani"]) >= SPECIES_ANI]
+            g_fok = sum(fid[r["top_id"]] == fid[r["id"]] for r in g_fa)
             bench_rows.append(
                 dict(
                     refset=refset, mode=mode, scaled=scaled, n=n,
@@ -166,11 +173,14 @@ def main():
                     ncbi_vote_called=f"{called / len(ans):.4f}" if ans else "",
                     fid_scored=len(fa),
                     fid_top_correct=f"{fid_ok / len(fa):.4f}" if fa else "",
+                    gated_called=f"{len(g_ans) / len(ans):.4f}" if ans else "",
+                    gated_ncbi_precision=f"{g_ok / len(g_ans):.4f}" if g_ans else "",
+                    gated_fid_precision=f"{g_fok / len(g_fa):.4f}" if g_fa else "",
                     median_top_ani=q([float(r["ani"]) for r in rows], 0.5),
                 )
             )
-        else:  # los: the true species is gone; a species-level vote is a false call
-            false_sp = sum(bool(r["species_vote"]) for r in rows)
+        else:  # los: the true species is gone; passing the species ANI gate would be a false species call
+            false_sp = sum(float(r["ani"]) >= SPECIES_ANI for r in rows)
             genus_ok = sum(r["genus_vote"] == r["genus_true"] for r in rows)
             bench_rows.append(
                 dict(
@@ -183,7 +193,8 @@ def main():
                 )
             )
     cols = ["refset", "mode", "scaled", "n", "median_query_hashes", "ncbi_answerable", "ncbi_top_correct",
-            "ncbi_vote_correct", "ncbi_vote_called", "fid_scored", "fid_top_correct", "los_false_species_calls",
+            "ncbi_vote_correct", "ncbi_vote_called", "fid_scored", "fid_top_correct", "gated_called",
+            "gated_ncbi_precision", "gated_fid_precision", "los_false_species_calls",
             "los_genus_correct", "median_top_ani", "los_top_ani_q90"]
     write_tsv(os.path.join(a.outdir, "bench_summary.tsv"), bench_rows, cols)
 
