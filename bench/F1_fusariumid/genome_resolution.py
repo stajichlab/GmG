@@ -268,6 +268,7 @@ def main():
                 other_species_ani_q90=f"{q(het, 0.9):.4f}",
                 other_species_ani_q99=f"{q(het, 0.99):.4f}",
                 other_species_ani_max=f"{max(het):.4f}",
+                other_species_above_species_gate=f"{sum(h >= SPECIES_ANI for h in het) / len(het):.4f}",
                 same_species_ani_q10=f"{q([c for *_x, c, _h in rows], 0.1):.4f}",
                 same_species_ani_q50=f"{q([c for *_x, c, _h in rows], 0.5):.4f}",
             )
