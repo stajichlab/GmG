@@ -22,6 +22,7 @@ for f in "${FILES[@]}"; do
   id=$(basename "$f" .fa.gz)
   t0=$(date +%s)
   zcat "$f" > "$SCRATCH/g.fa"
+  if ! grep -q -m1 '^>' "$SCRATCH/g.fa"; then echo "$id empty, skipped"; continue; fi
   makeblastdb -in "$SCRATCH/g.fa" -dbtype nucl -out "$SCRATCH/g" > /dev/null
   blastn -task megablast -query "$Q" -db "$SCRATCH/g" -evalue 1e-20 -max_target_seqs 5 -max_hsps 1 -num_threads 4 \
     -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend qlen sstart send bitscore" > "$SCRATCH/hits.tsv"
