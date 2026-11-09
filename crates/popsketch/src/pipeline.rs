@@ -244,6 +244,8 @@ pub struct Results {
     pub label_table: Option<LabelTable>,
     pub label_reports: Vec<ColumnReport>,
     pub group_tests: Vec<GroupTest>,
+    /// seconds per stage (native build only)
+    pub timings: Vec<(&'static str, f64)>,
     pub tree_comparison: Option<crate::compare::TreeComparison>,
     pub pcs_comparison: Option<crate::compare::PcsComparison>,
     pub dapc: Option<DapcOut>,
@@ -316,6 +318,35 @@ fn screen(ix: &RefIndex, th: &Thresholds, ctx: &RefContext, s: &SampleSketch) ->
         species: taxon("species"),
         mixture,
     })
+}
+
+/// Seconds spent in each stage of `analyze`, recorded only in the native build (the browser has no clock we can use here).
+struct Timer {
+    #[cfg(feature = "native")]
+    last: std::time::Instant,
+    v: Vec<(&'static str, f64)>,
+}
+
+impl Timer {
+    fn new() -> Self {
+        Timer {
+            #[cfg(feature = "native")]
+            last: std::time::Instant::now(),
+            v: Vec::new(),
+        }
+    }
+    fn mark(&mut self, o: &Options, name: &'static str) {
+        #[cfg(feature = "native")]
+        {
+            let now = std::time::Instant::now();
+            let s = (now - self.last).as_secs_f64();
+            self.last = now;
+            self.v.push((name, s));
+            say(o, &format!("stage {name}: {s:.1} s"));
+        }
+        #[cfg(not(feature = "native"))]
+        let _ = (o, name);
+    }
 }
 
 fn say(o: &Options, msg: &str) {
@@ -529,6 +560,7 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
         compare_tree,
         compare_pcs,
     } = a;
+    let mut tm = Timer::new();
     // the split-half noise floor uses the same pseudo-random subset of samples whoever made the sketches: sketches made on their own
     // (`popsketch sketch`) carry halves for every sample, and using all of them would not match a run that sketched the reads itself
     let read_ids: Vec<String> = sketches
@@ -628,7 +660,9 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
         .filter(|&i| kept[i].len() >= MIN_HASHES)
         .collect();
     let cand_sets: Vec<Vec<u64>> = cand.iter().map(|&i| kept[i].clone()).collect();
+    tm.mark(o, "audit_and_kept_hashes");
     let d_all = compute(&cand_sets, o.ksize);
+    tm.mark(o, "distances_all");
     let unflagged: Vec<usize> = (0..cand.len())
         .filter(|&c| !qcs[cand[c]].flagged())
         .collect();
@@ -717,6 +751,7 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
         .map(|i| &sketches[i])
         .collect();
     let floor = estimate(&half_refs, o.ksize);
+    tm.mark(o, "noise_floor");
     say(
         o,
         &format!(
@@ -742,6 +777,7 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
         label_table: None,
         label_reports: Vec::new(),
         group_tests: Vec::new(),
+        timings: Vec::new(),
         tree_comparison: None,
         pcs_comparison: None,
         dapc: None,
@@ -799,10 +835,12 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                     .collect::<Vec<_>>(),
             )
         };
+        tm.mark(o, "distances_included");
         // clusters
         let d1 = dist.one_minus_ani();
         let merges = upgma(&d1, n);
         let gap = gap_rule(&merges, n, o.min_floors, floor.value, 30);
+        tm.mark(o, "upgma_and_gap");
         let k_used = if let Some(k) = o.k {
             Some(k.clamp(1, n))
         } else if let Some(c) = o.cut {
@@ -829,6 +867,7 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                 OrdKind::Pcoa => pcoa(&d1, n, ncomp),
             }
         };
+        tm.mark(o, "ordination");
         // tree
         if o.tree {
             let names: Vec<String> = res
@@ -847,6 +886,7 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
             }
             res.newick = Some(newick(&root_tree(&t, o.root.as_deref()), &names));
         }
+        tm.mark(o, "tree");
         // labels
         if let Some(text) = &labels_text {
             let table = parse_labels(text)?;
@@ -981,6 +1021,7 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                 Err(e) => res.warnings.push(format!("--compare-pcs: {e:#}")),
             }
         }
+        tm.mark(o, "labels_tests_dapc_compare");
         res.advice = Some(advise(&dist, clusters.as_deref(), &floor));
         res.gap = Some(gap);
         res.k_used = k_used;
@@ -991,6 +1032,8 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
             "only {n} samples passed the audit: no distances, ordination or tree"
         ));
     }
+    tm.mark(o, "rest");
+    res.timings = tm.v;
     Ok(res)
 }
 

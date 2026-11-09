@@ -42,6 +42,7 @@ Each test has a question, a dataset, a metric, a pass criterion set **before** r
 ## Tests
 
 ### A1. Memory and time arithmetic (before any benchmark)
+**Measured 2026-11-08 (`bench/A1_memory_arithmetic/README.md`, `bench/A1_measure/`):** the matrix arithmetic below is right but small; peak RSS was 17 GB at 2,002 samples (about 7-9 MB per sample, the sketches themselves), distances dominate time, and pooled sets above about 2,000 samples fall off a cliff when the presence bitset exceeds 4 GiB (by the code; not yet confirmed). Implications: precomputed per-species matrices for the page, group by species, drop unused split halves.
 `DistMat` is 2 n² f64, plus a subset copy, `one_minus_ani`, and squared and centred PCoA matrices: about 7 n² f64 arrays, roughly 5.6 GB at 10k samples (not 800 MB). NJ is cubic: 1.3 s at 1,500 and 13 s at 3,000 projects to about 8 min at 10k. Compute n_max for a 4 GB / 60 s budget on paper, then refactor candidates (condensed f32 triangle, one distance only, RapidNJ or a faster NJ, partial/randomized eigen) and benchmark those.
 
 ### A2. FracMinHash validity (predict first)

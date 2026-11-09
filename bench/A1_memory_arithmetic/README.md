@@ -41,3 +41,23 @@ Neighbour-joining is cubic. Measured on structureless synthetic hash sets (`docs
 ## To measure on HPCC (T4)
 
 `/usr/bin/time -v` around `popsketch run --from-sketches` on one real set (C. neoformans 300 samples, and replicated sets at 1k, 2k, 5k) with `--no-pca` on and off; compare peak RSS with the table above. Expectation to be falsified: peak RSS is within 30% of 7 x 8 n^2 plus the sketches.
+
+---
+
+# Measured (2026-11-08, HPCC; `bench/A1_measure/`) and what it changes
+
+**The arithmetic above does not predict the memory use, and it hides a speed cliff.** Results are in `../A1_measure/results.tsv` (peak RSS and wall time of `popsketch run --from-sketches`, `--flagged mark` so every sample is in the matrices) and `../A1_measure/timings.txt` (seconds per stage, from the `stage` lines the native build now prints unless `-q`).
+
+| set | samples | variant | peak RSS | wall |
+|---|---|---|---|---|
+| C. neoformans | 300 | no ordination / ordination | 1.9 / 2.0 GB | 6 / 7 s |
+| all 7 SRA sets | 2,002 | no ordination / ordination | 17.0 / 19.2 GB | 118 / 214 s |
+| the 2,002 repeated 2x | 4,004 | no ordination / ordination | 28.2 / 28.2 GB at the limit | over 1,500 s: timed out (also over 2,400 s in the staged run) |
+| the 2,002 repeated 3x | 6,006 | no ordination | 42.0 GB at the limit | over 1,500 s: timed out |
+
+1. **Memory is the sketches, not the n x n matrices.** The 7 dense matrices predicted 0.22 GB at 2,002 samples; the run used 17 GB. Peak RSS divided by samples is 6.2 MB (300), 8.5 MB (2,002), about 7 MB at the timeouts: about 7-9 MB per sample, close to the on-disk size of a sample's sketches (11.4 MB average with halves, 4.5 MB for the whole sketch; sizes per set in the commit message of this PR). What exactly is held per sample was not read from the code; the figure is from the measurement. A 64 GB node holds about 7,500-9,000 samples of this kind. The matrix refactor (condensed f32) therefore saves little at these sizes and is low priority; dropping the split halves for samples that do not feed the noise floor, and the compact format, matter far more.
+2. **Time: all-pairs distances dominate, then the tree.** Real samples, no ordination (`timings.txt`): 1,200 samples: audit 9.6 s, distances 50.7 s, tree 2.4 s; 2,002 samples: audit 17.7 s, distances 154 s, tree 12.0 s. The distance stage grows about as n^2.2, the tree about n^3.2 (the earlier 13 s at 3,000 was on synthetic data; real data was 12 s at 2,002). Clustering, noise floor and the included-set matrix are under 3 s.
+3. **The cliff above about 2,000 pooled samples is the bitset limit, by the code, not yet confirmed by a measurement.** `dist::compute` uses a presence bitset (cost about n^2 x words) only while its matrix (n x variable hashes / 8 bytes) is at most `BITSET_MAX_BYTES` = 4 GiB; above that it falls back to `compute_merge`, whose cost per pair is the whole set size. Seven species pooled have millions of variable hashes (hashes seen in 2 or more but not all samples), so n = 2,002 fits and n = 4,004 does not, and the 4,004 run spent its 2,400 s in the distance stage (the audit stage finished in 41 s and no later stage printed). A single species has far fewer variable hashes, so this limit is far away for per-species sets; pooling species is what triggers it. To confirm: print the method and the number of variable hashes in the `distances_all` stage line, or raise the limit and rerun n = 4,004.
+4. **Caveats.** The 4,004 and 6,006 sets are the 2,002 real sketches repeated (distance 0 to the original), so they test memory and the algorithm switch, not realistic clustering or tree time. The timeouts mean "over the limit", not a measured time.
+
+**What this means for the plan:** the browser and database limit is sketch residency, so the page should not load per-sample sketches for large sets (precomputed per-species matrices and ordinations, as already decided in `docs/plan_feasibility_tests.md` T5); per-species analysis is also the fast path for distances, which supports grouping by species before ordinating (T6); and the first code change worth making is not a matrix refactor but (a) not holding the split halves, and (b) reporting the distance method in the stage line.
