@@ -8,7 +8,7 @@ Inputs (from parse_fusariumid.py and run_markers.sbatch):
 
 Method
     distance between two sequences = (mismatches + gap openings) / aligned length of their best HSP, kept when the HSP
-    covers >= 200 bp and >= 50% of the shorter sequence. A query is compared only with *other strains*. The call is the
+    covers >= 200 bp (no coverage floor: see MIN_COV). A query is compared only with *other strains*. The call is the
     species of the nearest neighbour(s): correct (one species, the right one), ambiguous (tie between the right and
     another species), wrong (the right species is not among the nearest), no hit. A query is answerable when its species
     has >= 2 strains with data for the loci in question; singletons are reported apart (they can only be "novel").
@@ -28,7 +28,10 @@ import os
 import sys
 
 MIN_ALN = 200
-MIN_COV = 0.5
+# No coverage floor by default: some FusariumID records join two amplicon regions (rpb2 5f2-7cr + 7cf-11ar), so the best
+# HSP between two such records of one species can cover < 50% of the record. A 0.5 floor dropped exactly those
+# conspecific pairs (rpb2 single-locus 21% wrong; multilocus sets with rpb2 collapsed). Distance is over the overlap.
+MIN_COV = 0.0
 TOL = 1e-12
 
 
