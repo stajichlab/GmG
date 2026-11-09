@@ -46,6 +46,10 @@ def style(ax, title, xlabel, ylabel):
     ax.set_ylabel(ylabel, color=INK2, fontsize=10)
 
 
+def legend_below(ax, n):
+    ax.legend(frameon=False, fontsize=8.5, labelcolor=INK2, loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=n)
+
+
 def save(fig, name):
     fig.tight_layout()
     fig.savefig(os.path.join(OUT, name), dpi=150, facecolor=SURFACE)
@@ -74,7 +78,7 @@ def loci_accuracy():
 def nearest_diffs():
     r = rows(os.path.join(F1, "markers_nearest_species.tsv"))
     sets = ["tef1", "tef1+rpb2", "tef1+rpb1+rpb2", "tef1+rpb1+rpb2+CaM+tub2"]
-    fig, ax = plt.subplots(figsize=(7.5, 4.6))
+    fig, ax = plt.subplots(figsize=(7.5, 5.2))
     for i, s in enumerate(sets):
         d = sorted(int(x["min_diffs_to_other_species"]) for x in r if x["set"] == s)
         xs = list(range(0, 61))
@@ -88,19 +92,20 @@ def nearest_diffs():
     style(ax, "How little sequence separates a species from its closest relative",
           "differences (mismatches + gap openings) to the nearest strain of another species",
           "species within that many differences")
-    ax.legend(frameon=False, fontsize=8.5, loc="lower right", labelcolor=INK2)
+    legend_below(ax, 2)
     save(fig, "nearest_species_diffs.png")
 
 
 def kmer_scaled():
     r = rows(os.path.join(F1, "markers_kmer.tsv"))
     loci = ["tef1", "rpb2", "rpb1", "ITS"]
-    fig, ax = plt.subplots(figsize=(7.5, 4.6))
+    fig, ax = plt.subplots(figsize=(7.5, 5.0))
+    dy = {"rpb2": 6, "rpb1": -7}
     for i, l in enumerate(loci):
         pts = sorted((float(x["mean_hashes_per_seq"]), float(x["accuracy"])) for x in r if x["locus"] == l)
         ax.plot([p[0] for p in pts], [p[1] for p in pts], color=S[i], linewidth=2, linestyle=DASH[i],
                 marker=MARK[i], markersize=8, markeredgecolor=SURFACE, markeredgewidth=2, label=l)
-        ax.annotate(l, pts[-1], xytext=(6, 0), textcoords="offset points", va="center", color=INK2, fontsize=9)
+        ax.annotate(l, pts[-1], xytext=(6, dy.get(l, 0)), textcoords="offset points", va="center", color=INK2, fontsize=9)
     ax.set_xscale("log")
     ax.set_ylim(0.2, 1)
     ax.set_yticks([0.2, 0.4, 0.6, 0.8, 1.0], ["20%", "40%", "60%", "80%", "100%"])
@@ -108,9 +113,9 @@ def kmer_scaled():
     ax.annotate("tef1 at genome-index\nscaled 1000: ~0.6 hashes", (0.64, 0.3), xytext=(6, 0), textcoords="offset points",
                 color=INK2, fontsize=8)
     ax.set_xlim(0.4, 2500)
-    style(ax, "k-mer nearest neighbour on one marker: how many hashes are needed",
+    style(ax, "One marker by k-mers: hashes needed per sequence",
           "k-mer hashes kept per sequence (FracMinHash scaled 1, 3, 10, 30, 100; log scale)", "species accuracy (LOO)")
-    ax.legend(frameon=False, fontsize=9, loc="lower right", labelcolor=INK2)
+    legend_below(ax, 4)
     save(fig, "kmer_hashes.png")
 
 
@@ -119,21 +124,22 @@ def marker_mode_cutoff():
     c = [float(x["cutoff"]) for x in r]
     series = [("species precision", "species_precision"), ("species called", "species_called"),
               ("absent species named (false call)", "absent_false_call")]
-    fig, ax = plt.subplots(figsize=(7.5, 4.6))
+    fig, ax = plt.subplots(figsize=(7.5, 5.0))
     for i, (lab, k) in enumerate(series):
         ys = [float(x[k]) for x in r]
         ax.plot(c, ys, color=S[i], linewidth=2, linestyle=DASH[i], marker=MARK[i], markersize=8,
                 markeredgecolor=SURFACE, markeredgewidth=2, label=lab)
-        ax.annotate(lab, (c[-1], ys[-1]), xytext=(6, 0), textcoords="offset points", va="center", color=INK2,
-                    fontsize=8.5)
+        ax.annotate(lab.split(" (")[0], (c[-1], ys[-1]), xytext=(6, 0), textcoords="offset points", va="center",
+                    color=INK2, fontsize=8.5)
     ax.axvline(0.995, color=INK2, linewidth=1, linestyle=":")
     ax.annotate("shipped: 0.995", (0.995, 0.9), xytext=(-70, 0), textcoords="offset points", color=INK2, fontsize=8.5)
     ax.set_ylim(0, 1.02)
-    ax.set_xlim(0.979, 1.0085)
+    ax.set_xlim(0.979, 1.0115)
+    ax.set_xticks([0.98, 0.985, 0.99, 0.995, 1.0])
     ax.set_yticks([0, 0.25, 0.5, 0.75, 1.0], ["0%", "25%", "50%", "75%", "100%"])
-    style(ax, "Marker mode: choosing the species ANI cutoff (3,408 held-out marker queries)",
-          "species ANI cutoff", "fraction of queries")
-    ax.legend(frameon=False, fontsize=8.5, loc="center left", labelcolor=INK2)
+    style(ax, "Marker mode: choosing the species ANI cutoff",
+          "species ANI cutoff (3,408 held-out marker queries)", "fraction of queries")
+    legend_below(ax, 3)
     save(fig, "marker_mode_cutoff.png")
 
 
@@ -142,7 +148,7 @@ def genome_vs_markers():
     g = sorted(g, key=lambda x: int(x["median_query_hashes"]))
     k = sorted((float(x["mean_hashes_per_seq"]), float(x["accuracy"])) for x in rows(os.path.join(F1, "markers_kmer.tsv"))
                if x["locus"] == "tef1")
-    fig, ax = plt.subplots(figsize=(7.5, 4.6))
+    fig, ax = plt.subplots(figsize=(7.5, 5.0))
     gx = [int(x["median_query_hashes"]) for x in g]
     gy = [float(x["fid_top_correct"]) for x in g]
     ax.plot(gx, gy, color=S[0], linewidth=2, marker=MARK[0], markersize=8, markeredgecolor=SURFACE, markeredgewidth=2,
@@ -156,9 +162,9 @@ def genome_vs_markers():
     ax.set_xlim(4, 2e5)
     ax.set_ylim(0.6, 1)
     ax.set_yticks([0.6, 0.7, 0.8, 0.9, 1.0], ["60%", "70%", "80%", "90%", "100%"])
-    style(ax, "Species accuracy vs hashes per query: genomes have information to spare",
-          "k-mer hashes per query (log scale)", "nearest reference is the same FusariumID species")
-    ax.legend(frameon=False, fontsize=9, loc="lower right", labelcolor=INK2)
+    style(ax, "Species accuracy vs hashes per query",
+          "k-mer hashes per query (log scale)", "nearest reference is the same species")
+    legend_below(ax, 2)
     save(fig, "genome_vs_marker_hashes.png")
 
 
