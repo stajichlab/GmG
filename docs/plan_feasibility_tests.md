@@ -73,6 +73,22 @@ What it says: only the clonal sets collapse a lot at a tight threshold (C. neofo
 
 What it changes: the bitset limit is far from these set sizes, so the n cap can be set by what the plots can show, not by the 4 GiB limit; the limit is about n = 12,000 at the current V (an upper estimate, since V grows). Collapse is still useful for clarity and for the label tests. Note `--max-samples` defaults to 1,500 and refuses larger sets. Code added: `dist::compute_planned` reports the method and V (printed on the `distances_all` stage line), and `--bitset-max-gib` sets the limit.
 
+**D1c (`bench/D1_collapse/species_threshold.tsv`, job 31884111): the per-species threshold.** The floor from 20 samples was replaced by the split-half distance of every sample (the halves are on disk for all of them), and each sample's distance to its nearest neighbour was added.
+
+| species (n) | median split-half | p90 split-half | nearest-neighbour distance p10 / p50 / p90 | reps at 0.5 x median | at median | at p90 |
+|---|---|---|---|---|---|---|
+| z_tritici (259) | 0.0019 | 0.0048 | 0.0001 / 0.0116 / 0.0136 | 198 | 192 | 188 |
+| c_neoformans (268) | 0.0003 | 0.0017 | 0.00003 / 0.0001 / 0.0033 | 149 | 94 | 51 |
+| c_beticola (282) | 0.0014 | 0.0034 | 0.00004 / 0.0002 / 0.0028 | 171 | 156 | 63 |
+| p_nodorum (265) | 0.0022 | 0.0046 | 0.0001 / 0.0027 / 0.0055 | 196 | 188 | 124 |
+| b_cinerea (294) | 0.0014 | 0.0029 | 0.0001 / 0.0003 / 0.0032 | 182 | 177 | 133 |
+| n_discreta (203) | 0.0022 | 0.0039 | 0.0002 / 0.0009 / 0.0022 | 128 | 59 | 12 |
+| p_oryzae (251) | 0.0022 | 0.0040 | 0.0001 / 0.0006 / 0.0018 | 118 | 66 | 19 |
+
+Reading: the species fall in two kinds. In z_tritici and p_nodorum the typical sample has no relative within noise (nearest-neighbour p50 is 0.003-0.012, above the floor), so collapse removes only 20-30% whatever the rule; these are recombining populations and collapse is not the tool. In c_neoformans, c_beticola, b_cinerea, n_discreta and p_oryzae the typical sample has a relative at or below the floor (clonal or outbreak sets), and the rule decides the result. The p90 rule collapses n_discreta to 12 and p_oryzae to 19, which discards structure that is probably real (the p90 is set by a few low-coverage samples).
+
+**Rule (proposed, not yet validated): collapse threshold = 1 - median split-half distance of that species, computed from all samples that carry halves, with the p90 shown as the looser alternative.** Pairs closer than the typical technical-replicate distance cannot be told apart by this sketch, so one representative stands for them. The halves have half the coverage, so the real noise between full sketches is lower and the rule errs toward merging a little too much. **Validation still to do:** compare a full sketch with its own lower-depth subsamples (the `depth/` sets hold the same runs at several depths) to see how the real distance of a sample to itself depends on coverage; a per-pair rule using each sample's own split-half distance is the refinement if the median proves too blunt.
+
 ### A2. FracMinHash validity (predict first)
 At scaled 200 a 20 Mb genome gives about 100k hashes; sampling SD of 1 - ANI near 0.001 is about 2e-5, far below the measured floors (0.001-0.0025). So floors come from reads, errors and the cutoff, not from sampling. At the other end, below about 80% ANI, C^(1/21) rests on a handful of shared hashes (saturation). Predict both regimes; run only scaled 200 and 1000 at k=21 unless the prediction fails (so k=17/25 are dropped).
 
