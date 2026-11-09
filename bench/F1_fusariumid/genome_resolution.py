@@ -194,7 +194,19 @@ def main():
         for r in read_tsv(ap_):
             pairs.append((r["a"], r["b"], float(r["ani"])))
     gap_rows, sp_pairs = [], {}
-    for name, labels in (("ncbi", ncbi), ("fid", fid)):
+    sets = [("ncbi", ncbi), ("fid", fid)]
+    recp = os.path.join(a.w, "fid", "records.tsv")
+    if os.path.exists(recp):  # fid labels split by the species complex of the (first) FusariumID name
+        cx = {}
+        for r in read_tsv(recp):
+            cx.setdefault(r["species"], r["complex"].split(" (")[0])
+        groups = collections.defaultdict(dict)
+        for g, l in fid.items():
+            groups[cx.get(l.split(";")[0], "?")][g] = l
+        for c, labs in sorted(groups.items(), key=lambda kv: -len(kv[1])):
+            if len(labs) >= 20:
+                sets.append((f"fid:{c}", labs))
+    for name, labels in sets:
         rows = ani_gap(pairs, labels)
         if not rows:
             continue
