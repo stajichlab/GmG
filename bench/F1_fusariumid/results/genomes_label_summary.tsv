@@ -1,0 +1,50 @@
+item	key	n
+agreement	differs	1123
+agreement	same	897
+agreement	no_fid_call	52
+agreement	ncbi_unnamed	38
+agreement	tie_includes_ncbi	1
+fid_labelled	all	2059
+fid_labelled	tie	143
+distinct_labels	ncbi	301
+distinct_labels	fid	281
+relabel	Fusarium oxysporum -> Fusarium cugenangense	138
+relabel	Fusarium oxysporum -> Fusarium fabacearum	121
+relabel	Fusarium oxysporum -> Fusarium fabacearum;Fusarium wimaladesilvae	93
+relabel	Fusarium oxysporum -> Fusarium nirenbergiae	81
+relabel	Fusarium oxysporum -> Fusarium odoratissimum	42
+relabel	Fusarium proliferatum -> Fusarium annulatum	37
+relabel	Fusarium oxysporum -> Fusarium languescens	33
+relabel	Fusarium oxysporum -> Fusarium glycines	33
+relabel	Fusarium oxysporum -> Fusarium curvatum	25
+relabel	Fusarium oxysporum -> Fusarium liaoningense	17
+relabel	Fusarium oxysporum -> Fusarium gossypinum	14
+relabel	Fusarium oxysporum -> Fusarium veterinarium	13
+relabel	Fusarium oxysporum -> Fusarium semanoti	13
+relabel	Fusarium oxysporum -> Fusarium phialophorum	11
+relabel	Fusarium oxysporum -> Fusarium cugenangense;Fusarium liaoningense	11
+relabel	Fusarium oxysporum -> Fusarium fabacearum;Fusarium inflexum	10
+relabel	Fusarium oxysporum -> Fusarium vanleeuwenii	10
+relabel	Fusarium oxysporum -> Fusarium triseptatum	10
+relabel	Fusarium cf. solani -> Neocosmospora solani	10
+relabel	Fusarium cf. falciforme -> Neocosmospora falciformis	10
+relabel	Fusarium oxysporum -> Fusarium sp. 3 in FOSC (Crous et al. 2021)	10
+relabel	Fusarium solani -> Neocosmospora solani	10
+relabel	Fusarium virguliforme -> Neocosmospora phaseoli	9
+relabel	Fusarium oxysporum -> Fusarium irdabamae	9
+relabel	Fusarium falciforme -> Neocosmospora falciformis	9
+relabel	Fusarium oxysporum -> Fusarium duoseptatum	8
+relabel	Fusarium lateritium -> Fusarium juglandicola	8
+relabel	Fusarium oxysporum -> Fusarium sp. 1 in FOSC (Crous et al. 2021)	7
+relabel	Neocosmospora sp. B6999-4 -> Neocosmospora euwallaceae	7
+relabel	Neocosmospora sp. B6999-1 -> Neocosmospora tumidisperma	7
+relabel	Fusarium oxysporum -> Fusarium grosmichelii	6
+relabel	Fusarium oxysporum -> Fusarium libertatis	5
+relabel	Fusarium ambrosium -> Neocosmospora ambrosia	5
+relabel	Fusarium euwallaceae -> Neocosmospora euwallaceae	5
+relabel	Fusarium oxysporum -> Fusarium curvatum;Fusarium nirenbergiae	5
+relabel	Fusarium oxysporum -> Fusarium sp. 2 in FOSC (Crous et al. 2021)	5
+relabel	Fusarium equiseti -> Fusarium flagelliforme	5
+relabel	Fusarium solani -> Neocosmospora falciformis	5
+relabel	Fusarium cf. solani -> Neocosmospora oligoseptata	5
+relabel	Fusarium tucumaniae -> Neocosmospora phaseoli	4

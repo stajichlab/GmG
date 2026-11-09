@@ -1,0 +1,61 @@
+species_a	species_b	max_genome_ani
+Fusarium cugenangense	Fusarium sp. 2 in FOSC (Crous et al. 2021)	0.9999
+Fusarium nirenbergiae	Fusarium oxysporum	0.9999
+Fusarium cugenangense	Fusarium cugenangense;Fusarium sp. 2 in FOSC (Crous et al. 2021)	0.9999
+Fusarium cugenangense	Fusarium cugenangense;Fusarium liaoningense	0.9998
+Neocosmospora oligoseptata	Neocosmospora papillata	0.9998
+Fusarium carminascens;Fusarium duoseptatum;Fusarium fabacearum;Fusarium glycines;Fusarium scabridum	Fusarium fabacearum;Fusarium wimaladesilvae	0.9998
+Fusarium amerosporum	Fusarium elaeidis	0.9994
+Neocosmospora kuroshio	Neocosmospora papillata	0.9992
+Fusarium agrestense;Fusarium carminascens;Fusarium fabacearum;Fusarium glycines;Fusarium scabridum;Fusarium sp. 1 in FOSC (Crous et al. 2021)	Fusarium fabacearum	0.9988
+Fusarium fabacearum	Fusarium fabacearum;Fusarium wimaladesilvae	0.9988
+Fusarium agrestense;Fusarium carminascens;Fusarium fabacearum;Fusarium scabridum	Fusarium fabacearum	0.9987
+Fusarium agrestense;Fusarium fabacearum;Fusarium glycines;Fusarium gossypinum;Fusarium scabridum	Fusarium fabacearum	0.9986
+Fusarium fabacearum;Fusarium gossypinum	Fusarium fabacearum;Fusarium wimaladesilvae	0.9977
+Fusarium agrestense;Fusarium carminascens;Fusarium duoseptatum;Fusarium fabacearum;Fusarium glycines;Fusarium gossypinum;Fusarium scabridum	Fusarium fabacearum	0.9977
+Fusarium agrestense;Fusarium carminascens;Fusarium fabacearum;Fusarium glycines;Fusarium scabridum	Fusarium fabacearum	0.9976
+Fusarium agrestense;Fusarium carminascens;Fusarium fabacearum;Fusarium glycines	Fusarium fabacearum	0.9973
+Fusarium carminascens;Fusarium fabacearum;Fusarium gossypinum	Fusarium fabacearum	0.9973
+Fusarium cugenangense	Fusarium hoodiae	0.9970
+Fusarium fabacearum	Fusarium inflexum	0.9969
+Fusarium agrestense;Fusarium fabacearum;Fusarium glycines	Fusarium fabacearum	0.9968
+Fusarium agrestense;Fusarium carminascens;Fusarium fabacearum;Fusarium glycines;Fusarium scabridum;Fusarium sp. 1 in FOSC (Crous et al. 2021)	Fusarium agrestense;Fusarium carminascens;Fusarium fabacearum;Fusarium scabridum	0.9967
+Fusarium cugenangense	Fusarium sp. 1 in FOSC (Crous et al. 2021)	0.9963
+Fusarium agrestense;Fusarium carminascens;Fusarium fabacearum;Fusarium glycines;Fusarium scabridum;Fusarium sp. 1 in FOSC (Crous et al. 2021)	Fusarium carminascens;Fusarium fabacearum;Fusarium gossypinum	0.9962
+Fusarium amerosporum	Fusarium fabacearum	0.9961
+Fusarium liaoningense	Fusarium sp. 1 in FOSC (Crous et al. 2021)	0.9961
+Fusarium cugenangense	Fusarium liaoningense	0.9960
+Fusarium fabacearum;Fusarium wimaladesilvae	Fusarium sp. 3 in FOSC (Crous et al. 2021)	0.9960
+Fusarium agrestense;Fusarium carminascens;Fusarium duoseptatum;Fusarium fabacearum;Fusarium glycines;Fusarium gossypinum;Fusarium scabridum	Fusarium agrestense;Fusarium carminascens;Fusarium fabacearum;Fusarium glycines;Fusarium scabridum	0.9960
+Fusarium cugenangense;Fusarium liaoningense	Fusarium sp. 1 in FOSC (Crous et al. 2021)	0.9960
+Fusarium cugenangense;Fusarium liaoningense	Fusarium liaoningense	0.9958
+Fusarium agrestense;Fusarium carminascens;Fusarium fabacearum;Fusarium glycines	Fusarium agrestense;Fusarium carminascens;Fusarium fabacearum;Fusarium glycines;Fusarium scabridum;Fusarium sp. 1 in FOSC (Crous et al. 2021)	0.9957
+Fusarium elaeidis	Fusarium grosmichelii	0.9956
+Fusarium phialophorum	Fusarium semanoti	0.9954
+Fusarium fabacearum	Fusarium gossypinum	0.9953
+Fusarium agrestense;Fusarium carminascens;Fusarium fabacearum;Fusarium glycines;Fusarium scabridum;Fusarium sp. 1 in FOSC (Crous et al. 2021)	Fusarium fabacearum;Fusarium wimaladesilvae	0.9953
+Fusarium cugenangense;Fusarium sp. 2 in FOSC (Crous et al. 2021)	Fusarium sp. 1 in FOSC (Crous et al. 2021)	0.9952
+Fusarium agrestense;Fusarium duoseptatum;Fusarium fabacearum;Fusarium glycines;Fusarium scabridum	Fusarium fabacearum;Fusarium wimaladesilvae	0.9952
+Fusarium sp. 1 in FOSC (Crous et al. 2021)	Fusarium sp. 2 in FOSC (Crous et al. 2021)	0.9951
+Fusarium idabrowneae	Fusarium nirenbergiae	0.9950
+Fusarium agrestense;Fusarium carminascens;Fusarium fabacearum;Fusarium scabridum	Fusarium fabacearum;Fusarium wimaladesilvae	0.9949
+Fusarium fabacearum;Fusarium wimaladesilvae	Fusarium glycines	0.9947
+Fusarium agrestense	Fusarium fabacearum	0.9944
+Fusarium agrestense;Fusarium carminascens;Fusarium fabacearum;Fusarium glycines;Fusarium scabridum;Fusarium sp. 1 in FOSC (Crous et al. 2021)	Fusarium amerosporum	0.9943
+Fusarium agrestense;Fusarium carminascens;Fusarium fabacearum;Fusarium glycines	Fusarium fabacearum;Fusarium wimaladesilvae	0.9943
+Fusarium odoratissimum	Fusarium phialophorum	0.9943
+Fusarium sp. 1 in FOSC (Crous et al. 2021)	Fusarium sp. 3 in FOSC (Crous et al. 2021)	0.9941
+Fusarium cugenangense;Fusarium sp. 2 in FOSC (Crous et al. 2021)	Fusarium liaoningense	0.9939
+Neocosmospora kunmingensis;Neocosmospora solani	Neocosmospora solani	0.9938
+Fusarium agrestense	Fusarium gossypinum	0.9938
+Fusarium joanfreemaniae	Fusarium sacchari	0.9937
+Fusarium odoratissimum	Fusarium semanoti	0.9936
+Fusarium languescens	Fusarium queenslandicum	0.9934
+Fusarium fabacearum	Fusarium glycines	0.9934
+Fusarium cugenangense;Fusarium liaoningense	Fusarium cugenangense;Fusarium sp. 2 in FOSC (Crous et al. 2021)	0.9933
+Fusarium liaoningense	Fusarium sp. 2 in FOSC (Crous et al. 2021)	0.9931
+Fusarium equiseti	Fusarium equiseti;Fusarium neoequiseti	0.9931
+Fusarium carminascens;Fusarium fabacearum;Fusarium gossypinum	Fusarium fabacearum;Fusarium wimaladesilvae	0.9931
+Fusarium austroamericanum	Fusarium cortaderiae	0.9930
+Fusarium cugenangense;Fusarium liaoningense	Fusarium sp. 2 in FOSC (Crous et al. 2021)	0.9929
+Fusarium duoseptatum;Fusarium fabacearum;Fusarium glycines;Fusarium scabridum	Fusarium fabacearum;Fusarium wimaladesilvae	0.9929

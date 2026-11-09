@@ -1,0 +1,101 @@
+scaled	complex	n	top_correct	gated_called	gated_precision	los_above_gate
+1000	F. oxysporum species complex	801	0.8926	0.8639	0.9263	0.0849
+1000	F. sambucinum species complex	578	0.9965	0.9689	1.0000	0.0813
+1000	F. fujikuroi species complex	240	0.9708	0.7667	1.0000	0.4625
+1000	Neocosmospora	162	0.9383	0.6296	0.9804	0.1049
+1000	F. incarnatum-equiseti species complex	49	1.0000	0.5918	1.0000	0.3469
+1000	F. tricinctum species complex	25	0.9600	0.2800	1.0000	0.0000
+1000	F. nisikadoi species complex	16	1.0000	0.8125	1.0000	0.6875
+1000	F. redolens species complex	16	1.0000	0.3750	1.0000	0.0000
+1000	F. citricola species complex	8	1.0000	0.5000	1.0000	0.0000
+1000	F. lateritium species complex	6	1.0000	0.0000		0.0000
+1000	Cyanonectria	4	1.0000	1.0000	1.0000	0.0000
+1000	F. falsibabinda species complex	3	1.0000	0.0000		0.0000
+1000	Luteonectria	3	1.0000	0.6667	1.0000	0.0000
+1000	F. chlamydosporum species complex	2	1.0000	1.0000	1.0000	0.0000
+1000	F. newnesense species complex	2	1.0000	0.0000		0.0000
+1000	F. buharicum species complex	2	1.0000	0.0000		0.0000
+1000	Bisifusarium	2	1.0000	0.5000	1.0000	0.0000
+1000	F. burgessii species complex	2	1.0000	0.0000		0.0000
+1000	F. torreyae species complex	2	1.0000	1.0000	1.0000	1.0000
+1000	Rectifusarium	2	1.0000	1.0000	1.0000	0.0000
+10000	F. oxysporum species complex	801	0.8889	0.8627	0.9233	0.0824
+10000	F. sambucinum species complex	578	0.9965	0.9706	1.0000	0.0796
+10000	F. fujikuroi species complex	240	0.9667	0.7792	1.0000	0.4750
+10000	Neocosmospora	162	0.9383	0.6173	0.9800	0.1111
+10000	F. incarnatum-equiseti species complex	49	1.0000	0.6735	1.0000	0.3878
+10000	F. tricinctum species complex	25	0.9600	0.2800	1.0000	0.0000
+10000	F. nisikadoi species complex	16	1.0000	0.8125	1.0000	0.6250
+10000	F. redolens species complex	16	1.0000	0.3750	1.0000	0.0000
+10000	F. citricola species complex	8	1.0000	0.6250	1.0000	0.0000
+10000	F. lateritium species complex	6	1.0000	0.0000		0.0000
+10000	Cyanonectria	4	1.0000	1.0000	1.0000	0.0000
+10000	F. falsibabinda species complex	3	1.0000	0.0000		0.0000
+10000	Luteonectria	3	1.0000	0.6667	1.0000	0.0000
+10000	F. chlamydosporum species complex	2	1.0000	1.0000	1.0000	0.0000
+10000	F. newnesense species complex	2	1.0000	0.0000		0.0000
+10000	F. buharicum species complex	2	1.0000	0.0000		0.0000
+10000	Bisifusarium	2	1.0000	0.5000	1.0000	0.0000
+10000	F. burgessii species complex	2	1.0000	0.0000		0.0000
+10000	F. torreyae species complex	2	1.0000	1.0000	1.0000	1.0000
+10000	Rectifusarium	2	1.0000	1.0000	1.0000	0.0000
+2000	F. oxysporum species complex	801	0.8926	0.8639	0.9263	0.0824
+2000	F. sambucinum species complex	578	0.9965	0.9723	1.0000	0.0813
+2000	F. fujikuroi species complex	240	0.9708	0.7667	1.0000	0.4625
+2000	Neocosmospora	162	0.9383	0.6235	0.9802	0.0988
+2000	F. incarnatum-equiseti species complex	49	1.0000	0.6327	1.0000	0.3673
+2000	F. tricinctum species complex	25	0.9600	0.2800	1.0000	0.0000
+2000	F. nisikadoi species complex	16	1.0000	0.8125	1.0000	0.6875
+2000	F. redolens species complex	16	1.0000	0.3750	1.0000	0.0000
+2000	F. citricola species complex	8	1.0000	0.5000	1.0000	0.0000
+2000	F. lateritium species complex	6	1.0000	0.0000		0.0000
+2000	Cyanonectria	4	1.0000	1.0000	1.0000	0.0000
+2000	F. falsibabinda species complex	3	1.0000	0.0000		0.0000
+2000	Luteonectria	3	1.0000	0.6667	1.0000	0.0000
+2000	F. chlamydosporum species complex	2	1.0000	1.0000	1.0000	0.0000
+2000	F. newnesense species complex	2	1.0000	0.0000		0.0000
+2000	F. buharicum species complex	2	1.0000	0.0000		0.0000
+2000	Bisifusarium	2	1.0000	0.5000	1.0000	0.0000
+2000	F. burgessii species complex	2	1.0000	0.0000		0.0000
+2000	F. torreyae species complex	2	1.0000	1.0000	1.0000	1.0000
+2000	Rectifusarium	2	1.0000	1.0000	1.0000	0.0000
+20000	F. oxysporum species complex	801	0.8876	0.8702	0.9225	0.0836
+20000	F. sambucinum species complex	578	0.9965	0.9706	1.0000	0.0796
+20000	F. fujikuroi species complex	240	0.9792	0.7833	1.0000	0.4708
+20000	Neocosmospora	162	0.9383	0.6358	0.9806	0.1173
+20000	F. incarnatum-equiseti species complex	49	1.0000	0.6122	1.0000	0.3878
+20000	F. tricinctum species complex	25	0.9600	0.2800	1.0000	0.0000
+20000	F. nisikadoi species complex	16	1.0000	0.7500	1.0000	0.6250
+20000	F. redolens species complex	16	1.0000	0.3750	1.0000	0.0000
+20000	F. citricola species complex	8	1.0000	0.6250	1.0000	0.0000
+20000	F. lateritium species complex	6	1.0000	0.0000		0.0000
+20000	Cyanonectria	4	1.0000	1.0000	1.0000	0.0000
+20000	F. falsibabinda species complex	3	1.0000	0.0000		0.0000
+20000	Luteonectria	3	1.0000	0.6667	1.0000	0.0000
+20000	F. chlamydosporum species complex	2	1.0000	1.0000	1.0000	0.0000
+20000	F. newnesense species complex	2	1.0000	0.0000		0.0000
+20000	F. buharicum species complex	2	1.0000	0.0000		0.0000
+20000	Bisifusarium	2	1.0000	0.5000	1.0000	0.0000
+20000	F. burgessii species complex	2	1.0000	0.0000		0.0000
+20000	F. torreyae species complex	2	1.0000	1.0000	1.0000	1.0000
+20000	Rectifusarium	2	1.0000	1.0000	1.0000	0.0000
+50000	F. oxysporum species complex	801	0.8901	0.8702	0.9254	0.0824
+50000	F. sambucinum species complex	578	0.9965	0.9723	1.0000	0.0986
+50000	F. fujikuroi species complex	240	0.9833	0.7833	1.0000	0.4708
+50000	Neocosmospora	162	0.9383	0.6111	0.9798	0.1111
+50000	F. incarnatum-equiseti species complex	49	0.9796	0.6531	1.0000	0.3878
+50000	F. tricinctum species complex	25	1.0000	0.2800	1.0000	0.0000
+50000	F. nisikadoi species complex	16	1.0000	0.7500	1.0000	0.5625
+50000	F. redolens species complex	16	1.0000	0.3750	1.0000	0.0000
+50000	F. citricola species complex	8	1.0000	0.6250	1.0000	0.0000
+50000	F. lateritium species complex	6	1.0000	0.0000		0.0000
+50000	Cyanonectria	4	1.0000	1.0000	1.0000	0.0000
+50000	F. falsibabinda species complex	3	1.0000	0.0000		0.0000
+50000	Luteonectria	3	1.0000	0.6667	1.0000	0.0000
+50000	F. chlamydosporum species complex	2	1.0000	1.0000	1.0000	0.0000
+50000	F. newnesense species complex	2	1.0000	0.0000		0.0000
+50000	F. buharicum species complex	2	1.0000	0.0000		0.0000
+50000	Bisifusarium	2	1.0000	0.5000	1.0000	0.0000
+50000	F. burgessii species complex	2	1.0000	0.0000		0.0000
+50000	F. torreyae species complex	2	1.0000	1.0000	1.0000	1.0000
+50000	Rectifusarium	2	1.0000	1.0000	1.0000	0.0000
