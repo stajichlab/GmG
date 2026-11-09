@@ -125,6 +125,20 @@ Against the file-order counts of D1e (mean 191, 86, 146, 184, 167, 52, 54; media
 
 **D1h (`bench/D1_collapse/label_purity.tsv`, job 31897598): why.** A cluster used as one point carries its representative's label. In the clonal sets most multi-sample clusters mix studies: n_discreta 20 of 24, p_oryzae 25 of 34, c_neoformans 20 of 31 (and 42-59% mix countries); 85-149 samples have a different study from their representative. In the recombining sets the share is 8-17% (study) except z_tritici (8 of 13). So **a label test on representatives misstates the labels, and the answer depends on which sample was chosen.** Decision taken in the code: the label tests (PERMANOVA, PERMDISP) use all samples, with `--strata` as before; collapse applies to the clusters, ordination, tree, DAPC and report only. The weighted PERMANOVA stays in the library (tested: weight 1 equals the unweighted test; weight k + 1 equals k exact copies) but the pipeline does not use it. Open: a label-aware collapse (never merge samples with different labels) if the ordination should also show the labels honestly; clusters that mix studies are themselves a finding (the same genotype in several studies) worth reporting in `collapse.tsv`.
 
+**D1i (`bench/D1_collapse/within_run.tsv`, job 31975419): the label-aware collapse (`--collapse-within`) and what it costs.** Representatives left under `--collapse mean`, with the number of clusters that mix studies in brackets:
+
+| species (n) | unrestricted | within study | within country | within study + country |
+|---|---|---|---|---|
+| z_tritici (259) | 196 (8) | 223 (0) | 198 (8) | 223 (0) |
+| c_neoformans (268) | 95 (20) | 147 (0) | 129 (11) | 147 (0) |
+| c_beticola (282) | 150 (4) | 152 (0) | 165 (0) | 165 (0) |
+| p_nodorum (265) | 185 (8) | 192 (0) | 197 (2) | 199 (0) |
+| b_cinerea (294) | 170 (8) | 178 (0) | 181 (0) | 181 (0) |
+| n_discreta (203) | 65 (20) | 124 (0) | 80 (15) | 131 (0) |
+| p_oryzae (251) | 69 (25) | 127 (0) | 134 (16) | 149 (0) |
+
+The restricted runs have no mixed clusters, as built (this checks the code on real data). The cost is concentrated where the sets are clonal: within study, n_discreta goes from 65 to 124 representatives, p_oryzae from 69 to 127, c_neoformans from 95 to 147 (+55 to +90%); in the recombining sets it is +1 to +14%. Country adds little beyond study in c_neoformans and z_tritici and more in p_oryzae (127 to 149). **Reading:** much of the near-identity in the clonal sets is across studies (the same genotype was sequenced by more than one project), so a label-aware collapse keeps roughly half of the samples there instead of a quarter to a third. That is the honest number if the ordination and tree are read together with study or country; the unrestricted collapse is the right choice only when the question is about genotypes and not about labels. `--collapse-within study` (or `study,country`) is therefore the recommended setting when labels are given; the label tests run on all samples either way. Open: report the clusters that span studies in `collapse.tsv` or the report (they are a finding on their own), and wire `--collapse` and `--collapse-within` into the web page.
+
 ### A2. FracMinHash validity (predict first)
 At scaled 200 a 20 Mb genome gives about 100k hashes; sampling SD of 1 - ANI near 0.001 is about 2e-5, far below the measured floors (0.001-0.0025). So floors come from reads, errors and the cutoff, not from sampling. At the other end, below about 80% ANI, C^(1/21) rests on a handful of shared hashes (saturation). Predict both regimes; run only scaled 200 and 1000 at k=21 unless the prediction fails (so k=17/25 are dropped).
 
