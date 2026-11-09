@@ -31,7 +31,7 @@ printf "set\tn_in\tdistance_line\twall_s\n" > "$OUTD/pooled.tsv"
 for set in all reps1 reps2 reps3; do
   n=$(ls "$W/$set"/*.json | wc -l)
   t0=$SECONDS
-  timeout 1500 "$BIN" run --from-sketches "$W/$set" -o "$W/out_$set" --no-pca --threads 8 2> "$W/$set.log"
+  timeout 1500 "$BIN" run --from-sketches "$W/$set" -o "$W/out_$set" --no-pca --threads 8 --max-samples 5000 2> "$W/$set.log"
   echo "exit $?" >> "$W/$set.log"; cp "$W/$set.log" "$OUTD/logs/pooled_$set.log"
   printf "%s\t%s\t%s\t%s\n" "$set" "$n" "$(grep -h 'distance method' "$W/$set.log" | tr '\n' ' ')" "$((SECONDS-t0))" >> "$OUTD/pooled.tsv"
 done
