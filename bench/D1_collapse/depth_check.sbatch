@@ -17,7 +17,7 @@ for slug in c_neoformans z_tritici; do
   W=$SCRATCH/d1d_$slug; rm -rf "$W"; mkdir -p "$W/pool"
   cp "$D/$slug/s1g/params.txt" "$W/pool/params.txt"
   for dep in s1g s2g s4g; do
-    "$BIN" run --from-sketches "$D/$slug/$dep" -o "$W/out_$dep" --flagged mark --min-cov 0 --no-pca --no-tree --floor-samples 100 --threads 8 -q || continue
+    "$BIN" run --from-sketches "$D/$slug/$dep" -o "$W/out_$dep" --max-bases 0 --flagged mark --min-cov 0 --no-pca --no-tree --floor-samples 100 --threads 8 -q || { echo "FAILED: $slug $dep" >&2; continue; }
     python3 -c "import json;f=json.load(open('$W/out_$dep/popsketch.json'))['noise_floor'];print('$slug','$dep',f['n'],f['median'],f['p90'],sep='\t')" >> "$OUTD/depth_floor.tsv"
     for j in "$D/$slug/$dep"/*.json; do
       id=$(basename "$j" .json); nid=${id}__$dep
@@ -25,6 +25,6 @@ for slug in c_neoformans z_tritici; do
       sed "s/\"id\":\"$id\"/\"id\":\"$nid\"/" "$j" > "$W/pool/$nid.json"
     done
   done
-  "$BIN" run --from-sketches "$W/pool" -o "$W/out_pool" --flagged mark --min-cov 0 --no-pca --no-tree --floor-samples 100 --threads 8 -q || continue
+  "$BIN" run --from-sketches "$W/pool" -o "$W/out_pool" --max-bases 0 --flagged mark --min-cov 0 --no-pca --no-tree --floor-samples 100 --threads 8 -q || { echo "FAILED: $slug pool" >&2; continue; }
   ( cd "$OUTD" && python3 depth_check.py "$slug" "$W/out_pool/ani.tsv" ) >> "$OUTD/depth_self.tsv"
 done
