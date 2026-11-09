@@ -33,3 +33,8 @@ rm -rf "$W/run_holdout"
 grep -E "Elapsed|Maximum resident" "$W/run_holdout.time"
 python3 -I "$S" score "$W/run_holdout/results.tsv" "$W/holdout/queries_truth.tsv" "$REPO/crates/gmg-core/data/species_complexes.tsv" \
   "$W/calibration.tsv" --meta "$W/holdout/meta.tsv"
+# the shipped threshold set (`--thresholds markers`): the held-out numbers as a user gets them
+rm -rf "$W/run_holdout_markers"
+$GMG --threads $T -q run "$W/holdout/queries" --index "$W/markers_holdout.gmgi" --thresholds markers -o "$W/run_holdout_markers" --no-report
+python3 -I "$S" score "$W/run_holdout_markers/results.tsv" "$W/holdout/queries_truth.tsv" "$REPO/crates/gmg-core/data/species_complexes.tsv" \
+  "$W/shipped.tsv" --meta "$W/holdout/meta.tsv"

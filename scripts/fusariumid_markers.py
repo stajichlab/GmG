@@ -123,6 +123,8 @@ def score(a):
         groups["all"].append((r, t))
     best = None
     for locus, items in sorted(groups.items(), key=lambda kv: (kv[0] == "all", kv[0])):
+        g_called = sum(bool(r["call_genus"]) for r, _ in items if "call_genus" in r)
+        g_right = sum(r["call_genus"] == t["species"].split()[0] for r, t in items if r.get("call_genus"))
         for c in CUTOFFS:
             n_ans = n_abs = called = right = false_abs = cx_called = cx_right = 0
             for r, t in items:
@@ -148,6 +150,7 @@ def score(a):
                 species_called=f"{called / max(n_ans, 1):.4f}", species_precision=f"{right / max(called, 1):.4f}",
                 absent_false_call=f"{false_abs / max(n_abs, 1):.4f}",
                 complex_calls=cx_called, complex_precision=f"{cx_right / max(cx_called, 1):.4f}",
+                genus_called=f"{g_called / max(len(items), 1):.4f}", genus_precision=f"{g_right / max(g_called, 1):.4f}",
             )
             rows.append(row)
             if locus == "all" and best is None and called and right / called >= a.min_precision:

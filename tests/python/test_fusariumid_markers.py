@@ -65,11 +65,11 @@ def test_score(tmp_path):
     (tmp_path / "meta.tsv").write_text("id\tspecies\nr1\tFusarium alpha\nr2\tFusarium oxysporum\n")
     (tmp_path / "cx.tsv").write_text("species\tcomplex\tcollapse\nFusarium oxysporum\tFOSC complex\t1\n")
     (tmp_path / "res.tsv").write_text(
-        "query_id\tcall_species\tani\ttop_hit_species\tspecies_complex\twithheld\n"
-        "q1\tFusarium alpha\t0.999\tFusarium alpha\t\t\n"
-        "q2\tFusarium beta\t0.991\tFusarium beta\t\t\n"
-        "q3\tFusarium alpha\t0.990\tFusarium alpha\t\t\n"
-        "q4\t\t0.999\tFusarium oxysporum\tFOSC complex\tspecies: species_complex (x)\n")
+        "query_id\tcall_genus\tcall_species\tani\ttop_hit_species\tspecies_complex\twithheld\n"
+        "q1\tFusarium\tFusarium alpha\t0.999\tFusarium alpha\t\t\n"
+        "q2\tFusarium\tFusarium beta\t0.991\tFusarium beta\t\t\n"
+        "q3\tFusarium\tFusarium alpha\t0.990\tFusarium alpha\t\t\n"
+        "q4\tFusarium\t\t0.999\tFusarium oxysporum\tFOSC complex\tspecies: species_complex (x)\n")
     a = argparse.Namespace(results=str(tmp_path / "res.tsv"), truth=str(tmp_path / "truth.tsv"),
                            complexes=str(tmp_path / "cx.tsv"), out=str(tmp_path / "cal.tsv"),
                            meta=str(tmp_path / "meta.tsv"), min_precision=0.95)
