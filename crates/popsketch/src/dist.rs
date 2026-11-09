@@ -109,22 +109,59 @@ pub fn compute_merge(sets: &[Vec<u64>], k: u32) -> DistMat {
 }
 
 /// Memory the bitset method may use for the presence matrix.
-const BITSET_MAX_BYTES: usize = 4 << 30;
+/// Default cap on the presence matrix (`n` samples x variable hashes / 8 bytes); above it the pairwise merge is used.
+pub const BITSET_MAX_BYTES: usize = 4 << 30;
 /// Below this many samples the merge is fast enough and simpler.
 const BITSET_MIN_SAMPLES: usize = 64;
+
+/// How `compute` got its answer, so a slow run can be explained: the method, the number of variable hashes (present in
+/// at least two but not all samples) and the size the presence matrix has or would have had.
+#[derive(Clone, Debug, PartialEq)]
+pub struct Plan {
+    /// `bitset` or `merge`
+    pub method: &'static str,
+    pub variable_hashes: usize,
+    pub bitset_bytes: usize,
+    pub limit_bytes: usize,
+}
+
+impl Plan {
+    pub fn describe(&self) -> String {
+        format!(
+            "distance method {}: {} variable hashes, presence matrix {:.2} GiB (limit {:.2} GiB)",
+            self.method,
+            self.variable_hashes,
+            self.bitset_bytes as f64 / (1u64 << 30) as f64,
+            self.limit_bytes as f64 / (1u64 << 30) as f64
+        )
+    }
+}
 
 /// All pairs, exactly, from bitsets. In population data most hashes are shared by everyone, so merging costs the whole set size
 /// for every pair. Here the hashes present in all samples are counted once (`core`), hashes seen in only one sample cannot be
 /// shared, and the rest (the variable hashes) become one bit per sample: the intersection of a pair is `core` plus the popcount
-/// of the AND of their bits. Returns None when the presence matrix would be larger than `BITSET_MAX_BYTES`.
-pub fn compute_bitset(sets: &[Vec<u64>], k: u32) -> Option<DistMat> {
+/// of the AND of their bits. Returns `Err(plan)` when the presence matrix would be larger than `limit` bytes.
+pub fn compute_bitset_limit(
+    sets: &[Vec<u64>],
+    k: u32,
+    limit: usize,
+) -> Result<(DistMat, Plan), Plan> {
     let n = sets.len();
     if n == 0 {
-        return Some(DistMat {
-            n: 0,
-            ani: vec![],
-            mash: vec![],
-        });
+        let plan = Plan {
+            method: "bitset",
+            variable_hashes: 0,
+            bitset_bytes: 0,
+            limit_bytes: limit,
+        };
+        return Ok((
+            DistMat {
+                n: 0,
+                ani: vec![],
+                mash: vec![],
+            },
+            plan,
+        ));
     }
     let mut freq: std::collections::HashMap<u64, u32> = std::collections::HashMap::new();
     for s in sets {
@@ -140,9 +177,20 @@ pub fn compute_bitset(sets: &[Vec<u64>], k: u32) -> Option<DistMat> {
         .collect();
     cols.sort_unstable();
     let words = cols.len().div_ceil(64);
-    if n.saturating_mul(words).saturating_mul(8) > BITSET_MAX_BYTES {
-        return None;
+    let bytes = n.saturating_mul(words).saturating_mul(8);
+    let plan = Plan {
+        method: "bitset",
+        variable_hashes: cols.len(),
+        bitset_bytes: bytes,
+        limit_bytes: limit,
+    };
+    if bytes > limit {
+        return Err(Plan {
+            method: "merge",
+            ..plan
+        });
     }
+    drop(freq);
     let bits: Vec<Vec<u64>> = sets
         .par_iter()
         .map(|s| {
@@ -170,17 +218,37 @@ pub fn compute_bitset(sets: &[Vec<u64>], k: u32) -> Option<DistMat> {
                 .collect()
         })
         .collect();
-    Some(assemble(n, rows))
+    Ok((assemble(n, rows), plan))
 }
 
-/// Exact pairwise containment ANI and mash distance of all samples (bitsets for hundreds of samples, merging for few).
-pub fn compute(sets: &[Vec<u64>], k: u32) -> DistMat {
+/// Bitset with the default limit (None when the presence matrix would be larger than `BITSET_MAX_BYTES`).
+pub fn compute_bitset(sets: &[Vec<u64>], k: u32) -> Option<DistMat> {
+    compute_bitset_limit(sets, k, BITSET_MAX_BYTES)
+        .ok()
+        .map(|(d, _)| d)
+}
+
+/// Exact pairwise containment ANI and mash distance of all samples (bitsets for hundreds of samples, merging for few),
+/// with the method that was used.
+pub fn compute_planned(sets: &[Vec<u64>], k: u32, limit: usize) -> (DistMat, Plan) {
     if sets.len() >= BITSET_MIN_SAMPLES {
-        if let Some(d) = compute_bitset(sets, k) {
-            return d;
+        match compute_bitset_limit(sets, k, limit) {
+            Ok(r) => return r,
+            Err(plan) => return (compute_merge(sets, k), plan),
         }
     }
-    compute_merge(sets, k)
+    let plan = Plan {
+        method: "merge",
+        variable_hashes: 0,
+        bitset_bytes: 0,
+        limit_bytes: limit,
+    };
+    (compute_merge(sets, k), plan)
+}
+
+/// `compute_planned` with the default limit, without the plan.
+pub fn compute(sets: &[Vec<u64>], k: u32) -> DistMat {
+    compute_planned(sets, k, BITSET_MAX_BYTES).0
 }
 
 #[cfg(test)]
@@ -305,5 +373,26 @@ mod tests {
                 merge.map_or(String::new(), |m| format!(", merge {m:.1?}"))
             );
         }
+    }
+
+    #[test]
+    fn plan_reports_the_method_and_a_lower_limit_forces_the_merge_with_the_same_answer() {
+        let many: Vec<Vec<u64>> = (0..70u64)
+            .map(|i| {
+                (0..400u64)
+                    .filter(|h| h % 7 != i % 7)
+                    .chain(1000 + i * 1000..1000 + i * 1000 + 50)
+                    .collect()
+            })
+            .collect();
+        let (d1, p1) = compute_planned(&many, 21, BITSET_MAX_BYTES);
+        assert_eq!(p1.method, "bitset");
+        assert!(p1.variable_hashes > 0 && p1.bitset_bytes > 0);
+        let (d2, p2) = compute_planned(&many, 21, 8);
+        assert_eq!(p2.method, "merge");
+        assert_eq!(p2.variable_hashes, p1.variable_hashes);
+        assert_eq!(d1.ani, d2.ani);
+        let few = &many[..10];
+        assert_eq!(compute_planned(few, 21, BITSET_MAX_BYTES).1.method, "merge");
     }
 }
