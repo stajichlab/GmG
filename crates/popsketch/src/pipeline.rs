@@ -61,6 +61,8 @@ pub enum OrdKind {
 #[derive(Clone, Debug)]
 pub struct CollapseInfo {
     pub rule: &'static str,
+    /// label columns the collapse was restricted to (empty: not label-aware)
+    pub within: Vec<String>,
     pub input: usize,
     pub kept: usize,
     /// (id, representative id, number of samples the representative stands for, split-half distance used, is representative)
@@ -118,6 +120,10 @@ pub struct Options {
     pub bitset_max_bytes: usize,
     /// collapse near-identical samples to representatives before ordination, tree, clusters and label tests
     pub collapse: Option<crate::collapse::Rule>,
+    /// visit the samples in a pseudo-random order (seed) instead of least noisy first when collapsing (order-dependence tests)
+    pub collapse_seed: Option<u64>,
+    /// label columns (or `all`): with --collapse, samples are merged only when they carry the same labels in all of them
+    pub collapse_within: Vec<String>,
     /// Newick tree of (some of) the same samples, for example from SNPs: compared with the sketch distances and clusters
     pub compare_tree: Option<PathBuf>,
     /// PC scores of (some of) the same samples, for example from SNPs: compared with the sketch PCA
@@ -167,6 +173,8 @@ impl Default for Options {
             floor_samples: 20,
             bitset_max_bytes: crate::dist::BITSET_MAX_BYTES,
             collapse: None,
+            collapse_seed: None,
+            collapse_within: Vec::new(),
             compare_tree: None,
             compare_pcs: None,
             resume: false,
@@ -859,7 +867,9 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
         };
         tm.mark(o, "distances_included");
         // collapse near-identical samples; from here on the analysis runs on the representatives
-        let mut weights: Option<Vec<f64>> = None;
+        // the label tests run on all samples: collapsed clusters often mix labels (D1h), so a representative's label would
+        // misstate them
+        let mut full_for_tests: Option<(Vec<String>, Vec<f64>)> = None;
         if let Some(rule) = o.collapse {
             let by_id: HashMap<&str, f64> = floor
                 .per_sample
@@ -881,7 +891,63 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                         .unwrap_or(median)
                 })
                 .collect();
-            let c = crate::collapse::collapse(&dist.one_minus_ani(), n, &noise, rule, median);
+            // label-aware: samples merge only when they carry the same labels in the chosen columns (a missing label
+            // counts as its own value)
+            let mut within: Vec<String> = Vec::new();
+            let mut groups: Option<Vec<usize>> = None;
+            if !o.collapse_within.is_empty() {
+                match labels_text.as_deref().map(parse_labels) {
+                    Some(Ok(t)) => {
+                        let cols: Vec<usize> = if o.collapse_within.iter().any(|c| c == "all") {
+                            (0..t.columns.len()).collect()
+                        } else {
+                            o.collapse_within
+                                .iter()
+                                .filter_map(|c| {
+                                    let i = t.columns.iter().position(|x| x == c);
+                                    if i.is_none() {
+                                        res.warnings.push(format!(
+                                            "--collapse-within {c}: no such label column; it is ignored"
+                                        ));
+                                    }
+                                    i
+                                })
+                                .collect()
+                        };
+                        within = cols.iter().map(|&i| t.columns[i].clone()).collect();
+                        let idv: Vec<String> = res
+                            .included
+                            .iter()
+                            .map(|&r| res.rows[r].id.clone())
+                            .collect();
+                        let mut key: HashMap<Vec<Option<String>>, usize> = HashMap::new();
+                        groups = Some(
+                            idv.iter()
+                                .map(|id| {
+                                    let k: Vec<Option<String>> = cols
+                                        .iter()
+                                        .map(|&c| t.rows.get(id).and_then(|v| v[c].clone()))
+                                        .collect();
+                                    let nx = key.len();
+                                    *key.entry(k).or_insert(nx)
+                                })
+                                .collect(),
+                        );
+                    }
+                    _ => res.warnings.push(
+                        "--collapse-within needs --labels; the collapse is not label-aware".into(),
+                    ),
+                }
+            }
+            let c = crate::collapse::collapse(
+                &dist.one_minus_ani(),
+                n,
+                &noise,
+                rule,
+                median,
+                o.collapse_seed,
+                groups.as_deref(),
+            );
             if c.reps.len() >= 3 {
                 let ids: Vec<String> = res
                     .included
@@ -896,6 +962,7 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                     .collect();
                 res.collapse = Some(CollapseInfo {
                     rule: rule.name(),
+                    within,
                     input: n,
                     kept: c.reps.len(),
                     rows: (0..n)
@@ -920,10 +987,10 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                         c.reps.len()
                     ),
                 );
+                full_for_tests = Some((ids.clone(), dist.one_minus_ani()));
                 dist = dist.subset(&c.reps);
                 sets = c.reps.iter().map(|&k| sets[k].clone()).collect();
                 res.included = c.reps.iter().map(|&k| res.included[k]).collect();
-                weights = Some(c.sizes.iter().map(|&s| s as f64).collect());
             } else {
                 say(
                     o,
@@ -1044,9 +1111,13 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                     },
                     None => None,
                 };
+                let (t_ids, t_d, t_n): (&[String], &[f64], usize) = match &full_for_tests {
+                    Some((i, d)) => (i.as_slice(), d.as_slice(), i.len()),
+                    None => (ids.as_slice(), d1.as_slice(), n),
+                };
                 let strata_labs = strata_col
                     .as_ref()
-                    .map(|(i, _)| column_labels(&table, &ids, *i));
+                    .map(|(i, _)| column_labels(&table, t_ids, *i));
                 let popts = crate::permanova::Options {
                     n_perm: o.permutations,
                     seed: 1,
@@ -1055,17 +1126,17 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                     if strata_col.as_ref().is_some_and(|(i, _)| *i == c) {
                         continue;
                     }
-                    let labs = column_labels(&table, &ids, c);
+                    let labs = column_labels(&table, t_ids, c);
                     res.group_tests.push(GroupTest {
                         column: name.clone(),
                         strata: strata_col.as_ref().map(|(_, n)| n.clone()),
                         permutations: o.permutations,
                         result: crate::permanova::test(
-                            &d1,
-                            n,
+                            t_d,
+                            t_n,
                             &labs,
                             strata_labs.as_deref(),
-                            weights.as_deref(),
+                            None,
                             &popts,
                         ),
                     });
@@ -1420,7 +1491,7 @@ pub fn summary_json(o: &Options, r: &Results) -> Value {
         "ordination": r.ordination.as_ref().map(|x| json!({"method": x.method, "variance_fraction": x.var_frac, "features": x.n_features})),
         "tree": {"written": r.newick.is_some(), "branches_collapsed": r.collapsed},
         "labels": labels,
-        "collapse": r.collapse.as_ref().map(|c| json!({"rule": c.rule, "input": c.input, "representatives": c.kept})),
+        "collapse": r.collapse.as_ref().map(|c| json!({"rule": c.rule, "within": c.within, "input": c.input, "representatives": c.kept})),
         "group_tests": r.group_tests.iter().map(|g| json!({"column": g.column, "strata": g.strata, "permutations": g.permutations, "result": g.result.as_ref().map(|t| t.to_json())})).collect::<Vec<_>>(),
         "dapc": r.dapc.as_ref().map(|dp| json!({"column": dp.column, "n_pcs": dp.dapc.n_pcs, "axes": dp.dapc.eigenvalues.len(), "eigenvalues": dp.dapc.eigenvalues,
             "groups": dp.dapc.groups, "accuracy": dp.dapc.accuracy,

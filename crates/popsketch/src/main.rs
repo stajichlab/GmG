@@ -184,6 +184,13 @@ enum Cmd {
         /// `max` of the two, or the species `median`. Needs split-half sketches (see --floor-samples)
         #[arg(long, value_name = "RULE", num_args = 0..=1, default_missing_value = "mean", value_parser = ["mean", "max", "median"])]
         collapse: Option<String>,
+        /// visit samples in a pseudo-random order when collapsing (tests how much the result depends on the order)
+        #[arg(long, hide = true)]
+        collapse_seed: Option<u64>,
+        /// with --collapse: merge samples only when they carry the same labels in these label columns (comma-separated, or `all`),
+        /// so no representative stands for samples with different labels
+        #[arg(long, value_name = "COLUMNS", value_delimiter = ',')]
+        collapse_within: Vec<String>,
         /// Newick tree of the same samples (for example from SNPs) to compare with: distance correlation, and whether each cluster is a clade
         #[arg(long)]
         compare_tree: Option<PathBuf>,
@@ -295,6 +302,8 @@ fn main() -> Result<()> {
             floor_samples,
             bitset_max_gib,
             collapse,
+            collapse_seed,
+            collapse_within,
             compare_tree,
             compare_pcs,
             resume,
@@ -346,6 +355,8 @@ fn main() -> Result<()> {
                 collapse: collapse
                     .as_deref()
                     .and_then(popsketch::collapse::Rule::parse),
+                collapse_seed,
+                collapse_within,
                 compare_tree,
                 compare_pcs,
                 resume,
