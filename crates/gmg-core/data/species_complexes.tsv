@@ -1,0 +1,809 @@
+# species -> species complex; source: FusariumID (fusarium.org) sequence download 2026-06-23; written by scripts/make_species_complexes.py
+# collapse=1: gmg reports the complex instead of a species name (genome sketches cannot separate its species)
+species	complex	collapse
+Albonectria albosuccinea	Albonectria (formerly Fusarium decemcellulare species complex)	0
+Albonectria guizhouensis	Albonectria (formerly Fusarium decemcellulare species complex)	0
+Albonectria rigidiuscula	Albonectria (formerly Fusarium decemcellulare species complex)	0
+Albonectria schimae	Albonectria (formerly Fusarium decemcellulare species complex)	0
+Bisifusarium africanum	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium allantoides	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium aseptatum	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium australianum	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium biseptatum	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium cacticola	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium colchici	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium delphinoides	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium dimerum	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium domesticum	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium duo	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium hedylamarriae	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium keratinophilum	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium lovelliae	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium lunatum	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium namibense	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium nectrioides	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium penicilloides	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium penzigii	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium phloginum	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium salinasense	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium sechiicola	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium solicola	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium sp. 1 (Zhang et al. 2025)	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Bisifusarium tonghuanum	Bisifusarium (formerly Fusarium dimerum species complex)	0
+Cyanonectria bispora	Cyanonectria (formerly Fusarium buxicola species complex)	0
+Cyanonectria buxi	Cyanonectria (formerly Fusarium buxicola species complex)	0
+Cyanonectria cyanostoma	Cyanonectria (formerly Fusarium buxicola species complex)	0
+Fusarium aberrans	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium abutilonis	Fusarium buharicum species complex (FBSC)	0
+Fusarium acaciae-mearnsii	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium aconidiale	Fusarium citricola species complex (FCCSC)	0
+Fusarium acuminatum	Fusarium tricinctum species complex (FTSC)	0
+Fusarium acutatum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium acutispora	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium addoensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium aethiopicum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium aflagelliforme	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium agapanthi	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium aglaonematis	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium agreste	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium agrestense	Fusarium oxysporum species complex (FOSC)	1
+Fusarium akasia	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium alboflava	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium algeriense	Fusarium burgessii species complex (FburSC)	0
+Fusarium aloetica	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium alpinum	Fusarium tricinctum species complex (FTSC)	0
+Fusarium amaranthi	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium amblysporum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium ambrosia	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium amerosporum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium ampla	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium ananatum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium andiyazi	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium anguioides	Fusarium concolor species complex (FCOSC)	0
+Fusarium anhuiensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium annulatum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium anoectochili	Fusarium nisikadoi species complex (FNSC)	0
+Fusarium anthophilum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium aquatica	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium aquaticum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium arbusti	Fusarium nisikadoi species complex (FNSC)	0
+Fusarium arcuatisporum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium armeniacum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium arthrosporioides	Fusarium tricinctum species complex (FTSC)	0
+Fusarium aseptatum	Fusarium chlamydosporum species complex (FCSC)	0
+Fusarium asiaticum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium atrovinosum	Fusarium chlamydosporum species complex (FCSC)	0
+Fusarium aurantia	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium aurantii	Fusarium lateritium species complex (FLSC)	0
+Fusarium australiana	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium australpacifica	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium austroafricanum	Fusarium concolor species complex (FCOSC)	0
+Fusarium austroamericanum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium avenaceum	Fusarium tricinctum species complex (FTSC)	0
+Fusarium awan	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium awaxy	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium aywerte	Fusarium aywerte species complex	0
+Fusarium babinda	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium bactridioides	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium bambusarum	Fusarium concolor species complex (FCOSC)	0
+Fusarium bananae	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium bataticola	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium begoniae	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium bellum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium beomiforme	Fusarium burgessii species complex (FburSC)	0
+Fusarium bidentis	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium bilaiae	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium boothiae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium boothii	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium borneensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium bostrycoides	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium brachiariae	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium brachygibbosum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium brachypes	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium brachypodum	Fusarium buharicum species complex (FBSC)	0
+Fusarium brasilicum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium brevicatenulatum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium brevicaudatum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium brevicona	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium brevis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium bryceae	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium buharicum	Fusarium buharicum species complex (FBSC)	0
+Fusarium bulbicola	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium burgessii	Fusarium burgessii species complex (FburSC)	0
+Fusarium caapi	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium caatingaense	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium californicum	Fusarium tricinctum species complex (FTSC)	0
+Fusarium camelliae	Fusarium lateritium species complex (FLSC)	0
+Fusarium campestre	Fusarium tricinctum species complex (FTSC)	0
+Fusarium camptoceras	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium caricae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium carinatum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium carminascens	Fusarium oxysporum species complex (FOSC)	1
+Fusarium cartwrightiae	Fusarium lateritium species complex (FLSC)	0
+Fusarium casha	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium cassiae	Fusarium lateritium species complex (FLSC)	0
+Fusarium castaneophilum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium catenata	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium cateniforme	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium caulicola	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium celtidicola	Fusarium citricola species complex (FCCSC)	0
+Fusarium cerealis	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium chaquense	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium chiangraiense	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium chinhoyiense	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium chlamydocopiosum	Fusarium lateritium species complex (FLSC)	0
+Fusarium chlamydosporum	Fusarium chlamydosporum species complex (FCSC)	0
+Fusarium chongqingense	Fusarium tricinctum species complex (FTSC)	0
+Fusarium chromolaenae	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium chuoi	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium cili	Fusarium oxysporum species complex (FOSC)	1
+Fusarium circinatum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium citri	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium citri-sinensis	Fusarium lateritium species complex (FLSC)	0
+Fusarium citricola	Fusarium citricola species complex (FCCSC)	0
+Fusarium citrullicola	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium clavus	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium coffeatum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium coffeibaccae	Fusarium lateritium species complex (FLSC)	0
+Fusarium coicis	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium commune	Fusarium nisikadoi species complex (FNSC)	0
+Fusarium compactum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium concentricum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium concolor	Fusarium concolor species complex (FCOSC)	0
+Fusarium contaminatum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium continuum	Fusarium torreyae species complex (FtorSC)	0
+Fusarium convolutans	Fusarium buharicum species complex (FBSC)	0
+Fusarium coriorum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium cortaderiae	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium crassa	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium cristobalense	Fusarium lateritium species complex (FLSC)	0
+Fusarium crocatum	Fusarium lateritium species complex (FLSC)	0
+Fusarium croceum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium cryptoseptata	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium cucurbitae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium cugenangense	Fusarium oxysporum species complex (FOSC)	1
+Fusarium culmorum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium cultriforme	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium cumulatum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium curculicola	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium curvatum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium cuspidatum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium cyanescens	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium cygneum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium cymbidii	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium dactylidis	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium dendranthematis	Fusarium tricinctum species complex (FTSC)	0
+Fusarium dendrobii	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium denticulatum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium dhileepanii	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium diminuta	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium dimorpha	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium dimorphosporum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium diversisporum	Fusarium tricinctum species complex (FTSC)	0
+Fusarium dlaminii	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium dolichosporum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium dracaenophilum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium drepaniformis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium duofalcatisporum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium duolechatii	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium duoseptatum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium duplosperma	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium easleyae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium echinatum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium ednaryaniae	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium elaeagni	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium elaeidis	Fusarium oxysporum species complex (FOSC)	1
+Fusarium elegans	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium endophyticum	Fusarium lateritium species complex (FLSC)	0
+Fusarium epipeda	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium equiseti	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium erosum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium euwallaceae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium extenuatum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium fabacearum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium falciformis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium falsibabinda	Fusarium falsibabinda species complex (FFBSC)	0
+Fusarium fangfangiae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium fasciculatum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium fecundum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium ferruginea	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium fici	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium ficicrescens	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium flagelliforme	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium flavoides	Fusarium tricinctum species complex (FTSC)	0
+Fusarium flocciferum	Fusarium tricinctum species complex (FTSC)	0
+Fusarium floridana	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium floriferum	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium foetens	Fusarium oxysporum species complex (FOSC)	1
+Fusarium fracticaudum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium fractiflexum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium fragariae	Fusarium tricinctum species complex (FTSC)	0
+Fusarium fredkrugeri	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium fructicola	Fusarium tricinctum species complex (FTSC)	0
+Fusarium fujianense	Fusarium lateritium species complex (FLSC)	0
+Fusarium fujikuroi	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium fungicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium gaditjirrii	Fusarium nisikadoi species complex (FNSC)	0
+Fusarium galbana	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium gamsii	Fusarium tricinctum species complex (FTSC)	0
+Fusarium gamtoosensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium gannanensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium geijerae	Fusarium lateritium species complex (FLSC)	0
+Fusarium geoasparagicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium gerlachii	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium germainiae	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium gerryae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium giganteum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium gladiolum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium globosum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium glycines	Fusarium oxysporum species complex (FOSC)	1
+Fusarium goeppertmayerae	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium goolgardi	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium gossypinum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium gracilipes	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium graminearum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium graminum	Fusarium heterosporum species complex (FHSC)	0
+Fusarium grosmichelii	Fusarium oxysporum species complex (FOSC)	1
+Fusarium guadeloupense	Fusarium buharicum species complex (FBSC)	0
+Fusarium guangdongense	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium guangdongensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium guilinense	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium guizhouense	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium gummosum	Fusarium lateritium species complex (FLSC)	0
+Fusarium guttiforme	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium haematococca	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium hainanense	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium hamatum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium hamliniae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium hanswilhelmii	Fusarium lateritium species complex (FLSC)	0
+Fusarium hechiense	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium hengyangensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium heslopiae	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium heterosporum	Fusarium heterosporum species complex (FHSC)	0
+Fusarium hexaseptatum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium hoodiae	Fusarium oxysporum species complex (FOSC)	1
+Fusarium hordeum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium hostae	Fusarium redolens species complex (FRSC)	0
+Fusarium houttuyniae	Fusarium oxysporum species complex (FOSC)	1
+Fusarium humicola	Fusarium chlamydosporum species complex (FCSC)	0
+Fusarium humuli	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium hunanense	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium hydei	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium hypertrophia	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium hypothenemi	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium idabrowneae	Fusarium oxysporum species complex (FOSC)	1
+Fusarium illudens	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium incarnatum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium indicum	Fusarium concolor species complex (FCOSC)	0
+Fusarium inflexum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium ipomoeae	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium ipomoeicola	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium iranicum	Fusarium tricinctum species complex (FTSC)	0
+Fusarium irdabamae	Fusarium oxysporum species complex (FOSC)	1
+Fusarium irregulare	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium jinanense	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium joanfreemaniae	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium juglandicola	Fusarium citricola species complex (FCCSC)	0
+Fusarium kalimantanense	Fusarium oxysporum species complex (FOSC)	1
+Fusarium kamalianum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium kangmaense	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium kazakhstanicum	Fusarium burgessii species complex (FburSC)	0
+Fusarium keleraja	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium keratoplastica	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium khuzestanicum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium kirstenboschense	Fusarium redolens species complex (FRSC)	0
+Fusarium konzum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium kotabaruense	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium kunmingensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium kuroshio	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium kurunegalensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium kyushuense	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium lacertarum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium lactis	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium landiae	Fusarium oxysporum species complex (FOSC)	1
+Fusarium langsethiae	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium languescens	Fusarium oxysporum species complex (FOSC)	1
+Fusarium lateritium	Fusarium lateritium species complex (FLSC)	0
+Fusarium lechatii	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium leptum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium lerouxii	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium leucaenae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium liaoningense	Fusarium oxysporum species complex (FOSC)	1
+Fusarium libertatis	Fusarium oxysporum species complex (FOSC)	1
+Fusarium lichenicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium liriodendri	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium liriopes	Fusarium oxysporum species complex (FOSC)	1
+Fusarium lithocarpi	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium liupanshuiensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium longicaudatum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium longicolle	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium longicornicola	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium longifundum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium longipes	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium longissima	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium louisalawsoniae	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium louisianense	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium luffae	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium lumajangense	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium lunulosporum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium lyarnte	Fusarium nisikadoi species complex (FNSC)	0
+Fusarium macnamarae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium macrospora	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium madaense	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium magnoliae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium magnoliae-champaca	Fusarium lateritium species complex (FLSC)	0
+Fusarium magnum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium mahasenii	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium makinsoniae	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium malawiense	Fusarium lateritium species complex (FLSC)	0
+Fusarium mangiferae	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium mangrovei	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium maoershanica	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium marasasianum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium mariamitchelliae	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium mariecurieae	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium martii	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium massalimae	Fusarium lateritium species complex (FLSC)	0
+Fusarium mastigosporum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium medogense	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium meitneriae	Fusarium tricinctum species complex (FTSC)	0
+Fusarium mekan	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium menglaense	Fusarium oxysporum species complex (FOSC)	1
+Fusarium meridionale	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium merkxiana	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium mesoamericanum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium metavorans	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium mexicanum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium mianyangense	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium microconidium	Fusarium chlamydosporum species complex (FCSC)	0
+Fusarium microcyclum	Fusarium lateritium species complex (FLSC)	0
+Fusarium microsporellum	Fusarium tricinctum species complex (FTSC)	0
+Fusarium minutum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium mirum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium miscanthi	Fusarium nisikadoi species complex (FNSC)	0
+Fusarium monophialidicum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium mori	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium mourae	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium moutoniae	Fusarium oxysporum species complex (FOSC)	1
+Fusarium mucidum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium mucronatum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium multiceps	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium mundagurra	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium musae	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium musarum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium myrtaceicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium nanum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium napiforme	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium nashariae	Fusarium oxysporum species complex (FOSC)	1
+Fusarium nedongense	Fusarium tricinctum species complex (FTSC)	0
+Fusarium neerlandica	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium nelsonii	Fusarium chlamydosporum species complex (FCSC)	0
+Fusarium neoequiseti	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium neoglobosum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium neolongifundum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium neoscirpi	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium neosemitectum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium nepalense	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium newnesense	Fusarium newnesense species complex (FnewSC)	0
+Fusarium nirenbergiae	Fusarium oxysporum species complex (FOSC)	1
+Fusarium nirenbergiana	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium nisikadoi	Fusarium nisikadoi species complex (FNSC)	0
+Fusarium nodosum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium noneumartii	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium nothincarnatum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium nygamai	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium nyingchiense	Fusarium tricinctum species complex (FTSC)	0
+Fusarium obliquiseptata	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium oblonga	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium odoratissimum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium oligoseptata	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium oliniae	Fusarium lateritium species complex (FLSC)	0
+Fusarium ophioides	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium oryzicola	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium oxysporum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium pacificum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium paeoniae	Fusarium tricinctum species complex (FTSC)	0
+Fusarium pallidimors	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium palustre	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium panlongense	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium paphiopedili	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium papillata	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium parabolicum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium paraclavum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium paraeumartii	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium paramacrospora	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium paranisikadoi	Fusarium nisikadoi species complex (FNSC)	0
+Fusarium paraodoratissimum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium parceramosa	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium parvisorum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium pascuum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium passiflorae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium pentaseptatum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium pernambucanum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium perseae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium persicinum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium pertiae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium peruvianum	Fusarium chlamydosporum species complex (FCSC)	0
+Fusarium peseshetiae	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium petroliphila	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium phalaenopsidis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium pharetrum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium phaseoli	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium phialophorum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium phoenicis	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium phyllophilum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium pilosicola	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium pininemorale	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium piperis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium pisi	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium plagianthi	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium planum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium platysporum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium poae	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium populicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium potentillae	Fusarium tricinctum species complex (FTSC)	0
+Fusarium praegraminearum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium pratense	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium prieskaense	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium primavesiae	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium procumbens	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium proliferatum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium protoensiformis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium pruni	Fusarium tricinctum species complex (FTSC)	0
+Fusarium pseudensiformis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium pseudocircinatum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium pseudograminearum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium pseudolongipes	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium pseudonygamai	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium pseudopisi	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium pseudoradicicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium pseudotonkinensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium puerense	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium pulchrum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium purangense	Fusarium tricinctum species complex (FTSC)	0
+Fusarium purpureum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium qiannanense	Fusarium heterosporum species complex (FHSC)	0
+Fusarium queenslandica	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium queenslandicum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium quercicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium ramigenum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium ramsdenii	Fusarium lateritium species complex (FLSC)	0
+Fusarium rectiphora	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium redolens	Fusarium redolens species complex (FRSC)	0
+Fusarium regularis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium rekana	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium reticulatae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium reticulatum	Fusarium tricinctum species complex (FTSC)	0
+Fusarium rhinolophi	Fusarium nisikadoi species complex (FNSC)	0
+Fusarium rhizicola	Fusarium redolens species complex (FRSC)	0
+Fusarium rhizophorae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium riograndensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium robusta	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium robustum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium rosae-roxburghii	Fusarium oxysporum species complex (FOSC)	1
+Fusarium rosendophyticum	Fusarium tricinctum species complex (FTSC)	0
+Fusarium rosiradicicola	Fusarium tricinctum species complex (FTSC)	0
+Fusarium rubellum	Fusarium tricinctum species complex (FTSC)	0
+Fusarium rubicola	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium rufum	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium rugosa	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium ruthhalliae	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium sacchari	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium sagittatum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium salinense	Fusarium citricola species complex (FCCSC)	0
+Fusarium sambucinum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium samuelsii	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium sangayamense	Fusarium oxysporum species complex (FOSC)	1
+Fusarium sanyaense	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium sarcochroum	Fusarium lateritium species complex (FLSC)	0
+Fusarium scabridum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium scalesiae	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium scirpi	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium secorum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium seculiforme	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium semanoti	Fusarium oxysporum species complex (FOSC)	1
+Fusarium serpentinum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium shigatseense	Fusarium tricinctum species complex (FTSC)	0
+Fusarium sibiricum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium siculi	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium silvicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium sinense	Fusarium tricinctum species complex (FTSC)	0
+Fusarium solani	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium sorabjiae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium sororula	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium sp. (Thao et al. 2025)	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium sp. 1 MMC-2024 (Costa et al. 2024)	Fusarium citricola species complex (FCCSC)	0
+Fusarium sp. 1 in FBSC (O'Donnell et al. 2022)	Fusarium buharicum species complex (FBSC)	0
+Fusarium sp. 1 in FOSC (Crous et al. 2021)	Fusarium oxysporum species complex (FOSC)	1
+Fusarium sp. 2 MMC-2024 (Costa et al. 2024)	Fusarium citricola species complex (FCCSC)	0
+Fusarium sp. 2 in FBSC (O'Donnell et al. 2022)	Fusarium buharicum species complex (FBSC)	0
+Fusarium sp. 2 in FOSC (Crous et al. 2021)	Fusarium oxysporum species complex (FOSC)	1
+Fusarium sp. 3 MMC-2024 (Costa et al. 2024)	Fusarium heterosporum species complex (FHSC)	0
+Fusarium sp. 3 in FOSC (Crous et al. 2021)	Fusarium oxysporum species complex (FOSC)	1
+Fusarium sp. 4 MMC-2024 (Costa et al. 2024)	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium sp. 5 MMC-2024 (Costa et al. 2024)	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium sp. 6 MMC-2024 (Costa et al. 2024)	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium sp. 7 MMC-2024 (Costa et al. 2024) (=FTSC 18)	Fusarium tricinctum species complex (FTSC)	0
+Fusarium sp. 8 MMC-2024 (Costa et al. 2024)	Fusarium tricinctum species complex (FTSC)	0
+Fusarium sp. 9 MMC-2024 (Costa et al. 2024)	Fusarium tricinctum species complex (FTSC)	0
+Fusarium sp. FIESC 22 (O'Donnell et al. 2010)	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium sp. FIESC 27 (O'Donnell et al. 2009)	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium sp. FIESC 30 (O'Donnell et al. 2012)	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium sp. FIESC 32 (Xia et al. 2019)	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium sp. FIESC 8 (O'Donnell et al. 2009)	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium sp. FSAMSC sp. nov. A	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium sp. FSAMSC sp. nov. B	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium sp. FSAMSC sp. nov. C	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium sp. FTSC 10 (O'Donnell et al. 2012)	Fusarium tricinctum species complex (FTSC)	0
+Fusarium sp. FTSC 11 (O'Donnell et al. 2018)	Fusarium tricinctum species complex (FTSC)	0
+Fusarium sp. FTSC 17 (Laraba et al. 2022)	Fusarium tricinctum species complex (FTSC)	0
+Fusarium sp. FTSC 18 (Laraba et al. 2022)	Fusarium tricinctum species complex (FTSC)	0
+Fusarium sp. FTSC 19 (Laraba et al. 2022)	Fusarium tricinctum species complex (FTSC)	0
+Fusarium sp. FTSC 20 (Laraba et al. 2022)	Fusarium tricinctum species complex (FTSC)	0
+Fusarium sp. FTSC 21 (Laraba et al. 2022)	Fusarium tricinctum species complex (FTSC)	0
+Fusarium sp. FTSC 22 (Laraba et al. 2022)	Fusarium tricinctum species complex (FTSC)	0
+Fusarium sp. FTSC 23 (Laraba et al. 2022)	Fusarium tricinctum species complex (FTSC)	0
+Fusarium sp. FTSC 24 (Laraba et al. 2022)	Fusarium tricinctum species complex (FTSC)	0
+Fusarium sp. FTSC 25 (Laraba et al. 2022)	Fusarium tricinctum species complex (FTSC)	0
+Fusarium sp. FTSC 8 (O'Donnell et al. 2012)	Fusarium tricinctum species complex (FTSC)	0
+Fusarium sp. in FFSC (Lombard et al. 2022)	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium sp. nov. 1 (Dewing et al. 2025)	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium sp. nov.-11 (Laraba et al. 2021)	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium sp. nov.-13 (Laraba et al. 2021)	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium sp. nov.-2 (Laraba et al. 2021)	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium sp. nov.-31 (Laraba et al. 2021)	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium sp. nov.-7 (Laraba et al. 2021)	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium sp.#FLSC	Fusarium lateritium species complex (FLSC)	0
+Fusarium spartum	Fusarium redolens species complex (FRSC)	0
+Fusarium spathulata	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium spinosum	Fusarium chlamydosporum species complex (FCSC)	0
+Fusarium spinulosa	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium sporodochiale	Fusarium chlamydosporum species complex (FCSC)	0
+Fusarium sporotrichioides	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium steppicola	Fusarium steppicola species complex (FSTEPSC)	0
+Fusarium stercicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium sterilihyphosum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium stilboides	Fusarium lateritium species complex (FLSC)	0
+Fusarium stramineum	Fusarium lateritium species complex (FLSC)	0
+Fusarium striatispora	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium subcylindroides	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium subflagellisporum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium subglutinans	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium sublunatum	Fusarium buharicum species complex (FBSC)	0
+Fusarium subtropicale	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium succisae	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium sudanense	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium sulawesiense	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium suttoniana	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium sylviaearleae	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium symmetricum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium sympodiale	Fusarium tricinctum species complex (FTSC)	0
+Fusarium taii	Fusarium concolor species complex (FCOSC)	0
+Fusarium tanahbumbuense	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium tangerinum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium tardichlamydosporum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium taxodii	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium temperatum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium tenuicristata	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium termitarium	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium terricola	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium teslae	Fusarium concolor species complex (FCOSC)	0
+Fusarium thailandica	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium thapsinum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium theobromae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium tibetense	Fusarium oxysporum species complex (FOSC)	1
+Fusarium tjaetaba	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium tjaynera	Fusarium aywerte species complex	0
+Fusarium tongrenense	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium tonkinensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium torreyae	Fusarium torreyae species complex (FtorSC)	0
+Fusarium torulosum	Fusarium tricinctum species complex (FTSC)	0
+Fusarium toxicum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium transvaalense	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium tricinctum	Fusarium tricinctum species complex (FTSC)	0
+Fusarium triseptatum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium tropicale	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium tuaranensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium tuberculata	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium tuberculatum	Fusarium oxysporum species complex (FOSC)	1
+Fusarium tumidisperma	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium tupiense	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium udum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium uniphialidica	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium unshiu	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium ussurianum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium valentineae	Fusarium falsibabinda species complex (FFBSC)	0
+Fusarium vanleeuwenii	Fusarium oxysporum species complex (FOSC)	1
+Fusarium variasi	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium varsavskyanum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium vasinfecta	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium vaughaniae	Fusarium oxysporum species complex (FOSC)	1
+Fusarium velutinum	Fusarium lateritium species complex (FLSC)	0
+Fusarium venenatum	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium verae	Fusarium torreyae species complex (FtorSC)	0
+Fusarium vermicularioides	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium verruculosum	Fusarium lateritium species complex (FLSC)	0
+Fusarium verticillioides	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium veterinarium	Fusarium oxysporum species complex (FOSC)	1
+Fusarium volatile	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium vorosii	Fusarium sambucinum species complex (FSAMSC)	0
+Fusarium wangariae	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium warna	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium weifangense	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium wenshanense	Fusarium lateritium species complex (FLSC)	0
+Fusarium wereldwijsianum	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium werrikimbe	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium wimaladesilvae	Fusarium oxysporum species complex (FOSC)	1
+Fusarium woodroofeae	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium xizangensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Fusarium xylarioides	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium xylosmatis	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium xyrophilum	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium youattiae	Fusarium fujikuroi species complex (FFSC)	0
+Fusarium yuasae	Fusarium incarnatum-equiseti species complex (FIESC)	0
+Fusarium yunnanense	Fusarium yunnanense species complex (FYSC)	0
+Fusarium zanthoxyli	Fusarium torreyae species complex (FtorSC)	0
+Geejayessia atrofusca	Geejayessia (formerly Fusarium staphyleae species complex)	0
+Geejayessia celtidicola	Geejayessia (formerly Fusarium staphyleae species complex)	0
+Geejayessia cicatricum	Geejayessia (formerly Fusarium staphyleae species complex)	0
+Geejayessia clavata	Geejayessia (formerly Fusarium staphyleae species complex)	0
+Geejayessia desmazieri	Geejayessia (formerly Fusarium staphyleae species complex)	0
+Geejayessia hispanica	Geejayessia (formerly Fusarium staphyleae species complex)	0
+Geejayessia montana	Geejayessia (formerly Fusarium staphyleae species complex)	0
+Geejayessia ruscicola	Geejayessia (formerly Fusarium staphyleae species complex)	0
+Geejayessia sinica	Geejayessia (formerly Fusarium staphyleae species complex)	0
+Geejayessia zealandica	Geejayessia (formerly Fusarium staphyleae species complex)	0
+Luteonectria albida	Luteonectria (formerly Fusarium albidum species complex)	0
+Luteonectria nematophila	Luteonectria (formerly Fusarium albidum species complex)	0
+Neocosmospora acutispora	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora addoensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora akasia	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora alboflava	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora ambrosia	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora ampla	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora anhuiensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora aquatica	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora aurantia	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora australiana	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora australpacifica	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora awan	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora bataticola	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora boothiae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora borneensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora bostrycoides	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora brevicona	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora brevis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora caricae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora catenata	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora citricola	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora crassa	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora cryptoseptata	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora cucurbitae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora cyanescens	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora diminuta	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora dimorpha	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora drepaniformis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora duolechatii	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora duplosperma	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora easleyae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora elegans	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora epipeda	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora euwallaceae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora falciformis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora fangfangiae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora ferruginea	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora floridana	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora fungicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora galbana	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora gamsii	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora gamtoosensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora gannanensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora geoasparagicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora gerryae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora guangdongensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora haematococca	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora hamliniae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora hengyangensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora hypertrophia	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora hypothenemi	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora illudens	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora ipomoeae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora keleraja	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora keratoplastica	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora kunmingensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora kuroshio	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora kurunegalensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora lechatii	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora lerouxii	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora leucaenae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora lichenicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora liriodendri	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora lithocarpi	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora liupanshuiensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora longissima	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora macnamarae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora macrospora	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora magnoliae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora mahasenii	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora mangrovei	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora maoershanica	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora martii	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora mekan	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora merkxiana	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora metavorans	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora mori	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora myrtaceicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora neerlandica	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora nelsonii	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora nirenbergiana	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora noneumartii	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora obliquiseptata	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora oblonga	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora oligoseptata	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora pallidimors	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora paphiopedili	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora papillata	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora paraeumartii	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora paramacrospora	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora parceramosa	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora passiflorae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora perseae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora pertiae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora petroliphila	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora phalaenopsidis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora phaseoli	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora piperis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora pisi	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora plagianthi	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora populicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora protoensiformis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora pseudensiformis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora pseudopisi	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora pseudoradicicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora pseudotonkinensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora queenslandica	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora quercicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora rectiphora	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora regularis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora rekana	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora reticulatae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora rhizophorae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora riograndensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora robusta	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora rugosa	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora samuelsii	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora silvicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora solani	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora sorabjiae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora sp. AF-13	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora sp. AF-14	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora sp. AF-15	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora sp. AF-16	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora sp. AF-17	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora sp. AF-18	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora sp. AF-6	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora sp. AF-9	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora sp. FSSC 12	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora sp. FSSC 40	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora spathulata	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora spinulosa	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora stercicola	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora striatispora	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora suttoniana	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora tenuicristata	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora thailandica	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora theobromae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora tonkinensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora tuaranensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora tuberculata	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora tumidisperma	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora uniphialidica	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora unshiu	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora variasi	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora vasinfecta	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora wangariae	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora warna	Neocosmospora (formerly Fusarium solani species complex)	0
+Neocosmospora xizangensis	Neocosmospora (formerly Fusarium solani species complex)	0
+Rectifusarium robinianum	Rectifusarium (formerly Fusarium ventricosum species complex)	0
+Rectifusarium ventricosum	Rectifusarium (formerly Fusarium ventricosum species complex)	0
+Setofusarium setosum	Setofusarium (formerly Fusarium decemcellulare species complex)	0

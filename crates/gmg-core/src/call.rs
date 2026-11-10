@@ -68,6 +68,17 @@ pub struct Tentative {
     pub consistency: f64,
 }
 
+/// The species complex the species vote belongs to (`crate::complexes`), reported when the genus is called and the top hit
+/// is within `complexes::COMPLEX_MIN_ANI`.
+#[derive(Clone, Debug, PartialEq)]
+pub struct ComplexCall {
+    pub complex: String,
+    /// the species the near-best hits vote for (kept even when it is not called)
+    pub nearest_species: String,
+    /// true when the complex replaces the species call (its species are not separable from a genome sketch)
+    pub collapsed: bool,
+}
+
 #[derive(Clone, Debug)]
 pub struct Guess {
     pub query_hashes: usize,
@@ -80,6 +91,7 @@ pub struct Guess {
     /// set only when the genus was NOT called because its ANI is below `min_ani[4]`, but the vote, the higher ranks and
     /// `tentative_genus_min_ani` all hold
     pub tentative_genus: Option<Tentative>,
+    pub species_complex: Option<ComplexCall>,
 }
 
 /// Why a rank was not called: the first rank whose vote exists but failed its threshold (or no hit at all).
@@ -87,7 +99,7 @@ pub struct Guess {
 pub struct Withheld {
     /// index into `RANKS`
     pub rank: usize,
-    /// `no_hits`, `too_few_shared_hashes`, `ani_below_cutoff` or `low_agreement`
+    /// `no_hits`, `too_few_shared_hashes`, `ani_below_cutoff`, `low_agreement` or `species_complex`
     pub code: &'static str,
     /// plain text with the numbers, e.g. `ANI 0.8870 < 0.9000`
     pub detail: String,
@@ -106,6 +118,18 @@ impl Guess {
         for (r, v) in self.votes.iter().enumerate() {
             if v.taxon.is_none() || self.calls[r].is_some() {
                 continue;
+            }
+            if r == 5 {
+                if let Some(c) = self.species_complex.as_ref().filter(|c| c.collapsed) {
+                    return Some(Withheld {
+                        rank: 5,
+                        code: "species_complex",
+                        detail: format!(
+                            "{}: its species are not separable from a genome sketch (nearest: {})",
+                            c.complex, c.nearest_species
+                        ),
+                    });
+                }
             }
             return Some(if top.shared < th.min_shared[r] {
                 Withheld {
@@ -163,6 +187,7 @@ pub fn guess_from_hits(index: &RefIndex, qlen: usize, hits: &[Hit], th: &Thresho
             calls: vec![None; 6],
             hits: vec![],
             tentative_genus: None,
+            species_complex: None,
         };
     };
     let g = &index.genomes[top.genome as usize];
@@ -245,12 +270,28 @@ pub fn guess_from_hits(index: &RefIndex, qlen: usize, hits: &[Hit], th: &Thresho
     } else {
         None
     };
+    // species complex: annotate when the genus is called and the top hit is close; a collapsing complex replaces the species call
+    let species_complex = votes[5]
+        .taxon
+        .as_ref()
+        .filter(|_| calls[4].is_some() && ani >= crate::complexes::COMPLEX_MIN_ANI)
+        .and_then(|sp| {
+            crate::complexes::lookup(sp).map(|e| ComplexCall {
+                complex: e.complex.clone(),
+                nearest_species: sp.clone(),
+                collapsed: e.collapse,
+            })
+        });
+    if species_complex.as_ref().is_some_and(|c| c.collapsed) {
+        calls[5] = None;
+    }
     Guess {
         query_hashes: qlen,
         top: Some(topinfo),
         votes,
         calls,
         tentative_genus,
+        species_complex,
         hits: hits
             .iter()
             .take(th.top_n)
@@ -277,6 +318,49 @@ mod tests {
             cluster: String::new(),
             ..Default::default()
         }
+    }
+
+    #[test]
+    fn species_complex_collapses_fosc_and_annotates_others() {
+        let mut b = IndexBuilder::new(21, 1, 42);
+        b.add(
+            m("o1", "Fusarium", "Fusarium oxysporum"),
+            (0..1000).collect(),
+        );
+        b.add(
+            m("g1", "Fusarium", "Fusarium graminearum"),
+            (5000..6000).collect(),
+        );
+        b.add(
+            m("a1", "Aspergillus", "Aspergillus fumigatus"),
+            (9000..10000).collect(),
+        );
+        let ix = b.build(4);
+        let th = Thresholds {
+            min_shared: [1; 6],
+            ..Default::default()
+        };
+        // identical to the FOSC genome: species withheld, complex reported, nearest species kept
+        let g = guess(&ix, &(0..1000).collect::<Vec<_>>(), &|_| false, &th);
+        assert_eq!(g.calls[4].as_deref(), Some("Fusarium"));
+        assert_eq!(g.calls[5], None);
+        let c = g.species_complex.as_ref().expect("complex");
+        assert!(c.collapsed && c.complex.contains("FOSC"));
+        assert_eq!(c.nearest_species, "Fusarium oxysporum");
+        assert_eq!(g.withheld(&th).map(|w| w.code), Some("species_complex"));
+        // FSAMSC: species still called, complex as annotation
+        let g = guess(&ix, &(5000..6000).collect::<Vec<_>>(), &|_| false, &th);
+        assert_eq!(g.calls[5].as_deref(), Some("Fusarium graminearum"));
+        let c = g.species_complex.as_ref().expect("complex");
+        assert!(!c.collapsed && c.complex.contains("FSAMSC"));
+        assert_eq!(g.withheld(&th), None);
+        // not in the table
+        let g = guess(&ix, &(9000..10000).collect::<Vec<_>>(), &|_| false, &th);
+        assert!(g.species_complex.is_none());
+        // too far from the FOSC genome (containment 0.5 -> ANI ~0.967 < 0.98): no complex claimed
+        let q: Vec<u64> = (0..500).chain(20000..20500).collect();
+        let g = guess(&ix, &q, &|_| false, &th);
+        assert!(g.species_complex.is_none());
     }
 
     #[test]

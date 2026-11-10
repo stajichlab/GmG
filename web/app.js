@@ -283,6 +283,8 @@ worker.onmessage = (e) => {
 const call = (r) => {
   const c = r.guess && r.guess.calls;
   if (!c) return "";
+  const sc = r.guess.species_complex;
+  if (sc && sc.collapsed && !c.species.taxon && c.genus.taxon) return sc.complex;
   for (let i = 5; i >= 0; i--) if (c[RANKS[i]].taxon) return c[RANKS[i]].taxon;
   const t = r.guess.tentative_genus;
   return t ? `${t.taxon} (tentative genus)` : "";

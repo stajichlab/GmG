@@ -226,6 +226,39 @@ fn svg_text_stays_inside_the_viewbox() {
 }
 
 #[test]
+fn collapsed_species_complex_replaces_the_species_in_the_report() {
+    let (results, run, _) = fixture();
+    let fosc = "Fusarium oxysporum species complex (FOSC)";
+    let rec = json!({
+        "id": "fosc1", "path": "fosc1.fa", "kind": "assembly", "status": "ok", "best_rank": "genus",
+        "qc": {"total_bases": 5e7, "n50": 1e6, "n_hashes": 5000}, "qc_flags": [],
+        "guess": {
+            "calls": {
+                "phylum": {"taxon": "Ascomycota", "vote": "Ascomycota", "consistency": 1.0},
+                "class": {"taxon": "Sordariomycetes", "vote": "Sordariomycetes", "consistency": 1.0},
+                "order": {"taxon": "Hypocreales", "vote": "Hypocreales", "consistency": 1.0},
+                "family": {"taxon": "Nectriaceae", "vote": "Nectriaceae", "consistency": 1.0},
+                "genus": {"taxon": "Fusarium", "vote": "Fusarium", "consistency": 1.0},
+                "species": {"taxon": null, "vote": "Fusarium oxysporum", "consistency": 1.0}
+            },
+            "species_complex": {"complex": fosc, "nearest_species": "Fusarium oxysporum", "collapsed": true},
+            "top": {"id": "r1", "cluster": "", "shared": 4900, "ani": 0.9995, "containment_query": 0.99, "containment_ref": 0.98},
+            "hits": [{"id": "r1", "taxid": 5507, "shared": 4900, "lineage": ["Ascomycota", "Sordariomycetes", "Hypocreales", "Nectriaceae", "Fusarium", "Fusarium oxysporum"], "cluster": ""}]
+        }
+    });
+    let mut all = results;
+    all.push(rec.clone());
+    let html = render_html(&all, &run, None, &Options::default());
+    assert!(html.contains(fosc), "card / ladder");
+    assert!(
+        html.contains("too close to name from a genome sketch"),
+        "evidence sentence"
+    );
+    let m = gmg_report::render_markdown(&[rec], &run, None, &Options::default());
+    assert!(m.md.contains(fosc), "markdown table");
+}
+
+#[test]
 fn tentative_genus_is_shown_as_tentative_everywhere() {
     let (results, run, _) = fixture();
     let rec = json!({

@@ -63,6 +63,8 @@ pub struct Rec {
     pub calls: [Call; 6],
     /// (taxon, ani, consistency) of a genus the evidence points to but does not support as a call
     pub tentative_genus: Option<(String, f64, f64)>,
+    /// (complex, nearest species, collapsed): the species complex of the species vote; when collapsed it replaces the species call
+    pub species_complex: Option<(String, String, bool)>,
     pub top: Option<Top>,
     pub hits: Vec<Hit>,
 }
@@ -93,6 +95,13 @@ impl Rec {
                 g["tentative_genus"]["taxon"].as_str()?.to_string(),
                 g["tentative_genus"]["ani"].as_f64().unwrap_or(0.0),
                 g["tentative_genus"]["consistency"].as_f64().unwrap_or(0.0),
+            ))
+        });
+        let species_complex = g["species_complex"].as_object().and_then(|_| {
+            Some((
+                g["species_complex"]["complex"].as_str()?.to_string(),
+                s(&g["species_complex"]["nearest_species"]),
+                g["species_complex"]["collapsed"].as_bool().unwrap_or(false),
             ))
         });
         let top = g["top"].as_object().map(|_| Top {
@@ -168,6 +177,7 @@ impl Rec {
             hist,
             calls,
             tentative_genus,
+            species_complex,
             top,
             hits,
         }
@@ -184,6 +194,14 @@ impl Rec {
             .map(|i| self.call(i))
             .find(|c| !c.is_empty())
             .unwrap_or("")
+    }
+
+    /// The complex that replaces the species call (collapsed complexes only), when no species was called.
+    pub fn collapsed_complex(&self) -> Option<&str> {
+        self.species_complex
+            .as_ref()
+            .filter(|(_, _, c)| *c && self.call(5).is_empty())
+            .map(|(cx, _, _)| cx.as_str())
     }
 
     pub fn phylum(&self) -> &str {
