@@ -258,6 +258,97 @@ fn run_folder_end_to_end() {
 }
 
 #[test]
+fn marker_mode_names_the_species_of_one_marker_and_collapses_fosc() {
+    // a marker index: one reference per strain holding two loci, sketched at scaled 1; queries are one locus
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path();
+    let mut rng = Rng(0x2545F4914F6CDD1D);
+    let species = [
+        "Fusarium graminearum",
+        "Fusarium culmorum",
+        "Fusarium oxysporum",
+    ];
+    let base: Vec<[Vec<u8>; 2]> = species
+        .iter()
+        .map(|_| [rng.genome(700), rng.genome(1500)])
+        .collect();
+    let refs = d.join("refs");
+    fs::create_dir(&refs).unwrap();
+    let mut meta = String::from("id\ttaxid\tphylum\tclass\torder\tfamily\tgenus\tspecies\n");
+    for (si, sp) in species.iter().enumerate() {
+        for strain in 0..2 {
+            let id = format!("s{si}_{strain}");
+            let mut text = String::new();
+            for (li, locus) in ["tef1", "rpb2"].iter().enumerate() {
+                let seq = if strain == 0 {
+                    base[si][li].clone()
+                } else {
+                    rng.mutate(&base[si][li], 1)
+                };
+                text.push_str(&fasta(&format!("{id}_{locus}"), &seq));
+            }
+            fs::write(refs.join(format!("{id}.fa")), text).unwrap();
+            meta.push_str(&format!(
+                "{id}\t0\tAscomycota\tSordariomycetes\tHypocreales\tNectriaceae\tFusarium\t{sp}\n"
+            ));
+        }
+    }
+    fs::write(d.join("meta.tsv"), meta).unwrap();
+    let sk = d.join("sk");
+    let ref_files: Vec<String> = fs::read_dir(&refs)
+        .unwrap()
+        .map(|e| e.unwrap().path().display().to_string())
+        .collect();
+    let mut args = vec!["sketch", "-k", "21", "-s", "1", "-o", sk.to_str().unwrap()];
+    args.extend(ref_files.iter().map(|s| s.as_str()));
+    ok(&args);
+    let ix = d.join("markers.gmgi");
+    ok(&[
+        "build",
+        "--meta",
+        d.join("meta.tsv").to_str().unwrap(),
+        "--sketches",
+        sk.to_str().unwrap(),
+        "-o",
+        ix.to_str().unwrap(),
+    ]);
+    // queries: tef1 of a new strain of each species (about 1 difference in 700 bp)
+    let q = d.join("q");
+    fs::create_dir(&q).unwrap();
+    for (si, name) in ["gram", "culm", "oxy"].iter().enumerate() {
+        let seq = rng.mutate(&base[si][0], 1);
+        fs::write(q.join(format!("{name}.fa")), fasta(name, &seq)).unwrap();
+    }
+    let out = d.join("out");
+    ok(&[
+        "run",
+        q.to_str().unwrap(),
+        "--index",
+        ix.to_str().unwrap(),
+        "--thresholds",
+        "markers",
+        "-o",
+        out.to_str().unwrap(),
+        "--no-report",
+    ]);
+    let (h, rows) = read_tsv(&out.join("results.tsv"));
+    let row = |id: &str| rows.iter().find(|r| r[col(&h, "query_id")] == id).unwrap();
+    assert_eq!(row("gram")[col(&h, "call_species")], "Fusarium graminearum");
+    assert_eq!(row("culm")[col(&h, "call_species")], "Fusarium culmorum");
+    let oxy = row("oxy");
+    assert_eq!(oxy[col(&h, "call_genus")], "Fusarium");
+    assert_eq!(oxy[col(&h, "call_species")], "");
+    assert!(oxy[col(&h, "species_complex")].contains("FOSC"));
+    assert!(oxy[col(&h, "withheld")].contains("species_complex"));
+    let run: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(out.join("run.json")).unwrap()).unwrap();
+    assert!(
+        run.to_string().contains("markers"),
+        "threshold set recorded"
+    );
+}
+
+#[test]
 fn divergent_input_gets_a_tentative_genus_not_a_genus_call() {
     let dir = tempfile::tempdir().unwrap();
     let d = dir.path();

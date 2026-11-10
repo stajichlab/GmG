@@ -1,0 +1,9 @@
+{
+ "_note": "Marker mode (FusariumID strain index at scaled=1, queries = marker sequences). Species ANI 0.995 from the held-out strain split in bench/F2_marker_mode (precision 0.974, species absent from the reference named 4.8%); the other ranks keep the genome defaults.",
+ "min_shared": [5, 5, 5, 5, 5, 5],
+ "min_ani": [0.7109, 0.7109, 0.7109, 0.7715, 0.9, 0.995],
+ "min_consistency": [0.5, 0.5, 0.6, 0.9, 0.9, 0.9],
+ "margin": 0.9,
+ "top_n": 10,
+ "tentative_genus_min_ani": 0.7765
+}
