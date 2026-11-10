@@ -6,7 +6,7 @@ gmg run GENOMES_DIR [MORE_INPUTS...] --index bfd.gmgi -o results/
 
 Inputs are files or directories (searched recursively): FASTA (`.fa .fna .fasta .fas .ffn .fsa .seq .dna`) or FASTQ (`.fq .fastq`), optionally gzipped.
 The id of an input is its file name without those extensions (two inputs with the same id are an error).
-`--kind auto|assembly|reads` (auto = by extension), `--thresholds known|permissive|novel|FILE.json`, `--resume`, `--top N`.
+`--kind auto|assembly|reads` (auto = by extension), `--thresholds known|permissive|novel|markers|FILE.json`, `--resume`, `--top N`.
 
 | file | content |
 |---|---|

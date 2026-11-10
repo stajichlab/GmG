@@ -56,7 +56,7 @@ impl Index {
         })
     }
 
-    /// Choose a built-in threshold set: "known" (default), "permissive" or "novel".
+    /// Choose a built-in threshold set: "known" (default), "permissive", "novel" or "markers" (FusariumID marker index).
     fn use_thresholds(&mut self, name: &str) -> PyResult<()> {
         let text = match name {
             "known" => None,
@@ -66,9 +66,12 @@ impl Index {
             "novel" => Some(include_str!(
                 "../../../data/thresholds/bfd_s10000.novel.json"
             )),
+            "markers" => Some(include_str!(
+                "../../../data/thresholds/fusariumid_markers.json"
+            )),
             other => {
                 return Err(PyValueError::new_err(format!(
-                    "unknown threshold set '{other}' (known, permissive, novel)"
+                    "unknown threshold set '{other}' (known, permissive, novel, markers)"
                 )))
             }
         };
