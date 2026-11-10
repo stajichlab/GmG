@@ -1,0 +1,10 @@
+labels	genomes	species	nearest_is_same_species	species_with_barcode_gap	other_species_ani_q50	other_species_ani_q90	other_species_ani_q99	other_species_ani_max	other_species_above_species_gate	same_species_ani_q10	same_species_ani_q50
+ncbi	1926	116	0.9102	0.5259	0.9883	0.9955	0.9998	1.0000	0.1490	0.9922	0.9986
+fid	1926	148	0.9424	0.6689	0.9885	0.9952	0.9998	0.9999	0.1636	0.9921	0.9986
+fid:F. oxysporum species complex	801	38	0.8864	0.1579	0.9928	0.9966	0.9999	0.9999	0.3845	0.9927	0.9994
+fid:F. sambucinum species complex	578	27	0.9965	0.9259	0.9883	0.9917	0.9929	0.9930	0.0000	0.9974	0.9985
+fid:F. fujikuroi species complex	240	27	0.9750	0.8519	0.9842	0.9882	0.9916	0.9937	0.0000	0.9914	0.9970
+fid:Neocosmospora	163	22	0.9387	0.6818	0.9840	0.9916	0.9998	0.9998	0.0429	0.9874	0.9976
+fid:F. incarnatum-equiseti species complex	49	10	1.0000	0.8000	0.9737	0.9925	0.9931	0.9931	0.0000	0.9880	0.9954
+fid:F. tricinctum species complex	25	5	0.9200	0.8000	0.9641	0.9653	0.9918	0.9918	0.0000	0.9879	0.9918
+fid:F. nisikadoi species complex	16	1	1.0000	1.0000	0.9349	0.9353	0.9359	0.9359	0.0000	0.9937	0.9954
