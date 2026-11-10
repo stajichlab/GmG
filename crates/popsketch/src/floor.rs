@@ -24,6 +24,8 @@ pub struct Floor {
     pub p90: f64,
     /// `split_half` or `fallback`
     pub source: &'static str,
+    /// each sample's own split-half distance (1 - ANI between its two halves), in input order
+    pub per_sample: Vec<(String, f64)>,
 }
 
 fn fnv1a(s: &str) -> u64 {
@@ -45,6 +47,7 @@ pub fn pick_for_halves(ids: &[String], n: usize) -> HashSet<String> {
 /// Estimate the floor from the samples that carry halves.
 pub fn estimate(samples: &[&SampleSketch], k: u32) -> Floor {
     let mut d: Vec<f64> = Vec::new();
+    let mut per_sample: Vec<(String, f64)> = Vec::new();
     for s in samples {
         let Some((a, b)) = &s.halves else { continue };
         let (ca, cb) = (auto_min_abund(&a.abunds), auto_min_abund(&b.abunds));
@@ -63,6 +66,7 @@ pub fn estimate(samples: &[&SampleSketch], k: u32) -> Floor {
         let inter = intersect_count(&ha, &hb);
         let (ani, _) = pair_stats(ha.len(), hb.len(), inter, k);
         d.push((1.0 - ani).max(0.0));
+        per_sample.push((s.id.clone(), (1.0 - ani).max(0.0)));
         let _ = kept_hashes;
     }
     if d.len() >= MIN_SAMPLES {
@@ -73,6 +77,7 @@ pub fn estimate(samples: &[&SampleSketch], k: u32) -> Floor {
             median: median(&d),
             p90,
             source: "split_half",
+            per_sample,
         }
     } else {
         Floor {
@@ -81,6 +86,7 @@ pub fn estimate(samples: &[&SampleSketch], k: u32) -> Floor {
             median: median(&d),
             p90: quantile(&d, 0.9),
             source: "fallback",
+            per_sample,
         }
     }
 }
@@ -121,6 +127,12 @@ mod tests {
         assert!(f.value > f.median && (f.value - f.p90).abs() < 1e-12);
         // 20,380 vs 20,020... containment of the larger-private half is shared/min: dist = 1 - (shared/min)^(1/21) is small
         assert!(f.value > 1e-5 && f.value < 0.01, "{}", f.value);
+        // each sample's own distance is kept, in input order, and grows with the private hashes of its halves
+        assert_eq!(f.per_sample.len(), 10);
+        assert_eq!(f.per_sample[0].0, "s0");
+        assert!(f.per_sample.windows(2).all(|w| w[0].1 < w[1].1));
+        let d: Vec<f64> = f.per_sample.iter().map(|x| x.1).collect();
+        assert!((median(&d) - f.median).abs() < 1e-12);
     }
 
     #[test]

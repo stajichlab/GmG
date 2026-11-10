@@ -53,6 +53,7 @@ Every flag is relative to the cohort; nothing needs a reference. Each flag carri
 | `clusters.tsv` | cluster per sample (`NA` when there is no clear cut) |
 | `tree.nwk` | neighbour-joining tree on mash distance, unrooted unless `--root ID`; branches shorter than the noise floor are collapsed |
 | `label_check.tsv` | samples whose ANI matches another label better than their own |
+| `split_half.tsv` | each sample's own split-half distance (1 - ANI between its two read halves), for the samples that carry halves: the technical noise of a comparison involving that sample (`--floor-samples` sets how many carry halves) |
 | `group_tests.tsv` | for each label column: PERMANOVA (R2, pseudo-F, p), PERMDISP p, the stratum column, warnings |
 | `popsketch.json` | everything above in one machine-readable summary |
 | `report.md`, `figures/*.svg` | with `--report-format md` or `all`: the same report in Markdown with each figure as a standalone SVG |

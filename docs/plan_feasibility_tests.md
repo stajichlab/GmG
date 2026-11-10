@@ -93,6 +93,20 @@ Reading: the species fall in two kinds. In z_tritici and p_nodorum the typical s
 
 What it does and does not show. It does not validate the rule: the 1, 2 and 4 Gb subsamples are nested draws from the same reads, and containment between nested draws is biased toward agreement, so those distances are a lower bound on noise, not independent replicates (the split-half distance, built from alternate reads, is the honest one). It does show that the floor is mostly a coverage effect: the 12 high-depth runs have a median floor about 3 times lower at 1 Gb (0.00065) than the whole z_tritici set (0.0019), which includes runs with fewer than 1 Gb. A per-species median therefore mixes coverage differences with biology. **Revised proposal: a per-pair rule, with the pair threshold taken from the two samples' own split-half distances (for example the mean of the two), reported with the per-species median as the summary.** That needs the per-sample split-half distance written out (not yet in the outputs), so the next step is to expose it and recount. Doubling the cap from 1 to 2 Gb would cut the floor about 4 fold at twice the sketch size; that trade belongs with T2. Caveat: 12 runs per species, two species.
 
+**D1e (`bench/D1_collapse/per_pair.tsv`, `split_half_<species>.tsv`, job 31895509): the per-pair rule.** `popsketch run` now writes `split_half.tsv` (each sample's own split-half distance). Representatives left (leader clustering in file order; a sample joins a representative when 1 - ANI is at most the threshold):
+
+| species (n) | species median (D1c) | per-pair mean | per-pair max |
+|---|---|---|---|
+| z_tritici (259) | 192 | 191 | 190 |
+| c_neoformans (268) | 94 | 86 | 77 |
+| c_beticola (282) | 156 | 146 | 138 |
+| p_nodorum (265) | 188 | 184 | 176 |
+| b_cinerea (294) | 177 | 167 | 160 |
+| n_discreta (203) | 59 | 52 | 49 |
+| p_oryzae (251) | 66 | 54 | 39 |
+
+The species-median column reproduces D1c exactly, so the runs agree. The per-pair mean removes 0-18% more representatives than the species median (largest in p_oryzae, 66 to 54, and n_discreta, 59 to 52); the max rule goes further (p_oryzae 39). Largest clusters grow with the per-pair rules (c_neoformans 34 to 93, p_oryzae 55 to 123). So the choice changes the count modestly and the cluster sizes more; it does not rescue or break any set. **Decision proposed: per-pair mean** (each pair's threshold is the mean of the two samples' own split-half distances; samples without halves use the species median), because it follows each sample's coverage and needs no species-wide constant, with the species median kept as the reported summary. Still unvalidated against independent replicates: no set here has real technical replicates of the same sample, which is the test that would say whether the noise estimate is right. Leader clustering depends on input order; the count is one valid clustering, not the minimum. **Next in code:** a collapse step in `popsketch` using this rule, writing representatives and cluster sizes, and the label tests using the sizes as weights.
+
 ### A2. FracMinHash validity (predict first)
 At scaled 200 a 20 Mb genome gives about 100k hashes; sampling SD of 1 - ANI near 0.001 is about 2e-5, far below the measured floors (0.001-0.0025). So floors come from reads, errors and the cutoff, not from sampling. At the other end, below about 80% ANI, C^(1/21) rests on a handful of shared hashes (saturation). Predict both regimes; run only scaled 200 and 1000 at k=21 unless the prediction fails (so k=17/25 are dropped).
 
