@@ -849,6 +849,31 @@ fn build(o: &Options, r: &Results) -> Vec<Block> {
             ))],
             Tone::Note,
         ));
+        if !r.collapse_mix.is_empty() {
+            let rows = r
+                .collapse_mix
+                .iter()
+                .map(|m| {
+                    vec![
+                        vec![t(m.column.clone())],
+                        vec![t(m.multi.to_string())],
+                        vec![t(m.mixed.to_string())],
+                    ]
+                })
+                .collect();
+            d.push(Block::Table(
+                vec![
+                    "label column",
+                    "collapsed clusters of 2+ samples",
+                    "of those, spanning several values",
+                ],
+                rows,
+            ));
+            d.push(Block::P(
+                vec![t("A cluster that spans several values of a label (for example one genotype sequenced by several studies) is one point here; collapse_labels.tsv lists them with the values and counts. Use --collapse-within to keep samples with different labels apart.")],
+                Tone::Note,
+            ));
+        }
     }
     d.push(Block::H(2, "2. Coarse structure (secondary)".into()));
     if let (Some(dm), Some(ord)) = (&r.dist, &r.ordination) {

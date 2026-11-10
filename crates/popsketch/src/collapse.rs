@@ -116,6 +116,82 @@ pub fn collapse(
     }
 }
 
+/// A collapsed cluster whose members carry more than one value of a label column.
+#[derive(Clone, Debug, PartialEq)]
+pub struct MixedCluster {
+    pub column: String,
+    pub representative: String,
+    pub size: usize,
+    /// (value, number of members with that value), most frequent first; members without a value are not counted
+    pub values: Vec<(String, usize)>,
+}
+
+/// Summary of the collapsed clusters for one label column.
+#[derive(Clone, Debug, PartialEq)]
+pub struct ColumnMix {
+    pub column: String,
+    /// clusters with at least two samples
+    pub multi: usize,
+    /// of those, clusters whose members carry at least two different values
+    pub mixed: usize,
+}
+
+/// Which collapsed clusters span label values (for example the same genotype sequenced by several studies).
+/// `members` is (sample id, representative id) for every sample that entered the collapse; `value(id, column)` is the label
+/// of a sample (None when it has none). Mixed clusters are sorted by size, largest first, then by representative.
+pub fn mixed_clusters(
+    members: &[(String, String)],
+    columns: &[String],
+    value: impl Fn(&str, usize) -> Option<String>,
+) -> (Vec<ColumnMix>, Vec<MixedCluster>) {
+    let mut by_rep: std::collections::BTreeMap<&str, Vec<&str>> = std::collections::BTreeMap::new();
+    for (id, rep) in members {
+        by_rep.entry(rep.as_str()).or_default().push(id.as_str());
+    }
+    let mut mixes = Vec::new();
+    let mut clusters = Vec::new();
+    for (c, name) in columns.iter().enumerate() {
+        let mut multi = 0;
+        let mut mixed = 0;
+        for (rep, ids) in &by_rep {
+            if ids.len() < 2 {
+                continue;
+            }
+            multi += 1;
+            let mut count: std::collections::BTreeMap<String, usize> =
+                std::collections::BTreeMap::new();
+            for id in ids {
+                if let Some(v) = value(id, c) {
+                    *count.entry(v).or_default() += 1;
+                }
+            }
+            if count.len() >= 2 {
+                mixed += 1;
+                let mut values: Vec<(String, usize)> = count.into_iter().collect();
+                values.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
+                clusters.push(MixedCluster {
+                    column: name.clone(),
+                    representative: rep.to_string(),
+                    size: ids.len(),
+                    values,
+                });
+            }
+        }
+        mixes.push(ColumnMix {
+            column: name.clone(),
+            multi,
+            mixed,
+        });
+    }
+    clusters.sort_by(|a, b| {
+        a.column
+            .cmp(&b.column)
+            .then(b.size.cmp(&a.size))
+            .then(a.representative.cmp(&b.representative))
+    });
+    (mixes, clusters)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -266,5 +342,47 @@ mod tests {
                 assert_eq!(g[j], g[r]);
             }
         }
+    }
+
+    #[test]
+    fn mixed_clusters_lists_clusters_that_span_label_values() {
+        // cluster a: {a, b, c} studies S1, S1, S2 (mixed); cluster d: {d, e} S1, S1 (pure); f alone; g, h: S3 and missing
+        let members: Vec<(String, String)> = [
+            ("a", "a"),
+            ("b", "a"),
+            ("c", "a"),
+            ("d", "d"),
+            ("e", "d"),
+            ("f", "f"),
+            ("g", "g"),
+            ("h", "g"),
+        ]
+        .iter()
+        .map(|(x, y)| (x.to_string(), y.to_string()))
+        .collect();
+        let study = |id: &str, _c: usize| -> Option<String> {
+            match id {
+                "a" | "b" | "d" | "e" | "f" => Some("S1".into()),
+                "c" => Some("S2".into()),
+                "g" => Some("S3".into()),
+                _ => None,
+            }
+        };
+        let (mix, cl) = mixed_clusters(&members, &["study".to_string()], study);
+        assert_eq!(
+            mix,
+            vec![ColumnMix {
+                column: "study".into(),
+                multi: 3,
+                mixed: 1
+            }]
+        );
+        assert_eq!(cl.len(), 1);
+        assert_eq!(cl[0].representative, "a");
+        assert_eq!(cl[0].size, 3);
+        assert_eq!(
+            cl[0].values,
+            vec![("S1".to_string(), 2), ("S2".to_string(), 1)]
+        );
     }
 }

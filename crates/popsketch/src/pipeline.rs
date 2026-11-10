@@ -266,6 +266,10 @@ pub struct Results {
     pub newick: Option<String>,
     pub collapsed: usize,
     pub label_table: Option<LabelTable>,
+    /// per label column: collapsed clusters of 2+ samples and how many of them span several label values
+    pub collapse_mix: Vec<crate::collapse::ColumnMix>,
+    /// the clusters that span several values of a label column (empty without --collapse or --labels)
+    pub mixed_clusters: Vec<crate::collapse::MixedCluster>,
     pub label_reports: Vec<ColumnReport>,
     pub group_tests: Vec<GroupTest>,
     /// set when the analysis ran on representatives of collapsed near-identical samples
@@ -802,6 +806,8 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
         newick: None,
         collapsed: 0,
         label_table: None,
+        collapse_mix: Vec::new(),
+        mixed_clusters: Vec::new(),
         label_reports: Vec::new(),
         group_tests: Vec::new(),
         collapse: None,
@@ -1166,6 +1172,16 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                     None => res.warnings.push(format!("DAPC on label column {} was skipped: it needs at least 2 label groups that form coherent clusters in the sketches, with 2 samples each, and more samples than PCs", rep.name)),
                 }
             }
+            if let Some(c) = &res.collapse {
+                let members: Vec<(String, String)> =
+                    c.rows.iter().map(|r| (r.0.clone(), r.1.clone())).collect();
+                let (mix, clusters) =
+                    crate::collapse::mixed_clusters(&members, &table.columns, |id, col| {
+                        table.rows.get(id).and_then(|v| v[col].clone())
+                    });
+                res.collapse_mix = mix;
+                res.mixed_clusters = clusters;
+            }
             res.label_table = Some(table);
         }
         // comparison with an external SNP tree and PCs
@@ -1312,6 +1328,24 @@ fn write_outputs(o: &Options, r: &Results) -> Result<()> {
             );
         }
         fs::write(o.out.join("collapse.tsv"), s)?;
+    }
+    // collapse_labels.tsv: collapsed clusters that span several values of a label column
+    if !r.collapse_mix.is_empty() {
+        let mut s =
+            String::from("label_column\trepresentative\tcluster_size\tdistinct_values\tvalues\n");
+        for m in &r.mixed_clusters {
+            let vals: Vec<String> = m.values.iter().map(|(v, n)| format!("{v}:{n}")).collect();
+            let _ = writeln!(
+                s,
+                "{}\t{}\t{}\t{}\t{}",
+                tsv_cell(&m.column),
+                tsv_cell(&m.representative),
+                m.size,
+                m.values.len(),
+                tsv_cell(&vals.join(";"))
+            );
+        }
+        fs::write(o.out.join("collapse_labels.tsv"), s)?;
     }
     // split_half.tsv: each sample's own split-half distance (the technical noise of a comparison involving it)
     if !r.floor.per_sample.is_empty() {
@@ -1491,7 +1525,8 @@ pub fn summary_json(o: &Options, r: &Results) -> Value {
         "ordination": r.ordination.as_ref().map(|x| json!({"method": x.method, "variance_fraction": x.var_frac, "features": x.n_features})),
         "tree": {"written": r.newick.is_some(), "branches_collapsed": r.collapsed},
         "labels": labels,
-        "collapse": r.collapse.as_ref().map(|c| json!({"rule": c.rule, "within": c.within, "input": c.input, "representatives": c.kept})),
+        "collapse": r.collapse.as_ref().map(|c| json!({"rule": c.rule, "within": c.within, "input": c.input, "representatives": c.kept,
+            "label_mix": r.collapse_mix.iter().map(|m| json!({"column": m.column, "clusters_of_2_plus": m.multi, "spanning_several_values": m.mixed})).collect::<Vec<_>>()})),
         "group_tests": r.group_tests.iter().map(|g| json!({"column": g.column, "strata": g.strata, "permutations": g.permutations, "result": g.result.as_ref().map(|t| t.to_json())})).collect::<Vec<_>>(),
         "dapc": r.dapc.as_ref().map(|dp| json!({"column": dp.column, "n_pcs": dp.dapc.n_pcs, "axes": dp.dapc.eigenvalues.len(), "eigenvalues": dp.dapc.eigenvalues,
             "groups": dp.dapc.groups, "accuracy": dp.dapc.accuracy,

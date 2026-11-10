@@ -109,7 +109,7 @@ impl Session {
     }
 
     /// Audit, distances, clusters, hash PCA, tree and label analysis. `options_json` may set `min_cov`, `size_z`,
-    /// `size_floor`, `shoulder_z`, `min_floors`, `k`, `components`, `floor_samples`, `tree`, `no_pca`, `flagged`
+    /// `size_floor`, `shoulder_z`, `min_floors`, `k`, `components`, `floor_samples`, `tree`, `no_pca`, `flagged`, `strata`, `permutations`, `collapse` (none, mean, max or median), `collapse_within` (label columns, comma-separated, or all)
     /// (`exclude`, `mark`, `decontaminate`), `root`, `strata` (a label column name), `permutations`. Returns one JSON document.
     pub fn analyze(
         &mut self,
@@ -227,6 +227,24 @@ fn apply(o: &mut Options, json_text: &str) -> Result<(), String> {
             "root" => o.root = val.as_str().map(str::to_string),
             "strata" => o.strata = val.as_str().map(str::to_string),
             "permutations" => o.permutations = u()? as usize,
+            "collapse" => {
+                o.collapse = match val.as_str() {
+                    None | Some("") | Some("none") => None,
+                    Some(r) => Some(
+                        popsketch::collapse::Rule::parse(r)
+                            .ok_or("collapse must be none, mean, max or median")?,
+                    ),
+                }
+            }
+            "collapse_within" => {
+                o.collapse_within = val
+                    .as_str()
+                    .unwrap_or("")
+                    .split(',')
+                    .map(|s| s.trim().to_string())
+                    .filter(|s| !s.is_empty())
+                    .collect()
+            }
             "flagged" => {
                 o.flagged = match val.as_str() {
                     Some("exclude") => FlagMode::Exclude,
@@ -239,4 +257,30 @@ fn apply(o: &mut Options, json_text: &str) -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn collapse_options_are_parsed_and_bad_ones_refused() {
+        let mut o = Options::default();
+        apply(
+            &mut o,
+            r#"{"collapse":"max","collapse_within":" study, country ,"}"#,
+        )
+        .unwrap();
+        assert_eq!(o.collapse, Some(popsketch::collapse::Rule::Max));
+        assert_eq!(
+            o.collapse_within,
+            vec!["study".to_string(), "country".to_string()]
+        );
+        // an empty choice (the page's "no") turns it off, and the within list is cleared by an empty string
+        apply(&mut o, r#"{"collapse":"","collapse_within":""}"#).unwrap();
+        assert_eq!(o.collapse, None);
+        assert!(o.collapse_within.is_empty());
+        let err = apply(&mut o, r#"{"collapse":"fast"}"#).unwrap_err();
+        assert!(err.contains("collapse must be"), "{err}");
+    }
 }

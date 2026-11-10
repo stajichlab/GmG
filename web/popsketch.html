@@ -46,6 +46,14 @@
           <label class="field">Label column to permute inside (for example study)
             <input id="strata" type="text" placeholder="none" title="Name of a column in the label file. The group tests shuffle labels only among samples with the same value in this column, so a label that just tracks the study is not called an effect. Leave empty to shuffle freely.">
           </label>
+          <label class="field">Collapse near-identical samples
+            <select id="collapse" title="Keep one representative per group of near-identical samples; the clusters, ordination, tree and report use the representatives, the group tests use all samples. The threshold of a pair comes from the two samples' own split-half distances (mean of the two, the larger, or the species median). A bundle carries split halves for only some samples, so the rest use the species median.">
+              <option value="">no</option><option value="mean">yes: mean of the pair's noise</option><option value="max">yes: larger of the pair's noise</option><option value="median">yes: species median noise</option>
+            </select>
+          </label>
+          <label class="field">Only collapse samples with the same label in (columns, comma-separated, or all)
+            <input id="collapse-within" type="text" placeholder="none" title="With collapse: two samples are merged only when they carry the same labels in these label columns (for example study,country), so no representative stands for samples with different labels. Leave empty to merge regardless of labels.">
+          </label>
           <label class="field">Permutations (0: no group tests)
             <input id="permutations" type="number" min="0" step="100" value="999" title="PERMANOVA and PERMDISP for each label column; the time grows with the number of samples">
           </label>

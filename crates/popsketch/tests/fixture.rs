@@ -727,6 +727,17 @@ fn collapse_runs_the_analysis_on_representatives_writes_collapse_tsv_and_tests_l
     assert!(json.contains("\"collapse\"") && json.contains("\"representatives\""));
     // the ordination, tree and distances have one row per representative
     assert_eq!(r.dist.as_ref().unwrap().n, c.kept);
+    // the clusters that span label values are listed, one summary per label column
+    assert_eq!(r.collapse_mix.len(), 1);
+    assert_eq!(r.collapse_mix[0].column, "group");
+    assert!(r.collapse_mix[0].mixed <= r.collapse_mix[0].multi);
+    assert_eq!(r.mixed_clusters.len(), r.collapse_mix[0].mixed);
+    let cl = fs::read_to_string(o.out.join("collapse_labels.tsv")).unwrap();
+    assert!(
+        cl.starts_with("label_column\trepresentative\tcluster_size\tdistinct_values\tvalues"),
+        "{cl}"
+    );
+    assert_eq!(cl.lines().count(), 1 + r.mixed_clusters.len());
     // the label test runs on all samples, not on the representatives, and is not weighted
     let g = r.group_tests[0].result.as_ref().unwrap();
     assert!(!g.weighted);
@@ -771,6 +782,17 @@ fn label_aware_collapse_never_merges_samples_with_different_labels() {
     for (id, rep, _, _, _) in &c.rows {
         assert_eq!(batch_of[id], batch_of[rep], "{id} merged into {rep}");
     }
+    // no cluster of the restricted collapse spans two batches; the free collapse can
+    let mix = |r: &popsketch::pipeline::Results| {
+        r.collapse_mix
+            .iter()
+            .find(|m| m.column == "batch")
+            .unwrap()
+            .mixed
+    };
+    assert_eq!(mix(&aware), 0);
+    assert!(aware.mixed_clusters.iter().all(|m| m.column != "batch"));
+    let _ = mix(&free);
     // restricting the merges cannot give fewer representatives than the free collapse
     assert!(c.kept >= free.collapse.as_ref().unwrap().kept);
     // `all` uses every label column; an unknown column is ignored with a warning

@@ -145,5 +145,17 @@ bundle.sketches.forEach((x) => s6.add_sketch(x.meta, x.whole, x.a, x.b));
 const w6 = JSON.parse(s6.analyze(bundle.labels, "{}", undefined, undefined)).summary;
 same(w6, w5, "bundle input equals the loose sketches");
 console.log(`bundle input: ${bundle.sketches.length} samples, ${(fs.statSync(bundlePath).size / 1e3).toFixed(0)} kB, same summary as the loose sketches`);
+// collapsing near-identical samples (--collapse, --collapse-within): the page's options give the same representatives as the native run
+const out7 = path.join(tmp, "out7");
+execFileSync(bin, ["run", "--from-sketches", skdir, "--labels", path.join(tmp, "labels.tsv"), "-o", out7, "--scaled", "5", "--max-bases", "0", "--floor-samples", "20", "--threads", "2", "--quiet", "--collapse", "max", "--collapse-within", "all"], { stdio: ["ignore", "ignore", "inherit"] });
+const native7 = JSON.parse(fs.readFileSync(path.join(out7, "popsketch.json"), "utf8"));
+const s7 = new Session(21, 5, 0n, false);
+ids.forEach((id) => s7.add_sketch(rb(id + ".json"), rb(id + ".gsk"), rb(id + ".half_a.gsk"), rb(id + ".half_b.gsk")));
+const w7 = JSON.parse(s7.analyze(fs.readFileSync(path.join(tmp, "labels.tsv"), "utf8"), JSON.stringify({ collapse: "max", collapse_within: "all" }), undefined, undefined)).summary;
+assert.ok(native7.collapse, "native collapsed");
+same(w7.collapse, native7.collapse, "collapse summary");
+same(w7.clusters, native7.clusters, "collapse: clusters");
+same(w7.ordination, native7.ordination, "collapse: ordination");
+console.log(`collapse: ${native7.collapse.input} samples to ${native7.collapse.representatives} representatives, same in wasm`);
 console.log(`popsketch wasm parity OK: ${ids.length} samples, ${wasm.size} analysed, verdict ${JSON.stringify(w.clusters.gap.verdict)}`);
 fs.rmSync(tmp, { recursive: true, force: true });

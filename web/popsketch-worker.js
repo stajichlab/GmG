@@ -1,5 +1,5 @@
 // Web Worker for popsketch: reads each sample's first reads, sketches them, then runs the analysis. One thread, no files uploaded.
-// In:  {type:'run', samples:[{id, files:[File]}] or bundle:{k, scaled, sketches:[{id, meta, whole, a, b}]} (finished sketches), labels:string|null, compareTree:string|null, comparePcs:string|null, opts:{maxReads, scaled, flagged, strata, permutations}}
+// In:  {type:'run', samples:[{id, files:[File]}] or bundle:{k, scaled, sketches:[{id, meta, whole, a, b}]} (finished sketches), labels:string|null, compareTree:string|null, comparePcs:string|null, opts:{maxReads, scaled, flagged, strata, permutations, collapse, collapseWithin}}
 // Out: {type:'progress', i, n, id} {type:'done', result} {type:'error', message}
 import init, { Session } from "./pkg-ps/popsketch_wasm.js";
 
@@ -36,8 +36,8 @@ self.onmessage = async (e) => {
   if (m.type !== "run") return;
   try {
     await ready;
-    const { maxReads, scaled, flagged, strata, permutations } = m.opts;
-    const aopts = JSON.stringify({ flagged, ...(strata ? { strata } : {}), ...(Number.isFinite(permutations) ? { permutations } : {}) });
+    const { maxReads, scaled, flagged, strata, permutations, collapse, collapseWithin } = m.opts;
+    const aopts = JSON.stringify({ flagged, ...(strata ? { strata } : {}), ...(Number.isFinite(permutations) ? { permutations } : {}), ...(collapse ? { collapse } : {}), ...(collapse && collapseWithin ? { collapse_within: collapseWithin } : {}) });
     // a bundle of finished sketches sets k and the scale itself; the sketches are not made here
     const s = m.bundle ? new Session(m.bundle.k, m.bundle.scaled, 0n, false) : new Session(21, scaled, 0n, false);
     if (m.index) {
