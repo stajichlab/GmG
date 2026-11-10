@@ -676,3 +676,59 @@ fn label_tests_find_the_real_grouping_stay_inside_strata_and_can_be_turned_off()
     assert!(!exists(&o3.out.join("group_tests.tsv")));
     cleanup(&t);
 }
+
+#[test]
+fn collapse_runs_the_analysis_on_representatives_writes_collapse_tsv_and_weights_the_label_test() {
+    let t = build("collapse");
+    let mut labels = String::from("id\tgroup\n");
+    for (id, g) in t.group_of.iter() {
+        labels.push_str(&format!("{id}\tg{g}\n"));
+    }
+    let lp = t.dir.join("collapse_labels.tsv");
+    fs::write(&lp, labels).unwrap();
+    // without --collapse: nothing is written and nothing is weighted
+    let mut base = opts(&t, "collapse_off");
+    base.labels = Some(lp.clone());
+    base.permutations = 49;
+    base.floor_samples = 1000;
+    let off = run(&base).unwrap();
+    assert!(off.collapse.is_none());
+    assert!(!exists(&base.out.join("collapse.tsv")));
+    // a very loose rule must still keep at least 3 representatives or skip; a normal one gives a consistent table
+    let mut o = opts(&t, "collapse_on");
+    o.labels = Some(lp);
+    o.permutations = 49;
+    o.floor_samples = 1000;
+    o.collapse = Some(popsketch::collapse::Rule::Mean);
+    let r = run(&o).unwrap();
+    let c = r.collapse.as_ref().expect("collapse ran");
+    assert!(c.kept >= 3 && c.kept <= c.input);
+    assert_eq!(c.input, off.included.len());
+    assert_eq!(
+        r.included.len(),
+        c.kept,
+        "the analysis runs on the representatives"
+    );
+    assert_eq!(c.rows.len(), c.input);
+    assert_eq!(c.rows.iter().filter(|x| x.4).count(), c.kept);
+    // every representative's size is the number of rows that name it
+    for (id, rep, size, _, is_rep) in &c.rows {
+        assert_eq!(*size, c.rows.iter().filter(|x| &x.1 == rep).count(), "{id}");
+        assert_eq!(*is_rep, id == rep);
+    }
+    let tsv = fs::read_to_string(o.out.join("collapse.tsv")).unwrap();
+    assert!(
+        tsv.starts_with("id\trepresentative\tcluster_size\t"),
+        "{tsv}"
+    );
+    assert_eq!(tsv.lines().count(), c.input + 1);
+    let json = fs::read_to_string(o.out.join("popsketch.json")).unwrap();
+    assert!(json.contains("\"collapse\"") && json.contains("\"representatives\""));
+    // the ordination, tree and distances have one row per representative
+    assert_eq!(r.dist.as_ref().unwrap().n, c.kept);
+    if let Some(g) = r.group_tests.first().and_then(|g| g.result.as_ref()) {
+        assert!(g.weighted);
+        assert!(g.n <= c.kept);
+    }
+    cleanup(&t);
+}

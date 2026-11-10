@@ -179,6 +179,11 @@ enum Cmd {
         /// largest presence matrix (GiB) for the fast distance method; above it the slow pairwise merge is used
         #[arg(long, default_value_t = 4.0)]
         bitset_max_gib: f64,
+        /// collapse near-identical samples to one representative each before the ordination, tree, clusters and label tests;
+        /// the threshold of a pair is set by the samples' own split-half distances: `mean` of the two (default when given),
+        /// `max` of the two, or the species `median`. Needs split-half sketches (see --floor-samples)
+        #[arg(long, value_name = "RULE", num_args = 0..=1, default_missing_value = "mean", value_parser = ["mean", "max", "median"])]
+        collapse: Option<String>,
         /// Newick tree of the same samples (for example from SNPs) to compare with: distance correlation, and whether each cluster is a clade
         #[arg(long)]
         compare_tree: Option<PathBuf>,
@@ -289,6 +294,7 @@ fn main() -> Result<()> {
             tree_floor,
             floor_samples,
             bitset_max_gib,
+            collapse,
             compare_tree,
             compare_pcs,
             resume,
@@ -337,6 +343,9 @@ fn main() -> Result<()> {
                 tree_floor,
                 floor_samples,
                 bitset_max_bytes: (bitset_max_gib.max(0.0) * (1u64 << 30) as f64) as usize,
+                collapse: collapse
+                    .as_deref()
+                    .and_then(popsketch::collapse::Rule::parse),
                 compare_tree,
                 compare_pcs,
                 resume,

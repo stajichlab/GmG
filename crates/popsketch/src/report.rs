@@ -834,6 +834,15 @@ fn build(o: &Options, r: &Results) -> Vec<Block> {
         }
     }
     // ---- structure
+    if let Some(c) = &r.collapse {
+        d.push(Block::P(
+            vec![t(format!(
+                "Near-identical samples were collapsed (rule: {}): {} samples were reduced to {} representatives, and the structure, tree, clusters and label tests below use the representatives (the label tests weight each by the number of samples it stands for). Which sample stands for which is in collapse.tsv.",
+                c.rule, c.input, c.kept
+            ))],
+            Tone::Note,
+        ));
+    }
     d.push(Block::H(2, "2. Coarse structure (secondary)".into()));
     if let (Some(dm), Some(ord)) = (&r.dist, &r.ordination) {
         let n = dm.n;

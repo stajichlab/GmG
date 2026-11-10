@@ -57,6 +57,16 @@ pub enum OrdKind {
     Pcoa,
 }
 
+/// What collapsing did: one row per sample that entered the collapse.
+#[derive(Clone, Debug)]
+pub struct CollapseInfo {
+    pub rule: &'static str,
+    pub input: usize,
+    pub kept: usize,
+    /// (id, representative id, number of samples the representative stands for, split-half distance used, is representative)
+    pub rows: Vec<(String, String, usize, f64, bool)>,
+}
+
 #[derive(Clone, Debug)]
 pub struct Options {
     pub inputs: Vec<PathBuf>,
@@ -106,6 +116,8 @@ pub struct Options {
     pub floor_samples: usize,
     /// largest presence matrix (bytes) for the fast distance method
     pub bitset_max_bytes: usize,
+    /// collapse near-identical samples to representatives before ordination, tree, clusters and label tests
+    pub collapse: Option<crate::collapse::Rule>,
     /// Newick tree of (some of) the same samples, for example from SNPs: compared with the sketch distances and clusters
     pub compare_tree: Option<PathBuf>,
     /// PC scores of (some of) the same samples, for example from SNPs: compared with the sketch PCA
@@ -154,6 +166,7 @@ impl Default for Options {
             tree_floor: None,
             floor_samples: 20,
             bitset_max_bytes: crate::dist::BITSET_MAX_BYTES,
+            collapse: None,
             compare_tree: None,
             compare_pcs: None,
             resume: false,
@@ -247,6 +260,8 @@ pub struct Results {
     pub label_table: Option<LabelTable>,
     pub label_reports: Vec<ColumnReport>,
     pub group_tests: Vec<GroupTest>,
+    /// set when the analysis ran on representatives of collapsed near-identical samples
+    pub collapse: Option<CollapseInfo>,
     /// seconds per stage (native build only)
     pub timings: Vec<(&'static str, f64)>,
     pub tree_comparison: Option<crate::compare::TreeComparison>,
@@ -781,6 +796,7 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
         label_table: None,
         label_reports: Vec::new(),
         group_tests: Vec::new(),
+        collapse: None,
         timings: Vec::new(),
         tree_comparison: None,
         pcs_comparison: None,
@@ -822,12 +838,12 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
         .collect();
     let n = res.included.len();
     if n >= 3 {
-        let sets: Vec<Vec<u64>> = res.included.iter().map(|r| kept[inv[r]].clone()).collect();
+        let mut sets: Vec<Vec<u64>> = res.included.iter().map(|r| kept[inv[r]].clone()).collect();
         let decon_changed = res
             .included
             .iter()
             .any(|r| statuses[inv[r]] == Status::Decontaminated);
-        let dist = if decon_changed {
+        let mut dist = if decon_changed {
             let (d, plan) = compute_planned(&sets, o.ksize, o.bitset_max_bytes);
             say(o, &plan.describe());
             d
@@ -842,6 +858,85 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
             )
         };
         tm.mark(o, "distances_included");
+        // collapse near-identical samples; from here on the analysis runs on the representatives
+        let mut weights: Option<Vec<f64>> = None;
+        if let Some(rule) = o.collapse {
+            let by_id: HashMap<&str, f64> = floor
+                .per_sample
+                .iter()
+                .map(|(id, d)| (id.as_str(), *d))
+                .collect();
+            let median = if floor.per_sample.is_empty() {
+                floor.value
+            } else {
+                floor.median
+            };
+            let noise: Vec<f64> = res
+                .included
+                .iter()
+                .map(|&r| {
+                    by_id
+                        .get(res.rows[r].id.as_str())
+                        .copied()
+                        .unwrap_or(median)
+                })
+                .collect();
+            let c = crate::collapse::collapse(&dist.one_minus_ani(), n, &noise, rule, median);
+            if c.reps.len() >= 3 {
+                let ids: Vec<String> = res
+                    .included
+                    .iter()
+                    .map(|&r| res.rows[r].id.clone())
+                    .collect();
+                let size_of: HashMap<usize, usize> = c
+                    .reps
+                    .iter()
+                    .copied()
+                    .zip(c.sizes.iter().copied())
+                    .collect();
+                res.collapse = Some(CollapseInfo {
+                    rule: rule.name(),
+                    input: n,
+                    kept: c.reps.len(),
+                    rows: (0..n)
+                        .map(|i| {
+                            let r = c.rep_of[i];
+                            (
+                                ids[i].clone(),
+                                ids[r].clone(),
+                                size_of[&r],
+                                noise[i],
+                                r == i,
+                            )
+                        })
+                        .collect(),
+                });
+                say(
+                    o,
+                    &format!(
+                        "collapse ({}): {} samples to {} representatives",
+                        rule.name(),
+                        n,
+                        c.reps.len()
+                    ),
+                );
+                dist = dist.subset(&c.reps);
+                sets = c.reps.iter().map(|&k| sets[k].clone()).collect();
+                res.included = c.reps.iter().map(|&k| res.included[k]).collect();
+                weights = Some(c.sizes.iter().map(|&s| s as f64).collect());
+            } else {
+                say(
+                    o,
+                    &format!(
+                        "collapse ({}) would leave {} representatives: skipped",
+                        rule.name(),
+                        c.reps.len()
+                    ),
+                );
+            }
+        }
+        let n = res.included.len();
+        tm.mark(o, "collapse");
         // clusters
         let d1 = dist.one_minus_ani();
         let merges = upgma(&d1, n);
@@ -970,6 +1065,7 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                             n,
                             &labs,
                             strata_labs.as_deref(),
+                            weights.as_deref(),
                             &popts,
                         ),
                     });
@@ -1130,6 +1226,21 @@ fn write_outputs(o: &Options, r: &Results) -> Result<()> {
     if let Some(d) = &r.dist {
         write_matrix(o.out.join("ani.tsv"), &ids, &d.ani, d.n, 5)?;
         write_matrix(o.out.join("mash.tsv"), &ids, &d.mash, d.n, 6)?;
+    }
+    // collapse.tsv: which representative stands for each sample
+    if let Some(c) = &r.collapse {
+        let mut s = String::from(
+            "id\trepresentative\tcluster_size\tsplit_half_distance\tis_representative\n",
+        );
+        for (id, rep, size, d, is_rep) in &c.rows {
+            let _ = writeln!(
+                s,
+                "{}\t{}\t{size}\t{d:.6}\t{is_rep}",
+                tsv_cell(id),
+                tsv_cell(rep)
+            );
+        }
+        fs::write(o.out.join("collapse.tsv"), s)?;
     }
     // split_half.tsv: each sample's own split-half distance (the technical noise of a comparison involving it)
     if !r.floor.per_sample.is_empty() {
@@ -1309,6 +1420,7 @@ pub fn summary_json(o: &Options, r: &Results) -> Value {
         "ordination": r.ordination.as_ref().map(|x| json!({"method": x.method, "variance_fraction": x.var_frac, "features": x.n_features})),
         "tree": {"written": r.newick.is_some(), "branches_collapsed": r.collapsed},
         "labels": labels,
+        "collapse": r.collapse.as_ref().map(|c| json!({"rule": c.rule, "input": c.input, "representatives": c.kept})),
         "group_tests": r.group_tests.iter().map(|g| json!({"column": g.column, "strata": g.strata, "permutations": g.permutations, "result": g.result.as_ref().map(|t| t.to_json())})).collect::<Vec<_>>(),
         "dapc": r.dapc.as_ref().map(|dp| json!({"column": dp.column, "n_pcs": dp.dapc.n_pcs, "axes": dp.dapc.eigenvalues.len(), "eigenvalues": dp.dapc.eigenvalues,
             "groups": dp.dapc.groups, "accuracy": dp.dapc.accuracy,
