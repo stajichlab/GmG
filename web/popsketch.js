@@ -169,7 +169,7 @@ $("run").addEventListener("click", async () => {
   const index = indexFile ? new Uint8Array(await indexFile.arrayBuffer()) : null;
   worker.postMessage({
     type: "run", samples, bundle, labels: labelsText, compareTree: treeText, comparePcs: pcsText, index,
-    opts: { maxReads: Number($("max-reads").value), scaled: Number($("scaled").value), flagged: $("flagged").value, strata: $("strata").value.trim(), permutations: Number($("permutations").value) },
+    opts: { maxReads: Number($("max-reads").value), scaled: Number($("scaled").value), flagged: $("flagged").value, strata: $("strata").value.trim(), permutations: Number($("permutations").value), collapse: $("collapse").value, collapseWithin: $("collapse-within").value.trim() },
   });
 });
 refresh();
