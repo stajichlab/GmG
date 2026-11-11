@@ -1,0 +1,4 @@
+run	tier	route	layout	bases_kept	reads_kept	coverage_target	coverage_reached	seconds	verified	outcome	sampling	fallback_from
+ERR2300774	coverage	aws_odp	PAIRED	306250000	1225000	25.000	25.000	312.9	true	ok	stride	
+ERR12543635	coverage	aws_odp	PAIRED	306250000	1225000	25.000	25.000	359.5	true	ok	stride	
+DRR129824	coverage	aws_odp	PAIRED	306069110	544175	25.000	24.985	646.2	true	ok	stride	

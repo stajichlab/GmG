@@ -1,0 +1,4 @@
+id	est_size_mb	genome_mb	size_ratio	kmer_coverage	expected_coverage	coverage_ratio	verdict	reasons
+ERR2300774	11.89	12.25	0.970	19.00	25.00	0.76	ok	
+ERR12543635	12.16	12.25	0.993	19.00	25.00	0.76	ok	
+DRR129824	11.88	12.25	0.970	20.00	24.98	0.80	ok	

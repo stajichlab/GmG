@@ -160,3 +160,24 @@ browser (the page cannot hold 300 sketches), and S3 hosting under `s3://stajichl
 4. **Whether to file the four PopSeq follow-ups** listed under Gaps (size check before the MD5,
    stall timeout and resume, tool preflight, the storage divisor in spec 002 section "Size
    estimation"). The code is PopSeq's, so the fixes belong there.
+
+## Updates
+
+**2026-11-11: sampling and the per-node packing of phase 2.**
+
+- **The coverage tier now samples by stride by default.** The phase 1 pilot (`bench/P2_phase1_pilot/`) showed that contiguous
+  windows reach only `25 / depth` of the genome on a position-sorted run (two of ten runs came out as a 2.2 and a 2.3 Mb
+  genome). PopSeq's `popseq fetch` (branch `fetch-stride`) keeps evenly spaced reads of the verified full run, with windows
+  opt-in and a fallback from windows to stride when the sketch hook's check fails (`popsketch check`, exit 75). Tested on
+  the biased runs in `bench/P3_stride_fallback/`: the genome estimate went from 2.2 and 2.3 Mb to 11.9 and 12.2 Mb, and the
+  fallback did not download again. n = 3 runs of one species.
+- **It costs more.** Stride took 3.5 to 4.0 times the seconds of windows on the same three runs, and a peak of 3.1 GB. Phase
+  2's compute estimates must use the stride cost, not the phase 1 windows cost. A sorted run taken by windows with the
+  fallback costs about what stride costs; a run in random order costs the windows time. Which is cheaper overall depends on
+  the share of sorted runs: 2 of 10 in the one species measured, unknown for the panel. Measure it in phase 2.
+- **The thresholds of the check are untested beyond one species** (size under 0.5 of the genome, k-mer coverage over 2.5
+  times the expected). Phase 2 should log the check for every run, so the thresholds can be examined across species.
+- **Pack the fetches per node** (PopSeq issue #27, spec 002 "Concurrency sweep results"): speed per fetch depends on how many
+  fetches share a node, about 17 MB/s at 2 to 5 per node and about 5 MB/s at 20 or more; Slurm packed 52 of 80 array tasks
+  onto one node, and the `%N` array limit does not control that. For phase 2, limit the tasks per node (for example a fixed
+  number of parallel fetches inside each job). That arrangement is unmeasured.

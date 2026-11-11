@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::{Parser, Subcommand, ValueEnum};
 use popsketch::pipeline::{run, FlagMode, Options, OrdKind, ReportFormat};
 use std::path::PathBuf;
@@ -67,6 +67,34 @@ enum Cmd {
         max_bases: u64,
         #[arg(long)]
         r1_only: bool,
+    },
+    /// Check one sketched sample against the genome it should cover (was the run sampled evenly?). Prints one TSV line;
+    /// exit 0 = ok, 75 = undersampled (the reads miss part of the genome or pile up on part of it), 2 = error
+    #[command(
+        after_long_help = "EXAMPLES\n  popsketch check --id SRR123 -s sketches/ --genome-mb 12.25 --coverage 25\n\nThe thresholds (0.5 of the genome size, 2.5 times the expected k-mer coverage) come from one species and are UNMEASURED beyond it."
+    )]
+    Check {
+        /// the sample's id (its sketch is `<ID>.gsk` in the folder)
+        #[arg(long)]
+        id: String,
+        /// folder of sketches (as written by `popsketch sketch`)
+        #[arg(short, long)]
+        sketches: PathBuf,
+        /// the genome size in Mb the sample should cover
+        #[arg(long)]
+        genome_mb: f64,
+        /// the x the kept reads should give if sampled evenly (bases kept / genome size); omit to check the size only
+        #[arg(long)]
+        coverage: Option<f64>,
+        /// fail when the estimated size is below this fraction of the genome
+        #[arg(long, default_value_t = 0.5)]
+        min_size_ratio: f64,
+        /// fail when the k-mer coverage is above this many times the expected coverage
+        #[arg(long, default_value_t = 2.5)]
+        max_cov_ratio: f64,
+        /// print the header line first
+        #[arg(long)]
+        header: bool,
     },
     /// Write a small simulated dataset with planted problems and a swapped label, to try `popsketch run` on
     #[command(
@@ -248,6 +276,49 @@ fn main() -> Result<()> {
                 s.counts.bases,
                 s.spectrum.hashes.len()
             );
+            Ok(())
+        }
+        Cmd::Check {
+            id,
+            sketches,
+            genome_mb,
+            coverage,
+            min_size_ratio,
+            max_cov_ratio,
+            header,
+        } => {
+            use popsketch::check::{
+                check, scaled_from_params, CheckParams, Verdict, EXIT_UNDERSAMPLED, TSV_HEADER,
+            };
+            let params_text =
+                std::fs::read_to_string(sketches.join("params.txt")).with_context(|| {
+                    format!(
+                        "{}: no params.txt, is it a folder of sketches?",
+                        sketches.display()
+                    )
+                })?;
+            let scaled = scaled_from_params(&params_text).with_context(|| {
+                format!("no scaled= in {}", sketches.join("params.txt").display())
+            })?;
+            let sample = popsketch::sketch_io::cache_read(&sketches, &id, false)
+                .with_context(|| format!("no sketch for {id} in {}", sketches.display()))?;
+            let r = check(
+                &sample,
+                scaled,
+                genome_mb,
+                coverage,
+                &CheckParams {
+                    min_size_ratio,
+                    max_cov_ratio,
+                },
+            );
+            if header {
+                println!("{TSV_HEADER}");
+            }
+            println!("{}", r.tsv());
+            if r.verdict == Verdict::Undersampled {
+                std::process::exit(EXIT_UNDERSAMPLED);
+            }
             Ok(())
         }
         Cmd::Demo {

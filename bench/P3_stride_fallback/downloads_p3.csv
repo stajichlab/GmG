@@ -1,0 +1,9 @@
+utc,run,taxid,tier,route,node_type,bytes,seconds,mb_per_s,verified,outcome,error,concurrency
+2026-11-11T20:14:55Z,ERR2300774,498019,coverage,aws_odp,compute,282606701,68.59,4.120,true,ok,,6
+2026-11-11T20:15:03Z,ERR12543635,498019,coverage,aws_odp,compute,670613115,78.14,8.583,true,ok,,6
+2026-11-11T20:16:01Z,DRR129824,498019,coverage,aws_odp,compute,885498287,137.32,6.449,true,ok,,6
+2026-11-11T20:18:29Z,ERR2300774,498019,coverage,aws_odp,compute,282606701,87.03,3.247,true,ok,,6
+2026-11-11T20:19:04Z,ERR2300774,498019,coverage,aws_odp,compute,,65.20,,true,ok,windows sampling failed the sketch check (hook exit 75); resampled evenly spaced from the same transfer,6
+2026-11-11T20:19:14Z,ERR12543635,498019,coverage,aws_odp,compute,670613115,111.64,6.007,true,ok,,6
+2026-11-11T20:19:18Z,ERR12543635,498019,coverage,aws_odp,compute,,62.19,,true,ok,windows sampling failed the sketch check (hook exit 75); resampled evenly spaced from the same transfer,6
+2026-11-11T20:23:57Z,DRR129824,498019,coverage,aws_odp,compute,885498287,235.83,3.755,true,ok,,6

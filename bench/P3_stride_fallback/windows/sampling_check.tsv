@@ -1,0 +1,6 @@
+id	est_size_mb	genome_mb	size_ratio	kmer_coverage	expected_coverage	coverage_ratio	verdict	reasons
+ERR2300774	2.17	12.25	0.177	106.00	25.00	4.24	undersampled	estimated size 2.2 Mb is 18% of the genome (12.2 Mb), below 50%; k-mer coverage 106x is 4.2 times the expected 25x, above 2.5 times
+ERR12543635	2.28	12.25	0.186	107.00	25.00	4.28	undersampled	estimated size 2.3 Mb is 19% of the genome (12.2 Mb), below 50%; k-mer coverage 107x is 4.3 times the expected 25x, above 2.5 times
+DRR129824	11.87	12.25	0.969	20.00	25.00	0.80	ok	
+ERR2300774	11.89	12.25	0.970	19.00	25.00	0.76	ok	
+ERR12543635	12.16	12.25	0.993	19.00	25.00	0.76	ok	
