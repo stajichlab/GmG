@@ -25,6 +25,18 @@ check "every log line has seconds and bytes" awk -F'\t' '$3 > 0 && $2 >= 0 {n++}
 check "popsketch run --from-sketches reads the folder" "$POPSKETCH" run --from-sketches "$SKETCH_DIR" -o "$T/out" --scaled 5 --max-bases 0 --flagged mark --no-pca --no-tree -q
 check "and writes popsketch.json" test -s "$T/out/popsketch.json"
 
+# the sampling check: a genome the sketch matches passes; one it cannot cover fails with 75 and leaves no sketch behind
+export CHECK_LOG="$T/check.tsv"
+check "a matching genome size passes the sampling check" env POPSEQ_GENOME_MB=0.17 POPSEQ_COVERAGE=20 \
+  "$HERE/popsra_sketch_hook.sh" CHK1 "${FILES[0]}"
+check "the check line is logged with a header" test "$(head -1 "$CHECK_LOG" | cut -f1)" = id
+rc=0; env POPSEQ_GENOME_MB=5 POPSEQ_COVERAGE=20 "$HERE/popsra_sketch_hook.sh" CHK2 "${FILES[0]}" 2>/dev/null || rc=$?
+check "an undersampled sample exits 75" test "$rc" = 75
+check "and its sketch files are removed" bash -c '! ls "$0"/CHK2.* >/dev/null 2>&1' "$SKETCH_DIR"
+check "a sample that passed keeps its sketch" test -s "$SKETCH_DIR/CHK1.gsk"
+check "POPSKETCH_CHECK=off skips the check" env POPSKETCH_CHECK=off POPSEQ_GENOME_MB=5 "$HERE/popsra_sketch_hook.sh" CHK3 "${FILES[0]}"
+unset CHECK_LOG
+
 # failures are loud: no files, a missing file, and a missing SKETCH_DIR
 check "no files is refused" bash -c '! "$0" X 2>/dev/null' "$HERE/popsra_sketch_hook.sh"
 check "a missing file is refused" bash -c '! "$0" X "$1" 2>/dev/null' "$HERE/popsra_sketch_hook.sh" "$T/nope.fastq"

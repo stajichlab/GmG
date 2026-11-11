@@ -2,6 +2,7 @@
 //! See `docs/popstruct-plan.md` in the repository for the design and the evidence behind it.
 
 pub mod advisor;
+pub mod check;
 pub mod cluster;
 pub mod collapse;
 pub mod compare;
