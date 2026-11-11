@@ -1,0 +1,93 @@
+{
+  "advice": {
+    "fraction_pairs_below_floor": 0.0,
+    "statements": [
+      "Technical noise floor: distance (1 - ANI) 0.00412 (90th percentile of split-half distances of 8 samples, median 0.00211). Differences smaller than this are not distinguishable from re-sampling the same reads.",
+      "0% of all sample pairs are closer than the noise floor."
+    ]
+  },
+  "clusters": {
+    "gap": {
+      "candidates": [
+        {
+          "gap": 0.007149920791218345,
+          "k": 2
+        },
+        {
+          "gap": 0.0008368472115157788,
+          "k": 3
+        }
+      ],
+      "gap_over_floor": 1.73665807405342,
+      "null_p": 0.1729,
+      "ratio": 8.543878372095804,
+      "top_merge_height": 0.012815015244955985,
+      "verdict": "no_clear_cut"
+    },
+    "k_used": null
+  },
+  "collapse": {
+    "input": 10,
+    "label_mix": [],
+    "representatives": 4,
+    "rule": "mean",
+    "within": []
+  },
+  "compare": {
+    "pcs": null,
+    "tree": null
+  },
+  "dapc": null,
+  "flags": {
+    "size_low": [
+      "ERR12543635",
+      "ERR2300774"
+    ]
+  },
+  "group_tests": [],
+  "labels": [],
+  "noise_floor": {
+    "median": 0.002106150982171262,
+    "n": 8,
+    "p90": 0.004117057294145521,
+    "source": "split_half",
+    "value": 0.004117057294145521
+  },
+  "notes": {},
+  "options": {
+    "flagged": "Mark",
+    "index": null,
+    "ksize": 21,
+    "max_bases": 0,
+    "min_cov": 4.0,
+    "min_floors": 3.0,
+    "ordination": "HashPca",
+    "r1_only": false,
+    "scaled": 200
+  },
+  "ordination": {
+    "features": 51849,
+    "method": "hash_pca",
+    "variance_fraction": [
+      0.7494282078079112,
+      0.1790600565793835,
+      0.0715117356127062,
+      6.9305956335260795e-18
+    ]
+  },
+  "samples": {
+    "by_status": {
+      "included": 8,
+      "marked": 2
+    },
+    "in_analysis": 4,
+    "total": 10
+  },
+  "tool": "popsketch",
+  "tree": {
+    "branches_collapsed": 1,
+    "written": true
+  },
+  "version": "0.3.2",
+  "warnings": []
+}

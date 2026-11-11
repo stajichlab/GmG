@@ -1,0 +1,16 @@
+utc,run,taxid,tier,route,node_type,bytes,seconds,mb_per_s,verified,outcome,error,concurrency
+2026-11-11T18:48:01Z,ERR17725644,498019,coverage,aws_odp,compute,,,,,unavailable_at_ncbi,NCBI has no such run (ENA only),5
+2026-11-11T18:48:01Z,ERR17725644,498019,coverage,ncbi_prefetch,compute,,,,,unavailable_at_ncbi,NCBI has no such run (ENA only),5
+2026-11-11T18:49:08Z,ERR2299868,498019,coverage,aws_odp,compute,891739242,55.60,16.038,false,verify_failed,window 0: SINGLE at NCBI but the files are paired,5
+2026-11-11T18:49:19Z,ERR2300774,498019,coverage,aws_odp,compute,282606701,69.92,4.042,true,ok,,5
+2026-11-11T18:50:32Z,DRR129824,498019,coverage,aws_odp,compute,885498287,144.14,6.143,true,ok,,5
+2026-11-11T18:50:33Z,ERR3503257,498019,coverage,aws_odp,compute,975936656,141.96,6.875,true,ok,,5
+2026-11-11T18:50:50Z,ERR12543635,498019,coverage,aws_odp,compute,670613115,69.33,9.673,true,ok,,5
+2026-11-11T18:51:43Z,ERR11670230,498019,coverage,aws_odp,compute,646806925,122.30,5.289,true,ok,,5
+2026-11-11T18:53:04Z,SRR25455197,498019,coverage,aws_odp,compute,615823592,111.00,5.548,true,ok,,5
+2026-11-11T18:53:35Z,ERR14122511,498019,coverage,aws_odp,compute,766004025,147.35,5.199,true,ok,,5
+2026-11-11T18:53:56Z,ERR15404901,498019,coverage,aws_odp,compute,1544109734,166.38,9.280,true,ok,,5
+2026-11-11T18:58:11Z,ERR17725644,498019,coverage,ena_https,compute,250983651,292.54,0.858,true,ok,,5
+2026-11-11T19:00:00Z,ERR2299868,498019,coverage,aws_odp,compute,,,,,unavailable_at_ncbi,"not paired at NCBI (2972593 spots, none with mates): skipped",1
+2026-11-11T19:00:00Z,ERR2299868,498019,coverage,ncbi_prefetch,compute,,,,,unavailable_at_ncbi,"not paired at NCBI (2972593 spots, none with mates): skipped",1
+2026-11-11T19:27:27Z,ERR2299868,498019,coverage,ena_https,compute,1076988577,1169.32,0.921,true,ok,,1
