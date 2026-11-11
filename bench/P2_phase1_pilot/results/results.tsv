@@ -1,0 +1,12 @@
+run	tier	route	layout	bases_kept	reads_kept	coverage_target	coverage_reached	seconds	verified	outcome
+ERR2299868	coverage	aws_odp						69.4	false	verify_failed
+ERR2300774	coverage	aws_odp	PAIRED	306250000	1225000	25.000	25.000	89.9	true	ok
+DRR129824	coverage	aws_odp	PAIRED	306295976	544176	25.000	25.004	165.6	true	ok
+ERR3503257	coverage	aws_odp	PAIRED	306622350	604312	25.000	25.030	165.6	true	ok
+ERR12543635	coverage	aws_odp	PAIRED	306250000	1225000	25.000	25.000	88.7	true	ok
+ERR11670230	coverage	aws_odp	PAIRED	306228591	1035128	25.000	24.998	142.6	true	ok
+SRR25455197	coverage	aws_odp	PAIRED	306252160	1014080	25.000	25.000	130.7	true	ok
+ERR14122511	coverage	aws_odp	PAIRED	306649780	523544	25.000	25.033	168.6	true	ok
+ERR15404901	coverage	aws_odp	PAIRED	306254256	508728	25.000	25.000	190.8	true	ok
+ERR17725644	coverage	ena_https	PAIRED	306202618	1098648	25.000	24.996	620.9	true	ok
+ERR2299868	coverage	ena_https	PAIRED	306252128	610064	25.000	25.000	1666.2	true	ok
