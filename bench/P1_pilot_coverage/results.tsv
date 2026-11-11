@@ -1,0 +1,5 @@
+run	tier	route	layout	bases_kept	reads_kept	coverage_target	coverage_reached	seconds	verified	outcome
+ERR4669779	coverage	ena_https						681.6	false	verify_failed
+ERR12524156	coverage	ena_https	PAIRED	328750800	2191672	25.000	25.000	1240.1	true	ok
+SRR31272388	coverage	ena_https	PAIRED	356984784	1211360	25.000	24.999	1405.6	true	ok
+ERR4669779	coverage	ena_https						698.4	false	transient
