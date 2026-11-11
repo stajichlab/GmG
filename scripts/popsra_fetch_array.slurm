@@ -6,6 +6,10 @@
 #          WORK=<work dir> MANIFEST=<manifest> COVERAGE=25 CONCURRENCY=5
 #   sbatch --export=ALL --array=0-9%5 -o "$WORK/logs/%x.%A_%a.log" scripts/popsra_fetch_array.slurm
 #
+# --require-pairs is always on: the PopSeq panel is selected for paired isolates, and a run that NCBI holds as
+# single-end (spots_with_mates 0) can come back from fastq-dump as mate files that cannot be verified. With the
+# flag such a run is taken from ENA as verified pairs instead (found in the phase 1 pilot: ERR2299868).
+#
 # CONCURRENCY must equal the array's %N throttle: it is the value recorded in benchmarks/downloads.csv, and
 # `popseq fetch` does not enforce it. Outputs in $WORK: sketches/ (one .gsk, two halves and a .json per run),
 # results.tsv (popseq fetch result lines), hook_times.tsv (sketch seconds and bytes), reads/ (sidecars only).
@@ -35,7 +39,7 @@ mkdir -p "$WORK/sketches" "$WORK/reads"
 export SKETCH_DIR="$WORK/sketches" HOOK_LOG="$WORK/hook_times.tsv" POPSKETCH
 "$HOME/.local/bin/uv" run --project "$POPSEQ_ROOT" popseq fetch "$RUN" --tier coverage --coverage "$COVERAGE" \
     --out "$WORK/reads" --exec "$GMG_ROOT/scripts/popsra_sketch_hook.sh" --threads "$SLURM_CPUS_PER_TASK" \
-    --concurrency "$CONCURRENCY" --results "$WORK/results.tsv" </dev/null
+    --require-pairs --concurrency "$CONCURRENCY" --results "$WORK/results.tsv" </dev/null
 rc=$?
 echo "task $i: $RUN popseq fetch exit $rc"
 exit $rc
