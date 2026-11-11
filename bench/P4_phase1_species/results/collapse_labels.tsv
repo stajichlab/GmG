@@ -1,0 +1,9 @@
+label_column	representative	cluster_size	distinct_values	values
+country	SRR10551724	15	3	Belgium:8;USA:6;Denmark:1
+country	SRR10583927	13	7	Denmark:4;Belgium:2;Sweden:2;USA:2;France:1;Italy:1;South Africa:1
+country	SRR10551674	6	5	Australia:2;France:1;Italy:1;South Africa:1;USA:1
+country	SRR10551684	4	2	Belgium:3;Denmark:1
+country	SRR10551680	3	3	Germany:1;Italy:1;South Africa:1
+country	SRR10551701	3	3	Chile:1;Italy:1;Netherlands:1
+country	SRR10551675	2	2	Australia:1;South Africa:1
+country	SRR10551729	2	2	Belgium:1;USA:1
