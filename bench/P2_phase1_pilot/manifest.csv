@@ -1,0 +1,11 @@
+run_accession,species_name,study_accession,country,est_depth_x,base_count
+DRR129824,Candidozyma auris,PRJDB6988,Japan:Tokyo,131.3,1608797863
+ERR17725644,Candidozyma auris,PRJEB123903,Australia,32.9,402425591
+ERR2299868,Candidozyma auris,PRJEB20230,,121.8,1492241686
+ERR2300774,Candidozyma auris,PRJEB21518,,134.3,1645691250
+ERR3503257,Candidozyma auris,PRJEB34199,Hong Kong,126.0,1543292237
+ERR12543635,Candidozyma auris,PRJEB36822,United Kingdom,140.4,1719818500
+ERR11670230,Candidozyma auris,PRJEB64175,Portugal,156.2,1913077403
+ERR14122511,Candidozyma auris,PRJEB84203,Saudi Arabia,88.3,1081222833
+ERR15404901,Candidozyma auris,PRJEB95098,United Kingdom,167.7,2054678374
+SRR25455197,Candidozyma auris,PRJNA1000034,Singapore,143.7,1760908848
