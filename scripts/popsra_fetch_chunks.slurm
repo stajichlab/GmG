@@ -19,7 +19,7 @@
 # The job exits 0 when some fetches fail: each run's outcome is in $WORK/results.tsv and $WORK/exits.tsv, its seconds per stage and peak memory in $WORK/profile.tsv (needs the PopSeq checkout at POPSEQ_ROOT to include PopSeq #45), and
 # scripts/popsra_retry_list.py turns them into a retry manifest by the exit-code policy. A bad manifest exits 2.
 #SBATCH -J popsrachunk
-#SBATCH -p intel,batch,epyc
+#SBATCH -p stajichlab
 #SBATCH -c 16
 #SBATCH --mem 20G
 #SBATCH -t 04:00:00
