@@ -10,10 +10,9 @@ PAR=2, 8 threads each, 16 CPUs, 32 GB requested (so the peak could show), stride
 | ERR2004534 | 1.5 | 1.05 GB | 355 | 48 | 72 | 200 | 11 | 675 (convert) |
 | SRR945538 | 1.1 | 0.74 GB | 369 | 37 | 56 | 238 | 11 | 646 (convert) |
 | ERR1102659 | 7.7 | 3.46 GB | 1,389 | 171 | 415 | 676 | 16 | 595 (convert) |
-| SRR065689 | 7.6 | **51.46 GB** | 3,984 | **2,833** | 367 | 641 | n/a | 535 (convert) |
+| SRR065689 | 7.6 | **51.46 GB** | 3,984 | **2,833** | 367 | 641 | 13 | 535 (convert) |
 
-(.sra sizes are from phase 1's `downloads.csv`, same runs and route; the P6 transfer seconds agree with them. The hook column for
-SRR065689 is not in the cut I read; every run passed its check.)
+(.sra sizes are from phase 1's `downloads.csv`, same runs and route. Every run passed its check.)
 
 ## Findings
 
