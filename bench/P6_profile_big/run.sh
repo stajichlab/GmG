@@ -18,6 +18,6 @@ cd "$GMG_ROOT" && cargo build --release -q -p popsketch --target-dir "\$SCRATCH/
 export POPSKETCH="\$SCRATCH/target/release/popsketch"
 exec bash "$GMG_ROOT/scripts/popsra_fetch_chunks.slurm"
 JOB
-sbatch --parsable --array=0-1 --mem 32G -J p6profile -o "$OUT/slurm-%a.out" \
+sbatch --parsable --array=0-1 -p intel,batch,epyc -c 16 -t 04:00:00 --mem 32G -J p6profile -o "$OUT/slurm-%a.out" \
   --export=ALL,POPSEQ_ROOT="$POPSEQ_ROOT",GMG_ROOT="$GMG_ROOT",WORK="$OUT/work",MANIFEST="$HERE/manifest.csv",CHUNK=2,PAR=2,CONCURRENCY=2 \
   "$OUT/job.sh"
