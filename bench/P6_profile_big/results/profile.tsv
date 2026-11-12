@@ -1,0 +1,5 @@
+run	tier	sampling	route	outcome	host	threads	seconds	plan_s	transfer_s	convert_s	count_s	md5_s	cut_s	postcut_s	check_s	hook_s	finish_s	other_s	python_peak_mib	child_peak_mib	tree_peak_mib	tree_peak_stage
+ERR2004534	coverage	stride	aws_odp	ok	r31	8	354.5	1.0	48.3	72.4	14.5	0.0	200.1	5.9	0.0	11.2	0.0	1.4	47.3	73.7	674.9	convert
+SRR945538	coverage	stride	aws_odp	ok	r31	8	368.7	1.2	36.5	56.1	19.9	0.0	237.9	5.8	0.0	11.1	0.0	0.5	48.8	68.1	646.4	convert
+ERR1102659	coverage	stride	aws_odp	ok	r33	8	1388.7	1.0	170.7	415.0	99.8	0.0	676.4	8.6	0.0	15.7	0.0	2.9	126.1	64.3	595.1	convert
+SRR065689	coverage	stride	aws_odp	ok	r33	8	3984.0	1.0	2833.1	366.5	120.7	0.0	640.9	8.3	0.0	12.9	0.0	5.4	56.7	56.6	535.3	convert

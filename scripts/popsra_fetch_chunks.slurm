@@ -16,7 +16,7 @@
 # 20 GB request for 4 fetches, from a peak of 3.1 GB per fetch at stride, n = 3) and the time (4 h, a ceiling for ENA-routed
 # runs that take 10 to 30 minutes each) are requests, not measurements at PAR = 4: read MaxRSS and Elapsed from sacct.
 #
-# The job exits 0 when some fetches fail: each run's outcome is in $WORK/results.tsv and $WORK/exits.tsv, and
+# The job exits 0 when some fetches fail: each run's outcome is in $WORK/results.tsv and $WORK/exits.tsv, its seconds per stage and peak memory in $WORK/profile.tsv (needs the PopSeq checkout at POPSEQ_ROOT to include PopSeq #45), and
 # scripts/popsra_retry_list.py turns them into a retry manifest by the exit-code policy. A bad manifest exits 2.
 #SBATCH -J popsrachunk
 #SBATCH -p intel,batch,epyc
@@ -52,7 +52,7 @@ one() { # RUN: one fetch, its own logs, its exit code on one line
   # shellcheck disable=SC2086
   $FETCH_CMD "$run" --tier coverage --coverage "$COVERAGE" --sampling "$SAMPLING" --out "$WORK/reads" \
       --exec "$GMG_ROOT/scripts/popsra_sketch_hook.sh" --threads "$THREADS" --require-pairs \
-      --concurrency "$CONCURRENCY" --results "$WORK/results.tsv" </dev/null > "$WORK/logs/runs/$run.out" 2> "$WORK/logs/runs/$run.err"
+      --concurrency "$CONCURRENCY" --results "$WORK/results.tsv" --profile "$WORK/profile.tsv" </dev/null > "$WORK/logs/runs/$run.out" 2> "$WORK/logs/runs/$run.err"
   rc=$?
   printf "%s\t%s\t%s\n" "$run" "$rc" "$(date -u +%FT%TZ)" >> "$WORK/exits.tsv"
   return 0

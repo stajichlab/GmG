@@ -28,7 +28,7 @@ for task in 0 1; do SLURM_ARRAY_TASK_ID=$task bash "$HERE/popsra_fetch_chunks.sl
 check "every run was fetched exactly once" test "$(cut -d' ' -f1 "$T/calls" | sort | uniq -d | wc -l | tr -d ' ')" = 0
 check "all 10 runs were fetched" test "$(wc -l < "$T/calls" | tr -d ' ')" = 10
 check "two at a time, no more" test "$(sort -n "$T/active.max" | tail -1)" = 2
-check "the tier, coverage, sampling and pairs are passed" grep -q -- "--tier coverage --coverage 25 --sampling stride --out $T/work/reads --exec $HERE/../scripts/popsra_sketch_hook.sh --threads 4 --require-pairs --concurrency 8 --results $T/work/results.tsv" "$T/calls"
+check "the tier, coverage, sampling and pairs are passed" grep -q -- "--tier coverage --coverage 25 --sampling stride --out $T/work/reads --exec $HERE/../scripts/popsra_sketch_hook.sh --threads 4 --require-pairs --concurrency 8 --results $T/work/results.tsv --profile $T/work/profile.tsv" "$T/calls"
 check "a failing run is in exits.tsv with its code" grep -q "^FAIL03	12	" "$T/work/exits.tsv"
 check "exits.tsv has a line per run" test "$(wc -l < "$T/work/exits.tsv" | tr -d ' ')" = 10
 check "each run has its own log files" test -f "$T/work/logs/runs/R10.out" -a -f "$T/work/logs/runs/R10.err"
