@@ -181,3 +181,21 @@ browser (the page cannot hold 300 sketches), and S3 hosting under `s3://stajichl
   fetches share a node, about 17 MB/s at 2 to 5 per node and about 5 MB/s at 20 or more; Slurm packed 52 of 80 array tasks
   onto one node, and the `%N` array limit does not control that. For phase 2, limit the tasks per node (for example a fixed
   number of parallel fetches inside each job). That arrangement is unmeasured.
+
+**2026-11-11 (later): phase 1 on one full species, *Brettanomyces bruxellensis* (`bench/P4_phase1_species/`).**
+
+- **Gate met:** 299 of 299 runs `ok` (the 300th, a 47.9 Gb run, was deferred), every run verified by the full check, 297 by AWS and 2 by ENA, no
+  sampling-check failures, no fallbacks. AWS rate per fetch median 18.5 to 20.0 MB/s with 8 to 16 fetches per node (transfers are about 5% of a
+  fetch, so they rarely overlap). 98 Gb of bases kept from 296 Gb of runs; 198 GB transferred (`.sra` median 0.42 bytes per base, 297 runs).
+- **The cost model was low.** Measured median 0.74 s per Mb of run (the estimate from three deep runs was 0.19 to 0.40) and 40.9 task-hours
+  (estimate 16 to 33). **80% of each fetch (median 326 s of 449 s) is time the sidecar timers do not name** (lookups, the read counts of the full
+  files, the evenly spaced cut, the checks), not transfer (21 s) or conversion (50 s); they were not timed separately. For the panel, 40.9 task-hours
+  per 299 runs is about 4,700 task-hours for 34,673 runs if this species were typical, which it need not be.
+- **Memory:** the largest chunk peaked at 20.0 GiB of a 20 GiB request (it held two 7.6 Gb runs); the others 5.8 to 10.7 GiB. Raise the request or
+  cap the run size per chunk.
+- **The audit flagged 42% of the samples** (125 of 299; 107 `low_coverage`), concentrated in one study (84 of 169). K-mer histograms show about a
+  third of the per-k-mer coverage and twice the distinct k-mers from the same 25x of the catalog's 13.15 Mb: a hypothesis is genomes larger or more
+  heterozygous than the reference (polyploid or hybrid strains), not separated from a higher error rate. If so, the coverage target should come
+  from each sample's own k-mer content, not one catalog genome size per species. **Not decided.**
+- **The sampling check's thresholds do not transfer:** the smallest size ratio was 0.50, at the 0.5 threshold. Under stride the check is not needed;
+  under windows with the fallback it would be unreliable for a species like this one.

@@ -1,0 +1,683 @@
+{
+  "advice": {
+    "fraction_pairs_below_floor": 0.2766562796369056,
+    "statements": [
+      "Technical noise floor: distance (1 - ANI) 0.00551 (90th percentile of split-half distances of 174 samples, median 0.00330). Differences smaller than this are not distinguishable from re-sampling the same reads.",
+      "28% of all sample pairs are closer than the noise floor.",
+      "Cluster 0 (118 samples): median within-cluster distance 0.00956 = 1.7 floors (close to the noise: fine structure inside this group is weakly supported).",
+      "Cluster 1 (2 samples): median within-cluster distance 0.00440 = 0.8 floors (within the noise: no structure inside this group is supported)."
+    ]
+  },
+  "clusters": {
+    "gap": {
+      "candidates": [
+        {
+          "gap": 0.08106940489948632,
+          "k": 4
+        },
+        {
+          "gap": 0.03263557731711492,
+          "k": 3
+        },
+        {
+          "gap": 0.03129943197945214,
+          "k": 6
+        }
+      ],
+      "gap_over_floor": 14.710271820038036,
+      "null_p": 0.51305,
+      "ratio": 2.4840806127542128,
+      "top_merge_height": 0.21491703836696674,
+      "verdict": "clear:4"
+    },
+    "k_used": 4
+  },
+  "collapse": {
+    "input": 299,
+    "label_mix": [
+      {
+        "clusters_of_2_plus": 25,
+        "column": "study",
+        "spanning_several_values": 0
+      },
+      {
+        "clusters_of_2_plus": 25,
+        "column": "country",
+        "spanning_several_values": 8
+      }
+    ],
+    "representatives": 122,
+    "rule": "mean",
+    "within": [
+      "study"
+    ]
+  },
+  "compare": {
+    "pcs": null,
+    "tree": null
+  },
+  "dapc": null,
+  "flags": {
+    "low_coverage": [
+      "ERR10466327",
+      "ERR12523366",
+      "ERR12523457",
+      "ERR12523476",
+      "ERR12523479",
+      "ERR12523480",
+      "ERR12523494",
+      "ERR12523509",
+      "ERR12523511",
+      "ERR12523513",
+      "ERR12523514",
+      "ERR12523518",
+      "ERR12523522",
+      "ERR12523523",
+      "ERR12523524",
+      "ERR12523527",
+      "ERR12523538",
+      "ERR12523560",
+      "ERR12523571",
+      "ERR12523595",
+      "ERR12523613",
+      "ERR12523623",
+      "ERR12523633",
+      "ERR12523634",
+      "ERR12523637",
+      "ERR12523641",
+      "ERR12523646",
+      "ERR12523648",
+      "ERR12523650",
+      "ERR12523652",
+      "ERR12523656",
+      "ERR12523657",
+      "ERR12523658",
+      "ERR12523659",
+      "ERR12523660",
+      "ERR12523662",
+      "ERR12523663",
+      "ERR12523665",
+      "ERR12523667",
+      "ERR12523670",
+      "ERR12523671",
+      "ERR12523673",
+      "ERR12523675",
+      "ERR12523683",
+      "ERR12523684",
+      "ERR12523687",
+      "ERR12523689",
+      "ERR12523783",
+      "ERR12523785",
+      "ERR12523909",
+      "ERR12523968",
+      "ERR12523970",
+      "ERR12523981",
+      "ERR12524066",
+      "ERR12524067",
+      "ERR12524068",
+      "ERR12524069",
+      "ERR12524085",
+      "ERR12524095",
+      "ERR12524106",
+      "ERR12524127",
+      "ERR12524142",
+      "ERR12524147",
+      "ERR12524149",
+      "ERR12524156",
+      "ERR12524159",
+      "ERR12524160",
+      "ERR12524187",
+      "ERR12524227",
+      "ERR12524232",
+      "ERR12524241",
+      "ERR12524261",
+      "ERR12524263",
+      "ERR12524268",
+      "ERR12524272",
+      "ERR12524273",
+      "ERR12524284",
+      "ERR12524285",
+      "ERR12524289",
+      "ERR12524290",
+      "ERR12524296",
+      "ERR12524297",
+      "ERR12524298",
+      "ERR2764751",
+      "ERR2764757",
+      "ERR2764761",
+      "ERR2764762",
+      "ERR2764766",
+      "SRR10551674",
+      "SRR10551675",
+      "SRR10551676",
+      "SRR10551678",
+      "SRR10551679",
+      "SRR10551686",
+      "SRR10551688",
+      "SRR10551695",
+      "SRR10551700",
+      "SRR10551712",
+      "SRR10551714",
+      "SRR10551718",
+      "SRR10551737",
+      "SRR10551738",
+      "SRR12907806",
+      "SRR16974407",
+      "SRR1985073",
+      "SRR945538",
+      "SRR945561"
+    ],
+    "size_high": [
+      "ERR12523365",
+      "ERR12523508",
+      "ERR2764735",
+      "ERR2764736",
+      "ERR2764738",
+      "ERR2764742",
+      "ERR2764749",
+      "ERR2764754",
+      "ERR2764760",
+      "ERR2764763",
+      "SRR10551671",
+      "SRR10551677",
+      "SRR10551681",
+      "SRR10551689",
+      "SRR10551736",
+      "SRR10551739"
+    ],
+    "size_low": [
+      "SRR10551703",
+      "SRR10551750"
+    ],
+    "unrelated_to_cohort": [
+      "ERR12523656",
+      "ERR12523667",
+      "ERR12523673",
+      "SRR10551703",
+      "SRR10551737",
+      "SRR10551750"
+    ]
+  },
+  "group_tests": [
+    {
+      "column": "country",
+      "permutations": 199,
+      "result": {
+        "groups": [
+          {
+            "label": "Australia",
+            "mean_dispersion": 0.006417256428447342,
+            "n": 3
+          },
+          {
+            "label": "Belgium",
+            "mean_dispersion": 0.0032584844948908573,
+            "n": 19
+          },
+          {
+            "label": "Denmark",
+            "mean_dispersion": 0.0017770577555847112,
+            "n": 7
+          },
+          {
+            "label": "France",
+            "mean_dispersion": 0.0020049613965163362,
+            "n": 4
+          },
+          {
+            "label": "Italy",
+            "mean_dispersion": 0.0029448885908287476,
+            "n": 4
+          },
+          {
+            "label": "South Africa",
+            "mean_dispersion": 0.007092365358519652,
+            "n": 6
+          },
+          {
+            "label": "Sweden",
+            "mean_dispersion": 0.00039938734583594426,
+            "n": 2
+          },
+          {
+            "label": "USA",
+            "mean_dispersion": 0.04078825901424484,
+            "n": 16
+          },
+          {
+            "label": "USA: Madison, Wisconsin",
+            "mean_dispersion": 0.0,
+            "n": 2
+          },
+          {
+            "label": "missing",
+            "mean_dispersion": 0.0023365489097583853,
+            "n": 3
+          }
+        ],
+        "informative_fraction": 0.9090909090909091,
+        "n": 66,
+        "n_groups": 10,
+        "p": 0.835,
+        "permdisp_f": 2.730159131164409,
+        "permdisp_p": 0.055,
+        "pseudo_f": 0.3615818825553731,
+        "r2": 0.05491990296202587,
+        "strata_used": true,
+        "warnings": [
+          "5 group(s) with one sample were left out: Chile, Germany, Ireland, Netherlands, Thailand",
+          "smallest group has 2 samples; the test has little power for it",
+          "11 sample(s) have a negative squared distance to the centroid (the distances are not Euclidean); set to 0"
+        ],
+        "weighted": false
+      },
+      "strata": "study"
+    }
+  ],
+  "labels": [
+    {
+      "ari_by_k": [
+        [
+          4,
+          0.036247129112838804
+        ],
+        [
+          3,
+          0.03197917218367678
+        ],
+        [
+          6,
+          0.0074977059437442315
+        ],
+        [
+          14,
+          -0.029668113969228044
+        ]
+      ],
+      "column": "study",
+      "conflicts": [],
+      "contingency": {
+        "PRJEB11548": {
+          "0": 1
+        },
+        "PRJEB21262": {
+          "0": 3
+        },
+        "PRJEB28420": {
+          "0": 7
+        },
+        "PRJEB40511": {
+          "0": 1
+        },
+        "PRJEB57332": {
+          "0": 1
+        },
+        "PRJEB71961": {
+          "0": 77,
+          "1": 1
+        },
+        "PRJNA213658": {
+          "0": 2
+        },
+        "PRJNA244003": {
+          "0": 1
+        },
+        "PRJNA281577": {
+          "0": 2
+        },
+        "PRJNA554210": {
+          "0": 1
+        },
+        "PRJNA592329": {
+          "0": 19,
+          "1": 1,
+          "2": 1,
+          "3": 1
+        },
+        "PRJNA647756": {
+          "0": 1
+        },
+        "PRJNA736342": {
+          "0": 1
+        },
+        "PRJNA76499": {
+          "0": 1
+        }
+      },
+      "contingency_k": 4,
+      "groups": [
+        [
+          "PRJEB11548",
+          1
+        ],
+        [
+          "PRJEB21262",
+          3
+        ],
+        [
+          "PRJEB28420",
+          7
+        ],
+        [
+          "PRJEB40511",
+          1
+        ],
+        [
+          "PRJEB57332",
+          1
+        ],
+        [
+          "PRJEB71961",
+          78
+        ],
+        [
+          "PRJNA213658",
+          2
+        ],
+        [
+          "PRJNA244003",
+          1
+        ],
+        [
+          "PRJNA281577",
+          2
+        ],
+        [
+          "PRJNA554210",
+          1
+        ],
+        [
+          "PRJNA592329",
+          22
+        ],
+        [
+          "PRJNA647756",
+          1
+        ],
+        [
+          "PRJNA736342",
+          1
+        ],
+        [
+          "PRJNA76499",
+          1
+        ]
+      ],
+      "labelled": 122,
+      "purity": [
+        [
+          "PRJEB11548",
+          1.0
+        ],
+        [
+          "PRJEB21262",
+          1.0
+        ],
+        [
+          "PRJEB28420",
+          1.0
+        ],
+        [
+          "PRJEB40511",
+          1.0
+        ],
+        [
+          "PRJEB57332",
+          1.0
+        ],
+        [
+          "PRJEB71961",
+          0.9871794871794872
+        ],
+        [
+          "PRJNA213658",
+          1.0
+        ],
+        [
+          "PRJNA244003",
+          1.0
+        ],
+        [
+          "PRJNA281577",
+          1.0
+        ],
+        [
+          "PRJNA554210",
+          1.0
+        ],
+        [
+          "PRJNA592329",
+          0.8636363636363636
+        ],
+        [
+          "PRJNA647756",
+          1.0
+        ],
+        [
+          "PRJNA736342",
+          1.0
+        ],
+        [
+          "PRJNA76499",
+          1.0
+        ]
+      ],
+      "unchecked_labels": [
+        "PRJEB21262",
+        "PRJEB28420",
+        "PRJEB71961",
+        "PRJNA592329"
+      ]
+    },
+    {
+      "ari_by_k": [
+        [
+          4,
+          -0.0183389172985364
+        ],
+        [
+          3,
+          0.0010460826955899442
+        ],
+        [
+          6,
+          -0.03356590609089197
+        ],
+        [
+          11,
+          -0.037936267071320195
+        ]
+      ],
+      "column": "country",
+      "conflicts": [],
+      "contingency": {
+        "Belgium": {
+          "0": 6
+        },
+        "Denmark": {
+          "0": 1
+        },
+        "France": {
+          "0": 1
+        },
+        "Ireland": {
+          "2": 1
+        },
+        "Italy": {
+          "0": 1
+        },
+        "Netherlands": {
+          "0": 1
+        },
+        "South Africa": {
+          "0": 4
+        },
+        "Thailand": {
+          "0": 1
+        },
+        "USA": {
+          "0": 6,
+          "1": 1,
+          "3": 1
+        },
+        "USA: Madison, Wisconsin": {
+          "0": 2
+        },
+        "missing": {
+          "0": 2
+        }
+      },
+      "contingency_k": 4,
+      "groups": [
+        [
+          "Belgium",
+          6
+        ],
+        [
+          "Denmark",
+          1
+        ],
+        [
+          "France",
+          1
+        ],
+        [
+          "Ireland",
+          1
+        ],
+        [
+          "Italy",
+          1
+        ],
+        [
+          "Netherlands",
+          1
+        ],
+        [
+          "South Africa",
+          4
+        ],
+        [
+          "Thailand",
+          1
+        ],
+        [
+          "USA",
+          8
+        ],
+        [
+          "USA: Madison, Wisconsin",
+          2
+        ],
+        [
+          "missing",
+          2
+        ]
+      ],
+      "labelled": 28,
+      "purity": [
+        [
+          "Belgium",
+          1.0
+        ],
+        [
+          "Denmark",
+          1.0
+        ],
+        [
+          "France",
+          1.0
+        ],
+        [
+          "Ireland",
+          1.0
+        ],
+        [
+          "Italy",
+          1.0
+        ],
+        [
+          "Netherlands",
+          1.0
+        ],
+        [
+          "South Africa",
+          1.0
+        ],
+        [
+          "Thailand",
+          1.0
+        ],
+        [
+          "USA",
+          0.75
+        ],
+        [
+          "USA: Madison, Wisconsin",
+          1.0
+        ],
+        [
+          "missing",
+          1.0
+        ]
+      ],
+      "unchecked_labels": [
+        "Belgium",
+        "South Africa",
+        "USA"
+      ]
+    }
+  ],
+  "noise_floor": {
+    "median": 0.003295150162682059,
+    "n": 174,
+    "p90": 0.005511074566892449,
+    "source": "split_half",
+    "value": 0.005511074566892449
+  },
+  "notes": {},
+  "options": {
+    "flagged": "Mark",
+    "index": null,
+    "ksize": 21,
+    "max_bases": 0,
+    "min_cov": 4.0,
+    "min_floors": 3.0,
+    "ordination": "HashPca",
+    "r1_only": false,
+    "scaled": 200
+  },
+  "ordination": {
+    "features": 511178,
+    "method": "hash_pca",
+    "variance_fraction": [
+      0.23087755784844824,
+      0.2000041616454302,
+      0.10921075438947356,
+      0.06345638753669705,
+      0.044082261641068085,
+      0.03577048863565531,
+      0.019390553735511455,
+      0.011937400461712799,
+      0.01110470235262327,
+      0.010788520299629244
+    ]
+  },
+  "samples": {
+    "by_status": {
+      "included": 174,
+      "marked": 125
+    },
+    "in_analysis": 122,
+    "total": 299
+  },
+  "tool": "popsketch",
+  "tree": {
+    "branches_collapsed": 107,
+    "written": true
+  },
+  "version": "0.3.2",
+  "warnings": [
+    "DAPC on label column study was skipped: it needs at least 2 label groups that form coherent clusters in the sketches, with 2 samples each, and more samples than PCs"
+  ]
+}

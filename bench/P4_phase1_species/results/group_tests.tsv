@@ -1,0 +1,2 @@
+label_column	strata	n	groups	pseudo_f	r2	p	permdisp_f	permdisp_p	informative_fraction	warnings
+country	study	66	10	0.3616	0.0549	0.8350	2.7302	0.0550	0.909	5 group(s) with one sample were left out: Chile, Germany, Ireland, Netherlands, Thailand; smallest group has 2 samples; the test has little power for it; 11 sample(s) have a negative squared distance to the centroid (the distances are not Euclidean); set to 0
