@@ -21,6 +21,9 @@ use gmg_core::coverage::{auto_min_abund, profile};
 /// Exit code of `popsketch check` for an undersampled sample (sysexits EX_TEMPFAIL: "try again", here with another sampling).
 pub const EXIT_UNDERSAMPLED: i32 = 75;
 
+/// Exit code of `popsketch check` for an error (bad argument, no such sketch, unreadable folder).
+pub const EXIT_ERROR: i32 = 2;
+
 #[derive(Clone, Debug)]
 pub struct CheckParams {
     pub min_size_ratio: f64,
@@ -76,6 +79,35 @@ impl SizeCheck {
             self.reasons.join("; ")
         )
     }
+}
+
+/// Reject inputs that would make a verdict meaningless: a genome size or coverage that is zero, negative, infinite or NaN
+/// (a ratio against zero is infinite, and `NaN < 0.5` is false, so such a sample would pass), and thresholds outside their
+/// range. The caller maps an error to exit code 2.
+pub fn validate(
+    genome_mb: f64,
+    expected_coverage: Option<f64>,
+    p: &CheckParams,
+) -> Result<(), String> {
+    let pos = |name: &str, x: f64| {
+        if x.is_finite() && x > 0.0 {
+            Ok(())
+        } else {
+            Err(format!("{name} must be a positive number, got {x}"))
+        }
+    };
+    pos("--genome-mb", genome_mb)?;
+    if let Some(c) = expected_coverage {
+        pos("--coverage", c)?;
+    }
+    pos("--max-cov-ratio", p.max_cov_ratio)?;
+    if !(p.min_size_ratio.is_finite() && p.min_size_ratio > 0.0 && p.min_size_ratio <= 1.0) {
+        return Err(format!(
+            "--min-size-ratio must be in (0, 1], got {}",
+            p.min_size_ratio
+        ));
+    }
+    Ok(())
 }
 
 /// `expected_coverage`: the x the kept reads should give if sampled evenly (bases kept / genome size); None skips the
@@ -223,6 +255,32 @@ mod tests {
         let r = check(&a, 200, 12.0, Some(25.0), &CheckParams::default());
         assert!(r.kmer_cov.is_none() && r.cov_ratio.is_none());
         assert_eq!(r.verdict, Verdict::Ok);
+    }
+
+    #[test]
+    fn a_zero_nan_or_negative_genome_size_or_coverage_is_rejected_not_passed() {
+        let p = CheckParams::default();
+        assert!(validate(12.0, Some(25.0), &p).is_ok());
+        assert!(validate(12.0, None, &p).is_ok());
+        for g in [0.0, -1.0, f64::NAN, f64::INFINITY] {
+            assert!(validate(g, Some(25.0), &p).is_err(), "genome {g}");
+        }
+        for c in [0.0, -5.0, f64::NAN, f64::INFINITY] {
+            assert!(validate(12.0, Some(c), &p).is_err(), "coverage {c}");
+        }
+        let bad = |min: f64, max: f64| {
+            validate(
+                12.0,
+                None,
+                &CheckParams {
+                    min_size_ratio: min,
+                    max_cov_ratio: max,
+                },
+            )
+        };
+        assert!(bad(0.0, 2.5).is_err() && bad(1.5, 2.5).is_err() && bad(f64::NAN, 2.5).is_err());
+        assert!(bad(0.5, 0.0).is_err() && bad(0.5, f64::NAN).is_err());
+        assert!(bad(1.0, 2.5).is_ok());
     }
 
     #[test]
