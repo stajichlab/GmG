@@ -484,8 +484,10 @@ mod tests {
         // SS_T = (sum d^2)/4 = (1+100+121+81+100+1)/4 = 101; SS_W = 1/2 + 1/2 = 1; F = (100/1)/(1/2) = 200
         assert!((r.f - 200.0).abs() < 1e-9, "F = {}", r.f);
         assert!((r.r2 - 100.0 / 101.0).abs() < 1e-9);
-        // only 3 distinct splits of 4 points into 2 pairs exist, so the smallest possible p is not below 1/3
-        assert!(r.p.unwrap() >= 0.2, "p = {:?}", r.p);
+        // of the 6 ways to give 2 of 4 points the label a, 2 (the observed one and its mirror) separate the pairs: the exact p
+        // is 1/3, and 99 permutations estimate it as (1 + hits) / 100
+        let p = r.p.unwrap();
+        assert!((0.2..=0.5).contains(&p), "p = {p}");
     }
 
     #[test]

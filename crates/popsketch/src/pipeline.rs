@@ -1045,6 +1045,14 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                 OrdKind::Pcoa => pcoa(&d1, n, ncomp),
             }
         };
+        if let Some(share) = res.ordination.as_ref().and_then(|x| x.negative_share) {
+            if share > 0.05 {
+                res.warnings.push(format!(
+                    "PCoA: the negative eigenvalues hold {:.0}% as much as the positive ones (the distances are not Euclidean); the axis percentages are shares of the positive eigenvalues",
+                    100.0 * share
+                ));
+            }
+        }
         tm.mark(o, "ordination");
         // tree
         if o.tree {
@@ -1383,9 +1391,10 @@ fn write_outputs(o: &Options, r: &Results) -> Result<()> {
         fs::write(
             o.out.join("pca_variance.txt"),
             format!(
-                "method\t{}\nvariance_fraction\t{}\nfeatures\t{}\n",
+                "method\t{}\nvariance_fraction\t{}\nvariance_basis\t{}\nfeatures\t{}\n",
                 ord.method,
                 var.join(" "),
+                ord.var_basis,
                 ord.n_features
             ),
         )?;
@@ -1526,7 +1535,7 @@ pub fn summary_json(o: &Options, r: &Results) -> Value {
         "notes": by_note,
         "noise_floor": {"value": r.floor.value, "source": r.floor.source, "n": r.floor.n, "median": r.floor.median, "p90": r.floor.p90},
         "clusters": {"k_used": r.k_used, "gap": gap},
-        "ordination": r.ordination.as_ref().map(|x| json!({"method": x.method, "variance_fraction": x.var_frac, "features": x.n_features})),
+        "ordination": r.ordination.as_ref().map(|x| json!({"method": x.method, "variance_fraction": x.var_frac, "variance_basis": x.var_basis, "negative_share": x.negative_share, "features": x.n_features})),
         "tree": {"written": r.newick.is_some(), "branches_collapsed": r.collapsed},
         "labels": labels,
         "collapse": r.collapse.as_ref().map(|c| json!({"rule": c.rule, "within": c.within, "input": c.input, "representatives": c.kept,

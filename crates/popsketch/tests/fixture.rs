@@ -34,6 +34,27 @@ fn build(name: &str) -> Truth {
     }
 }
 
+/// Exact copies of the reads of `k` clean samples, written as `<id>c.fastq` next to them: a planted duplicate has sketch
+/// distance 0 from its original, so any collapse rule must merge the pair. Returns (clone id, original id, group).
+fn add_clones(t: &Truth, k: usize) -> Vec<(String, String, usize)> {
+    let reads = t.dir.join("reads");
+    let mut out = Vec::new();
+    for (id, g) in t
+        .group_of
+        .iter()
+        .filter(|(id, _)| !t.problems.contains(id) && *id != t.swapped)
+        .take(k)
+    {
+        fs::copy(
+            reads.join(format!("{id}.fastq")),
+            reads.join(format!("{id}c.fastq")),
+        )
+        .unwrap();
+        out.push((format!("{id}c"), id.clone(), *g));
+    }
+    out
+}
+
 fn opts(t: &Truth, name: &str) -> Options {
     Options {
         inputs: vec![t.dir.join("reads")],
@@ -650,12 +671,14 @@ fn label_tests_find_the_real_grouping_stay_inside_strata_and_can_be_turned_off()
     let tsv = fs::read_to_string(o.out.join("group_tests.tsv")).unwrap();
     assert!(tsv.starts_with("label_column\tstrata\t"), "{tsv}");
     assert_eq!(tsv.lines().count(), 3);
-    let html = fs::read_to_string(o.out.join("popsketch.html")).unwrap_or_default();
+    // the report is `report.html` (this test once read `popsketch.html`, which is never written, and asserted nothing)
+    let html = fs::read_to_string(o.out.join("report.html")).expect("report.html is written");
     let json = fs::read_to_string(o.out.join("popsketch.json")).unwrap();
     assert!(json.contains("\"group_tests\""));
-    if !html.is_empty() {
-        assert!(html.contains("Do the labels explain the distances?"));
-    }
+    assert!(
+        html.contains("Do the labels explain the distances?"),
+        "the report has a label-test section"
+    );
     // a strata column that does not exist: warning, free permutation
     let mut o2 = opts(&t, "permanova2");
     o2.labels = Some(lp.clone());
@@ -681,9 +704,13 @@ fn label_tests_find_the_real_grouping_stay_inside_strata_and_can_be_turned_off()
 fn collapse_runs_the_analysis_on_representatives_writes_collapse_tsv_and_tests_labels_on_all_samples(
 ) {
     let t = build("collapse");
+    let clones = add_clones(&t, 3);
     let mut labels = String::from("id\tgroup\n");
     for (id, g) in t.group_of.iter() {
         labels.push_str(&format!("{id}\tg{g}\n"));
+    }
+    for (c, _, g) in &clones {
+        labels.push_str(&format!("{c}\tg{g}\n"));
     }
     let lp = t.dir.join("collapse_labels.tsv");
     fs::write(&lp, labels).unwrap();
@@ -703,7 +730,23 @@ fn collapse_runs_the_analysis_on_representatives_writes_collapse_tsv_and_tests_l
     o.collapse = Some(popsketch::collapse::Rule::Mean);
     let r = run(&o).unwrap();
     let c = r.collapse.as_ref().expect("collapse ran");
-    assert!(c.kept >= 3 && c.kept <= c.input);
+    // the three planted exact copies are merged into their originals (distance 0 is within any threshold)
+    assert!(
+        c.kept >= 3 && c.kept + 3 <= c.input,
+        "kept {} of {}",
+        c.kept,
+        c.input
+    );
+    for (copy, orig, _) in &clones {
+        let rep_of = |id: &str| {
+            c.rows
+                .iter()
+                .find(|x| x.0 == id)
+                .map(|x| x.1.clone())
+                .unwrap()
+        };
+        assert_eq!(rep_of(copy), rep_of(orig), "{copy} is a copy of {orig}");
+    }
     assert_eq!(c.input, off.included.len());
     assert_eq!(
         r.included.len(),
@@ -748,10 +791,17 @@ fn collapse_runs_the_analysis_on_representatives_writes_collapse_tsv_and_tests_l
 #[test]
 fn label_aware_collapse_never_merges_samples_with_different_labels() {
     let t = build("collapse_within");
-    // a label that does not follow the structure, so near-identical samples often differ in it
+    let clones = add_clones(&t, 3);
+    // a label that does not follow the structure, so near-identical samples often differ in it; each planted copy gets the
+    // other batch than its original, so the free collapse must produce mixed clusters and the label-aware one none
     let mut labels = String::from("id\tgroup\tbatch\n");
+    let mut batch = std::collections::HashMap::new();
     for (i, (id, g)) in t.group_of.iter().enumerate() {
         labels.push_str(&format!("{id}\tg{g}\tb{}\n", i % 2));
+        batch.insert(id.clone(), i % 2);
+    }
+    for (c, orig, g) in &clones {
+        labels.push_str(&format!("{c}\tg{g}\tb{}\n", 1 - batch[orig]));
     }
     let lp = t.dir.join("within_labels.tsv");
     fs::write(&lp, labels).unwrap();
@@ -792,9 +842,14 @@ fn label_aware_collapse_never_merges_samples_with_different_labels() {
     };
     assert_eq!(mix(&aware), 0);
     assert!(aware.mixed_clusters.iter().all(|m| m.column != "batch"));
-    let _ = mix(&free);
-    // restricting the merges cannot give fewer representatives than the free collapse
-    assert!(c.kept >= free.collapse.as_ref().unwrap().kept);
+    // the free collapse merged each copy with its original, across batches
+    assert!(
+        mix(&free) >= 1,
+        "free collapse mixed clusters: {}",
+        mix(&free)
+    );
+    assert!(free.mixed_clusters.iter().any(|m| m.column == "batch"));
+    // (leader clustering gives no guarantee about the number of representatives of the restricted collapse: not asserted)
     // `all` uses every label column; an unknown column is ignored with a warning
     let all = run(&mk("within_all", &["all"])).unwrap();
     assert_eq!(all.collapse.as_ref().unwrap().within, ["group", "batch"]);
