@@ -227,7 +227,7 @@ def pick(rows, seats, seed, max_per_study, use_place=False):
                     seen_country[place] if place else 10**6,
                     seen_region[r["region"]],
                     seen_study[r["study_accession"]],
-                    -float(r.get("est_depth_x") or 0) // 50,  # prefer deeper runs, in coarse steps
+                    float(r.get("est_depth_x") or 0) // 50,  # prefer shallower runs (above --min-depth), in coarse steps: they download less
                     stable_hash(seed, r["run_accession"]),
                 )
                 if best is None or key < best[0]:

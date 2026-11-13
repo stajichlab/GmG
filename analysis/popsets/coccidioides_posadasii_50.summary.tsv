@@ -1,0 +1,10 @@
+what	value	candidates	selected
+species	Coccidioides posadasii	243	50
+region	Europe	10	3
+region	North America	211	38
+region	South America	21	9
+region	unknown_region	1	0
+countries	distinct	8	7
+places (geo_loc_name)	distinct	29	28
+studies	distinct	13	12
+studies	largest share of the selection		0.220

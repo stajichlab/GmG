@@ -190,6 +190,13 @@ class Select(unittest.TestCase):
         from collections import Counter
         self.assertEqual(sorted(Counter(r["geo_loc_name"] for r in sel).values()), [3, 3, 3])
 
+    def test_among_equal_places_the_shallower_run_is_taken(self):
+        rows = [{"run_accession": f"R{i}", "sample_accession": f"S{i}", "study_accession": f"P{i}", "country_iso": "US", "est_depth_x": str(d)}
+                for i, d in enumerate([300, 28, 160, 90])]
+        attrs = [{"biosample": f"S{i}", "isolation_source": "clinical"} for i in range(4)]
+        _, sel = self.run_sel(rows, attrs, "-n", "1", "--by", "species")
+        self.assertEqual(sel[0]["run_accession"], "R1")  # 28x, the shallowest: the least to download
+
     def test_by_region_uses_the_continent(self):
         rows, attrs = fixture()
         rc, sel = self.run_sel(rows, attrs, "-n", "30", "--by", "region")

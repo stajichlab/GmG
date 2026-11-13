@@ -1,0 +1,11 @@
+what	value	candidates	selected
+species	Coccidioides immitis	86	50
+region	Asia	1	1
+region	Europe	2	2
+region	North America	80	46
+region	South America	1	1
+region	unknown_region	2	0
+countries	distinct	6	5
+places (geo_loc_name)	distinct	14	13
+studies	distinct	8	7
+studies	largest share of the selection		0.240
