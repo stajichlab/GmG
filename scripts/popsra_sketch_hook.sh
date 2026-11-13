@@ -42,14 +42,19 @@ for part in "$run.json" "$run.gsk" "$run.half_a.gsk" "$run.half_b.gsk"; do
   [ -s "$SKETCH_DIR/$part" ] || { echo "popsketch left no $part for $run" >&2; exit 3; }
 done
 if [ -n "${POPSEQ_GENOME_MB:-}" ] && [ "${POPSKETCH_CHECK:-on}" != off ]; then
-  hdr=""; [ -n "${CHECK_LOG:-}" ] && [ ! -s "${CHECK_LOG}" ] && hdr="--header"
   rc=0
+  # --header always: the header line is written to CHECK_LOG only when this hook creates the file (noclobber: exactly one
+  # of several hooks that start together does), and the data line is appended whole
   # shellcheck disable=SC2086
-  line=$("${POPSKETCH:-popsketch}" check --id "$run" -s "$SKETCH_DIR" --genome-mb "$POPSEQ_GENOME_MB" \
-        ${POPSEQ_COVERAGE:+--coverage $POPSEQ_COVERAGE} $hdr </dev/null) || rc=$?
-  [ -z "${CHECK_LOG:-}" ] || [ -z "$line" ] || printf "%s\n" "$line" >> "$CHECK_LOG"
+  out=$("${POPSKETCH:-popsketch}" check --id "$run" -s "$SKETCH_DIR" --genome-mb "$POPSEQ_GENOME_MB" \
+        ${POPSEQ_COVERAGE:+--coverage $POPSEQ_COVERAGE} --header </dev/null) || rc=$?
+  header=$(printf "%s\n" "$out" | sed -n 1p); line=$(printf "%s\n" "$out" | sed -n 2p)
+  if [ -n "${CHECK_LOG:-}" ] && [ -n "$line" ]; then
+    ( set -C; printf "%s\n" "$header" > "$CHECK_LOG" ) 2>/dev/null || true
+    printf "%s\n" "$line" >> "$CHECK_LOG"
+  fi
   if [ "$rc" -ne 0 ]; then
-    echo "$run: sampling check failed (exit $rc): $(printf "%s" "$line" | tail -1 | cut -f9)" >&2
+    echo "$run: sampling check failed (exit $rc): $(printf "%s" "$line" | cut -f9)" >&2
     rm -f "$SKETCH_DIR/$run".json "$SKETCH_DIR/$run".gsk "$SKETCH_DIR/$run".half_a.gsk "$SKETCH_DIR/$run".half_b.gsk
     exit "$rc"
   fi

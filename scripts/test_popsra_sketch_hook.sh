@@ -42,6 +42,16 @@ check "and removes the sketch (it never passed the check)" bash -c '! ls "$0"/CH
 check "and no blank line goes to the check log" bash -c '! grep -q "^$" "$0"' "$CHECK_LOG"
 check "a sample that passed keeps its sketch" test -s "$SKETCH_DIR/CHK1.gsk"
 check "POPSKETCH_CHECK=off skips the check" env POPSKETCH_CHECK=off POPSEQ_GENOME_MB=5 "$HERE/popsra_sketch_hook.sh" CHK3 "${FILES[0]}"
+
+# hooks that finish together write the header once and every data line whole
+export CHECK_LOG="$T/check_race.tsv"
+for i in 0 1 2 3 4 5; do
+  env POPSEQ_GENOME_MB=0.17 POPSEQ_COVERAGE=20 "$HERE/popsra_sketch_hook.sh" "RACE$i" "${FILES[$i]}" >/dev/null 2>&1 &
+done
+wait
+check "six hooks at once: one header line" test "$(grep -c '^id	' "$CHECK_LOG")" = 1
+check "and six data lines" test "$(grep -c '^RACE' "$CHECK_LOG")" = 6
+check "the header is the first line" test "$(head -1 "$CHECK_LOG" | cut -f1)" = id
 unset CHECK_LOG
 
 # failures are loud: no files, a missing file, and a missing SKETCH_DIR
