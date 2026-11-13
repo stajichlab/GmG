@@ -69,7 +69,8 @@ enum Cmd {
         r1_only: bool,
     },
     /// Check one sketched sample against the genome it should cover (was the run sampled evenly?). Prints one TSV line;
-    /// exit 0 = ok, 75 = undersampled (the reads miss part of the genome or pile up on part of it), 2 = error
+    /// exit 0 = ok, 75 = undersampled (the reads miss part of the genome or pile up on part of it: resample), 65 = not
+    /// assessed (too little k-mer coverage, or not this genome: resampling will not help), 2 = error
     #[command(
         after_long_help = "EXAMPLES\n  popsketch check --id SRR123 -s sketches/ --genome-mb 12.25 --coverage 25\n\nThe thresholds (0.5 of the genome size, 2.5 times the expected k-mer coverage) come from one species and are UNMEASURED beyond it."
     )]
@@ -92,6 +93,12 @@ enum Cmd {
         /// fail when the k-mer coverage is above this many times the expected coverage
         #[arg(long, default_value_t = 2.5)]
         max_cov_ratio: f64,
+        /// a failing sample with less k-mer coverage than this is not assessed (exit 65), not undersampled
+        #[arg(long, default_value_t = 3.0)]
+        min_kmer_cov: f64,
+        /// a sample whose estimated size is more than this many times the genome is not assessed (exit 65): not this genome
+        #[arg(long, default_value_t = 5.0)]
+        max_size_ratio: f64,
         /// print the header line first
         #[arg(long)]
         header: bool,
@@ -282,10 +289,12 @@ fn main() -> Result<()> {
             coverage,
             min_size_ratio,
             max_cov_ratio,
+            min_kmer_cov,
+            max_size_ratio,
             header,
         } => {
             use popsketch::check::{
-                check, scaled_from_params, validate, CheckParams, Verdict, EXIT_ERROR,
+                check, validate, CheckParams, Verdict, EXIT_ERROR, EXIT_NOT_ASSESSED,
                 EXIT_UNDERSAMPLED, TSV_HEADER,
             };
             // every failure of `check` is exit 2, not anyhow's 1: a caller branches on 0, 75 and 2
@@ -296,6 +305,8 @@ fn main() -> Result<()> {
             let params = CheckParams {
                 min_size_ratio,
                 max_cov_ratio,
+                min_kmer_cov,
+                max_size_ratio,
             };
             if let Err(e) = validate(genome_mb, coverage, &params) {
                 fail(e);
@@ -307,24 +318,27 @@ fn main() -> Result<()> {
                         sketches.display()
                     ))
                 });
-            let scaled = scaled_from_params(&params_text).unwrap_or_else(|| {
-                fail(format!(
-                    "no scaled= in {}",
-                    sketches.join("params.txt").display()
-                ))
-            });
+            let (ksize, scaled) = popsketch::sketch_io::ksize_scaled_from_tag(&params_text)
+                .unwrap_or_else(|| {
+                    fail(format!(
+                        "no k= and scaled= in {}",
+                        sketches.join("params.txt").display()
+                    ))
+                });
             let sample = match popsketch::sketch_io::cache_read_checked(&sketches, &id, false) {
                 Ok(Some(s)) => s,
                 Ok(None) => fail(format!("no sketch for {id} in {}", sketches.display())),
                 Err(e) => fail(format!("{e:#}")),
             };
-            let r = check(&sample, scaled, genome_mb, coverage, &params);
+            let r = check(&sample, scaled, ksize, genome_mb, coverage, &params);
             if header {
                 println!("{TSV_HEADER}");
             }
             println!("{}", r.tsv());
-            if r.verdict == Verdict::Undersampled {
-                std::process::exit(EXIT_UNDERSAMPLED);
+            match r.verdict {
+                Verdict::Ok => {}
+                Verdict::Undersampled => std::process::exit(EXIT_UNDERSAMPLED),
+                Verdict::NotAssessed => std::process::exit(EXIT_NOT_ASSESSED),
             }
             Ok(())
         }

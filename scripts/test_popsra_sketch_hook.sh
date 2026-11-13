@@ -33,6 +33,13 @@ check "the check line is logged with a header" test "$(head -1 "$CHECK_LOG" | cu
 rc=0; env POPSEQ_GENOME_MB=5 POPSEQ_COVERAGE=20 "$HERE/popsra_sketch_hook.sh" CHK2 "${FILES[0]}" 2>/dev/null || rc=$?
 check "an undersampled sample exits 75" test "$rc" = 75
 check "and its sketch files are removed" bash -c '! ls "$0"/CHK2.* >/dev/null 2>&1' "$SKETCH_DIR"
+rc=0; env POPSEQ_GENOME_MB=0.01 POPSEQ_COVERAGE=20 "$HERE/popsra_sketch_hook.sh" CHK4 "${FILES[0]}" 2>/dev/null || rc=$?
+check "a sample far larger than the genome is not assessed: exit 65" test "$rc" = 65
+check "and its sketch files are removed too" bash -c '! ls "$0"/CHK4.* >/dev/null 2>&1' "$SKETCH_DIR"
+rc=0; env POPSEQ_GENOME_MB=0 "$HERE/popsra_sketch_hook.sh" CHK5 "${FILES[0]}" 2>/dev/null || rc=$?
+check "an error of the check itself (genome size 0) exits 2" test "$rc" = 2
+check "and removes the sketch (it never passed the check)" bash -c '! ls "$0"/CHK5.* >/dev/null 2>&1' "$SKETCH_DIR"
+check "and no blank line goes to the check log" bash -c '! grep -q "^$" "$0"' "$CHECK_LOG"
 check "a sample that passed keeps its sketch" test -s "$SKETCH_DIR/CHK1.gsk"
 check "POPSKETCH_CHECK=off skips the check" env POPSKETCH_CHECK=off POPSEQ_GENOME_MB=5 "$HERE/popsra_sketch_hook.sh" CHK3 "${FILES[0]}"
 unset CHECK_LOG
