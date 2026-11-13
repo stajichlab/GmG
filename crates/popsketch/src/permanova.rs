@@ -237,7 +237,7 @@ pub fn test(
     // sum of squares alone: "F at least as large as observed" is "SS_W at most as large as observed". Comparing the sums of
     // squares keeps the test exact when F is infinite (SS_W of 0: every group is made of exact copies) and removes the need
     // to compare NaN or inf. If the total is 0 (all distances 0) there is nothing to test.
-    let degenerate_total = !(total > 0.0) || !total.is_finite();
+    let degenerate_total = !(total.is_finite() && total > 0.0);
     if degenerate_total {
         warnings.push(
             "all distances are 0 or not finite: there is no structure to test, no p-value"
@@ -306,7 +306,7 @@ pub fn test(
     let disp_obs = anova_f(ssb_obs, ssw_obs);
     // the total SS of z is the same for every permutation, so, as for PERMANOVA, compare the within SS
     let sst_z = ssb_obs + ssw_obs;
-    let degenerate_disp = !(sst_z > 0.0) || !sst_z.is_finite();
+    let degenerate_disp = !(sst_z.is_finite() && sst_z > 0.0);
     if degenerate_disp {
         warnings.push(
             "every sample is at the same distance from its group centroid: no PERMDISP p-value"
@@ -325,9 +325,7 @@ pub fn test(
         .collect();
 
     // permutations of the label vector, within strata
-    let (p, disp_p) = if strata_used && informative == 0 {
-        (None, None)
-    } else if degenerate_total {
+    let (p, disp_p) = if (strata_used && informative == 0) || degenerate_total {
         (None, None)
     } else {
         let tol = 1e-12;
