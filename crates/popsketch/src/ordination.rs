@@ -7,6 +7,7 @@
 //! t = sum of mu^2. The eigenvectors of this matrix, scaled by the square root of their eigenvalue, are the PC scores.
 
 use crate::par::*;
+use crate::rng::SplitMix;
 use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
@@ -76,17 +77,6 @@ pub fn jacobi_eigen(a: &[f64], n: usize) -> (Vec<f64>, Vec<Vec<f64>>) {
     (evals, evecs)
 }
 
-struct SplitMix(u64);
-impl SplitMix {
-    fn next_f64(&mut self) -> f64 {
-        self.0 = self.0.wrapping_add(0x9E37_79B9_7F4A_7C15);
-        let mut z = self.0;
-        z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
-        z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
-        (((z ^ (z >> 31)) >> 11) as f64 / (1u64 << 53) as f64) - 0.5
-    }
-}
-
 fn matvec_block(a: &[f64], n: usize, q: &[Vec<f64>]) -> Vec<Vec<f64>> {
     q.par_iter()
         .map(|col| {
@@ -136,7 +126,7 @@ pub fn top_eigs(a: &[f64], n: usize, k: usize) -> (Vec<f64>, Vec<Vec<f64>>) {
     let b = (k + 8).min(n);
     let mut rng = SplitMix(0xC0FFEE);
     let mut q: Vec<Vec<f64>> = (0..b)
-        .map(|_| (0..n).map(|_| rng.next_f64()).collect())
+        .map(|_| (0..n).map(|_| rng.unit() - 0.5).collect())
         .collect();
     orthonormalize(&mut q);
     // spectral radius bound: a few power steps on the first column
@@ -344,7 +334,7 @@ mod tests {
     fn rand_psd(n: usize, rank: usize, seed: u64) -> Vec<f64> {
         let mut r = SplitMix(seed);
         let f: Vec<Vec<f64>> = (0..n)
-            .map(|_| (0..rank).map(|_| r.next_f64() * 2.0).collect())
+            .map(|_| (0..rank).map(|_| (r.unit() - 0.5) * 2.0).collect())
             .collect();
         let mut a = vec![0.0; n * n];
         for i in 0..n {
@@ -401,7 +391,7 @@ mod tests {
         let mut a = rand_psd(n, 3, 9);
         // subtract a large rank-one part so the most extreme eigenvalue is negative
         let mut r = SplitMix(77);
-        let u: Vec<f64> = (0..n).map(|_| r.next_f64()).collect();
+        let u: Vec<f64> = (0..n).map(|_| r.unit() - 0.5).collect();
         let big = 40.0 * a.iter().cloned().fold(0.0, f64::max);
         for i in 0..n {
             for j in 0..n {
@@ -435,7 +425,7 @@ mod tests {
                 h.extend((1000 * (g + 1))..(1000 * (g + 1) + 300)); // this group's own
                 for _ in 0..40 {
                     // sample-specific variation inside the group, drawn from a common pool
-                    h.push(10_000 + ((r.next_f64() + 0.5) * 200.0) as u64);
+                    h.push(10_000 + (r.unit() * 200.0) as u64);
                 }
                 h.push(1_000_000 + g * 100 + s); // private (error-like), must not matter
                 h.sort_unstable();
