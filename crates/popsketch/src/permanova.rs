@@ -233,6 +233,17 @@ pub fn test(
     let pseudo_f = |sw: f64| ((total - sw) / (g - 1) as f64) / (sw / (m - g) as f64);
     let sw_obs = ss_w(&lab);
     let f_obs = pseudo_f(sw_obs);
+    // The total sum of squares does not change when labels are permuted, so F is a decreasing function of the within-group
+    // sum of squares alone: "F at least as large as observed" is "SS_W at most as large as observed". Comparing the sums of
+    // squares keeps the test exact when F is infinite (SS_W of 0: every group is made of exact copies) and removes the need
+    // to compare NaN or inf. If the total is 0 (all distances 0) there is nothing to test.
+    let degenerate_total = !(total.is_finite() && total > 0.0);
+    if degenerate_total {
+        warnings.push(
+            "all distances are 0 or not finite: there is no structure to test, no p-value"
+                .to_string(),
+        );
+    }
     let r2 = if total > 0.0 {
         (total - sw_obs) / total
     } else {
@@ -270,7 +281,8 @@ pub fn test(
             "{negative} sample(s) have a negative squared distance to the centroid (the distances are not Euclidean); set to 0"
         ));
     }
-    let anova_f = |zz: &[f64], labs: &[usize]| -> f64 {
+    // one-way ANOVA of the distances to the centroids: (between SS, within SS)
+    let anova_ss = |zz: &[f64], labs: &[usize]| -> (f64, f64) {
         let mean: f64 = zz.iter().sum::<f64>() / m as f64;
         let mut gm = vec![0.0; g];
         let mut gn = vec![0usize; g];
@@ -287,9 +299,20 @@ pub fn test(
             .enumerate()
             .map(|(k, &x)| (x - gm[labs[k]]).powi(2))
             .sum();
-        (ssb / (g - 1) as f64) / (ssw / (m - g) as f64)
+        (ssb, ssw)
     };
-    let disp_obs = anova_f(&z, &lab);
+    let anova_f = |ssb: f64, ssw: f64| (ssb / (g - 1) as f64) / (ssw / (m - g) as f64);
+    let (ssb_obs, ssw_obs) = anova_ss(&z, &lab);
+    let disp_obs = anova_f(ssb_obs, ssw_obs);
+    // the total SS of z is the same for every permutation, so, as for PERMANOVA, compare the within SS
+    let sst_z = ssb_obs + ssw_obs;
+    let degenerate_disp = !(sst_z.is_finite() && sst_z > 0.0);
+    if degenerate_disp {
+        warnings.push(
+            "every sample is at the same distance from its group centroid: no PERMDISP p-value"
+                .to_string(),
+        );
+    }
     let groups: Vec<GroupStat> = (0..g)
         .map(|j| {
             let zs: Vec<f64> = (0..m).filter(|&k| lab[k] == j).map(|k| z[k]).collect();
@@ -302,9 +325,10 @@ pub fn test(
         .collect();
 
     // permutations of the label vector, within strata
-    let (p, disp_p) = if strata_used && informative == 0 {
+    let (p, disp_p) = if (strata_used && informative == 0) || degenerate_total {
         (None, None)
     } else {
+        let tol = 1e-12;
         let one = |t: usize| -> (bool, bool) {
             let mut rng = SplitMix(o.seed ^ (t as u64).wrapping_mul(0xD6E8_FEB8_6659_FD93));
             let mut labs = lab.clone();
@@ -315,8 +339,8 @@ pub fn test(
                 }
             }
             (
-                pseudo_f(ss_w(&labs)) >= f_obs - 1e-12 * f_obs.abs(),
-                anova_f(&z, &labs) >= disp_obs - 1e-12 * disp_obs.abs(),
+                ss_w(&labs) <= sw_obs + tol * total,
+                !degenerate_disp && anova_ss(&z, &labs).1 <= ssw_obs + tol * sst_z,
             )
         };
         let hits: Vec<(bool, bool)> = (0..o.n_perm).into_par_iter().map(one).collect();
@@ -324,7 +348,7 @@ pub fn test(
         let b = hits.iter().filter(|h| h.1).count();
         (
             Some((1 + a) as f64 / (1 + o.n_perm) as f64),
-            Some((1 + b) as f64 / (1 + o.n_perm) as f64),
+            (!degenerate_disp).then(|| (1 + b) as f64 / (1 + o.n_perm) as f64),
         )
     };
 
@@ -657,5 +681,69 @@ mod tests {
         // same R2, but the weighted F is smaller: it does not count the copies as independent samples
         assert!((dup.r2 - wtd.r2).abs() < 1e-9);
         assert!(wtd.f < dup.f, "{} !< {}", wtd.f, dup.f);
+    }
+
+    fn labels(spec: &[&str]) -> Vec<Option<String>> {
+        spec.iter().map(|s| Some(s.to_string())).collect()
+    }
+
+    #[test]
+    fn all_zero_distances_give_no_p_value_not_the_smallest_one() {
+        let n = 8;
+        let d = vec![0.0; n * n];
+        let l = labels(&["a", "a", "a", "a", "b", "b", "b", "b"]);
+        let r = test(&d, n, &l, None, None, &Options::default()).unwrap();
+        assert!(
+            r.p.is_none() && r.disp_p.is_none(),
+            "p = {:?}, {:?}",
+            r.p,
+            r.disp_p
+        );
+        assert!(
+            r.warnings.iter().any(|w| w.contains("no p-value")),
+            "{:?}",
+            r.warnings
+        );
+    }
+
+    #[test]
+    fn groups_of_exact_copies_get_the_exact_p_not_the_smallest() {
+        // two groups of 4 identical points, 0.01 apart: F is infinite. Of the C(8,4) = 70 ways to give 4 samples label a,
+        // exactly 2 (the observed one and its mirror) separate the copies, so the exact p is 2/70 = 0.0286
+        let n = 8;
+        let mut d = vec![0.0; n * n];
+        for a in 0..n {
+            for b in 0..n {
+                if (a < 4) != (b < 4) {
+                    d[a * n + b] = 0.01;
+                }
+            }
+        }
+        let l = labels(&["a", "a", "a", "a", "b", "b", "b", "b"]);
+        let r = test(
+            &d,
+            n,
+            &l,
+            None,
+            None,
+            &Options {
+                n_perm: 4999,
+                seed: 4,
+            },
+        )
+        .unwrap();
+        assert!(r.f.is_infinite());
+        let p = r.p.unwrap();
+        assert!((0.02..=0.04).contains(&p), "p = {p}");
+        // every sample sits on its centroid: no spread to test
+        assert!(r.disp_p.is_none(), "{:?}", r.disp_p);
+    }
+
+    #[test]
+    fn a_real_effect_is_still_found_and_a_finite_f_still_matches_the_sum_of_squares_rule() {
+        // the p-value is now decided on SS_W, which must give the same answer as F for finite F
+        let (d, n, l) = planted(&[15, 15], &[0.0, 3.0], &[1.0, 1.0], 3, 99);
+        let r = test(&d, n, &l, None, None, &Options::default()).unwrap();
+        assert!(r.f.is_finite() && r.p.unwrap() <= 0.002, "{:?}", r.p);
     }
 }
