@@ -1,10 +1,19 @@
-// Unpack .zip, .tar, .tar.gz and .tgz in the browser (no library: tar is 512-byte headers, zip a central directory, and
-// the browser inflates natively with DecompressionStream). Entries come back as File objects held in memory, named by their
-// path inside the archive; `keep(path)` picks the ones wanted. Folders, links and other entry types are ignored.
+// Unpack .zip, .tar, .tar.gz and .tgz in the browser (tar is 512-byte headers, zip a central directory; zip entries are inflated
+// natively with DecompressionStream, a .tar.gz with gunzip.js, which reads every gzip member and checks the CRC). Entries come back
+// as File objects held in memory, named by their path inside the archive; `keep(path)` picks the ones wanted. Folders, links and
+// other entry types are ignored.
+//
+// Unpacking a large archive takes seconds of CPU (about 9 s for 3 GB of .tar.gz): `expandArchiveInWorker` does it in a worker so
+// that the page stays responsive; `expandArchive` is the same work on the calling thread (and what the worker runs).
 
 import { gunzip } from "./gunzip-browser.js";
 
 export const ARCHIVE = /\.(zip|tar|tar\.gz|tgz)$/i;
+/** What to keep, by name, so that the choice can be sent to a worker (a function cannot). */
+export const KEEP = {
+  seq: /\.(fa|fna|fasta|fas|ffn|fsa|seq|dna|fq|fastq)(\.gz)?$/i,
+  bundle: /\.(json|gsk|tsv)$/i,
+};
 export const MAX_UNPACKED = 3e9; // bytes of wanted entries held at once; the whole archive is read, only wanted entries are kept
 
 const dec = new TextDecoder();
@@ -64,6 +73,9 @@ async function untar(stream, keep, out, skipped) {
     const chunks = await body(size, wanted);
     if (wanted) out.push(new File(chunks, name));
   }
+  // read on to the end of the stream: a .tar.gz is only known to be undamaged when its gzip trailer has been checked, and that
+  // comes after the end-of-archive blocks
+  if (!done) for (;;) if ((await reader.read()).done) break;
 }
 const b2 = (chunks) => { let n = 0; for (const c of chunks) n += c.length; const o = new Uint8Array(n); let i = 0; for (const c of chunks) { o.set(c, i); i += c.length; } return o; };
 
@@ -119,7 +131,8 @@ async function unzip(file, keep, out, skipped) {
 
 // ---------------------------------------------------------------- entry point
 /** Unpack `file`; resolves to { files: File[], skipped: { notSeq, unsupported: string[] } }. Throws a readable Error on a damaged archive. */
-export async function expandArchive(file, keep) {
+export async function expandArchive(file, keepArg) {
+  const keep = typeof keepArg === "string" ? (n) => KEEP[keepArg].test(n) : keepArg;
   const out = [], skipped = { notSeq: 0, unsupported: [] };
   try {
     if (/\.zip$/i.test(file.name)) await unzip(file, keep, out, skipped);
@@ -141,4 +154,27 @@ export async function expandArchive(file, keep) {
     }),
     skipped,
   };
+}
+
+/**
+ * `expandArchive` in a worker (`kind` is a key of KEEP: "seq" or "bundle"), so the page does not freeze while a large archive is
+ * unpacked. Where there is no Worker (node, tests) it runs on the calling thread. The files come back as in `expandArchive`.
+ */
+export function expandArchiveInWorker(file, kind) {
+  if (typeof Worker === "undefined" || typeof window === "undefined") return expandArchive(file, kind);
+  return new Promise((resolve, reject) => {
+    const w = new Worker(new URL("./archive-worker.js", import.meta.url), { type: "module" });
+    const done = () => w.terminate();
+    w.onmessage = (e) => {
+      done();
+      const m = e.data;
+      if (!m.ok) return reject(new Error(m.message));
+      resolve({
+        files: m.files.map(({ file: f, innerPath }) => { Object.defineProperty(f, "innerPath", { value: innerPath }); return f; }),
+        skipped: m.skipped,
+      });
+    };
+    w.onerror = (e) => { done(); reject(new Error(`${file.name}: the unpacking worker failed: ${e.message || "unknown error"}`)); };
+    w.postMessage({ file, keep: kind });
+  });
 }

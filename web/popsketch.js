@@ -146,6 +146,13 @@ function show(r) {
 
 $("run").addEventListener("click", async () => {
   const samples = refresh();
+  // an empty or invalid box must not run: Number("") is 0, which used to mean about 53 reads per file
+  const maxReads = Number($("max-reads").value);
+  if (!Number.isInteger(maxReads) || maxReads < 1) {
+    $("run-status").textContent = "Error: \"Reads used per file\" must be a whole number of 1 or more.";
+    return;
+  }
+  const notes = [];
   if (worker) worker.terminate();
   worker = new Worker("popsketch-worker.js", { type: "module" });
   $("run").disabled = true;
@@ -155,8 +162,10 @@ $("run").addEventListener("click", async () => {
     if (m.type === "progress") {
       $("run-status").textContent = m.id === "analysing" ? "Analysing…" : `Sketching ${m.i + 1} of ${m.n}: ${m.id}`;
       $("run-bar").firstElementChild.style.width = `${(100 * m.i) / m.n}%`;
+    } else if (m.type === "note") {
+      notes.push(m.message);
     } else if (m.type === "done") {
-      $("run-status").textContent = "Done.";
+      $("run-status").textContent = notes.length ? `Done. Notes: ${notes.join("; ")}` : "Done.";
       $("run-bar").hidden = true;
       $("run").disabled = false;
       show(m.result);
@@ -169,7 +178,7 @@ $("run").addEventListener("click", async () => {
   const index = indexFile ? new Uint8Array(await indexFile.arrayBuffer()) : null;
   worker.postMessage({
     type: "run", samples, bundle, labels: labelsText, compareTree: treeText, comparePcs: pcsText, index,
-    opts: { maxReads: Number($("max-reads").value), scaled: Number($("scaled").value), flagged: $("flagged").value, strata: $("strata").value.trim(), permutations: Number($("permutations").value), collapse: $("collapse").value, collapseWithin: $("collapse-within").value.trim() },
+    opts: { maxReads, scaled: Number($("scaled").value), flagged: $("flagged").value, strata: $("strata").value.trim(), permutations: Number($("permutations").value), collapse: $("collapse").value, collapseWithin: $("collapse-within").value.trim() },
   });
 });
 refresh();

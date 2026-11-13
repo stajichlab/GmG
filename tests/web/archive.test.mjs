@@ -5,7 +5,8 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { expandArchive } from "../../web/archive.js";
+import { gzipSync } from "node:zlib";
+import { expandArchive, expandArchiveInWorker, KEEP } from "../../web/archive.js";
 
 const dir = mkdtempSync(join(tmpdir(), "gmg-arch-"));
 const src = join(dir, "src");
@@ -59,4 +60,31 @@ test("a damaged archive gives a readable error", async () => {
 test("an empty tar and a zip of nothing useful return no files", async () => {
   const { files } = await expandArchive(new File([new Uint8Array(1024)], "empty.tar"), keep);
   assert.equal(files.length, 0);
+});
+
+test("a .tar.gz of several gzip members, and one with padding after the data, unpack (Chrome's DecompressionStream refuses both)", async () => {
+  const tar = readFileSync(join(dir, "t.tar"));
+  const half = Math.floor(tar.length / 2);
+  const multi = Buffer.concat([gzipSync(tar.subarray(0, half)), gzipSync(tar.subarray(half))]);
+  const padded = Buffer.concat([gzipSync(tar), Buffer.alloc(1536)]);
+  for (const [name, bytes] of [["multi.tar.gz", multi], ["padded.tgz", padded]]) {
+    const { files } = await expandArchive(new File([bytes], name), keep);
+    assert.deepEqual(files.map((f) => f.name).sort(), ["genome.fa", "genome.fa", "reads.fastq"].map((n, i) => (i < 2 ? ["a_genome.fa", "b_genome.fa"][i] : n)).sort(), name);
+    assert.equal(await files.find((f) => f.name === "reads.fastq").text(), "@r\nACGT\n+\nIIII\n");
+  }
+});
+
+test("a damaged .tar.gz is an error that names the file: a flipped CRC, and a file cut short", async () => {
+  const good = readFileSync(join(dir, "t.tar.gz"));
+  const badCrc = Buffer.from(good); badCrc[badCrc.length - 8] ^= 1;
+  await assert.rejects(expandArchive(new File([badCrc], "crc.tar.gz"), keep), /crc\.tar\.gz: gzip checksum mismatch/);
+  await assert.rejects(expandArchive(new File([good.subarray(0, good.length - 20)], "cut.tar.gz"), keep), /cut\.tar\.gz: .*(ends early|ends inside)/);
+});
+
+test("the kind of file to keep can be named, and expandArchiveInWorker works without a Worker (node)", async () => {
+  assert.ok(KEEP.seq.test("x/genome.fa.gz") && !KEEP.seq.test("notes.txt") && KEEP.bundle.test("a.gsk") && !KEEP.bundle.test("a.fa"));
+  const { files } = await expandArchiveInWorker(asFile(join(dir, "t.tar.gz"), "t.tar.gz"), "seq");
+  assert.ok(files.some((f) => f.name === "reads.fastq"));
+  const viaKind = await expandArchive(asFile(join(dir, "t.tar"), "t.tar"), "seq");
+  assert.equal(viaKind.files.length, 3);
 });

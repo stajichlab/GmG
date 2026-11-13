@@ -1,36 +1,11 @@
 // Web Worker for popsketch: reads each sample's first reads, sketches them, then runs the analysis. One thread, no files uploaded.
 // In:  {type:'run', samples:[{id, files:[File]}] or bundle:{k, scaled, sketches:[{id, meta, whole, a, b}]} (finished sketches), labels:string|null, compareTree:string|null, comparePcs:string|null, opts:{maxReads, scaled, flagged, strata, permutations, collapse, collapseWithin}}
-// Out: {type:'progress', i, n, id} {type:'done', result} {type:'error', message}
+// Out: {type:'progress', i, n, id} {type:'note', message} {type:'done', result} {type:'error', message}
 import init, { Session } from "./pkg-ps/popsketch_wasm.js";
-import { gunzip } from "./gunzip-browser.js";
+import { readHead } from "./readhead.js";
 
 const ready = init();
 const post = (m) => self.postMessage(m);
-
-// Read a file (gunzipped when it ends in .gz) and stop after `maxReads` FASTQ records.
-async function readHead(file, maxReads) {
-  let stream = file.stream();
-  if (/\.gz$/i.test(file.name)) stream = stream.pipeThrough(gunzip());
-  const reader = stream.getReader();
-  const chunks = [];
-  let lines = 0, total = 0, fastq = null;
-  const maxLines = maxReads * 4;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    chunks.push(value);
-    total += value.length;
-    if (fastq === null && value.length) fastq = value[0] === 0x40;
-    if (fastq) {
-      for (let i = 0; i < value.length; i++) if (value[i] === 10) lines++;
-      if (lines >= maxLines) { await reader.cancel(); break; }
-    }
-  }
-  const bytes = new Uint8Array(total);
-  let off = 0;
-  for (const c of chunks) { bytes.set(c, off); off += c.length; }
-  return bytes;
-}
 
 self.onmessage = async (e) => {
   const m = e.data;
@@ -64,8 +39,9 @@ self.onmessage = async (e) => {
     for (let i = 0; i < m.samples.length; i++) {
       const sm = m.samples[i];
       post({ type: "progress", i, n: m.samples.length, id: sm.id });
-      const r1 = await readHead(sm.files[0], maxReads);
-      const r2 = sm.files[1] ? await readHead(sm.files[1], maxReads) : new Uint8Array(0);
+      const note = (message) => post({ type: "note", message });
+      const r1 = await readHead(sm.files[0], maxReads, { onNote: note });
+      const r2 = sm.files[1] ? await readHead(sm.files[1], maxReads, { onNote: note }) : new Uint8Array(0);
       s.add_sample(sm.id, "reads", r1, r2, halves.has(sm.id));
     }
     post({ type: "progress", i: m.samples.length, n: m.samples.length, id: "analysing" });
