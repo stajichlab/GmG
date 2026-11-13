@@ -15,6 +15,9 @@
 use crate::par::*;
 use std::collections::BTreeMap;
 
+/// Smallest group for which PERMDISP is reported.
+pub const PERMDISP_MIN_GROUP: usize = 3;
+
 pub struct Options {
     pub n_perm: usize,
     pub seed: u64,
@@ -251,11 +254,11 @@ pub fn test(
     };
 
     // PERMDISP: distance of each sample to its group centroid, from the squared distances alone
-    let mut z = vec![0.0f64; m];
-    let mut negative = 0usize;
-    {
+    let centroid_dist = |labs: &[usize]| -> (Vec<f64>, usize) {
+        let mut z = vec![0.0f64; m];
+        let mut negative = 0usize;
         let mut members: Vec<Vec<usize>> = vec![Vec::new(); g];
-        for (k, &l) in lab.iter().enumerate() {
+        for (k, &l) in labs.iter().enumerate() {
             members[l].push(k);
         }
         for mem in &members {
@@ -275,7 +278,9 @@ pub fn test(
                 z[a] = v.max(0.0).sqrt();
             }
         }
-    }
+        (z, negative)
+    };
+    let (z, negative) = centroid_dist(&lab);
     if negative > 0 {
         warnings.push(format!(
             "{negative} sample(s) have a negative squared distance to the centroid (the distances are not Euclidean); set to 0"
@@ -304,15 +309,22 @@ pub fn test(
     let anova_f = |ssb: f64, ssw: f64| (ssb / (g - 1) as f64) / (ssw / (m - g) as f64);
     let (ssb_obs, ssw_obs) = anova_ss(&z, &lab);
     let disp_obs = anova_f(ssb_obs, ssw_obs);
-    // the total SS of z is the same for every permutation, so, as for PERMANOVA, compare the within SS
+    // PERMDISP needs at least PERMDISP_MIN_GROUP samples in every group: in a group of 2 both samples are at the same distance
+    // from the centroid, so the within-group SS is 0 and F infinite for any data, and the p-value is the minimum
     let sst_z = ssb_obs + ssw_obs;
+    let disp_small = smin < PERMDISP_MIN_GROUP;
     let degenerate_disp = !(sst_z.is_finite() && sst_z > 0.0);
-    if degenerate_disp {
+    if disp_small {
+        warnings.push(format!(
+            "a group has fewer than {PERMDISP_MIN_GROUP} samples: no PERMDISP p-value (the spread of a group of 2 is not defined)"
+        ));
+    } else if degenerate_disp {
         warnings.push(
             "every sample is at the same distance from its group centroid: no PERMDISP p-value"
                 .to_string(),
         );
     }
+    let degenerate_disp = degenerate_disp || disp_small;
     let groups: Vec<GroupStat> = (0..g)
         .map(|j| {
             let zs: Vec<f64> = (0..m).filter(|&k| lab[k] == j).map(|k| z[k]).collect();
@@ -340,7 +352,19 @@ pub fn test(
             }
             (
                 ss_w(&labs) <= sw_obs + tol * total,
-                !degenerate_disp && anova_ss(&z, &labs).1 <= ssw_obs + tol * sst_z,
+                !degenerate_disp && {
+                    // the distances to the centroids are recomputed for the permuted groups: with the observed ones held
+                    // fixed the null is too narrow for small or unequal groups (false-positive rate 0.10 to 0.35 in the
+                    // designs measured), recomputing them keeps it at about 0.05 (see the calibration test)
+                    let (zp, _) = centroid_dist(&labs);
+                    let (b, wv) = anova_ss(&zp, &labs);
+                    let fp = anova_f(b, wv);
+                    if disp_obs.is_infinite() {
+                        fp.is_infinite()
+                    } else {
+                        fp >= disp_obs * (1.0 - 1e-12)
+                    }
+                },
             )
         };
         let hits: Vec<(bool, bool)> = (0..o.n_perm).into_par_iter().map(one).collect();
@@ -745,5 +769,68 @@ mod tests {
         let (d, n, l) = planted(&[15, 15], &[0.0, 3.0], &[1.0, 1.0], 3, 99);
         let r = test(&d, n, &l, None, None, &Options::default()).unwrap();
         assert!(r.f.is_finite() && r.p.unwrap() <= 0.002, "{:?}", r.p);
+    }
+
+    /// share of `reps` null data sets (same centre and spread in every group) with PERMDISP p <= 0.05
+    fn permdisp_rate(sizes: &[usize], centres: &[f64], spreads: &[f64], reps: u64) -> f64 {
+        let o = |s| Options {
+            n_perm: 199,
+            seed: s,
+        };
+        let mut hits = 0;
+        for s in 0..reps {
+            let (d, n, l) = planted(sizes, centres, spreads, 5, 7000 + s);
+            if test(&d, n, &l, None, None, &o(s)).unwrap().disp_p.unwrap() <= 0.05 {
+                hits += 1;
+            }
+        }
+        hits as f64 / reps as f64
+    }
+
+    #[test]
+    fn permdisp_false_positive_rate_is_near_5_percent_for_small_and_unequal_groups() {
+        // with the distances to the centroids held fixed the rate was 0.105 (5, 60), 0.14 (3, 40) and 0.35 (3, 3, 30, 30)
+        // (code review 2026-11-12); binomial sd at 300 sets is 0.013, so 0.02 to 0.10 is about +-3.5 sd around 0.05
+        for sizes in [
+            vec![5, 60],
+            vec![10, 60],
+            vec![3, 40],
+            vec![3, 3, 30, 30],
+            vec![8, 8, 40, 40],
+        ] {
+            let c = vec![0.0; sizes.len()];
+            let sp = vec![1.0; sizes.len()];
+            let r = permdisp_rate(&sizes, &c, &sp, 300);
+            assert!(
+                (0.02..=0.10).contains(&r),
+                "{sizes:?}: false-positive rate {r}"
+            );
+        }
+    }
+
+    #[test]
+    fn permdisp_is_not_fooled_by_a_location_difference_and_still_sees_a_spread_difference() {
+        // groups differ in centre only: PERMDISP must not reject much, even with unequal sizes
+        let r = permdisp_rate(&[10, 60], &[0.0, 3.0], &[1.0, 1.0], 300);
+        assert!(r <= 0.10, "location only: {r}");
+        // same centre, spread 1 against 2: it must find it
+        let r = permdisp_rate(&[10, 60], &[0.0, 0.0], &[1.0, 2.0], 100);
+        assert!(r >= 0.95, "spread 1 vs 2: {r}");
+    }
+
+    #[test]
+    fn groups_of_two_get_no_permdisp_p_value_but_permanova_still_runs() {
+        // every group has 2 samples: both are the same distance from their centroid, so F was infinite and p minimal always
+        let (d, n, l) = planted(&[2, 2, 2, 2, 2, 2, 2, 2], &[0.0; 8], &[1.0; 8], 4, 5);
+        let r = test(&d, n, &l, None, None, &Options::default()).unwrap();
+        assert!(r.disp_p.is_none(), "{:?}", r.disp_p);
+        assert!(r.p.is_some());
+        assert!(
+            r.warnings.iter().any(|w| w.contains("PERMDISP")),
+            "{:?}",
+            r.warnings
+        );
+        // and the two spread warnings do not fire on a missing p-value
+        assert!(!r.warnings.iter().any(|w| w.contains("both significant")));
     }
 }
