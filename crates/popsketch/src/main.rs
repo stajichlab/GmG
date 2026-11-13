@@ -254,9 +254,7 @@ fn main() -> Result<()> {
             max_bases,
             r1_only,
         } => {
-            use popsketch::sketch_io::{
-                cache_init, cache_ready, cache_write, sketch_sample, SketchParams,
-            };
+            use popsketch::sketch_io::{cache_init, cache_write, sketch_sample, SketchParams};
             let params = SketchParams {
                 ksize,
                 scaled,
@@ -264,9 +262,8 @@ fn main() -> Result<()> {
                 r1_only,
                 ..SketchParams::default()
             };
-            if !cache_ready(&out, &params) {
-                cache_init(&out, &params)?;
-            }
+            // refuses a folder made with other parameters (it would mix sketches that cannot be compared)
+            cache_init(&out, &params)?;
             // halves always: the noise floor picks its samples when the whole set is known, which is after the reads are gone
             let s = sketch_sample(&id, &kind, &files, &params, true)?;
             cache_write(&out, &s, &params)?;
@@ -316,8 +313,11 @@ fn main() -> Result<()> {
                     sketches.join("params.txt").display()
                 ))
             });
-            let sample = popsketch::sketch_io::cache_read(&sketches, &id, false)
-                .unwrap_or_else(|| fail(format!("no sketch for {id} in {}", sketches.display())));
+            let sample = match popsketch::sketch_io::cache_read_checked(&sketches, &id, false) {
+                Ok(Some(s)) => s,
+                Ok(None) => fail(format!("no sketch for {id} in {}", sketches.display())),
+                Err(e) => fail(format!("{e:#}")),
+            };
             let r = check(&sample, scaled, genome_mb, coverage, &params);
             if header {
                 println!("{TSV_HEADER}");

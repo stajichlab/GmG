@@ -15,7 +15,7 @@ use crate::sketch_io::SampleSketch;
 #[cfg(feature = "native")]
 use crate::sketch_io::SketchParams;
 #[cfg(feature = "native")]
-use crate::sketch_io::{cache_init, cache_read, cache_ready, cache_write, sketch_sample};
+use crate::sketch_io::{cache_read_checked, cache_ready, cache_reset, cache_write, sketch_sample};
 use crate::stats::{mad_sd, median};
 use crate::tree::{collapse, neighbor_joining, newick, root_tree};
 use anyhow::Result;
@@ -472,7 +472,7 @@ pub fn run(o: &Options) -> Result<Results> {
             );
         }
     } else if !reuse {
-        cache_init(&cache_dir, &params)?;
+        cache_reset(&cache_dir, &params)?;
     }
     say(
         o,
@@ -493,8 +493,12 @@ pub fn run(o: &Options) -> Result<Results> {
         .map(|inp| {
             let want = halves_for.contains(&inp.id);
             if reuse {
-                if let Some(s) = cache_read(&cache_dir, &inp.id, want) {
-                    return Ok(s);
+                match cache_read_checked(&cache_dir, &inp.id, want) {
+                    Ok(Some(s)) => return Ok(s),
+                    Ok(None) => {}
+                    // made with other parameters than the folder says, or unreadable: never compared with the others
+                    Err(e) if o.from_sketches.is_some() => return Err(e),
+                    Err(_) => {} // resuming: sketch it again
                 }
             }
             if o.from_sketches.is_some() {
