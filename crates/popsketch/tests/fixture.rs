@@ -741,8 +741,8 @@ fn collapse_runs_the_analysis_on_representatives_writes_collapse_tsv_and_tests_l
         let rep_of = |id: &str| {
             c.rows
                 .iter()
-                .find(|x| x.0 == id)
-                .map(|x| x.1.clone())
+                .find(|x| x.id == id)
+                .map(|x| x.representative.clone())
                 .unwrap()
         };
         assert_eq!(rep_of(copy), rep_of(orig), "{copy} is a copy of {orig}");
@@ -754,11 +754,24 @@ fn collapse_runs_the_analysis_on_representatives_writes_collapse_tsv_and_tests_l
         "the analysis runs on the representatives"
     );
     assert_eq!(c.rows.len(), c.input);
-    assert_eq!(c.rows.iter().filter(|x| x.4).count(), c.kept);
+    assert_eq!(
+        c.rows.iter().filter(|x| x.is_representative).count(),
+        c.kept
+    );
     // every representative's size is the number of rows that name it
-    for (id, rep, size, _, is_rep) in &c.rows {
-        assert_eq!(*size, c.rows.iter().filter(|x| &x.1 == rep).count(), "{id}");
-        assert_eq!(*is_rep, id == rep);
+    for row in &c.rows {
+        let (id, rep, size, is_rep) = (
+            &row.id,
+            &row.representative,
+            &row.cluster_size,
+            row.is_representative,
+        );
+        assert_eq!(
+            *size,
+            c.rows.iter().filter(|x| &x.representative == rep).count(),
+            "{id}"
+        );
+        assert_eq!(is_rep, id == rep);
     }
     let tsv = fs::read_to_string(o.out.join("collapse.tsv")).unwrap();
     assert!(
@@ -785,6 +798,36 @@ fn collapse_runs_the_analysis_on_representatives_writes_collapse_tsv_and_tests_l
     let g = r.group_tests[0].result.as_ref().unwrap();
     assert!(!g.weighted);
     assert_eq!(g.n, off.group_tests[0].result.as_ref().unwrap().n);
+    // every sample has halves here, so none is imputed; the column says so
+    let ct = fs::read_to_string(o.out.join("collapse.tsv")).unwrap();
+    assert!(
+        ct.lines().next().unwrap().ends_with("\tsplit_half_imputed"),
+        "{ct}"
+    );
+    assert!(c.rows.iter().all(|x| !x.imputed));
+    assert!(!r.warnings.iter().any(|w| w.contains("species median")));
+    // with halves for only 5 samples the others get the species median: marked, and warned about
+    let mut few = opts(&t, "collapse_few_halves");
+    few.labels = None;
+    few.permutations = 0;
+    few.floor_samples = 5;
+    few.collapse = Some(popsketch::collapse::Rule::Mean);
+    let rf = run(&few).unwrap();
+    let cf = rf.collapse.as_ref().expect("collapse ran");
+    let imputed = cf.rows.iter().filter(|x| x.imputed).count();
+    assert!(
+        imputed > 0 && imputed < cf.input,
+        "{imputed} of {}",
+        cf.input
+    );
+    assert!(
+        rf.warnings.iter().any(
+            |w| w.contains(&format!("{imputed} of {} samples", cf.input))
+                && w.contains("species median")
+        ),
+        "{:?}",
+        rf.warnings
+    );
     cleanup(&t);
 }
 
@@ -829,7 +872,8 @@ fn label_aware_collapse_never_merges_samples_with_different_labels() {
             (f[0].to_string(), f[2].to_string())
         })
         .collect();
-    for (id, rep, _, _, _) in &c.rows {
+    for row in &c.rows {
+        let (id, rep) = (&row.id, &row.representative);
         assert_eq!(batch_of[id], batch_of[rep], "{id} merged into {rep}");
     }
     // no cluster of the restricted collapse spans two batches; the free collapse can
