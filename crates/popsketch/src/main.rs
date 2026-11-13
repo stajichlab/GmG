@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::Result;
 use clap::{Parser, Subcommand, ValueEnum};
 use popsketch::pipeline::{run, FlagMode, Options, OrdKind, ReportFormat};
 use std::path::PathBuf;
@@ -57,7 +57,7 @@ enum Cmd {
         #[arg(short, long)]
         out: PathBuf,
         /// reads or assembly
-        #[arg(long, default_value = "reads")]
+        #[arg(long, default_value = "reads", value_parser = ["reads", "assembly"])]
         kind: String,
         #[arg(short = 'k', long = "ksize", default_value_t = 21)]
         ksize: u32,
@@ -127,7 +127,7 @@ enum Cmd {
         #[arg(short, long, default_value = "popsketch_out")]
         out: PathBuf,
         /// auto, assembly or reads
-        #[arg(long, default_value = "auto")]
+        #[arg(long, default_value = "auto", value_parser = ["auto", "assembly", "reads"])]
         kind: String,
         /// do not merge the read files of a sample
         #[arg(long)]
@@ -288,30 +288,37 @@ fn main() -> Result<()> {
             header,
         } => {
             use popsketch::check::{
-                check, scaled_from_params, CheckParams, Verdict, EXIT_UNDERSAMPLED, TSV_HEADER,
+                check, scaled_from_params, validate, CheckParams, Verdict, EXIT_ERROR,
+                EXIT_UNDERSAMPLED, TSV_HEADER,
             };
+            // every failure of `check` is exit 2, not anyhow's 1: a caller branches on 0, 75 and 2
+            let fail = |msg: String| -> ! {
+                eprintln!("popsketch check: {msg}");
+                std::process::exit(EXIT_ERROR)
+            };
+            let params = CheckParams {
+                min_size_ratio,
+                max_cov_ratio,
+            };
+            if let Err(e) = validate(genome_mb, coverage, &params) {
+                fail(e);
+            }
             let params_text =
-                std::fs::read_to_string(sketches.join("params.txt")).with_context(|| {
-                    format!(
-                        "{}: no params.txt, is it a folder of sketches?",
+                std::fs::read_to_string(sketches.join("params.txt")).unwrap_or_else(|e| {
+                    fail(format!(
+                        "{}: no readable params.txt, is it a folder of sketches? ({e})",
                         sketches.display()
-                    )
-                })?;
-            let scaled = scaled_from_params(&params_text).with_context(|| {
-                format!("no scaled= in {}", sketches.join("params.txt").display())
-            })?;
+                    ))
+                });
+            let scaled = scaled_from_params(&params_text).unwrap_or_else(|| {
+                fail(format!(
+                    "no scaled= in {}",
+                    sketches.join("params.txt").display()
+                ))
+            });
             let sample = popsketch::sketch_io::cache_read(&sketches, &id, false)
-                .with_context(|| format!("no sketch for {id} in {}", sketches.display()))?;
-            let r = check(
-                &sample,
-                scaled,
-                genome_mb,
-                coverage,
-                &CheckParams {
-                    min_size_ratio,
-                    max_cov_ratio,
-                },
-            );
+                .unwrap_or_else(|| fail(format!("no sketch for {id} in {}", sketches.display())));
+            let r = check(&sample, scaled, genome_mb, coverage, &params);
             if header {
                 println!("{TSV_HEADER}");
             }
