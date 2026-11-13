@@ -14,6 +14,6 @@ region	Oceania	49	22
 region	South America	17	17
 region	unknown_region	531	23
 countries	distinct	43	33
-places (geo_loc_name)	distinct	184	62
-studies	distinct	114	73
+places (geo_loc_name)	distinct	184	61
+studies	distinct	114	75
 studies	largest share of the selection		0.200

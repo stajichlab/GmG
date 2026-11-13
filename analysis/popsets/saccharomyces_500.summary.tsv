@@ -12,12 +12,12 @@ cultivation	wild_nature	344	71
 cultivation	wine	972	71
 region	Africa	102	30
 region	Asia	555	97
-region	Europe	1543	244
-region	North America	1166	48
+region	Europe	1543	243
+region	North America	1166	49
 region	Oceania	624	41
 region	South America	201	35
 region	unknown_region	43118	5
 countries	distinct	67	67
-places (geo_loc_name)	distinct	385	167
-studies	distinct	579	143
+places (geo_loc_name)	distinct	385	166
+studies	distinct	579	141
 studies	largest share of the selection		0.080
