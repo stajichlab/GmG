@@ -13,6 +13,7 @@
 //! Distances are the matrix as given (use `DistMat::one_minus_ani`). Missing labels are left out.
 
 use crate::par::*;
+use crate::rng::SplitMix;
 use std::collections::BTreeMap;
 
 /// Smallest group for which PERMDISP is reported.
@@ -57,17 +58,6 @@ pub struct TestResult {
     /// the sums of squares were weighted (collapsed representatives)
     pub weighted: bool,
     pub warnings: Vec<String>,
-}
-
-struct SplitMix(u64);
-impl SplitMix {
-    fn next(&mut self) -> u64 {
-        self.0 = self.0.wrapping_add(0x9E37_79B9_7F4A_7C15);
-        let mut z = self.0;
-        z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
-        z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
-        z ^ (z >> 31)
-    }
 }
 
 /// Run both tests. `d` is n x n row-major; `labels` and `strata` have length n. Returns `None` when fewer than two
@@ -346,7 +336,7 @@ pub fn test(
             let mut labs = lab.clone();
             for v in by_stratum.values() {
                 for i in (1..v.len()).rev() {
-                    let j = (rng.next() % (i as u64 + 1)) as usize;
+                    let j = (rng.next_u64() % (i as u64 + 1)) as usize;
                     labs.swap(v[i], v[j]);
                 }
             }
@@ -424,7 +414,7 @@ mod tests {
     use super::*;
 
     fn rng_f(r: &mut SplitMix) -> f64 {
-        (r.next() >> 11) as f64 / (1u64 << 53) as f64
+        r.unit()
     }
 
     /// Euclidean distances between points in `dim` dimensions; group j has centre `centres[j]` and spread `spreads[j]`.
@@ -494,8 +484,10 @@ mod tests {
         // SS_T = (sum d^2)/4 = (1+100+121+81+100+1)/4 = 101; SS_W = 1/2 + 1/2 = 1; F = (100/1)/(1/2) = 200
         assert!((r.f - 200.0).abs() < 1e-9, "F = {}", r.f);
         assert!((r.r2 - 100.0 / 101.0).abs() < 1e-9);
-        // only 3 distinct splits of 4 points into 2 pairs exist, so the smallest possible p is not below 1/3
-        assert!(r.p.unwrap() >= 0.2, "p = {:?}", r.p);
+        // of the 6 ways to give 2 of 4 points the label a, 2 (the observed one and its mirror) separate the pairs: the exact p
+        // is 1/3, and 99 permutations estimate it as (1 + hits) / 100
+        let p = r.p.unwrap();
+        assert!((0.2..=0.5).contains(&p), "p = {p}");
     }
 
     #[test]

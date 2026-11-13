@@ -7,6 +7,7 @@
 //! t = sum of mu^2. The eigenvectors of this matrix, scaled by the square root of their eigenvalue, are the PC scores.
 
 use crate::par::*;
+use crate::rng::SplitMix;
 use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
@@ -14,8 +15,14 @@ pub struct Ordination {
     /// scores, one row per sample, one column per component
     pub coords: Vec<Vec<f64>>,
     pub eigenvalues: Vec<f64>,
-    /// eigenvalue / total variance
+    /// eigenvalue / total variance (see `var_basis`)
     pub var_frac: Vec<f64>,
+    /// what `var_frac` is a share of: `trace` (hash PCA, and PCoA of more than 64 samples) or `positive_eigenvalues` (PCoA of
+    /// up to 64 samples, where the whole spectrum is computed). A non-Euclidean distance matrix has negative eigenvalues, so
+    /// its trace is smaller than the sum of the positive ones and shares of the trace overstate the axes (they can sum above 1).
+    pub var_basis: &'static str,
+    /// negative eigenvalue mass / positive eigenvalue mass of a PCoA, when the whole spectrum was computed
+    pub negative_share: Option<f64>,
     /// hashes used (hash PCA) or samples (PCoA)
     pub n_features: usize,
     pub method: &'static str,
@@ -76,17 +83,6 @@ pub fn jacobi_eigen(a: &[f64], n: usize) -> (Vec<f64>, Vec<Vec<f64>>) {
     (evals, evecs)
 }
 
-struct SplitMix(u64);
-impl SplitMix {
-    fn next_f64(&mut self) -> f64 {
-        self.0 = self.0.wrapping_add(0x9E37_79B9_7F4A_7C15);
-        let mut z = self.0;
-        z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
-        z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
-        (((z ^ (z >> 31)) >> 11) as f64 / (1u64 << 53) as f64) - 0.5
-    }
-}
-
 fn matvec_block(a: &[f64], n: usize, q: &[Vec<f64>]) -> Vec<Vec<f64>> {
     q.par_iter()
         .map(|col| {
@@ -136,7 +132,7 @@ pub fn top_eigs(a: &[f64], n: usize, k: usize) -> (Vec<f64>, Vec<Vec<f64>>) {
     let b = (k + 8).min(n);
     let mut rng = SplitMix(0xC0FFEE);
     let mut q: Vec<Vec<f64>> = (0..b)
-        .map(|_| (0..n).map(|_| rng.next_f64()).collect())
+        .map(|_| (0..n).map(|_| rng.unit() - 0.5).collect())
         .collect();
     orthonormalize(&mut q);
     // spectral radius bound: a few power steps on the first column
@@ -204,6 +200,8 @@ fn finish(
     evals: Vec<f64>,
     evecs: Vec<Vec<f64>>,
     total: f64,
+    var_basis: &'static str,
+    negative_share: Option<f64>,
     n_features: usize,
     method: &'static str,
 ) -> Ordination {
@@ -229,6 +227,8 @@ fn finish(
         coords,
         eigenvalues: evals,
         var_frac,
+        var_basis,
+        negative_share,
         n_features,
         method,
     }
@@ -313,7 +313,7 @@ pub fn hash_pca(sets: &[Vec<u64>], components: usize) -> Option<Ordination> {
     let n = sets.len();
     let total: f64 = (0..n).map(|i| g[i * n + i]).sum();
     let (e, v) = top_eigs(&g, n, components);
-    Some(finish(e, v, total, m, "hash_pca"))
+    Some(finish(e, v, total, "trace", None, m, "hash_pca"))
 }
 
 /// Classical MDS (PCoA) of a symmetric distance matrix.
@@ -332,9 +332,17 @@ pub fn pcoa(dist: &[f64], n: usize, components: usize) -> Option<Ordination> {
             b[i * n + j] = -0.5 * (d2[i * n + j] - row[i] - row[j] + all);
         }
     }
-    let total: f64 = (0..n).map(|i| b[i * n + i]).sum();
     let (e, v) = top_eigs(&b, n, components);
-    Some(finish(e, v, total, n, "pcoa"))
+    if n <= 64 {
+        // the whole spectrum is at hand: shares of the positive eigenvalues, and how much negative mass there is
+        let (all, _) = jacobi_eigen(&b, n);
+        let pos: f64 = all.iter().filter(|x| **x > 0.0).sum();
+        let neg: f64 = all.iter().filter(|x| **x < 0.0).map(|x| -x).sum();
+        let share = if pos > 0.0 { Some(neg / pos) } else { None };
+        return Some(finish(e, v, pos, "positive_eigenvalues", share, n, "pcoa"));
+    }
+    let total: f64 = (0..n).map(|i| b[i * n + i]).sum();
+    Some(finish(e, v, total, "trace", None, n, "pcoa"))
 }
 
 #[cfg(test)]
@@ -344,7 +352,7 @@ mod tests {
     fn rand_psd(n: usize, rank: usize, seed: u64) -> Vec<f64> {
         let mut r = SplitMix(seed);
         let f: Vec<Vec<f64>> = (0..n)
-            .map(|_| (0..rank).map(|_| r.next_f64() * 2.0).collect())
+            .map(|_| (0..rank).map(|_| (r.unit() - 0.5) * 2.0).collect())
             .collect();
         let mut a = vec![0.0; n * n];
         for i in 0..n {
@@ -401,7 +409,7 @@ mod tests {
         let mut a = rand_psd(n, 3, 9);
         // subtract a large rank-one part so the most extreme eigenvalue is negative
         let mut r = SplitMix(77);
-        let u: Vec<f64> = (0..n).map(|_| r.next_f64()).collect();
+        let u: Vec<f64> = (0..n).map(|_| r.unit() - 0.5).collect();
         let big = 40.0 * a.iter().cloned().fold(0.0, f64::max);
         for i in 0..n {
             for j in 0..n {
@@ -435,7 +443,7 @@ mod tests {
                 h.extend((1000 * (g + 1))..(1000 * (g + 1) + 300)); // this group's own
                 for _ in 0..40 {
                     // sample-specific variation inside the group, drawn from a common pool
-                    h.push(10_000 + ((r.next_f64() + 0.5) * 200.0) as u64);
+                    h.push(10_000 + (r.unit() * 200.0) as u64);
                 }
                 h.push(1_000_000 + g * 100 + s); // private (error-like), must not matter
                 h.sort_unstable();
@@ -555,5 +563,28 @@ mod tests {
     fn too_few_samples_give_no_ordination() {
         assert!(hash_pca(&[vec![1, 2], vec![2, 3]], 2).is_none());
         assert!(pcoa(&[0.0; 4], 2, 2).is_none());
+    }
+
+    #[test]
+    fn pcoa_shares_are_of_the_positive_eigenvalues_when_the_distances_are_not_euclidean() {
+        // four points whose distances break the triangle inequality: 0-1 and 2-3 near 0, every other pair at 1 (not a metric,
+        // so B has a negative eigenvalue)
+        let n = 4;
+        let mut d = vec![1.0; n * n];
+        for i in 0..n {
+            d[i * n + i] = 0.0;
+        }
+        for (a, b) in [(0, 1), (2, 3)] {
+            d[a * n + b] = 0.05;
+            d[b * n + a] = 0.05;
+        }
+        // 0-2 far, 0-3 far but 1-2 near: a violation of the triangle inequality
+        d[n + 2] = 0.05;
+        d[2 * n + 1] = 0.05;
+        let o = pcoa(&d, n, 3).unwrap();
+        assert_eq!(o.var_basis, "positive_eigenvalues");
+        assert!(o.negative_share.unwrap() > 0.0, "{:?}", o.negative_share);
+        let sum: f64 = o.var_frac.iter().sum();
+        assert!(sum <= 1.0 + 1e-9, "the shares sum to {sum}");
     }
 }

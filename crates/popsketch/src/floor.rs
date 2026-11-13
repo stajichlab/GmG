@@ -5,7 +5,6 @@
 //! measured on Coccidioides and Bd is used.
 
 use crate::dist::{intersect_count, pair_stats};
-use crate::qc::kept_hashes;
 use crate::sketch_io::SampleSketch;
 use crate::stats::{median, quantile};
 use gmg_core::coverage::auto_min_abund;
@@ -67,7 +66,6 @@ pub fn estimate(samples: &[&SampleSketch], k: u32) -> Floor {
         let (ani, _) = pair_stats(ha.len(), hb.len(), inter, k);
         d.push((1.0 - ani).max(0.0));
         per_sample.push((s.id.clone(), (1.0 - ani).max(0.0)));
-        let _ = kept_hashes;
     }
     if d.len() >= MIN_SAMPLES {
         let p90 = quantile(&d, 0.9);

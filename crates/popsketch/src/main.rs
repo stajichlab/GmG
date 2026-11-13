@@ -469,12 +469,18 @@ fn main() -> Result<()> {
                     .iter()
                     .filter(|x| x.qc.as_ref().is_some_and(|q| q.flagged()))
                     .count();
+                let report = match o.report_format {
+                    ReportFormat::Html => "report.html",
+                    ReportFormat::Md => "report.md",
+                    ReportFormat::Pdf => "report.pdf",
+                    ReportFormat::All => "report.html, report.md and report.pdf",
+                };
                 eprintln!(
-                    "{} samples, {} flagged, {} in the analysis; report: {}",
+                    "{} samples, {} flagged, {} in the analysis; report: {}/{report}",
                     r.rows.len(),
                     flagged,
                     r.included.len(),
-                    out.join("report.html").display()
+                    out.display()
                 );
             }
             Ok(())

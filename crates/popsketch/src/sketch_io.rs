@@ -95,6 +95,31 @@ fn finish(sk: FracSketch, reads: bool) -> Spectrum {
     }
 }
 
+/// Count one read: into the whole sketch, into one of the two split halves (the reads of a file are dealt alternately, `idx`
+/// being the read's index in its file) when halves are wanted, and into the read, base and non-ACGT counts.
+fn count_read(
+    seq: &[u8],
+    idx: u64,
+    main: &mut FracSketch,
+    halves: Option<(&mut FracSketch, &mut FracSketch)>,
+    counts: &mut Counts,
+) {
+    main.add_sequence(seq);
+    if let Some((a, b)) = halves {
+        if idx & 1 == 0 {
+            a.add_sequence(seq);
+        } else {
+            b.add_sequence(seq);
+        }
+    }
+    counts.reads += 1;
+    counts.bases += seq.len() as u64;
+    counts.non_acgt += seq
+        .iter()
+        .filter(|b| !matches!(b.to_ascii_uppercase(), b'A' | b'C' | b'G' | b'T'))
+        .count() as u64;
+}
+
 /// Sketch a sample held in memory: `parts` are the (already decompressed) FASTQ or FASTA contents of its files. The same
 /// counting as `sketch_sample` without a coverage target: reads up to `max_bases` shared by the parts, optional split halves.
 pub fn sketch_bytes(
@@ -127,21 +152,14 @@ pub fn sketch_bytes(
     for bytes in used {
         let (mut bases, mut idx) = (0u64, 0u64);
         gmg_core::for_each_record(bytes, &mut |seq: &[u8]| {
-            main.add_sequence(seq);
-            if halves_wanted {
-                if idx & 1 == 0 {
-                    ha.add_sequence(seq);
-                } else {
-                    hb.add_sequence(seq);
-                }
-            }
+            count_read(
+                seq,
+                idx,
+                &mut main,
+                halves_wanted.then_some((&mut ha, &mut hb)),
+                &mut counts,
+            );
             idx += 1;
-            counts.reads += 1;
-            counts.bases += seq.len() as u64;
-            counts.non_acgt += seq
-                .iter()
-                .filter(|b| !matches!(b.to_ascii_uppercase(), b'A' | b'C' | b'G' | b'T'))
-                .count() as u64;
             bases += seq.len() as u64;
             bases < per_file
         });
@@ -199,21 +217,14 @@ pub fn sketch_sample(
         while let Some(rec) = rd.next() {
             let rec = rec.with_context(|| format!("{id}: reading {}", f.display()))?;
             let seq = rec.seq();
-            main.add_sequence(&seq);
-            if halves_wanted {
-                if idx & 1 == 0 {
-                    ha.add_sequence(&seq);
-                } else {
-                    hb.add_sequence(&seq);
-                }
-            }
+            count_read(
+                &seq,
+                idx,
+                &mut main,
+                halves_wanted.then_some((&mut ha, &mut hb)),
+                &mut counts,
+            );
             idx += 1;
-            counts.reads += 1;
-            counts.bases += seq.len() as u64;
-            counts.non_acgt += seq
-                .iter()
-                .filter(|b| !matches!(b.to_ascii_uppercase(), b'A' | b'C' | b'G' | b'T'))
-                .count() as u64;
             bases += seq.len() as u64;
             if bases >= per_file {
                 break;
@@ -329,21 +340,14 @@ fn sketch_reads_chunked(
             };
             let rec = rec.with_context(|| format!("{id}: reading {}", used[fi].display()))?;
             let seq = rec.seq();
-            cm.add_sequence(&seq);
-            if want_halves {
-                if idx[fi] & 1 == 0 {
-                    ca.add_sequence(&seq);
-                } else {
-                    cb.add_sequence(&seq);
-                }
-            }
+            count_read(
+                &seq,
+                idx[fi],
+                &mut cm,
+                want_halves.then_some((&mut ca, &mut cb)),
+                &mut counts,
+            );
             idx[fi] += 1;
-            counts.reads += 1;
-            counts.bases += seq.len() as u64;
-            counts.non_acgt += seq
-                .iter()
-                .filter(|b| !matches!(b.to_ascii_uppercase(), b'A' | b'C' | b'G' | b'T'))
-                .count() as u64;
             file_bases[fi] += seq.len() as u64;
             in_chunk += 1;
             progressed = true;

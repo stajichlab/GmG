@@ -18,6 +18,7 @@ pub mod permanova;
 pub mod pipeline;
 pub mod qc;
 pub mod report;
+pub mod rng;
 pub mod sketch_io;
 pub mod stats;
 pub mod tree;

@@ -606,6 +606,8 @@ mod tests {
             coords,
             eigenvalues: vec![1.0; k],
             var_frac: vec![0.1; k],
+            var_basis: "trace",
+            negative_share: None,
             n_features: 1,
             method: "hash_pca",
         }
