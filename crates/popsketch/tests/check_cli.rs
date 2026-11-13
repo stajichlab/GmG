@@ -62,6 +62,34 @@ fn a_sound_sample_is_exit_0_and_a_too_big_genome_is_exit_75() {
 }
 
 #[test]
+fn a_sample_far_larger_than_the_genome_is_exit_65_not_75_and_a_smaller_one_still_75() {
+    let (sk, g) = folder("big");
+    // the sketch is 12x the genome given: not this genome, resampling cannot help
+    assert_eq!(
+        code(&check(&sk, &["--genome-mb", &(g / 12.0).to_string()])),
+        65
+    );
+    // the limit is a parameter
+    assert_eq!(
+        code(&check(
+            &sk,
+            &[
+                "--genome-mb",
+                &(g / 12.0).to_string(),
+                "--max-size-ratio",
+                "50"
+            ]
+        )),
+        0
+    );
+    // a genome 10 times too large: the reads miss most of it, and the k-mer coverage is fine: resample
+    assert_eq!(
+        code(&check(&sk, &["--genome-mb", &(g * 10.0).to_string()])),
+        75
+    );
+}
+
+#[test]
 fn bad_numbers_are_exit_2_and_never_ok() {
     let (sk, _) = folder("bad");
     for a in [

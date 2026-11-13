@@ -16,9 +16,11 @@
 # reads should give if sampled evenly), with POPSEQ_SAMPLING, POPSEQ_TIER and POPSEQ_ROUTE for information.
 #
 # Sampling check: when POPSEQ_GENOME_MB is set, `popsketch check` compares the sketch with the genome. A sample that
-# misses part of the genome or piles up on part of it (contiguous windows of a position-sorted run) fails: its sketch
-# files are removed and the hook exits 75, which `popseq fetch` takes as "resample this run by stride". Any other
-# failure exits with its own code.
+# misses part of the genome or piles up on part of it (contiguous windows of a position-sorted run) fails with 75: the
+# hook exits 75, which `popseq fetch` takes as "resample this run by stride". 65 means the check cannot judge the sampling
+# (too little k-mer coverage, or not this genome): resampling would not help, so popseq fetch reports hook_failed. 2 is an
+# error of the check itself. In every failing case the sketch files of the run are removed, so that only samples that
+# passed the check are in the folder that `popsketch run --from-sketches` reads.
 #
 # --max-bases 0: `popseq fetch` has already limited the bases (for example to 25x of the genome), so the sketch
 # must not cap them again (the default cap of 1 Gb would truncate a genome larger than 40 Mb).
@@ -45,12 +47,10 @@ if [ -n "${POPSEQ_GENOME_MB:-}" ] && [ "${POPSKETCH_CHECK:-on}" != off ]; then
   # shellcheck disable=SC2086
   line=$("${POPSKETCH:-popsketch}" check --id "$run" -s "$SKETCH_DIR" --genome-mb "$POPSEQ_GENOME_MB" \
         ${POPSEQ_COVERAGE:+--coverage $POPSEQ_COVERAGE} $hdr </dev/null) || rc=$?
-  [ -z "${CHECK_LOG:-}" ] || printf "%s\n" "$line" >> "$CHECK_LOG"
+  [ -z "${CHECK_LOG:-}" ] || [ -z "$line" ] || printf "%s\n" "$line" >> "$CHECK_LOG"
   if [ "$rc" -ne 0 ]; then
     echo "$run: sampling check failed (exit $rc): $(printf "%s" "$line" | tail -1 | cut -f9)" >&2
-    if [ "$rc" -eq 75 ]; then
-      rm -f "$SKETCH_DIR/$run".json "$SKETCH_DIR/$run".gsk "$SKETCH_DIR/$run".half_a.gsk "$SKETCH_DIR/$run".half_b.gsk
-    fi
+    rm -f "$SKETCH_DIR/$run".json "$SKETCH_DIR/$run".gsk "$SKETCH_DIR/$run".half_a.gsk "$SKETCH_DIR/$run".half_b.gsk
     exit "$rc"
   fi
 fi
