@@ -2,6 +2,8 @@
 // the browser inflates natively with DecompressionStream). Entries come back as File objects held in memory, named by their
 // path inside the archive; `keep(path)` picks the ones wanted. Folders, links and other entry types are ignored.
 
+import { gunzip } from "./gunzip-browser.js";
+
 export const ARCHIVE = /\.(zip|tar|tar\.gz|tgz)$/i;
 export const MAX_UNPACKED = 3e9; // bytes of wanted entries held at once; the whole archive is read, only wanted entries are kept
 
@@ -121,7 +123,7 @@ export async function expandArchive(file, keep) {
   const out = [], skipped = { notSeq: 0, unsupported: [] };
   try {
     if (/\.zip$/i.test(file.name)) await unzip(file, keep, out, skipped);
-    else if (/\.(tar\.gz|tgz)$/i.test(file.name)) await untar(file.stream().pipeThrough(new DecompressionStream("gzip")), keep, out, skipped);
+    else if (/\.(tar\.gz|tgz)$/i.test(file.name)) await untar(file.stream().pipeThrough(gunzip()), keep, out, skipped);
     else await untar(file.stream(), keep, out, skipped);
   } catch (err) {
     throw new Error(`${file.name}: ${err.message}`);

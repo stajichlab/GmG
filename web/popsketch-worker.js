@@ -2,6 +2,7 @@
 // In:  {type:'run', samples:[{id, files:[File]}] or bundle:{k, scaled, sketches:[{id, meta, whole, a, b}]} (finished sketches), labels:string|null, compareTree:string|null, comparePcs:string|null, opts:{maxReads, scaled, flagged, strata, permutations, collapse, collapseWithin}}
 // Out: {type:'progress', i, n, id} {type:'done', result} {type:'error', message}
 import init, { Session } from "./pkg-ps/popsketch_wasm.js";
+import { gunzip } from "./gunzip-browser.js";
 
 const ready = init();
 const post = (m) => self.postMessage(m);
@@ -9,7 +10,7 @@ const post = (m) => self.postMessage(m);
 // Read a file (gunzipped when it ends in .gz) and stop after `maxReads` FASTQ records.
 async function readHead(file, maxReads) {
   let stream = file.stream();
-  if (/\.gz$/i.test(file.name)) stream = stream.pipeThrough(new DecompressionStream("gzip"));
+  if (/\.gz$/i.test(file.name)) stream = stream.pipeThrough(gunzip());
   const reader = stream.getReader();
   const chunks = [];
   let lines = 0, total = 0, fastq = null;

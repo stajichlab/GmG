@@ -4,6 +4,7 @@
 // Messages out: {type:'version', version} {type:'index-progress', loaded, total} {type:'index-stage', stage:'build'} {type:'index-ready', info} {type:'progress', i, n, name}
 //               {type:'record', record} {type:'done', ...outputs} {type:'error', message}
 import init, { Index, make_results_tsv, make_hits_tsv, render_report, version } from "./pkg/gmg_wasm.js";
+import { gunzip } from "./gunzip-browser.js";
 
 const CACHE = "gmg-index-v1";
 let ix = null;
@@ -57,7 +58,7 @@ function setIndex(bytes) {
 async function readFile(file, maxReads) {
   const gz = /\.gz$/i.test(file.name);
   let stream = file.stream();
-  if (gz) stream = stream.pipeThrough(new DecompressionStream("gzip"));
+  if (gz) stream = stream.pipeThrough(gunzip());
   const reader = stream.getReader();
   const chunks = [];
   let lines = 0, total = 0, fastq = null;
