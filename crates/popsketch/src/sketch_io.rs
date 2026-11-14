@@ -95,6 +95,31 @@ fn finish(sk: FracSketch, reads: bool) -> Spectrum {
     }
 }
 
+/// Count one read: into the whole sketch, into one of the two split halves (the reads of a file are dealt alternately, `idx`
+/// being the read's index in its file) when halves are wanted, and into the read, base and non-ACGT counts.
+fn count_read(
+    seq: &[u8],
+    idx: u64,
+    main: &mut FracSketch,
+    halves: Option<(&mut FracSketch, &mut FracSketch)>,
+    counts: &mut Counts,
+) {
+    main.add_sequence(seq);
+    if let Some((a, b)) = halves {
+        if idx & 1 == 0 {
+            a.add_sequence(seq);
+        } else {
+            b.add_sequence(seq);
+        }
+    }
+    counts.reads += 1;
+    counts.bases += seq.len() as u64;
+    counts.non_acgt += seq
+        .iter()
+        .filter(|b| !matches!(b.to_ascii_uppercase(), b'A' | b'C' | b'G' | b'T'))
+        .count() as u64;
+}
+
 /// Sketch a sample held in memory: `parts` are the (already decompressed) FASTQ or FASTA contents of its files. The same
 /// counting as `sketch_sample` without a coverage target: reads up to `max_bases` shared by the parts, optional split halves.
 pub fn sketch_bytes(
@@ -127,21 +152,14 @@ pub fn sketch_bytes(
     for bytes in used {
         let (mut bases, mut idx) = (0u64, 0u64);
         gmg_core::for_each_record(bytes, &mut |seq: &[u8]| {
-            main.add_sequence(seq);
-            if halves_wanted {
-                if idx & 1 == 0 {
-                    ha.add_sequence(seq);
-                } else {
-                    hb.add_sequence(seq);
-                }
-            }
+            count_read(
+                seq,
+                idx,
+                &mut main,
+                halves_wanted.then_some((&mut ha, &mut hb)),
+                &mut counts,
+            );
             idx += 1;
-            counts.reads += 1;
-            counts.bases += seq.len() as u64;
-            counts.non_acgt += seq
-                .iter()
-                .filter(|b| !matches!(b.to_ascii_uppercase(), b'A' | b'C' | b'G' | b'T'))
-                .count() as u64;
             bases += seq.len() as u64;
             bases < per_file
         });
@@ -199,21 +217,14 @@ pub fn sketch_sample(
         while let Some(rec) = rd.next() {
             let rec = rec.with_context(|| format!("{id}: reading {}", f.display()))?;
             let seq = rec.seq();
-            main.add_sequence(&seq);
-            if halves_wanted {
-                if idx & 1 == 0 {
-                    ha.add_sequence(&seq);
-                } else {
-                    hb.add_sequence(&seq);
-                }
-            }
+            count_read(
+                &seq,
+                idx,
+                &mut main,
+                halves_wanted.then_some((&mut ha, &mut hb)),
+                &mut counts,
+            );
             idx += 1;
-            counts.reads += 1;
-            counts.bases += seq.len() as u64;
-            counts.non_acgt += seq
-                .iter()
-                .filter(|b| !matches!(b.to_ascii_uppercase(), b'A' | b'C' | b'G' | b'T'))
-                .count() as u64;
             bases += seq.len() as u64;
             if bases >= per_file {
                 break;
@@ -329,21 +340,14 @@ fn sketch_reads_chunked(
             };
             let rec = rec.with_context(|| format!("{id}: reading {}", used[fi].display()))?;
             let seq = rec.seq();
-            cm.add_sequence(&seq);
-            if want_halves {
-                if idx[fi] & 1 == 0 {
-                    ca.add_sequence(&seq);
-                } else {
-                    cb.add_sequence(&seq);
-                }
-            }
+            count_read(
+                &seq,
+                idx[fi],
+                &mut cm,
+                want_halves.then_some((&mut ca, &mut cb)),
+                &mut counts,
+            );
             idx[fi] += 1;
-            counts.reads += 1;
-            counts.bases += seq.len() as u64;
-            counts.non_acgt += seq
-                .iter()
-                .filter(|b| !matches!(b.to_ascii_uppercase(), b'A' | b'C' | b'G' | b'T'))
-                .count() as u64;
             file_bases[fi] += seq.len() as u64;
             in_chunk += 1;
             progressed = true;
@@ -408,15 +412,33 @@ fn write_spectrum(path: &Path, p: &SketchParams, name: &str, s: &Spectrum) -> Re
         hashes: s.hashes.clone(),
         abunds: Some(s.abunds.clone()),
     };
-    let mut w = BufWriter::new(File::create(path).with_context(|| path.display().to_string())?);
-    sf.write(&mut w)?;
-    Ok(())
+    write_atomic(path, |w| sf.write(w).map_err(Into::into))
 }
 
+/// A name part that differs between processes and between calls in one process, for temporary files.
 #[cfg(feature = "native")]
-fn read_spectrum(path: &Path) -> Result<Spectrum> {
-    let mut r = BufReader::new(File::open(path)?);
-    spectrum_from_reader(&mut r, None, &path.display().to_string())
+fn tmp_suffix() -> String {
+    static N: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+    format!(
+        "{}_{}",
+        std::process::id(),
+        N.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+    )
+}
+
+/// Write a file so that a reader (or a crash) never sees half of it: into a temporary name next to it, then a rename.
+#[cfg(feature = "native")]
+fn write_atomic(path: &Path, body: impl FnOnce(&mut BufWriter<File>) -> Result<()>) -> Result<()> {
+    let tmp = path.with_file_name(format!(
+        ".{}.tmp{}",
+        path.file_name().and_then(|n| n.to_str()).unwrap_or("x"),
+        tmp_suffix()
+    ));
+    let mut w = BufWriter::new(File::create(&tmp).with_context(|| tmp.display().to_string())?);
+    body(&mut w)?;
+    std::io::Write::flush(&mut w)?;
+    drop(w);
+    fs::rename(&tmp, path).with_context(|| path.display().to_string())
 }
 
 /// One `.gsk` sketch from any reader. When `want` is given, the sketch must have been made with that k and scale: sketches of
@@ -495,11 +517,44 @@ pub fn cache_ready(dir: &Path, p: &SketchParams) -> bool {
     fs::read_to_string(dir.join("params.txt")).is_ok_and(|t| t.trim() == p.tag())
 }
 
+/// Start a folder of sketches that several `popsketch sketch` jobs share: create `params.txt` if it is not there, and refuse
+/// a folder whose `params.txt` says other parameters (sketches of other k or scale cannot be compared; the old files would
+/// stay beside the new ones). Safe to call from jobs that start together: the file appears whole or not at all.
 #[cfg(feature = "native")]
 pub fn cache_init(dir: &Path, p: &SketchParams) -> Result<()> {
     fs::create_dir_all(dir)?;
-    fs::write(dir.join("params.txt"), p.tag())?;
-    Ok(())
+    let path = dir.join("params.txt");
+    let tmp = dir.join(format!(".params.txt.tmp{}", tmp_suffix()));
+    fs::write(&tmp, p.tag())?;
+    let linked = fs::hard_link(&tmp, &path);
+    let _ = fs::remove_file(&tmp);
+    match linked {
+        Ok(()) => Ok(()),
+        Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
+            let have = fs::read_to_string(&path)?;
+            if have.trim() == p.tag() {
+                Ok(())
+            } else {
+                bail!(
+                    "{} holds sketches made with {}, not {}: use a new folder, or the same parameters",
+                    dir.display(),
+                    have.trim(),
+                    p.tag()
+                )
+            }
+        }
+        Err(e) => Err(e).with_context(|| path.display().to_string()),
+    }
+}
+
+/// Start a folder of sketches for one `popsketch run`, replacing any earlier `params.txt`: the run sketches every sample
+/// again, so nothing of the old parameters is read.
+#[cfg(feature = "native")]
+pub fn cache_reset(dir: &Path, p: &SketchParams) -> Result<()> {
+    fs::create_dir_all(dir)?;
+    write_atomic(&dir.join("params.txt"), |w| {
+        std::io::Write::write_all(w, p.tag().as_bytes()).map_err(Into::into)
+    })
 }
 
 #[cfg(feature = "native")]
@@ -512,29 +567,73 @@ pub fn cache_write(dir: &Path, s: &SampleSketch, p: &SketchParams) -> Result<()>
     let files: Vec<String> = s.files.iter().map(|f| f.display().to_string()).collect();
     let meta = serde_json::json!({"id": s.id, "kind": s.kind, "reads": s.counts.reads, "bases": s.counts.bases,
                                   "non_acgt": s.counts.non_acgt, "files": files});
-    fs::write(
-        dir.join(format!("{}.json", s.id)),
-        serde_json::to_string(&meta)?,
-    )?;
-    Ok(())
+    // the metadata goes last: a sketch without its `.json` is not there yet
+    write_atomic(&dir.join(format!("{}.json", s.id)), |w| {
+        std::io::Write::write_all(w, serde_json::to_string(&meta)?.as_bytes()).map_err(Into::into)
+    })
+}
+
+/// k and scale from the text of a `params.txt` (`k=21;scaled=200;...`).
+pub fn ksize_scaled_from_tag(text: &str) -> Option<(u32, u32)> {
+    let get = |key: &str| {
+        text.trim()
+            .split(';')
+            .find_map(|kv| kv.strip_prefix(key))
+            .and_then(|v| v.parse::<u32>().ok())
+    };
+    Some((get("k=")?, get("scaled=")?))
 }
 
 #[cfg(feature = "native")]
-/// A cached sketch, if it is there and has the halves when they are wanted.
-pub fn cache_read(dir: &Path, id: &str, want_halves: bool) -> Option<SampleSketch> {
-    let meta: serde_json::Value =
-        serde_json::from_str(&fs::read_to_string(dir.join(format!("{id}.json"))).ok()?).ok()?;
-    let spectrum = read_spectrum(&gsk_path(dir, id, "")).ok()?;
-    let kind = meta["kind"].as_str()?.to_string();
+/// A cached sketch, if it is there and has the halves when they are wanted. A file that is present but was made with other
+/// k or scale than the folder's `params.txt` (a folder that was rewritten between two `sketch` calls), or that cannot be
+/// read, is an error, not a miss: it must not be compared with the others.
+pub fn cache_read_checked(dir: &Path, id: &str, want_halves: bool) -> Result<Option<SampleSketch>> {
+    let meta_path = dir.join(format!("{id}.json"));
+    if !meta_path.exists() {
+        return Ok(None);
+    }
+    let meta: serde_json::Value = serde_json::from_str(&fs::read_to_string(&meta_path)?)
+        .with_context(|| meta_path.display().to_string())?;
+    let tag = fs::read_to_string(dir.join("params.txt")).with_context(|| {
+        format!(
+            "{}: no params.txt, is it a folder of sketches?",
+            dir.display()
+        )
+    })?;
+    let (ksize, scaled) = ksize_scaled_from_tag(&tag)
+        .ok_or_else(|| anyhow::anyhow!("{}: no k= and scaled= in params.txt", dir.display()))?;
+    let want = SketchParams {
+        ksize,
+        scaled,
+        ..SketchParams::default()
+    };
+    let read = |part: &str| -> Result<Spectrum> {
+        let path = gsk_path(dir, id, part);
+        let mut r = BufReader::new(File::open(&path).with_context(|| path.display().to_string())?);
+        spectrum_from_reader(&mut r, Some(&want), &path.display().to_string())
+    };
+    let spectrum = read("")?;
+    let kind = meta["kind"]
+        .as_str()
+        .ok_or_else(|| anyhow::anyhow!("{}: no kind", meta_path.display()))?
+        .to_string();
     let halves = if want_halves && kind == "reads" {
-        Some((
-            read_spectrum(&gsk_path(dir, id, ".half_a")).ok()?,
-            read_spectrum(&gsk_path(dir, id, ".half_b")).ok()?,
-        ))
+        Some((read(".half_a")?, read(".half_b")?))
     } else {
         None
     };
-    Some(SampleSketch {
+    let need = |key: &str| {
+        meta[key]
+            .as_u64()
+            .ok_or_else(|| anyhow::anyhow!("{}: no {key}", meta_path.display()))
+    };
+    let counts = Counts {
+        reads: need("reads")?,
+        bases: need("bases")?,
+        non_acgt: meta["non_acgt"].as_u64().unwrap_or(0),
+    };
+    Ok(Some(SampleSketch {
         id: id.to_string(),
         kind,
         files: meta["files"]
@@ -546,13 +645,15 @@ pub fn cache_read(dir: &Path, id: &str, want_halves: bool) -> Option<SampleSketc
             })
             .unwrap_or_default(),
         spectrum,
-        counts: Counts {
-            reads: meta["reads"].as_u64()?,
-            bases: meta["bases"].as_u64()?,
-            non_acgt: meta["non_acgt"].as_u64().unwrap_or(0),
-        },
+        counts,
         halves,
-    })
+    }))
+}
+
+#[cfg(feature = "native")]
+/// A cached sketch, or None when it is not there, is unusable or was made with other parameters (the caller sketches it again).
+pub fn cache_read(dir: &Path, id: &str, want_halves: bool) -> Option<SampleSketch> {
+    cache_read_checked(dir, id, want_halves).ok().flatten()
 }
 
 #[cfg(feature = "native")]
@@ -685,6 +786,86 @@ mod tests {
         assert_eq!(back.counts, s.counts);
         assert!(back.halves.is_some());
         assert!(cache_read(&cd, "missing", false).is_none());
+        fs::remove_dir_all(&dir).ok();
+    }
+
+    fn small_params(scaled: u32) -> SketchParams {
+        SketchParams {
+            ksize: 21,
+            scaled,
+            max_bases: 0,
+            r1_only: false,
+            ..SketchParams::default()
+        }
+    }
+
+    #[test]
+    fn a_folder_made_with_other_parameters_is_refused_and_left_alone() {
+        let dir = std::env::temp_dir().join(format!("popsketch_init_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&dir);
+        let a = small_params(5);
+        cache_init(&dir, &a).unwrap();
+        cache_init(&dir, &a).unwrap(); // the same parameters again: fine (the second job of a set)
+        let err = cache_init(&dir, &small_params(50)).unwrap_err().to_string();
+        assert!(err.contains("use a new folder"), "{err}");
+        assert_eq!(
+            fs::read_to_string(dir.join("params.txt")).unwrap().trim(),
+            a.tag()
+        );
+        // no temporary file is left behind
+        assert!(fs::read_dir(&dir).unwrap().all(|e| !e
+            .unwrap()
+            .file_name()
+            .to_string_lossy()
+            .starts_with('.')));
+        fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn jobs_that_start_together_all_see_a_whole_params_file() {
+        let dir = std::env::temp_dir().join(format!("popsketch_race_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&dir);
+        let p = small_params(5);
+        let handles: Vec<_> = (0..16)
+            .map(|_| {
+                let (d, p) = (dir.clone(), p.clone());
+                std::thread::spawn(move || {
+                    cache_init(&d, &p).unwrap();
+                    // as soon as cache_init returns, the file is complete
+                    assert_eq!(
+                        fs::read_to_string(d.join("params.txt")).unwrap().trim(),
+                        p.tag()
+                    );
+                })
+            })
+            .collect();
+        for h in handles {
+            h.join().unwrap();
+        }
+        fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn a_sketch_made_with_other_parameters_than_the_folder_says_is_an_error_not_a_sample() {
+        let dir = std::env::temp_dir().join(format!("popsketch_mixed_{}", std::process::id()));
+        fs::create_dir_all(&dir).unwrap();
+        let f = dir.join("s.fastq");
+        write_fastq(&f, 800, 100);
+        let a = small_params(5);
+        let s = sketch_sample("s", "reads", &[f], &a, true).unwrap();
+        let cd = dir.join("sketches");
+        cache_init(&cd, &a).unwrap();
+        cache_write(&cd, &s, &a).unwrap();
+        assert!(cache_read_checked(&cd, "s", true).unwrap().is_some());
+        assert!(cache_read_checked(&cd, "missing", true).unwrap().is_none());
+        // the folder is rewritten for another scale (what `cache_init` used to allow): the old file must not be read
+        cache_reset(&cd, &small_params(50)).unwrap();
+        let err = format!("{:#}", cache_read_checked(&cd, "s", true).unwrap_err());
+        assert!(
+            err.contains("scaled=5") && err.contains("scaled=50"),
+            "{err}"
+        );
+        assert!(cache_read(&cd, "s", true).is_none());
         fs::remove_dir_all(&dir).ok();
     }
 

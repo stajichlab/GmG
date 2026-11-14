@@ -62,6 +62,34 @@ fn a_sound_sample_is_exit_0_and_a_too_big_genome_is_exit_75() {
 }
 
 #[test]
+fn a_sample_far_larger_than_the_genome_is_exit_65_not_75_and_a_smaller_one_still_75() {
+    let (sk, g) = folder("big");
+    // the sketch is 12x the genome given: not this genome, resampling cannot help
+    assert_eq!(
+        code(&check(&sk, &["--genome-mb", &(g / 12.0).to_string()])),
+        65
+    );
+    // the limit is a parameter
+    assert_eq!(
+        code(&check(
+            &sk,
+            &[
+                "--genome-mb",
+                &(g / 12.0).to_string(),
+                "--max-size-ratio",
+                "50"
+            ]
+        )),
+        0
+    );
+    // a genome 10 times too large: the reads miss most of it, and the k-mer coverage is fine: resample
+    assert_eq!(
+        code(&check(&sk, &["--genome-mb", &(g * 10.0).to_string()])),
+        75
+    );
+}
+
+#[test]
 fn bad_numbers_are_exit_2_and_never_ok() {
     let (sk, _) = folder("bad");
     for a in [
@@ -132,4 +160,41 @@ fn a_mistyped_kind_is_refused_not_treated_as_an_assembly() {
         "{}",
         String::from_utf8_lossy(&o.stderr)
     );
+}
+
+#[test]
+fn a_second_sketch_with_other_parameters_is_refused_and_does_not_change_the_folder() {
+    let (sk, g) = folder("params");
+    let before = std::fs::read_to_string(sk.join("params.txt")).unwrap();
+    let any = std::fs::read_dir(sk.parent().unwrap().join("reads"))
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path();
+    let o = run(&[
+        "sketch",
+        "--id",
+        "other",
+        "-o",
+        sk.to_str().unwrap(),
+        "--scaled",
+        "50",
+        "--max-bases",
+        "0",
+        any.to_str().unwrap(),
+    ]);
+    assert_ne!(code(&o), 0);
+    assert!(
+        String::from_utf8_lossy(&o.stderr).contains("use a new folder"),
+        "{}",
+        String::from_utf8_lossy(&o.stderr)
+    );
+    assert_eq!(
+        std::fs::read_to_string(sk.join("params.txt")).unwrap(),
+        before
+    );
+    assert!(!sk.join("other.gsk").exists());
+    // and the first sample still checks as it did
+    assert_eq!(code(&check(&sk, &["--genome-mb", &g.to_string()])), 0);
 }

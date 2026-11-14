@@ -13,7 +13,11 @@
 //! Distances are the matrix as given (use `DistMat::one_minus_ani`). Missing labels are left out.
 
 use crate::par::*;
+use crate::rng::SplitMix;
 use std::collections::BTreeMap;
+
+/// Smallest group for which PERMDISP is reported.
+pub const PERMDISP_MIN_GROUP: usize = 3;
 
 pub struct Options {
     pub n_perm: usize,
@@ -54,17 +58,6 @@ pub struct TestResult {
     /// the sums of squares were weighted (collapsed representatives)
     pub weighted: bool,
     pub warnings: Vec<String>,
-}
-
-struct SplitMix(u64);
-impl SplitMix {
-    fn next(&mut self) -> u64 {
-        self.0 = self.0.wrapping_add(0x9E37_79B9_7F4A_7C15);
-        let mut z = self.0;
-        z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
-        z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
-        z ^ (z >> 31)
-    }
 }
 
 /// Run both tests. `d` is n x n row-major; `labels` and `strata` have length n. Returns `None` when fewer than two
@@ -233,6 +226,17 @@ pub fn test(
     let pseudo_f = |sw: f64| ((total - sw) / (g - 1) as f64) / (sw / (m - g) as f64);
     let sw_obs = ss_w(&lab);
     let f_obs = pseudo_f(sw_obs);
+    // The total sum of squares does not change when labels are permuted, so F is a decreasing function of the within-group
+    // sum of squares alone: "F at least as large as observed" is "SS_W at most as large as observed". Comparing the sums of
+    // squares keeps the test exact when F is infinite (SS_W of 0: every group is made of exact copies) and removes the need
+    // to compare NaN or inf. If the total is 0 (all distances 0) there is nothing to test.
+    let degenerate_total = !(total.is_finite() && total > 0.0);
+    if degenerate_total {
+        warnings.push(
+            "all distances are 0 or not finite: there is no structure to test, no p-value"
+                .to_string(),
+        );
+    }
     let r2 = if total > 0.0 {
         (total - sw_obs) / total
     } else {
@@ -240,11 +244,11 @@ pub fn test(
     };
 
     // PERMDISP: distance of each sample to its group centroid, from the squared distances alone
-    let mut z = vec![0.0f64; m];
-    let mut negative = 0usize;
-    {
+    let centroid_dist = |labs: &[usize]| -> (Vec<f64>, usize) {
+        let mut z = vec![0.0f64; m];
+        let mut negative = 0usize;
         let mut members: Vec<Vec<usize>> = vec![Vec::new(); g];
-        for (k, &l) in lab.iter().enumerate() {
+        for (k, &l) in labs.iter().enumerate() {
             members[l].push(k);
         }
         for mem in &members {
@@ -264,13 +268,16 @@ pub fn test(
                 z[a] = v.max(0.0).sqrt();
             }
         }
-    }
+        (z, negative)
+    };
+    let (z, negative) = centroid_dist(&lab);
     if negative > 0 {
         warnings.push(format!(
             "{negative} sample(s) have a negative squared distance to the centroid (the distances are not Euclidean); set to 0"
         ));
     }
-    let anova_f = |zz: &[f64], labs: &[usize]| -> f64 {
+    // one-way ANOVA of the distances to the centroids: (between SS, within SS)
+    let anova_ss = |zz: &[f64], labs: &[usize]| -> (f64, f64) {
         let mean: f64 = zz.iter().sum::<f64>() / m as f64;
         let mut gm = vec![0.0; g];
         let mut gn = vec![0usize; g];
@@ -287,9 +294,27 @@ pub fn test(
             .enumerate()
             .map(|(k, &x)| (x - gm[labs[k]]).powi(2))
             .sum();
-        (ssb / (g - 1) as f64) / (ssw / (m - g) as f64)
+        (ssb, ssw)
     };
-    let disp_obs = anova_f(&z, &lab);
+    let anova_f = |ssb: f64, ssw: f64| (ssb / (g - 1) as f64) / (ssw / (m - g) as f64);
+    let (ssb_obs, ssw_obs) = anova_ss(&z, &lab);
+    let disp_obs = anova_f(ssb_obs, ssw_obs);
+    // PERMDISP needs at least PERMDISP_MIN_GROUP samples in every group: in a group of 2 both samples are at the same distance
+    // from the centroid, so the within-group SS is 0 and F infinite for any data, and the p-value is the minimum
+    let sst_z = ssb_obs + ssw_obs;
+    let disp_small = smin < PERMDISP_MIN_GROUP;
+    let degenerate_disp = !(sst_z.is_finite() && sst_z > 0.0);
+    if disp_small {
+        warnings.push(format!(
+            "a group has fewer than {PERMDISP_MIN_GROUP} samples: no PERMDISP p-value (the spread of a group of 2 is not defined)"
+        ));
+    } else if degenerate_disp {
+        warnings.push(
+            "every sample is at the same distance from its group centroid: no PERMDISP p-value"
+                .to_string(),
+        );
+    }
+    let degenerate_disp = degenerate_disp || disp_small;
     let groups: Vec<GroupStat> = (0..g)
         .map(|j| {
             let zs: Vec<f64> = (0..m).filter(|&k| lab[k] == j).map(|k| z[k]).collect();
@@ -302,21 +327,34 @@ pub fn test(
         .collect();
 
     // permutations of the label vector, within strata
-    let (p, disp_p) = if strata_used && informative == 0 {
+    let (p, disp_p) = if (strata_used && informative == 0) || degenerate_total {
         (None, None)
     } else {
+        let tol = 1e-12;
         let one = |t: usize| -> (bool, bool) {
             let mut rng = SplitMix(o.seed ^ (t as u64).wrapping_mul(0xD6E8_FEB8_6659_FD93));
             let mut labs = lab.clone();
             for v in by_stratum.values() {
                 for i in (1..v.len()).rev() {
-                    let j = (rng.next() % (i as u64 + 1)) as usize;
+                    let j = (rng.next_u64() % (i as u64 + 1)) as usize;
                     labs.swap(v[i], v[j]);
                 }
             }
             (
-                pseudo_f(ss_w(&labs)) >= f_obs - 1e-12 * f_obs.abs(),
-                anova_f(&z, &labs) >= disp_obs - 1e-12 * disp_obs.abs(),
+                ss_w(&labs) <= sw_obs + tol * total,
+                !degenerate_disp && {
+                    // the distances to the centroids are recomputed for the permuted groups: with the observed ones held
+                    // fixed the null is too narrow for small or unequal groups (false-positive rate 0.10 to 0.35 in the
+                    // designs measured), recomputing them keeps it at about 0.05 (see the calibration test)
+                    let (zp, _) = centroid_dist(&labs);
+                    let (b, wv) = anova_ss(&zp, &labs);
+                    let fp = anova_f(b, wv);
+                    if disp_obs.is_infinite() {
+                        fp.is_infinite()
+                    } else {
+                        fp >= disp_obs * (1.0 - 1e-12)
+                    }
+                },
             )
         };
         let hits: Vec<(bool, bool)> = (0..o.n_perm).into_par_iter().map(one).collect();
@@ -324,7 +362,7 @@ pub fn test(
         let b = hits.iter().filter(|h| h.1).count();
         (
             Some((1 + a) as f64 / (1 + o.n_perm) as f64),
-            Some((1 + b) as f64 / (1 + o.n_perm) as f64),
+            (!degenerate_disp).then(|| (1 + b) as f64 / (1 + o.n_perm) as f64),
         )
     };
 
@@ -376,7 +414,7 @@ mod tests {
     use super::*;
 
     fn rng_f(r: &mut SplitMix) -> f64 {
-        (r.next() >> 11) as f64 / (1u64 << 53) as f64
+        r.unit()
     }
 
     /// Euclidean distances between points in `dim` dimensions; group j has centre `centres[j]` and spread `spreads[j]`.
@@ -446,8 +484,10 @@ mod tests {
         // SS_T = (sum d^2)/4 = (1+100+121+81+100+1)/4 = 101; SS_W = 1/2 + 1/2 = 1; F = (100/1)/(1/2) = 200
         assert!((r.f - 200.0).abs() < 1e-9, "F = {}", r.f);
         assert!((r.r2 - 100.0 / 101.0).abs() < 1e-9);
-        // only 3 distinct splits of 4 points into 2 pairs exist, so the smallest possible p is not below 1/3
-        assert!(r.p.unwrap() >= 0.2, "p = {:?}", r.p);
+        // of the 6 ways to give 2 of 4 points the label a, 2 (the observed one and its mirror) separate the pairs: the exact p
+        // is 1/3, and 99 permutations estimate it as (1 + hits) / 100
+        let p = r.p.unwrap();
+        assert!((0.2..=0.5).contains(&p), "p = {p}");
     }
 
     #[test]
@@ -657,5 +697,132 @@ mod tests {
         // same R2, but the weighted F is smaller: it does not count the copies as independent samples
         assert!((dup.r2 - wtd.r2).abs() < 1e-9);
         assert!(wtd.f < dup.f, "{} !< {}", wtd.f, dup.f);
+    }
+
+    fn labels(spec: &[&str]) -> Vec<Option<String>> {
+        spec.iter().map(|s| Some(s.to_string())).collect()
+    }
+
+    #[test]
+    fn all_zero_distances_give_no_p_value_not_the_smallest_one() {
+        let n = 8;
+        let d = vec![0.0; n * n];
+        let l = labels(&["a", "a", "a", "a", "b", "b", "b", "b"]);
+        let r = test(&d, n, &l, None, None, &Options::default()).unwrap();
+        assert!(
+            r.p.is_none() && r.disp_p.is_none(),
+            "p = {:?}, {:?}",
+            r.p,
+            r.disp_p
+        );
+        assert!(
+            r.warnings.iter().any(|w| w.contains("no p-value")),
+            "{:?}",
+            r.warnings
+        );
+    }
+
+    #[test]
+    fn groups_of_exact_copies_get_the_exact_p_not_the_smallest() {
+        // two groups of 4 identical points, 0.01 apart: F is infinite. Of the C(8,4) = 70 ways to give 4 samples label a,
+        // exactly 2 (the observed one and its mirror) separate the copies, so the exact p is 2/70 = 0.0286
+        let n = 8;
+        let mut d = vec![0.0; n * n];
+        for a in 0..n {
+            for b in 0..n {
+                if (a < 4) != (b < 4) {
+                    d[a * n + b] = 0.01;
+                }
+            }
+        }
+        let l = labels(&["a", "a", "a", "a", "b", "b", "b", "b"]);
+        let r = test(
+            &d,
+            n,
+            &l,
+            None,
+            None,
+            &Options {
+                n_perm: 4999,
+                seed: 4,
+            },
+        )
+        .unwrap();
+        assert!(r.f.is_infinite());
+        let p = r.p.unwrap();
+        assert!((0.02..=0.04).contains(&p), "p = {p}");
+        // every sample sits on its centroid: no spread to test
+        assert!(r.disp_p.is_none(), "{:?}", r.disp_p);
+    }
+
+    #[test]
+    fn a_real_effect_is_still_found_and_a_finite_f_still_matches_the_sum_of_squares_rule() {
+        // the p-value is now decided on SS_W, which must give the same answer as F for finite F
+        let (d, n, l) = planted(&[15, 15], &[0.0, 3.0], &[1.0, 1.0], 3, 99);
+        let r = test(&d, n, &l, None, None, &Options::default()).unwrap();
+        assert!(r.f.is_finite() && r.p.unwrap() <= 0.002, "{:?}", r.p);
+    }
+
+    /// share of `reps` null data sets (same centre and spread in every group) with PERMDISP p <= 0.05
+    fn permdisp_rate(sizes: &[usize], centres: &[f64], spreads: &[f64], reps: u64) -> f64 {
+        let o = |s| Options {
+            n_perm: 199,
+            seed: s,
+        };
+        let mut hits = 0;
+        for s in 0..reps {
+            let (d, n, l) = planted(sizes, centres, spreads, 5, 7000 + s);
+            if test(&d, n, &l, None, None, &o(s)).unwrap().disp_p.unwrap() <= 0.05 {
+                hits += 1;
+            }
+        }
+        hits as f64 / reps as f64
+    }
+
+    #[test]
+    fn permdisp_false_positive_rate_is_near_5_percent_for_small_and_unequal_groups() {
+        // with the distances to the centroids held fixed the rate was 0.105 (5, 60), 0.14 (3, 40) and 0.35 (3, 3, 30, 30)
+        // (code review 2026-11-12); binomial sd at 300 sets is 0.013, so 0.02 to 0.10 is about +-3.5 sd around 0.05
+        for sizes in [
+            vec![5, 60],
+            vec![10, 60],
+            vec![3, 40],
+            vec![3, 3, 30, 30],
+            vec![8, 8, 40, 40],
+        ] {
+            let c = vec![0.0; sizes.len()];
+            let sp = vec![1.0; sizes.len()];
+            let r = permdisp_rate(&sizes, &c, &sp, 300);
+            assert!(
+                (0.02..=0.10).contains(&r),
+                "{sizes:?}: false-positive rate {r}"
+            );
+        }
+    }
+
+    #[test]
+    fn permdisp_is_not_fooled_by_a_location_difference_and_still_sees_a_spread_difference() {
+        // groups differ in centre only: PERMDISP must not reject much, even with unequal sizes
+        let r = permdisp_rate(&[10, 60], &[0.0, 3.0], &[1.0, 1.0], 300);
+        assert!(r <= 0.10, "location only: {r}");
+        // same centre, spread 1 against 2: it must find it
+        let r = permdisp_rate(&[10, 60], &[0.0, 0.0], &[1.0, 2.0], 100);
+        assert!(r >= 0.95, "spread 1 vs 2: {r}");
+    }
+
+    #[test]
+    fn groups_of_two_get_no_permdisp_p_value_but_permanova_still_runs() {
+        // every group has 2 samples: both are the same distance from their centroid, so F was infinite and p minimal always
+        let (d, n, l) = planted(&[2, 2, 2, 2, 2, 2, 2, 2], &[0.0; 8], &[1.0; 8], 4, 5);
+        let r = test(&d, n, &l, None, None, &Options::default()).unwrap();
+        assert!(r.disp_p.is_none(), "{:?}", r.disp_p);
+        assert!(r.p.is_some());
+        assert!(
+            r.warnings.iter().any(|w| w.contains("PERMDISP")),
+            "{:?}",
+            r.warnings
+        );
+        // and the two spread warnings do not fire on a missing p-value
+        assert!(!r.warnings.iter().any(|w| w.contains("both significant")));
     }
 }

@@ -15,7 +15,7 @@ use crate::sketch_io::SampleSketch;
 #[cfg(feature = "native")]
 use crate::sketch_io::SketchParams;
 #[cfg(feature = "native")]
-use crate::sketch_io::{cache_init, cache_read, cache_ready, cache_write, sketch_sample};
+use crate::sketch_io::{cache_read_checked, cache_ready, cache_reset, cache_write, sketch_sample};
 use crate::stats::{mad_sd, median};
 use crate::tree::{collapse, neighbor_joining, newick, root_tree};
 use anyhow::Result;
@@ -65,8 +65,21 @@ pub struct CollapseInfo {
     pub within: Vec<String>,
     pub input: usize,
     pub kept: usize,
-    /// (id, representative id, number of samples the representative stands for, split-half distance used, is representative)
-    pub rows: Vec<(String, String, usize, f64, bool)>,
+    pub rows: Vec<CollapseRow>,
+}
+
+/// One sample's place in the collapse.
+#[derive(Clone, Debug)]
+pub struct CollapseRow {
+    pub id: String,
+    pub representative: String,
+    /// number of samples the representative stands for (itself included)
+    pub cluster_size: usize,
+    /// the split-half distance used as this sample's noise
+    pub split_half: f64,
+    /// true when the sample has no split-half distance of its own and `split_half` is the species median
+    pub imputed: bool,
+    pub is_representative: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -472,7 +485,7 @@ pub fn run(o: &Options) -> Result<Results> {
             );
         }
     } else if !reuse {
-        cache_init(&cache_dir, &params)?;
+        cache_reset(&cache_dir, &params)?;
     }
     say(
         o,
@@ -493,8 +506,12 @@ pub fn run(o: &Options) -> Result<Results> {
         .map(|inp| {
             let want = halves_for.contains(&inp.id);
             if reuse {
-                if let Some(s) = cache_read(&cache_dir, &inp.id, want) {
-                    return Ok(s);
+                match cache_read_checked(&cache_dir, &inp.id, want) {
+                    Ok(Some(s)) => return Ok(s),
+                    Ok(None) => {}
+                    // made with other parameters than the folder says, or unreadable: never compared with the others
+                    Err(e) if o.from_sketches.is_some() => return Err(e),
+                    Err(_) => {} // resuming: sketch it again
                 }
             }
             if o.from_sketches.is_some() {
@@ -887,16 +904,19 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
             } else {
                 floor.median
             };
-            let noise: Vec<f64> = res
+            let measured: Vec<Option<f64>> = res
                 .included
                 .iter()
-                .map(|&r| {
-                    by_id
-                        .get(res.rows[r].id.as_str())
-                        .copied()
-                        .unwrap_or(median)
-                })
+                .map(|&r| by_id.get(res.rows[r].id.as_str()).copied())
                 .collect();
+            let noise: Vec<f64> = measured.iter().map(|m| m.unwrap_or(median)).collect();
+            let n_imputed = measured.iter().filter(|m| m.is_none()).count();
+            if n_imputed > 0 {
+                res.warnings.push(format!(
+                    "--collapse: {n_imputed} of {} samples have no split-half distance of their own and use the species median {median:.5}; raise --floor-samples to measure more (`collapse.tsv` marks them)",
+                    measured.len()
+                ));
+            }
             // label-aware: samples merge only when they carry the same labels in the chosen columns (a missing label
             // counts as its own value)
             let mut within: Vec<String> = Vec::new();
@@ -940,7 +960,10 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                                 .collect(),
                         );
                     }
-                    _ => res.warnings.push(
+                    Some(Err(e)) => res.warnings.push(format!(
+                        "--collapse-within: the label table could not be read ({e:#}); the collapse is not label-aware"
+                    )),
+                    None => res.warnings.push(
                         "--collapse-within needs --labels; the collapse is not label-aware".into(),
                     ),
                 }
@@ -974,13 +997,14 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                     rows: (0..n)
                         .map(|i| {
                             let r = c.rep_of[i];
-                            (
-                                ids[i].clone(),
-                                ids[r].clone(),
-                                size_of[&r],
-                                noise[i],
-                                r == i,
-                            )
+                            CollapseRow {
+                                id: ids[i].clone(),
+                                representative: ids[r].clone(),
+                                cluster_size: size_of[&r],
+                                split_half: noise[i],
+                                imputed: measured[i].is_none(),
+                                is_representative: r == i,
+                            }
                         })
                         .collect(),
                 });
@@ -1041,6 +1065,14 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                 OrdKind::Pcoa => pcoa(&d1, n, ncomp),
             }
         };
+        if let Some(share) = res.ordination.as_ref().and_then(|x| x.negative_share) {
+            if share > 0.05 {
+                res.warnings.push(format!(
+                    "PCoA: the negative eigenvalues hold {:.0}% as much as the positive ones (the distances are not Euclidean); the axis percentages are shares of the positive eigenvalues",
+                    100.0 * share
+                ));
+            }
+        }
         tm.mark(o, "ordination");
         // tree
         if o.tree {
@@ -1173,8 +1205,11 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
                 }
             }
             if let Some(c) = &res.collapse {
-                let members: Vec<(String, String)> =
-                    c.rows.iter().map(|r| (r.0.clone(), r.1.clone())).collect();
+                let members: Vec<(String, String)> = c
+                    .rows
+                    .iter()
+                    .map(|r| (r.id.clone(), r.representative.clone()))
+                    .collect();
                 let (mix, clusters) =
                     crate::collapse::mixed_clusters(&members, &table.columns, |id, col| {
                         table.rows.get(id).and_then(|v| v[col].clone())
@@ -1317,14 +1352,18 @@ fn write_outputs(o: &Options, r: &Results) -> Result<()> {
     // collapse.tsv: which representative stands for each sample
     if let Some(c) = &r.collapse {
         let mut s = String::from(
-            "id\trepresentative\tcluster_size\tsplit_half_distance\tis_representative\n",
+            "id\trepresentative\tcluster_size\tsplit_half_distance\tis_representative\tsplit_half_imputed\n",
         );
-        for (id, rep, size, d, is_rep) in &c.rows {
+        for r in &c.rows {
             let _ = writeln!(
                 s,
-                "{}\t{}\t{size}\t{d:.6}\t{is_rep}",
-                tsv_cell(id),
-                tsv_cell(rep)
+                "{}\t{}\t{}\t{:.6}\t{}\t{}",
+                tsv_cell(&r.id),
+                tsv_cell(&r.representative),
+                r.cluster_size,
+                r.split_half,
+                r.is_representative,
+                r.imputed
             );
         }
         fs::write(o.out.join("collapse.tsv"), s)?;
@@ -1379,9 +1418,10 @@ fn write_outputs(o: &Options, r: &Results) -> Result<()> {
         fs::write(
             o.out.join("pca_variance.txt"),
             format!(
-                "method\t{}\nvariance_fraction\t{}\nfeatures\t{}\n",
+                "method\t{}\nvariance_fraction\t{}\nvariance_basis\t{}\nfeatures\t{}\n",
                 ord.method,
                 var.join(" "),
+                ord.var_basis,
                 ord.n_features
             ),
         )?;
@@ -1522,7 +1562,7 @@ pub fn summary_json(o: &Options, r: &Results) -> Value {
         "notes": by_note,
         "noise_floor": {"value": r.floor.value, "source": r.floor.source, "n": r.floor.n, "median": r.floor.median, "p90": r.floor.p90},
         "clusters": {"k_used": r.k_used, "gap": gap},
-        "ordination": r.ordination.as_ref().map(|x| json!({"method": x.method, "variance_fraction": x.var_frac, "features": x.n_features})),
+        "ordination": r.ordination.as_ref().map(|x| json!({"method": x.method, "variance_fraction": x.var_frac, "variance_basis": x.var_basis, "negative_share": x.negative_share, "features": x.n_features})),
         "tree": {"written": r.newick.is_some(), "branches_collapsed": r.collapsed},
         "labels": labels,
         "collapse": r.collapse.as_ref().map(|c| json!({"rule": c.rule, "within": c.within, "input": c.input, "representatives": c.kept,
