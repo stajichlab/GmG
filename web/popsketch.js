@@ -157,6 +157,12 @@ $("run").addEventListener("click", async () => {
   worker = new Worker("popsketch-worker.js", { type: "module" });
   $("run").disabled = true;
   $("run-bar").hidden = false;
+  // a worker that cannot start (a module it imports is missing, an old browser) says nothing by itself: show it
+  worker.onerror = (e) => {
+    $("run-status").textContent = `Error: the analysis worker failed to start or crashed (${e.message || "see the browser console"}).`;
+    $("run-bar").hidden = true;
+    $("run").disabled = false;
+  };
   worker.onmessage = (e) => {
     const m = e.data;
     if (m.type === "progress") {
