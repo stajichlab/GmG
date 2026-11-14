@@ -25,12 +25,16 @@
         <label class="btn" for="pick-dir">Choose folder…</label><input id="pick-dir" type="file" webkitdirectory hidden>
         <label class="btn" for="pick-labels">Labels (optional)…</label><input id="pick-labels" type="file" hidden>
         <span class="muted" id="labels-name"></span>
-        <label class="btn" for="pick-index" title="A .gmgi reference index (the GmG release index, about 213 MB): adds the organism and mixture calls">Reference index (optional)…</label><input id="pick-index" type="file" accept=".gmgi" hidden>
+        <label class="field" title="A reference index adds the organism and mixture calls (is each sample the species you expect, is a second genome mixed in). Without one the audit compares the samples with each other only. The bundled indexes are downloaded once and kept in the browser.">Reference index
+          <select id="index-source"><option value="">none (compare the samples with each other)</option></select>
+        </label>
+        <input id="pick-index" type="file" accept=".gmgi" hidden>
         <span class="muted" id="index-name"></span>
         <label class="btn" for="pick-tree" title="A Newick tree of some of the same samples, for example from SNPs">Compare with a tree…</label><input id="pick-tree" type="file" hidden>
         <label class="btn" for="pick-pcs" title="PC scores of some of the same samples: id, PC1, PC2, …">Compare with PCs…</label><input id="pick-pcs" type="file" hidden>
       </div>
       <p class="status" id="queue-status">No files chosen.</p>
+      <p class="status" id="index-status" role="status"></p>
       <details class="opts">
         <summary>Options</summary>
         <div class="row">
@@ -59,11 +63,6 @@
           </label>
         </div>
       </details>
-      <div class="row">
-        <button id="run" class="btn primary" type="button" disabled>Run</button>
-        <div class="bar grow" id="run-bar" hidden><div></div></div>
-        <span class="status" id="run-status" role="status"></span>
-      </div>
     </div>
   </section>
 
@@ -87,6 +86,18 @@
       <div class="row">
         <button id="ena-labels" class="btn" type="button" disabled>Fetch labels from ENA</button>
         <span class="status" id="ena-status" role="status"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="run-card">
+    <h2>Run</h2>
+    <p class="side">Analyses the files above, with the labels from the file or from ENA if you fetched them.</p>
+    <div class="body">
+      <div class="row">
+        <button id="run" class="btn primary" type="button" disabled>Run</button>
+        <div class="bar grow" id="run-bar" hidden><div></div></div>
+        <span class="status" id="run-status" role="status"></span>
       </div>
     </div>
   </section>

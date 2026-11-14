@@ -1,0 +1,33 @@
+run	tier	sampling	route	outcome	host	threads	seconds	plan_s	transfer_s	convert_s	count_s	md5_s	cut_s	postcut_s	check_s	hook_s	finish_s	other_s	python_peak_mib	child_peak_mib	tree_peak_mib	tree_peak_stage
+SRR19854872	coverage	windows	aws_odp	ok	r11	4	507.0	1.7	98.4	329.4	22.1	0.0	0.5	0.0	9.2	43.8	0.0	2.4	54.7	146.2	201.2	convert
+ERR10949383	coverage	windows	aws_odp	ok	r11	4	543.7	1.3	96.3	372.4	22.5	0.0	0.8	0.0	9.3	39.3	0.0	2.2	54.9	145.4	200.5	convert
+DRR059888	coverage	windows	aws_odp	ok	r11	4	635.7	1.4	136.2	405.4	34.2	0.0	0.5	0.0	14.1	42.5	0.0	1.8	53.8	70.4	123.2	hook
+SRR6232156	coverage	windows	aws_odp	ok	r11	4	791.2	1.4	304.1	388.7	24.9	0.0	0.5	0.0	11.1	56.3	0.0	5.4	136.1	87.2	147.5	hook
+DRR445894	coverage	windows	aws_odp	ok	r11	4	449.0	1.2	42.1	320.4	27.3	0.0	0.3	0.0	10.2	45.9	0.0	2.0	64.1	135.5	199.9	convert
+ERR17700531	coverage	windows	aws_odp	ok	r11	4	431.4	1.0	42.7	295.8	24.2	0.0	0.3	0.0	8.1	57.8	0.0	1.8	65.5	91.0	154.5	convert
+SRR14813102	coverage	windows	aws_odp	ok	r11	4	440.5	1.6	23.2	322.7	23.6	0.0	0.3	0.0	8.8	58.2	0.0	2.4	64.3	145.6	207.4	convert
+DRR195603	coverage	windows	aws_odp	ok	r11	4	476.6	1.1	47.6	346.6	20.0	0.0	0.4	0.0	10.1	46.5	0.0	4.7	57.2	145.4	203.0	convert
+ERR9866254	coverage	windows	aws_odp	ok	r11	4	454.5	1.4	40.2	334.3	24.0	0.0	0.3	0.0	8.0	44.3	0.0	2.3	65.3	145.8	209.3	convert
+DRR342044	coverage	windows	aws_odp	ok	r11	4	497.9	0.9	57.2	355.1	22.7	0.0	0.5	0.0	9.5	46.2	0.0	6.2	63.8	145.3	206.0	convert
+SRR25731893	coverage	windows	aws_odp	ok	r11	4	573.0	1.1	104.6	374.6	38.5	0.0	0.4	0.0	11.3	41.4	0.0	1.5	63.5	92.5	154.2	convert
+ERR18066360	coverage		ena_https	transient	r11	4	384.5	1.2	383.2	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	46.6	46.3	55.5	transfer
+SRR11528298	coverage	windows	aws_odp	ok	r11	4	530.4	1.2	150.8	308.1	21.4	0.0	0.3	0.0	7.2	39.6	0.0	2.2	65.5	145.6	205.7	convert
+SRR30725259	coverage	windows	aws_odp	ok	r11	4	520.2	0.9	83.4	360.9	19.1	0.0	0.4	0.0	9.5	43.2	0.0	3.3	60.8	91.5	148.7	convert
+DRR413375	coverage	windows	aws_odp	ok	r11	4	427.2	1.2	54.6	295.0	21.9	0.0	0.3	0.0	6.5	45.9	0.0	2.1	63.4	145.7	203.9	convert
+SRR33381578	coverage	windows	aws_odp	ok	r11	4	465.3	1.1	105.3	284.6	22.8	0.0	0.3	0.0	7.2	42.1	0.0	2.2	55.1	91.8	147.0	convert
+SRR12887196	coverage	windows	aws_odp	ok	r11	4	499.3	1.3	73.0	336.8	26.5	0.0	0.6	0.0	8.8	50.1	0.0	2.3	64.8	145.4	210.4	convert
+SRR3624701	coverage	windows	aws_odp	ok	r11	4	594.4	1.0	127.8	350.9	28.9	0.0	0.9	0.0	11.8	71.8	0.0	2.1	63.0	77.9	135.2	hook
+SRR40320337	coverage	windows	aws_odp	ok	r11	4	577.0	3.1	139.1	343.2	25.7	0.0	0.3	0.0	9.7	54.2	0.0	2.2	64.7	92.9	157.4	convert
+SRR24675057	coverage	windows	aws_odp	ok	r11	4	619.2	1.5	148.4	375.4	30.1	0.0	0.4	0.0	13.7	48.7	0.0	1.7	62.3	145.4	208.1	convert
+SRR24890911	coverage	windows	aws_odp	ok	r11	4	464.3	1.4	61.9	324.4	24.7	0.0	0.4	0.0	8.4	40.9	0.0	2.3	65.3	91.2	156.5	convert
+SRR9989238	coverage	windows	aws_odp	ok	r11	4	572.0	1.2	115.6	372.8	29.7	0.0	0.7	0.0	10.4	40.2	0.0	1.8	66.1	145.9	210.2	convert
+SRR34026451	coverage	windows	aws_odp	ok	r11	4	570.1	1.1	230.2	265.4	22.6	0.0	0.5	0.0	8.1	40.4	0.0	2.4	65.2	152.1	192.9	hook
+SRR18092228	coverage	windows	aws_odp	ok	r11	4	749.1	1.3	315.6	348.9	29.1	0.0	0.5	0.0	11.5	40.9	0.0	2.2	67.5	73.6	137.1	hook
+ERR9872206	coverage	windows	aws_odp	ok	r11	4	397.2	1.3	49.0	281.3	19.7	0.0	0.3	0.0	6.3	37.7	0.0	1.9	68.9	145.0	214.2	convert
+ERR9860970	coverage	windows	aws_odp	ok	r11	4	479.0	1.4	31.1	361.4	33.7	0.0	0.4	0.0	9.9	40.0	0.0	1.4	63.6	92.9	154.4	convert
+ERR10176472	coverage	windows	aws_odp	ok	r11	4	250.4	2.1	15.1	191.7	14.2	0.0	0.2	0.0	4.9	21.0	0.0	1.4	63.3	153.8	217.1	convert
+SRR7503877	coverage	windows	aws_odp	ok	r11	4	429.1	1.9	44.6	312.9	21.2	0.0	0.3	0.0	7.5	39.0	0.0	2.0	63.8	149.9	213.9	convert
+ERR3771233	coverage	stride	aws_odp	hook_failed	r11	4	219.2	2.8	7.9	160.1	14.1	0.0	0.1	0.0	2.9	30.0	0.0	1.4	66.2	70.1	369.2	convert
+SRR11836441	coverage	windows	aws_odp	ok	r11	4	500.0	4.5	60.2	352.1	28.4	0.0	0.5	0.0	12.1	41.1	0.0	1.5	62.4	72.8	131.1	hook
+ERR15535081	coverage	windows	aws_odp	ok	r11	4	636.3	3.6	255.4	306.6	21.0	0.0	0.4	0.0	9.6	38.4	0.0	2.3	62.4	90.7	150.4	convert
+ERR2061624	coverage		ena_https	transient	r11	4	3720.2	1.3	3718.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.5	56.5	56.5	65.8	transfer

@@ -1,0 +1,36 @@
+run	tier	route	layout	bases_kept	reads_kept	coverage_target	coverage_reached	seconds	verified	outcome	sampling	fallback_from
+SRR19854872	coverage	aws_odp	PAIRED	1024500000	3415000	25.000	25.000	507.0	true	ok	windows	
+run	tier	route	layout	bases_kept	reads_kept	coverage_target	coverage_reached	seconds	verified	outcome	sampling	fallback_from
+ERR10949383	coverage	aws_odp	PAIRED	1024502384	3392392	25.000	25.000	543.7	true	ok	windows	
+run	tier	route	layout	bases_kept	reads_kept	coverage_target	coverage_reached	seconds	verified	outcome	sampling	fallback_from
+DRR059888	coverage	aws_odp	PAIRED	1024500000	6830000	25.000	25.000	635.7	true	ok	windows	
+run	tier	route	layout	bases_kept	reads_kept	coverage_target	coverage_reached	seconds	verified	outcome	sampling	fallback_from
+SRR6232156	coverage	aws_odp	PAIRED	1024500000	2049000	25.000	25.000	791.2	true	ok	windows	
+DRR445894	coverage	aws_odp	PAIRED	1024500000	3415000	25.000	25.000	449.0	true	ok	windows	
+ERR17700531	coverage	aws_odp	PAIRED	1024500000	3415000	25.000	25.000	431.4	true	ok	windows	
+SRR14813102	coverage	aws_odp	PAIRED	1024500000	3415000	25.000	25.000	440.5	true	ok	windows	
+DRR195603	coverage	aws_odp	PAIRED	1024504333	2231800	25.000	25.000	476.6	true	ok	windows	
+ERR9866254	coverage	aws_odp	PAIRED	1024500000	3415000	25.000	25.000	454.5	true	ok	windows	
+DRR342044	coverage	aws_odp	PAIRED	1024533819	1726864	25.000	25.001	497.9	true	ok	windows	
+SRR25731893	coverage	aws_odp	PAIRED	1024495821	6869408	25.000	25.000	573.0	true	ok	windows	
+ERR18066360	coverage	ena_https						384.5	false	transient		
+SRR11528298	coverage	aws_odp	PAIRED	1024500000	3415000	25.000	25.000	530.4	true	ok	windows	
+SRR30725259	coverage	aws_odp	PAIRED	1024109867	2129536	25.000	24.990	520.2	true	ok	windows	
+DRR413375	coverage	aws_odp	PAIRED	1024500000	3415000	25.000	25.000	427.2	true	ok	windows	
+SRR33381578	coverage	aws_odp	PAIRED	1024500000	3415000	25.000	25.000	465.3	true	ok	windows	
+SRR12887196	coverage	aws_odp	PAIRED	1024500000	3415000	25.000	25.000	499.3	true	ok	windows	
+SRR3624701	coverage	aws_odp	PAIRED	1024500960	4065480	25.000	25.000	594.4	true	ok	windows	
+SRR40320337	coverage	aws_odp	PAIRED	1024135990	3451176	25.000	24.991	577.0	true	ok	windows	
+SRR24675057	coverage	aws_odp	PAIRED	1024500800	5122504	25.000	25.000	619.2	true	ok	windows	
+SRR24890911	coverage	aws_odp	PAIRED	1024500000	3415000	25.000	25.000	464.3	true	ok	windows	
+SRR9989238	coverage	aws_odp	PAIRED	1024500800	5122504	25.000	25.000	572.0	true	ok	windows	
+SRR34026451	coverage	aws_odp	PAIRED	1024502384	3392392	25.000	25.000	570.1	true	ok	windows	
+SRR18092228	coverage	aws_odp	PAIRED	1024500368	5071784	25.000	25.000	749.1	true	ok	windows	
+ERR9872206	coverage	aws_odp	PAIRED	1024500000	3415000	25.000	25.000	397.2	true	ok	windows	
+ERR9860970	coverage	aws_odp	PAIRED	1024486819	6874448	25.000	25.000	479.0	true	ok	windows	
+ERR10176472	coverage	aws_odp	PAIRED	526555263	2388434	25.000	12.849	250.4	true	ok	windows	
+SRR7503877	coverage	aws_odp	PAIRED	1024500000	3415000	25.000	25.000	429.1	true	ok	windows	
+ERR3771233	coverage	aws_odp	PAIRED	353706094	1513492	25.000	8.631	219.2	true	hook_failed	stride	windows
+SRR11836441	coverage	aws_odp	PAIRED	1024500800	5122504	25.000	25.000	500.0	true	ok	windows	
+ERR15535081	coverage	aws_odp	PAIRED	1024500000	4098000	25.000	25.000	636.3	true	ok	windows	
+ERR2061624	coverage	ena_https						3720.2	false	transient		

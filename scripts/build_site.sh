@@ -6,7 +6,11 @@ set -euo pipefail
 out=${1:?output directory}; shift || true
 root=$(cd "$(dirname "$0")/.." && pwd)
 rm -rf "$out"; mkdir -p "$out/pkg" "$out/pkg-ps" "$out/index" "$out/examples"
-cp "$root"/web/index.html "$root"/web/gmg.html "$root"/web/style.css "$root"/web/app.js "$root"/web/archive.js "$root"/web/worker.js "$root"/web/popsketch.html "$root"/web/popsketch.js "$root"/web/popsketch-worker.js "$root"/web/ena.js "$root"/web/bundle.js "$out/"
+# every page, script and stylesheet in web/ and the vendored libraries: an explicit file list went stale when modules were added
+# (the deployed pages then failed to import them: the worker did not start and nothing happened on Run);
+# tests/web/site-files.test.mjs checks that everything the scripts import is in web/
+cp "$root"/web/*.html "$root"/web/*.js "$root"/web/*.css "$out/"
+cp -r "$root"/web/vendor "$out/vendor"
 cp "$root"/examples/examples.tsv "$out/examples/"
 cp "$root"/crates/gmg-wasm/pkg-web/gmg_wasm.js "$root"/crates/gmg-wasm/pkg-web/gmg_wasm_bg.wasm "$out/pkg/"
 cp "$root"/crates/popsketch-wasm/pkg-web/popsketch_wasm.js "$root"/crates/popsketch-wasm/pkg-web/popsketch_wasm_bg.wasm "$out/pkg-ps/"

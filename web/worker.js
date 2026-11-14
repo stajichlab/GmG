@@ -4,6 +4,7 @@
 // Messages out: {type:'version', version} {type:'index-progress', loaded, total} {type:'index-stage', stage:'build'} {type:'index-ready', info} {type:'progress', i, n, name}
 //               {type:'record', record} {type:'done', ...outputs} {type:'error', message}
 import init, { Index, make_results_tsv, make_hits_tsv, render_report, version } from "./pkg/gmg_wasm.js";
+import { readHead, readWhole } from "./readhead.js";
 
 const CACHE = "gmg-index-v1";
 let ix = null;
@@ -53,30 +54,9 @@ function setIndex(bytes) {
   post({ type: "index-ready", info: { n_genomes: ix.n_genomes(), k: ix.ksize(), scaled: ix.scaled(), manifest } });
 }
 
-// Read a whole file, or for FASTQ stop after `maxReads` records (so a 2 GB read file is not read to the end).
+// Read a whole file (the CRC of a gzip file is checked), or the first `maxReads` FASTQ records (so a 2 GB read file is not read to the end).
 async function readFile(file, maxReads) {
-  const gz = /\.gz$/i.test(file.name);
-  let stream = file.stream();
-  if (gz) stream = stream.pipeThrough(new DecompressionStream("gzip"));
-  const reader = stream.getReader();
-  const chunks = [];
-  let lines = 0, total = 0, fastq = null;
-  const maxLines = maxReads > 0 ? maxReads * 4 + 4 : Infinity;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    chunks.push(value);
-    total += value.length;
-    if (fastq === null && value.length) fastq = value[0] === 0x40; // '@'
-    if (fastq && Number.isFinite(maxLines)) {
-      for (let i = 0; i < value.length; i++) if (value[i] === 10) lines++;
-      if (lines >= maxLines) { await reader.cancel(); break; }
-    }
-  }
-  const bytes = new Uint8Array(total);
-  let off = 0;
-  for (const c of chunks) { bytes.set(c, off); off += c.length; }
-  return bytes;
+  return maxReads > 0 ? readHead(file, maxReads) : readWhole(file);
 }
 
 async function classifyAll(files, opts) {

@@ -1,9 +1,9 @@
 // GmG web app: UI only. The worker (worker.js) does the sketching and classification with the same Rust code as the CLI.
 const $ = (id) => document.getElementById(id);
-import { ARCHIVE, expandArchive } from "./archive.js";
+import { ARCHIVE, KEEP, expandArchiveInWorker } from "./archive.js";
 const worker = new Worker(new URL("./worker.js", import.meta.url), { type: "module" });
 
-const SEQ_EXT = /\.(fa|fna|fasta|fas|ffn|fsa|seq|dna|fq|fastq)(\.gz)?$/i;
+const SEQ_EXT = KEEP.seq;
 const RANKS = ["phylum", "class", "order", "family", "genus", "species"];
 const STATUS_LABEL = { ok: "classified", low_confidence: "low confidence", no_match: "no match", error: "error" };
 
@@ -106,7 +106,7 @@ async function addFiles(files, label) {
     if (!ARCHIVE.test(f.name)) { plain.push(f); continue; }
     setStatus($("queue-status"), `Unpacking ${f.name}…`);
     try {
-      const { files: inner, skipped } = await expandArchive(f, (n) => SEQ_EXT.test(n));
+      const { files: inner, skipped } = await expandArchiveInWorker(f, "seq");
       for (const g of inner) {
         meta.set(g, { label: `from ${f.name}${g.innerPath !== g.name ? `: ${g.innerPath}` : ""}`, sha: "" });
         plain.push(g);

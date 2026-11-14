@@ -1,0 +1,19 @@
+what	value	candidates	selected
+region	Africa	19	19
+region	Asia	510	23
+region	Europe	2031	23
+region	North America	811	23
+region	Oceania	49	22
+region	South America	17	17
+region	unknown_region	510	23
+region	Africa	19	19
+region	Asia	510	23
+region	Europe	2031	23
+region	North America	811	23
+region	Oceania	49	22
+region	South America	17	17
+region	unknown_region	510	23
+countries	distinct	43	33
+places (geo_loc_name)	distinct	184	61
+studies	distinct	105	75
+studies	largest share of the selection		0.200

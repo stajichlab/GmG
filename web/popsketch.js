@@ -8,6 +8,7 @@ let pcsText = null;
 let worker = null;
 import { findRuns, labelsText as enaLabels } from "./ena.js";
 import { readBundle, fetchBundle } from "./bundle.js";
+import { loadManifest, fetchIndexBytes, cacheWorks } from "./indexsource.js";
 let bundle = null; // a loaded sketch bundle; cleared when FASTQ files are chosen
 
 // sample id and mate: sampleA_R1.fastq.gz / sampleA_1.fq -> {id: sampleA, mate: 1}
@@ -57,10 +58,61 @@ $("pick-labels").addEventListener("change", async (e) => {
 $("pick-tree").addEventListener("change", async (e) => { const f = e.target.files[0]; treeText = f ? await f.text() : null; });
 $("pick-pcs").addEventListener("change", async (e) => { const f = e.target.files[0]; pcsText = f ? await f.text() : null; });
 
+// ---------------------------------------------------------------- reference index: none, one bundled with the site, or a file
+const FILE_OPTION = "__file__";
+let manifest = [];
+let indexEntry = null; // the bundled index chosen, or null
+let memIndex = null; // the bytes kept in memory when the Cache API cannot hold them
+let lastIndexChoice = "";
+const setIndexStatus = (text, err) => { $("index-status").textContent = text; $("index-status").classList.toggle("err", !!err); };
+const mb = (n) => (n / 2 ** 20).toFixed(0);
+
+async function initIndexChoices() {
+  manifest = await loadManifest();
+  const sel = $("index-source");
+  for (const e of manifest) {
+    const o = document.createElement("option");
+    o.value = e.file;
+    o.textContent = `${e.title} (${e.size_mb} MB)`;
+    sel.append(o);
+  }
+  const f = document.createElement("option");
+  f.value = FILE_OPTION;
+  f.textContent = "a .gmgi file from this computer…";
+  sel.append(f);
+}
+
+// the bytes of the chosen bundled index: from the browser's cache when it holds the right copy, otherwise downloaded (and cached)
+async function bundledIndexBytes() {
+  if (memIndex && memIndex.file === indexEntry.file) return memIndex.bytes.slice();
+  const { bytes, cached } = await fetchIndexBytes(indexEntry, {
+    onProgress: (loaded, total) => setIndexStatus(total ? `Downloading the reference index: ${mb(loaded)} of ${mb(total)} MB…` : `Downloading the reference index: ${mb(loaded)} MB…`),
+  });
+  setIndexStatus(cached ? "Reference index ready (from this browser's cache)." : "Reference index downloaded and kept in this browser.");
+  if (!(await cacheWorks())) memIndex = { file: indexEntry.file, bytes: bytes.slice() };
+  return bytes;
+}
+
+$("index-source").addEventListener("change", async (e) => {
+  const v = e.target.value;
+  if (v === FILE_OPTION) { $("pick-index").click(); return; } // the file input's change handler sets the choice; a cancelled dialog leaves this
+  lastIndexChoice = v;
+  indexFile = null;
+  indexEntry = manifest.find((m) => m.file === v) || null;
+  $("index-name").textContent = "";
+  if (!indexEntry) { setIndexStatus(""); return; }
+  setIndexStatus(`Fetching ${indexEntry.title} (${indexEntry.size_mb} MB)…`);
+  try { await bundledIndexBytes(); } catch (err) { setIndexStatus(`Error: ${err.message}`, true); }
+});
+
 $("pick-index").addEventListener("change", (e) => {
   indexFile = e.target.files[0] || null;
+  indexEntry = null;
   $("index-name").textContent = indexFile ? indexFile.name : "";
+  if (indexFile) { lastIndexChoice = FILE_OPTION; setIndexStatus(""); } else $("index-source").value = lastIndexChoice;
 });
+$("pick-index").addEventListener("cancel", () => { $("index-source").value = lastIndexChoice; });
+initIndexChoices();
 
 $("ena-labels").addEventListener("click", async () => {
   const st = $("ena-status");
@@ -146,17 +198,32 @@ function show(r) {
 
 $("run").addEventListener("click", async () => {
   const samples = refresh();
+  // an empty or invalid box must not run: Number("") is 0, which used to mean about 53 reads per file
+  const maxReads = Number($("max-reads").value);
+  if (!Number.isInteger(maxReads) || maxReads < 1) {
+    $("run-status").textContent = "Error: \"Reads used per file\" must be a whole number of 1 or more.";
+    return;
+  }
+  const notes = [];
   if (worker) worker.terminate();
   worker = new Worker("popsketch-worker.js", { type: "module" });
   $("run").disabled = true;
   $("run-bar").hidden = false;
+  // a worker that cannot start (a module it imports is missing, an old browser) says nothing by itself: show it
+  worker.onerror = (e) => {
+    $("run-status").textContent = `Error: the analysis worker failed to start or crashed (${e.message || "see the browser console"}).`;
+    $("run-bar").hidden = true;
+    $("run").disabled = false;
+  };
   worker.onmessage = (e) => {
     const m = e.data;
     if (m.type === "progress") {
       $("run-status").textContent = m.id === "analysing" ? "Analysing…" : `Sketching ${m.i + 1} of ${m.n}: ${m.id}`;
       $("run-bar").firstElementChild.style.width = `${(100 * m.i) / m.n}%`;
+    } else if (m.type === "note") {
+      notes.push(m.message);
     } else if (m.type === "done") {
-      $("run-status").textContent = "Done.";
+      $("run-status").textContent = notes.length ? `Done. Notes: ${notes.join("; ")}` : "Done.";
       $("run-bar").hidden = true;
       $("run").disabled = false;
       show(m.result);
@@ -166,10 +233,20 @@ $("run").addEventListener("click", async () => {
       $("run").disabled = false;
     }
   };
-  const index = indexFile ? new Uint8Array(await indexFile.arrayBuffer()) : null;
+  let index = null;
+  try {
+    if (indexEntry) index = await bundledIndexBytes();
+    else if (indexFile) index = new Uint8Array(await indexFile.arrayBuffer());
+  } catch (err) {
+    setIndexStatus(`Error: ${err.message}`, true);
+    $("run-status").textContent = "Error: the reference index could not be loaded; choose “none” or try again.";
+    $("run-bar").hidden = true;
+    $("run").disabled = false;
+    return;
+  }
   worker.postMessage({
     type: "run", samples, bundle, labels: labelsText, compareTree: treeText, comparePcs: pcsText, index,
-    opts: { maxReads: Number($("max-reads").value), scaled: Number($("scaled").value), flagged: $("flagged").value, strata: $("strata").value.trim(), permutations: Number($("permutations").value), collapse: $("collapse").value, collapseWithin: $("collapse-within").value.trim() },
-  });
+    opts: { maxReads, scaled: Number($("scaled").value), flagged: $("flagged").value, strata: $("strata").value.trim(), permutations: Number($("permutations").value), collapse: $("collapse").value, collapseWithin: $("collapse-within").value.trim() },
+  }, index ? [index.buffer] : []); // the index is moved to the worker, not copied
 });
 refresh();
