@@ -1,0 +1,2 @@
+run_accession,set,species_name,strain,study_accession,country_iso,geo_loc_name,est_depth_x,base_count,region
+SRR31757004,coccidioides_posadasii_50,Coccidioides posadasii,NR-166 (cts2/ard1/cts3),PRJNA1199759,US,USA,1721.5,48529391398,North America
