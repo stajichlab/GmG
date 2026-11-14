@@ -31,7 +31,7 @@ test("every relative import and worker of the web app exists in web/ (outside th
     }
   }
   // the pattern must see the imports that matter (a regex that finds nothing would pass)
-  for (const must of ["gunzip.js", "gunzip-browser.js", "readhead.js", "archive-worker.js", "vendor/pako_inflate.mjs", "popsketch-worker.js"]) {
+  for (const must of ["gunzip.js", "gunzip-browser.js", "readhead.js", "archive-worker.js", "vendor/pako_inflate.mjs", "popsketch-worker.js", "indexsource.js"]) {
     assert.ok(found.has(must), `${must} is not found among the imports: ${[...found].join(", ")}`);
   }
 });
