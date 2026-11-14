@@ -59,11 +59,6 @@
           </label>
         </div>
       </details>
-      <div class="row">
-        <button id="run" class="btn primary" type="button" disabled>Run</button>
-        <div class="bar grow" id="run-bar" hidden><div></div></div>
-        <span class="status" id="run-status" role="status"></span>
-      </div>
     </div>
   </section>
 
@@ -87,6 +82,18 @@
       <div class="row">
         <button id="ena-labels" class="btn" type="button" disabled>Fetch labels from ENA</button>
         <span class="status" id="ena-status" role="status"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="run-card">
+    <h2>Run</h2>
+    <p class="side">Analyses the files above, with the labels from the file or from ENA if you fetched them.</p>
+    <div class="body">
+      <div class="row">
+        <button id="run" class="btn primary" type="button" disabled>Run</button>
+        <div class="bar grow" id="run-bar" hidden><div></div></div>
+        <span class="status" id="run-status" role="status"></span>
       </div>
     </div>
   </section>
