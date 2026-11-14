@@ -1,23 +1,23 @@
 what	value	candidates	selected
 cultivation	beer	272	61
-cultivation	bread_commercial	377	51
+cultivation	bread_commercial	376	51
 cultivation	clinical	407	61
 cultivation	dairy	14	14
-cultivation	other_known	1073	21
+cultivation	other_known	1066	21
 cultivation	sake_rice	58	41
 cultivation	soy_other_ferment	133	41
 cultivation	spirits_ethanol	114	51
-cultivation	unannotated	43545	17
+cultivation	unannotated	43384	17
 cultivation	wild_nature	344	71
-cultivation	wine	972	71
+cultivation	wine	968	71
 region	Africa	102	30
 region	Asia	555	97
 region	Europe	1543	243
-region	North America	1166	49
-region	Oceania	624	41
+region	North America	1133	48
+region	Oceania	624	42
 region	South America	201	35
-region	unknown_region	43118	5
+region	unknown_region	42978	5
 countries	distinct	67	67
-places (geo_loc_name)	distinct	385	166
-studies	distinct	579	141
+places (geo_loc_name)	distinct	382	166
+studies	distinct	577	140
 studies	largest share of the selection		0.080

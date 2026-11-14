@@ -36,11 +36,12 @@ class Classify(unittest.TestCase):
 
     def test_laboratory_and_experimental_samples_are_recognised(self):
         for t in ["laboratory strain", "evolution experiment", "chemostat", "haploid cells from tetrads", "by4741 derivative", "ypd plate",
-                  "engineered strain", "pyes2-empty", "ko171 x ko124", "dz12-derived isolate", "sc-his 2mm"]:
+                  "engineered strain", "pyes2-empty", "ko171 x ko124", "dz12-derived isolate", "sc-his 2mm",
+                  "d141 deltaku70 no. 60-4", "nr-166 (cts2/ard1/cts3)", "derived from coccidioides posadasii strain silveira", "ku70\u0394 mutant", "aspergillus fumigatus akub deletion"]:
             self.assertTrue(ps.is_lab(t.lower()), t)
         # "SC-2010" in a collection sample name is S. cerevisiae, not a medium
         self.assertFalse(ps.is_lab("150a_sc_dbvpg1106-sc-2010-11-01-9578"))
-        for t in ["wine fermentation in a vineyard", "oak bark", "sake brewery", "clinical isolate"]:
+        for t in ["wine fermentation in a vineyard", "oak bark", "sake brewery", "clinical isolate", "vpci 1882/14", "vpci 40/ei/13/3/b", "unknown patient"]:
             self.assertFalse(ps.is_lab(t.lower()), t)
         self.assertFalse(ps.is_lab("collaborative effort"))  # whole words only: not "lab" inside another word
 

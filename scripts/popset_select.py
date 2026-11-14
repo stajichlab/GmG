@@ -61,8 +61,9 @@ LAB_WORDS = [
     r"cell culture", r"liquid culture", r"batch culture", r"crossing", r"cross", r"segregant\w*", r"pooled", r"pool",
     r"reference strain", r"\[todo\]", r"yeast extract", r"engineered", r"plasmid\w*", r"pyes\w*", r"sc-(?:his|ura|leu|lys|trp|complete)\w*", r"\w+-derived",
     r"levy et al", r"barcode\w*", r"genomic dna", r"mnase\w*", r"\w+ x \w+",
+    r"derived from", r"delta\w*", r"deletion\w*", r"disrupt\w*", r"null mutant", r"overexpress\w*", r"\w+/\w+\d/\w+\d",
 ]
-LAB_RE = re.compile(r"\b(?:" + "|".join(LAB_WORDS) + r")\b", re.I)
+LAB_RE = re.compile(r"\b(?:" + "|".join(LAB_WORDS) + r")\b|[\u0394\u2206]", re.I)
 
 # category -> keywords (whole words or prefixes, lower case). The first category that matches wins, in this order: the more
 # specific uses before the general ones.

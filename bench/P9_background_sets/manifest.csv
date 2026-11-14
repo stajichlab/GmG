@@ -1,0 +1,251 @@
+run_accession,set,species_name,strain,study_accession,country_iso,geo_loc_name,est_depth_x,base_count,region
+SRR3468022,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,AR,Argentina,41.4,1198088360,South America
+ERR15375042,coccidioides_immitis_50,Coccidioides immitis,,PRJEB90459,DE,Germany,49.0,1418705250,Europe
+ERR15375050,coccidioides_immitis_50,Coccidioides immitis,,PRJEB90459,DE,Germany,76.1,2202280899,Europe
+ERR14883901,coccidioides_immitis_50,Coccidioides immitis,,PRJEB88900,IN,India,41.6,1204989971,Asia
+SRR3468021,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,MX,Mexico,80.1,2319296224,North America
+SRR21204680,coccidioides_immitis_50,Coccidioides immitis,B16536,PRJNA808058,US,USA: Oregon,122.0,3531301932,North America
+SRR21204682,coccidioides_immitis_50,Coccidioides immitis,B16364,PRJNA808058,US,USA: Michigan,96.4,2792007536,North America
+SRR21204683,coccidioides_immitis_50,Coccidioides immitis,B16339,PRJNA808058,US,USA: Oregon,130.9,3790790250,North America
+SRR21204684,coccidioides_immitis_50,Coccidioides immitis,B16338,PRJNA808058,US,USA: Maryland,90.1,2609766476,North America
+SRR21204692,coccidioides_immitis_50,Coccidioides immitis,B15146,PRJNA808058,US,USA: Oregon,98.7,2858654562,North America
+SRR21204694,coccidioides_immitis_50,Coccidioides immitis,B15142,PRJNA808058,US,USA: Oregon,86.9,2514375934,North America
+SRR21204697,coccidioides_immitis_50,Coccidioides immitis,B14291,PRJNA808058,US,USA: Oregon,43.0,1244730586,North America
+SRR21204699,coccidioides_immitis_50,Coccidioides immitis,B14288,PRJNA808058,US,USA: Oregon,87.5,2531837502,North America
+SRR21204704,coccidioides_immitis_50,Coccidioides immitis,B14132,PRJNA808058,US,USA: Oregon,149.0,4312438028,North America
+SRR21204723,coccidioides_immitis_50,Coccidioides immitis,B12220,PRJNA808058,US,USA: Oregon,125.7,3639103922,North America
+SRR21204724,coccidioides_immitis_50,Coccidioides immitis,B12219,PRJNA808058,US,USA: Wisconsin,117.0,3387039682,North America
+SRR21295063,coccidioides_immitis_50,Coccidioides immitis,B11343,PRJNA808058,US,USA: Oregon,78.8,2280590312,North America
+SRR25626827,coccidioides_immitis_50,Coccidioides immitis,CBS 120936,PRJNA1004889,US,"USA: California,Los Angeles",45.1,1306738535,North America
+SRR3468016,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,67.6,1958063400,North America
+SRR3468017,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,36.3,1049502000,North America
+SRR3468018,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,32.7,946917000,North America
+SRR3468019,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,50.4,1459449200,North America
+SRR3468038,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,87.7,2538024600,North America
+SRR3468049,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,55.2,1598915600,North America
+SRR3468071,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,97.5,2822466200,North America
+SRR3468079,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,32.0,926718400,North America
+SRR3468080,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,25.5,737526000,North America
+SRR3468081,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,71.0,2056881748,North America
+SRR35701394,coccidioides_immitis_50,Coccidioides immitis,23742X123,PRJNA1337116,US,USA: California,226.4,6552930088,North America
+SRR35701403,coccidioides_immitis_50,Coccidioides immitis,23742X170,PRJNA1337116,US,USA: California,274.5,7946013506,North America
+SRR35701404,coccidioides_immitis_50,Coccidioides immitis,23742X162,PRJNA1337116,US,USA: California,118.8,3438882154,North America
+SRR35701405,coccidioides_immitis_50,Coccidioides immitis,23742X153,PRJNA1337116,US,USA: California,262.7,7604396844,North America
+SRR35701409,coccidioides_immitis_50,Coccidioides immitis,23742X227,PRJNA1337116,US,USA: Utah,198.0,5732109792,North America
+SRR35701410,coccidioides_immitis_50,Coccidioides immitis,23742X225,PRJNA1337116,US,USA: Utah,276.5,8005088632,North America
+SRR35701411,coccidioides_immitis_50,Coccidioides immitis,23742X214,PRJNA1337116,US,USA: Utah,294.0,8510813604,North America
+SRR35701415,coccidioides_immitis_50,Coccidioides immitis,23742X138,PRJNA1337116,US,USA: California,261.5,7569351254,North America
+SRR35701421,coccidioides_immitis_50,Coccidioides immitis,23742X111,PRJNA1337116,US,USA: California,218.6,6327891768,North America
+SRR35701423,coccidioides_immitis_50,Coccidioides immitis,23742X260,PRJNA1337116,US,USA: California,271.9,7871353066,North America
+SRR35701430,coccidioides_immitis_50,Coccidioides immitis,23742X211,PRJNA1337116,US,USA: California,297.4,8610222038,North America
+SRR35701432,coccidioides_immitis_50,Coccidioides immitis,20380X16,PRJNA1337116,US,USA: California,260.6,7543712662,North America
+SRR7206598,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,124.2,3595502712,North America
+SRR7206599,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,136.8,3960015454,North America
+SRR7206600,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,36.5,1056901262,North America
+SRR7206601,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,104.1,3014959290,North America
+SRR7206602,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,66.3,1918313334,North America
+SRR7206603,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,39.1,1131408604,North America
+SRR7206605,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,72.9,2110206854,North America
+SRR7206606,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,46.6,1350309478,North America
+SRR8530933,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,112.0,3243147908,North America
+SRR8530934,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,164.5,4763392158,North America
+SRR25495559,coccidioides_posadasii_50,Coccidioides posadasii,,PRJNA1000610,BR,Brazil:Piaui,70.7,1993628400,South America
+SRR25495565,coccidioides_posadasii_50,Coccidioides posadasii,,PRJNA1000610,BR,Brazil:Piaui,75.7,2134665900,South America
+SRR25495568,coccidioides_posadasii_50,Coccidioides posadasii,,PRJNA1000610,BR,Brazil:Piaui,88.1,2483106000,South America
+SRR3468072,coccidioides_posadasii_50,Coccidioides posadasii,missing,PRJNA274372,BR,Brazil,52.7,1486764818,South America
+ERR15375041,coccidioides_posadasii_50,Coccidioides posadasii,,PRJEB90459,DE,Germany,49.6,1399083305,Europe
+ERR15375046,coccidioides_posadasii_50,Coccidioides posadasii,,PRJEB90459,DE,Germany,48.5,1366485866,Europe
+ERR15375047,coccidioides_posadasii_50,Coccidioides posadasii,,PRJEB90459,DE,Germany,49.3,1389889278,Europe
+SRR3468076,coccidioides_posadasii_50,Coccidioides posadasii,missing,PRJNA274372,GT,Guatemala,33.9,956060280,North America
+SRR3468078,coccidioides_posadasii_50,Coccidioides posadasii,missing,PRJNA274372,GT,Guatemala,43.8,1233967560,North America
+SRR3468051,coccidioides_posadasii_50,Coccidioides posadasii,missing,PRJNA274372,MX,Mexico,46.1,1300335800,North America
+SRR3468052,coccidioides_posadasii_50,Coccidioides posadasii,missing,PRJNA274372,MX,Mexico,33.1,934323000,North America
+SRR6830887,coccidioides_posadasii_50,Coccidioides posadasii,3490,PRJNA438145,MX,Mexico: Coahuila,215.2,6065357256,North America
+SRR3468074,coccidioides_posadasii_50,Coccidioides posadasii,missing,PRJNA274372,PY,Paraguay,38.9,1096979450,South America
+SRR14250210,coccidioides_posadasii_50,Coccidioides posadasii,,PRJNA722304,US,"USA: Flagstaff, Arizona",42.8,1207938300,North America
+SRR14250214,coccidioides_posadasii_50,Coccidioides posadasii,,PRJNA722304,US,"USA: Flagstaff, Arizona",25.3,713131200,North America
+SRR14250215,coccidioides_posadasii_50,Coccidioides posadasii,,PRJNA722304,US,"USA: Flagstaff, Arizona",49.9,1407100800,North America
+SRR21204672,coccidioides_posadasii_50,Coccidioides posadasii,B11866,PRJNA808058,US,USA: Wisconsin,169.9,4788805406,North America
+SRR21204673,coccidioides_posadasii_50,Coccidioides posadasii,B11519,PRJNA808058,US,USA: Minnesota,115.8,3265253980,North America
+SRR21204678,coccidioides_posadasii_50,Coccidioides posadasii,B16712,PRJNA808058,US,USA: Washington/Oregon,106.9,3012459330,North America
+SRR21204696,coccidioides_posadasii_50,Coccidioides posadasii,B14292,PRJNA808058,US,USA: Oregon,90.4,2549059616,North America
+SRR21204707,coccidioides_posadasii_50,Coccidioides posadasii,B14104,PRJNA808058,US,USA: Minnesota,146.8,4138793216,North America
+SRR21204717,coccidioides_posadasii_50,Coccidioides posadasii,B12402,PRJNA808058,US,USA: Michigan,51.3,1446966306,North America
+SRR21204727,coccidioides_posadasii_50,Coccidioides posadasii,B12202,PRJNA808058,US,USA: Michigan,110.6,3118890860,North America
+SRR21204729,coccidioides_posadasii_50,Coccidioides posadasii,B11872,PRJNA808058,US,USA: Pennsylvania,129.4,3647802578,North America
+SRR21204730,coccidioides_posadasii_50,Coccidioides posadasii,B11871,PRJNA808058,US,USA: Wisconsin,129.3,3644228338,North America
+SRR21204732,coccidioides_posadasii_50,Coccidioides posadasii,New_Mexico_1,PRJNA808058,US,USA: New Mexico,177.5,5003661460,North America
+SRR21292482,coccidioides_posadasii_50,Coccidioides posadasii,B10918,PRJNA472461,US,USA: Washington,73.1,2060622522,North America
+SRR21292483,coccidioides_posadasii_50,Coccidioides posadasii,B10917,PRJNA472461,US,USA: Washington,57.1,1608291762,North America
+SRR21295066,coccidioides_posadasii_50,Coccidioides posadasii,B11058,PRJNA808058,US,USA: Oregon,48.8,1374453290,North America
+SRR30104688,coccidioides_posadasii_50,Coccidioides posadasii,3315,PRJNA1143091,US,"USA: Tucson, Arizona",87.0,2453325388,North America
+SRR30104711,coccidioides_posadasii_50,Coccidioides posadasii,Tucson_19,PRJNA1143091,US,"USA: Tucson, Arizona",72.7,2049460184,North America
+SRR30316899,coccidioides_posadasii_50,Coccidioides posadasii,,PRJNA1150245,US,"USA:Arizona, Tucson",149.5,4214947232,North America
+SRR34010696,coccidioides_posadasii_50,Coccidioides posadasii,Z09114,PRJNA1276095,US,USA:Arizona,139.4,3930083556,North America
+SRR34010699,coccidioides_posadasii_50,Coccidioides posadasii,,PRJNA1276095,US,USA:Arizona,149.8,4222543888,North America
+SRR3468059,coccidioides_posadasii_50,Coccidioides posadasii,missing,PRJNA274372,US,USA,37.4,1054885800,North America
+SRR3468062,coccidioides_posadasii_50,Coccidioides posadasii,missing,PRJNA274372,US,USA,40.0,1126197800,North America
+SRR35701389,coccidioides_posadasii_50,Coccidioides posadasii,20380X2,PRJNA1337116,US,USA: Utah,172.9,4875133452,North America
+SRR35701390,coccidioides_posadasii_50,Coccidioides posadasii,20380X1,PRJNA1337116,US,USA: Utah,194.7,5487956080,North America
+SRR35701393,coccidioides_posadasii_50,Coccidioides posadasii,23742X40,PRJNA1337116,US,USA: Nevada,167.5,4720435160,North America
+SRR35701395,coccidioides_posadasii_50,Coccidioides posadasii,20380X5,PRJNA1337116,US,USA: Nevada,227.3,6408316180,North America
+SRR35701396,coccidioides_posadasii_50,Coccidioides posadasii,23742X44,PRJNA1337116,US,USA: Colorado,247.9,6987065960,North America
+SRR35701401,coccidioides_posadasii_50,Coccidioides posadasii,23742X160,PRJNA1337116,US,USA: Colorado,149.0,4200666282,North America
+SRR35701420,coccidioides_posadasii_50,Coccidioides posadasii,23742X6,PRJNA1337116,US,USA: California,390.4,11006025486,North America
+SRR35701431,coccidioides_posadasii_50,Coccidioides posadasii,23742X209,PRJNA1337116,US,USA: California,350.9,9891668136,North America
+SRR6830879,coccidioides_posadasii_50,Coccidioides posadasii,GT162,PRJNA438145,US,USA: Texas,93.5,2635656828,North America
+SRR6830880,coccidioides_posadasii_50,Coccidioides posadasii,GT120,PRJNA438145,US,USA: Florida,113.5,3198395340,North America
+SRR6830883,coccidioides_posadasii_50,Coccidioides posadasii,34698,PRJNA438145,VE,Venezuela,70.3,1982946420,South America
+SRR6830884,coccidioides_posadasii_50,Coccidioides posadasii,4542,PRJNA438145,VE,Venezuela,57.0,1606289832,South America
+SRR6830886,coccidioides_posadasii_50,Coccidioides posadasii,3796,PRJNA438145,VE,Venezuela,85.2,2402378748,South America
+SRR6830888,coccidioides_posadasii_50,Coccidioides posadasii,JTORRES,PRJNA438145,VE,Venezuela: Falcon,113.7,3204950616,South America
+SRR16944400,afumigatus_pool150,Aspergillus fumigatus,AFR-10,PRJNA780348,CI,Cote d'Ivoire,172.8,5076537900,Africa
+SRR16944401,afumigatus_pool150,Aspergillus fumigatus,AFR-9,PRJNA780348,CI,Cote d'Ivoire,166.2,4882691100,Africa
+SRR16944402,afumigatus_pool150,Aspergillus fumigatus,AFR-7,PRJNA780348,CI,Cote d'Ivoire,143.9,4226686500,Africa
+SRR16944403,afumigatus_pool150,Aspergillus fumigatus,AFR-6,PRJNA780348,CI,Cote d'Ivoire,172.4,5066441100,Africa
+SRR16944404,afumigatus_pool150,Aspergillus fumigatus,AFR-5,PRJNA780348,CI,Cote d'Ivoire,112.4,3303342000,Africa
+SRR16944405,afumigatus_pool150,Aspergillus fumigatus,AFR-4,PRJNA780348,CI,Cote d'Ivoire,181.0,5316357300,Africa
+SRR16944406,afumigatus_pool150,Aspergillus fumigatus,AFR-3,PRJNA780348,CI,Cote d'Ivoire,177.5,5215146600,Africa
+SRR16944407,afumigatus_pool150,Aspergillus fumigatus,AFR-2,PRJNA780348,CI,Cote d'Ivoire,159.8,4694324100,Africa
+SRR16944408,afumigatus_pool150,Aspergillus fumigatus,AFR-1,PRJNA780348,CI,Cote d'Ivoire,243.2,7145699100,Africa
+ERR15975810,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,MU,Mauritius,41.1,1206073800,Africa
+ERR15976137,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,TN,Tunisia,38.2,1123020600,Africa
+ERR15975856,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,TZ,Tanzania,44.5,1308544800,Africa
+ERR15975857,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,TZ,Tanzania,49.0,1438209300,Africa
+ERR15975871,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,TZ,Tanzania,49.0,1439978700,Africa
+ERR15975801,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,ZM,Zambia,42.9,1260556500,Africa
+ERR15975805,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,ZW,Zimbabwe,37.7,1107014400,Africa
+ERR15975807,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,ZW,Zimbabwe,41.0,1204817100,Africa
+ERR15976144,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,ZW,Zimbabwe,40.6,1194188400,Africa
+ERR15976145,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,ZW,Zimbabwe,38.2,1122735000,Africa
+SRR32432801,afumigatus_pool150,Aspergillus fumigatus,ES10,PRJNA1206311,CN,China: Nanjing,84.2,2473732200,Asia
+SRR32432806,afumigatus_pool150,Aspergillus fumigatus,ER7,PRJNA1206311,CN,China: Nanjing,80.2,2357653200,Asia
+SRR35888972,afumigatus_pool150,Aspergillus fumigatus,9_19,PRJNA1345449,CN,"China: Jinning, Yunnan",79.3,2331038100,Asia
+SRR35889062,afumigatus_pool150,Aspergillus fumigatus,5_07,PRJNA1345449,CN,"China: Jinning, Yunnan",86.8,2550145884,Asia
+SRR38358223,afumigatus_pool150,Aspergillus fumigatus,missing,PRJNA1461208,CN,China: Nanning,180.7,5307583258,Asia
+SRR34883154,afumigatus_pool150,Aspergillus fumigatus,,PRJNA1301956,GE,Georgia,286.1,8406105372,Asia
+SRR34883188,afumigatus_pool150,Aspergillus fumigatus,,PRJNA1301956,GE,Georgia,283.1,8318388868,Asia
+SRR28508724,afumigatus_pool150,Aspergillus fumigatus,dCrpA,PRJNA1094460,IL,Israel: Tel Aviv,226.0,6639517880,Asia
+SRR28508725,afumigatus_pool150,Aspergillus fumigatus,dAceA,PRJNA1094460,IL,Israel: Tel Aviv,239.1,7023754811,Asia
+SRR28508726,afumigatus_pool150,Aspergillus fumigatus,dAceA,PRJNA1094460,IL,Israel: Tel Aviv,175.5,5157498984,Asia
+SRR28508733,afumigatus_pool150,Aspergillus fumigatus,dCrpA,PRJNA1094460,IL,Israel: Tel Aviv,122.5,3600501599,Asia
+SRR28508734,afumigatus_pool150,Aspergillus fumigatus,dCrpA,PRJNA1094460,IL,Israel: Tel Aviv,202.8,5958805824,Asia
+ERR14883827,afumigatus_pool150,Aspergillus fumigatus,,PRJEB88900,IN,India,51.4,1509373324,Asia
+ERR17671138,afumigatus_pool150,Aspergillus fumigatus,,PRJEB123122,IN,India,51.4,1509373324,Asia
+ERR769520,afumigatus_pool150,Aspergillus fumigatus,,PRJEB8623,IN,,123.4,3625425200,Asia
+SRR9265316,afumigatus_pool150,Aspergillus fumigatus,VPCI 1882/14,PRJNA548244,IN,India,31.0,911835554,Asia
+SRR9265317,afumigatus_pool150,Aspergillus fumigatus,VPCI 40/Ei/13/3/b,PRJNA548244,IN,India,29.8,876573404,Asia
+DRR022920,afumigatus_pool150,Aspergillus fumigatus,IFM 59356-1,PRJDB3064,JP,Japan:Chiba,49.0,1439395794,Asia
+DRR237582,afumigatus_pool150,Aspergillus fumigatus,,PRJDB10244,JP,"Japan:Nagasaki, Sakamoto",141.7,4163381700,Asia
+DRR290041,afumigatus_pool150,Aspergillus fumigatus,IFM 63311,PRJDB11624,JP,Japan:Tokyo,90.8,2667149700,Asia
+DRR495373,afumigatus_pool150,Aspergillus fumigatus,IFM<JPN>:63345,PRJDB16281,JP,Japan:Tokyo,90.2,2651389581,Asia
+SRR11977836,afumigatus_pool150,Aspergillus fumigatus,,PRJNA638646,JP,Japan:Kochi,138.4,4065747600,Asia
+SRR22525896,afumigatus_pool150,Aspergillus fumigatus,4,PRJNA908647,TH,Thailand,178.5,5242964995,Asia
+SRR17181023,afumigatus_pool150,Aspergillus fumigatus,070 01-70-BAL-1,PRJNA787571,AT,Austria: Graz,414.8,12187591426,Europe
+SRR17181024,afumigatus_pool150,Aspergillus fumigatus,5.1TA,PRJNA787571,AT,Austria: Graz,387.7,11389515958,Europe
+SRR16944379,afumigatus_pool150,Aspergillus fumigatus,ASFU_5763,PRJNA780348,BE,Belgium,180.0,5287334400,Europe
+SRR16944384,afumigatus_pool150,Aspergillus fumigatus,ASFU_5010,PRJNA780348,BE,Belgium,197.2,5794800900,Europe
+SRR10714245,afumigatus_pool150,Aspergillus fumigatus,E-1-49-1,PRJNA595552,DE,Germany: Saxony-Anhalt,41.3,1214597262,Europe
+SRR13579418,afumigatus_pool150,Aspergillus fumigatus,C-1-40L-2,PRJNA697844,DE,Germany,35.7,1049649015,Europe
+SRR7418926,afumigatus_pool150,Aspergillus fumigatus,CM3249,PRJNA477519,ES,Spain,44.5,1308831673,Europe
+SRR7418930,afumigatus_pool150,Aspergillus fumigatus,CM2495,PRJNA477519,ES,Spain,48.5,1423862387,Europe
+ERR13159169,afumigatus_pool150,Aspergillus fumigatus,,PRJEB75967,FR,France,45.3,1330540800,Europe
+ERR13159176,afumigatus_pool150,Aspergillus fumigatus,,PRJEB75967,FR,France,45.7,1343625900,Europe
+ERR12374184,afumigatus_pool150,Aspergillus fumigatus,,PRJEB51237,GB,United Kingdom,49.4,1451083500,Europe
+ERR16779464,afumigatus_pool150,Aspergillus fumigatus,,PRJEB109029,GB,United Kingdom,40.3,1184670300,Europe
+ERR14230102,afumigatus_pool150,Aspergillus fumigatus,,PRJEB60964,IE,Ireland,40.6,1191880200,Europe
+SRR17574065,afumigatus_pool150,Aspergillus fumigatus,Afir974,PRJNA768288,IE,Ireland,72.4,2128079200,Europe
+ERR12832784,afumigatus_pool150,Aspergillus fumigatus,,PRJEB73793,NL,Netherlands,33.3,978644787,Europe
+ERR12945780,afumigatus_pool150,Aspergillus fumigatus,,PRJEB74938,NL,Netherlands,48.6,1427517900,Europe
+SRR8759701,afumigatus_pool150,Aspergillus fumigatus,V157-48,PRJNA528395,NL,Netherlands,35.8,1052301484,Europe
+ERR18000268,afumigatus_pool150,Aspergillus fumigatus,,PRJEB126758,NO,Norway,44.9,1318117354,Europe
+ERR18000341,afumigatus_pool150,Aspergillus fumigatus,,PRJEB126758,NO,Norway,43.3,1271365036,Europe
+SRR29829662,afumigatus_pool150,Aspergillus fumigatus,Af_Cl.02,PRJNA1135973,PT,Portugal,176.7,5192117182,Europe
+SRR5676590,afumigatus_pool150,Aspergillus fumigatus,MO79587EXP,PRJNA390160,PT,Portugal: Porto,212.6,6245333250,Europe
+SRR22525912,afumigatus_pool150,Aspergillus fumigatus,1,PRJNA908647,SE,Sweden,171.4,5035666106,Europe
+SRR36484473,afumigatus_pool150,Aspergillus fumigatus,,PRJNA1390123,SI,Slovenia,199.3,5856270600,Europe
+SRR12894193,afumigatus_pool150,Aspergillus fumigatus,,PRJNA671765,CA,Canada: Hamilton,96.4,2832027976,North America
+SRR12894194,afumigatus_pool150,Aspergillus fumigatus,,PRJNA671765,CA,Canada: Hamilton,96.7,2841189198,North America
+SRR12894195,afumigatus_pool150,Aspergillus fumigatus,,PRJNA671765,CA,Canada: Hamilton,98.2,2886236818,North America
+SRR12894196,afumigatus_pool150,Aspergillus fumigatus,,PRJNA671765,CA,Canada: Hamilton,99.9,2934773426,North America
+SRR12894198,afumigatus_pool150,Aspergillus fumigatus,,PRJNA671765,CA,Canada: Hamilton,93.7,2751480438,North America
+SRR12894200,afumigatus_pool150,Aspergillus fumigatus,,PRJNA671765,CA,Canada: Hamilton,98.7,2899723098,North America
+SRR12894204,afumigatus_pool150,Aspergillus fumigatus,,PRJNA671765,CA,Canada: Hamilton,99.7,2930084505,North America
+SRR32783567,afumigatus_pool150,Aspergillus fumigatus,AfB8,PRJNA1191473,CA,Canada: Southern Ontario,160.3,4710404946,North America
+SRR32783568,afumigatus_pool150,Aspergillus fumigatus,AfB7,PRJNA1191473,CA,Canada: Southern Ontario,134.7,3957994445,North America
+SRR32783569,afumigatus_pool150,Aspergillus fumigatus,AfB6,PRJNA1191473,CA,"Canada: Southern Ontario, Wildlife rehabilitation center",152.1,4467440897,North America
+SRR32783570,afumigatus_pool150,Aspergillus fumigatus,AfB2,PRJNA1191473,CA,Canada: Southern Ontario,137.4,4035420819,North America
+ERR2863830,afumigatus_pool150,Aspergillus fumigatus,,PRJEB28819,US,USA,146.9,4315386776,North America
+SRR11425550,afumigatus_pool150,Aspergillus fumigatus,W72310,PRJNA614926,US,USA: New York,39.1,1147672480,North America
+SRR12825367,afumigatus_pool150,Aspergillus fumigatus,IF1SW-F4,PRJNA659567,US,USA: International Space Station,89.9,2639932743,North America
+SRR14584219,afumigatus_pool150,Aspergillus fumigatus,A_fum_AF106-6_2,PRJNA666940,US,"USA: NH, Lebanon",34.2,1005284614,North America
+SRR15010322,afumigatus_pool150,Aspergillus fumigatus,,PRJNA742769,US,"USA: Fort Meade, FL",82.5,2424726766,North America
+SRR16539753,afumigatus_pool150,Aspergillus fumigatus,,PRJNA773785,US,USA: WA,47.0,1381605908,North America
+SRR25182989,afumigatus_pool150,Aspergillus fumigatus,eAF1267,PRJNA991533,US,"USA: GA, Clarke Co.",48.0,1409366654,North America
+SRR25759124,afumigatus_pool150,Aspergillus fumigatus,ATCC 1022,PRJNA1004889,US,"USA: California,Los Angeles",30.2,888368651,North America
+SRR28036165,afumigatus_pool150,Aspergillus fumigatus,B5233,PRJNA1078823,US,USA: Maryland,147.1,4322404223,North America
+SRR29919075,afumigatus_pool150,Aspergillus fumigatus,,PRJNA632561,US,USA: Mid-Atlantic,42.8,1257389520,North America
+SRR32486549,afumigatus_pool150,Aspergillus fumigatus,A1163-Cramer_SM,PRJNA1228067,US,USA: New Hampshire,88.9,2612650526,North America
+SRR6434917,afumigatus_pool150,Aspergillus fumigatus,,PRJNA427336,US,USA: North Carolina,183.5,5390512410,North America
+ERR15975537,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,AU,Australia,137.6,4044030433,Oceania
+ERR15975544,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,AU,Australia,191.9,5636961690,Oceania
+ERR15975790,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,AU,Australia,41.3,1213329600,Oceania
+ERR15975791,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,AU,Australia,43.2,1268871900,Oceania
+ERR15975834,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,AU,Australia,104.6,3072425577,Oceania
+ERR15975835,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,AU,Australia,179.0,5258565571,Oceania
+ERR15975838,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,AU,Australia,198.1,5820527571,Oceania
+ERR15975839,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,AU,Australia,138.5,4068028537,Oceania
+ERR15975841,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,AU,Australia,126.4,3714927701,Oceania
+SRR39796113,afumigatus_pool150,Aspergillus fumigatus,SCHI0208.M.3,PRJNA1400097,AU,Australia: Sunshine Coast,102.1,3001123244,Oceania
+SRR39796114,afumigatus_pool150,Aspergillus fumigatus,SCHI0206.M.1,PRJNA1400097,AU,Australia: Sunshine Coast,97.7,2869090886,Oceania
+SRR14364143,afumigatus_pool150,Aspergillus fumigatus,,PRJNA726267,NZ,New Zealand: Rainbow Springs,70.5,2072393724,Oceania
+SRR14364146,afumigatus_pool150,Aspergillus fumigatus,,PRJNA726267,NZ,New Zealand: Whenua hou,81.0,2379782601,Oceania
+SRR14364148,afumigatus_pool150,Aspergillus fumigatus,,PRJNA726267,NZ,New Zealand: Whenua hou,92.9,2728622570,Oceania
+SRR14364150,afumigatus_pool150,Aspergillus fumigatus,,PRJNA726267,NZ,New Zealand: Whenua hou,63.6,1869807850,Oceania
+SRR14364152,afumigatus_pool150,Aspergillus fumigatus,,PRJNA726267,NZ,New Zealand: Whenua hou,59.0,1733375861,Oceania
+SRR14364156,afumigatus_pool150,Aspergillus fumigatus,,PRJNA726267,NZ,New Zealand: Anchor Island,62.5,1834950731,Oceania
+SRR14364158,afumigatus_pool150,Aspergillus fumigatus,,PRJNA726267,NZ,New Zealand: Anchor Island,67.5,1984136956,Oceania
+SRR14364160,afumigatus_pool150,Aspergillus fumigatus,,PRJNA726267,NZ,New Zealand: Whenua hou,67.2,1973943243,Oceania
+SRR14364161,afumigatus_pool150,Aspergillus fumigatus,,PRJNA726267,NZ,New Zealand: Mt Bruce,68.1,1999687077,Oceania
+SRR14364165,afumigatus_pool150,Aspergillus fumigatus,,PRJNA726267,NZ,New Zealand: Auckland,57.7,1696305223,Oceania
+SRR28035001,afumigatus_pool150,Aspergillus fumigatus,47-10,PRJNA1078800,NZ,New Zealand,191.9,5638169970,Oceania
+ERR15975802,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,BR,Brazil,41.9,1232058600,South America
+ERR15975803,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,BR,Brazil,37.4,1098948900,South America
+ERR15976142,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,BR,Brazil,37.7,1108290900,South America
+SRR36017302,afumigatus_pool150,Aspergillus fumigatus,CMMS:344,PRJNA1354845,BR,"Brazil: Campo Grande, Mato Grosso do Sul",164.0,4819321436,South America
+SRR36017303,afumigatus_pool150,Aspergillus fumigatus,CMMS:343,PRJNA1354845,BR,"Brazil: Campo Grande, Mato Grosso do Sul",137.9,4051217656,South America
+SRR36017304,afumigatus_pool150,Aspergillus fumigatus,CMMS:342,PRJNA1354845,BR,"Brazil: Campo Grande, Mato Grosso do Sul",126.3,3711536210,South America
+SRR36017305,afumigatus_pool150,Aspergillus fumigatus,CMMS:341,PRJNA1354845,BR,"Brazil: Campo Grande, Mato Grosso do Sul",158.2,4647606048,South America
+SRR36017306,afumigatus_pool150,Aspergillus fumigatus,CMMS:340,PRJNA1354845,BR,"Brazil: Campo Grande, Mato Grosso do Sul",150.8,4429256424,South America
+ERR15975548,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,CO,Colombia,45.0,1322324700,South America
+ERR15975549,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,CO,Colombia,51.6,1516968600,South America
+ERR15975872,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,CO,Colombia,57.2,1679807100,South America
+ERR15975873,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,CO,Colombia,49.7,1460226000,South America
+ERR15975874,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,CO,Colombia,53.6,1574213100,South America
+ERR15975875,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,CO,Colombia,51.9,1526058600,South America
+ERR15975876,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,CO,Colombia,47.9,1406255100,South America
+ERR15976109,afumigatus_pool150,Aspergillus fumigatus,,PRJEB63143,EC,Ecuador,32.7,961687800,South America
+SRR2954803,afumigatus_pool150,Aspergillus fumigatus,LMB-35Aa,PRJNA298653,PE,Peru:South America,94.9,2787442844,South America
+DRR015093,afumigatus_pool150,Aspergillus fumigatus,,PRJDB1541,,,27.2,797822554,unknown_region
+DRR146814,afumigatus_pool150,Aspergillus fumigatus,A1159,PRJDB7240,,,45.5,1337678600,unknown_region
+DRR295875,afumigatus_pool150,Aspergillus fumigatus,,PRJDB11643,,,77.3,2270562900,unknown_region
+ERR232407,afumigatus_pool150,Aspergillus fumigatus,AF293 VKWH2,PRJEB1497,,,49.7,1461128600,unknown_region
+ERR3415715,afumigatus_pool150,Aspergillus fumigatus,,PRJEB33346,,,78.2,2298455788,unknown_region
+SRR10592633,afumigatus_pool150,Aspergillus fumigatus,CNM-CM8057,PRJNA592352,,,90.4,2656916086,unknown_region
+SRR10815946,afumigatus_pool150,Aspergillus fumigatus,DTO271_A4,PRJNA598656,,,25.1,737173415,unknown_region
+SRR17391686,afumigatus_pool150,Aspergillus fumigatus,Af293,PRJNA793345,,,50.9,1495377900,unknown_region
+SRR28171156,afumigatus_pool150,Aspergillus fumigatus,VC-Ribavirin Af293,PRJNA1082383,,,113.6,3336129266,unknown_region
+SRR35748746,afumigatus_pool150,Aspergillus fumigatus,5AR_REV,PRJNA1335234,,,38.8,1139530862,unknown_region
+SRR36038343,afumigatus_pool150,Aspergillus fumigatus,B28013,PRJNA1365106,,,90.8,2668964483,unknown_region
+SRR37934323,afumigatus_pool150,Aspergillus fumigatus,AF100-12-8_R2REV,PRJNA1448995,,,130.4,3832376980,unknown_region
+SRR4002444,afumigatus_pool150,Aspergillus fumigatus,1F1SW_F4,PRJNA319359,,,37.0,1085955232,unknown_region
+SRR4142436,afumigatus_pool150,Aspergillus fumigatus,A1159,PRJNA334306,,,126.2,3707649198,unknown_region
+SRR4142832,afumigatus_pool150,Aspergillus fumigatus,A1159,PRJNA334315,,,129.5,3804449012,unknown_region
+SRR4151122,afumigatus_pool150,Aspergillus fumigatus,A1159,PRJNA334314,,,124.1,3646720746,unknown_region
+SRR4235925,afumigatus_pool150,Aspergillus fumigatus,D141 No. 60-5,PRJNA335165,,,78.8,2314532968,unknown_region
+SRR4235926,afumigatus_pool150,Aspergillus fumigatus,D141 No. 60-4,PRJNA335164,,,80.6,2369361222,unknown_region
+SRR4235929,afumigatus_pool150,Aspergillus fumigatus,D141 No. 60-6,PRJNA335166,,,113.2,3324514384,unknown_region
+SRR4235930,afumigatus_pool150,Aspergillus fumigatus,D141 No. 60-7,PRJNA335167,,,75.1,2205219254,unknown_region
+SRR4235932,afumigatus_pool150,Aspergillus fumigatus,D141 No. 60-9,PRJNA335169,,,80.3,2359061242,unknown_region
+SRR4235933,afumigatus_pool150,Aspergillus fumigatus,D141 No. 60-10,PRJNA335170,,,94.2,2767882780,unknown_region
+SRR617736,afumigatus_pool150,Aspergillus fumigatus,,PRJNA67101,,,48.0,1411196442,unknown_region
