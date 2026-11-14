@@ -6,7 +6,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { readBundle, fetchBundle } from "../../web/bundle.js";
+import { readBundle, fetchBundle, MAX_BUNDLE_BYTES } from "../../web/bundle.js";
 
 const root = join(import.meta.dirname, "../..");
 const packer = join(root, "scripts/popsketch_bundle.py");
@@ -81,4 +81,21 @@ test("fetchBundle reads the kind of archive from the bytes, and reports an HTTP 
   assert.match(f.name, /\.tar\.gz$/);
   assert.equal((await readBundle(f)).sketches.length, 4);
   await assert.rejects(fetchBundle("https://example.org/x", async () => new Response("no", { status: 404, statusText: "Not Found" })), /404 Not Found/);
+});
+
+test("fetchBundle refuses a download over the limit: by the declared size, by the bytes that arrive, and without a body stream", async () => {
+  pack("lim.tar.gz");
+  const data = readFileSync(join(dir, "lim.tar.gz"));
+  assert.equal(MAX_BUNDLE_BYTES, 2 ** 30);
+  // within the limit it works
+  assert.ok((await fetchBundle("https://e.org/a", async () => new Response(data), data.length)).size === data.length);
+  // content-length says too much: refused before reading
+  await assert.rejects(fetchBundle("https://e.org/a", async () => new Response(data, { headers: { "content-length": String(10 * data.length) } }), data.length), /larger than/);
+  // no (or a lying) content-length: the bytes are counted as they arrive, and an endless body is cut
+  let read = 0;
+  const endless = new ReadableStream({ pull(c) { read += 1 << 16; c.enqueue(new Uint8Array(1 << 16)); } });
+  await assert.rejects(fetchBundle("https://e.org/a", async () => new Response(endless), 1 << 20), /larger than/);
+  assert.ok(read < 4 << 20, `stopped after ${read} bytes`);
+  // a fake response with no streaming body falls back to blob() and is still checked
+  await assert.rejects(fetchBundle("https://e.org/a", async () => ({ ok: true, headers: new Headers(), blob: async () => new Blob([data]) }), data.length - 1), /larger than/);
 });
