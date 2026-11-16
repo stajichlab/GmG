@@ -108,9 +108,14 @@ pub fn compute_merge(sets: &[Vec<u64>], k: u32) -> DistMat {
     assemble(n, rows)
 }
 
-/// Memory the bitset method may use for the presence matrix.
-/// Default cap on the presence matrix (`n` samples x variable hashes / 8 bytes); above it the pairwise merge is used.
-pub const BITSET_MAX_BYTES: usize = 4 << 30;
+/// Default cap on the presence matrix (`n` samples x variable hashes / 8 bytes); above it the pairwise merge is used: 4 GiB on
+/// a 64-bit target, 1 GiB on a 32-bit one (`4 << 30` is 2^32, which a 32-bit `usize` cannot hold: it was 0 in the browser build,
+/// so the page never used the bitset method).
+pub const BITSET_MAX_BYTES: usize = if usize::BITS >= 64 {
+    1usize << (usize::BITS / 2)
+} else {
+    1usize << 30
+};
 /// Below this many samples the merge is fast enough and simpler.
 const BITSET_MIN_SAMPLES: usize = 64;
 

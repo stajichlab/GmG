@@ -153,14 +153,8 @@ pub fn null_ratio_p(n: usize, kmax: usize, observed: f64) -> f64 {
     if kmax < 3 || !observed.is_finite() {
         return if observed.is_finite() { 1.0 } else { 0.0 };
     }
-    let mut state: u64 = 0x1234_5678_9ABC_DEF1;
-    let mut next = || {
-        state = state.wrapping_add(0x9E37_79B9_7F4A_7C15);
-        let mut z = state;
-        z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
-        z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
-        ((z ^ (z >> 31)) >> 11) as f64 / (1u64 << 53) as f64
-    };
+    let mut rng = crate::rng::SplitMix(0x1234_5678_9ABC_DEF1);
+    let mut next = || rng.unit();
     let reps = 20_000;
     let mut hits = 0usize;
     for _ in 0..reps {

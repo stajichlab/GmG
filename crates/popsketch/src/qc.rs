@@ -12,7 +12,7 @@
 //!   be told from heterozygosity and is not looked for.
 
 use crate::sketch_io::SampleSketch;
-use crate::stats::{mad_sd, median, robust_z};
+use crate::stats::{median, robust_z};
 use gmg_core::coverage::{auto_min_abund, profile};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -78,28 +78,14 @@ impl SampleQc {
     }
 }
 
-/// Poisson probabilities for 0..=amax (lambda is clamped so exp(-lambda) does not underflow).
-fn poisson_pmf(lambda: f64, amax: usize) -> Vec<f64> {
-    let l = lambda.clamp(1e-9, 600.0);
-    let mut p = vec![0.0; amax + 1];
-    p[0] = (-l).exp();
-    for a in 1..=amax {
-        p[a] = p[a - 1] * l / a as f64;
-    }
-    p
-}
-
-/// Shoulder statistic: hashes with abundance in [lo, hi), lo = max(3, 0.1c), hi = ceil(0.4c) (below the heterozygous peak at
-/// about 0.5c), as a fraction of the genome mass (hashes at or above 0.6c). Also returns the excess over the Poisson(c)
-/// expectation, for tests and the JSON. Needs c of about 12 or more for the window to hold more than a couple of bins.
-pub fn shoulder_features(abunds: &[u32], c: f64) -> Option<(f64, f64)> {
-    window_fractions(abunds, c).map(|(s, excess, _)| (s, excess))
-}
-
-/// (shoulder fraction, its excess over Poisson(c), heterozygous-window fraction): the last is the share of the genome mass at
-/// 0.4c to 0.65c, where a heterozygous peak sits. Heterozygosity raises it and, through its lower tail, the shoulder;
-/// a contaminant raises the shoulder without raising it.
-pub fn window_fractions(abunds: &[u32], c: f64) -> Option<(f64, f64, f64)> {
+/// (shoulder fraction, heterozygous-window fraction) of an abundance histogram with k-mer coverage `c`.
+///
+/// Shoulder: hashes with abundance in [lo, hi), lo = max(3, 0.1c), hi = ceil(0.4c) (below the heterozygous peak at about
+/// 0.5c), as a fraction of the genome mass (hashes at or above 0.6c). Heterozygous window: the share of the genome mass at 0.4c
+/// to 0.65c, where a heterozygous peak sits. Heterozygosity raises both (the second through the lower tail of its peak); a
+/// contaminant raises the shoulder without raising the window. Needs c of about 12 or more for the shoulder window to hold more
+/// than a couple of bins; None when it does not, or when no hash is at or above 0.6c.
+pub fn window_fractions(abunds: &[u32], c: f64) -> Option<(f64, f64)> {
     let mass_from = (0.6 * c).ceil() as usize;
     let hi = (0.4 * c).ceil() as usize;
     let lo = ((0.1 * c).floor() as usize).max(3);
@@ -112,20 +98,19 @@ pub fn window_fractions(abunds: &[u32], c: f64) -> Option<(f64, f64, f64)> {
         h[(a as usize).min(BINS - 1)] += 1.0;
     }
     let mass: f64 = h[mass_from.min(BINS - 1)..].iter().sum();
-    let pmf = poisson_pmf(c, mass_from + 1);
-    let below_mass: f64 = pmf[..mass_from].iter().sum();
-    let tail = 1.0 - below_mass;
-    if mass <= 0.0 || tail <= 1e-9 {
+    if mass <= 0.0 {
         return None;
     }
-    let genome = mass / tail;
     let obs: f64 = h[lo..hi].iter().sum();
-    let exp = genome * pmf[lo..hi].iter().sum::<f64>();
     let het_lo = (0.4 * c).ceil() as usize;
     let het_hi = (0.65 * c).ceil() as usize;
     let het: f64 = h[het_lo.min(BINS - 1)..het_hi.min(BINS - 1)].iter().sum();
-    Some((obs / mass, (obs - exp) / mass, het / mass))
+    Some((obs / mass, het / mass))
 }
+
+/// Up to this many points the fit takes every pair; above it a random sample of pairs.
+const SLOPE_ALL_PAIRS_MAX_N: usize = 90;
+const SLOPE_SAMPLED_PAIRS: usize = 4000;
 
 const COV_BINS: [f64; 7] = [0.0, 6.0, 10.0, 15.0, 25.0, 40.0, f64::INFINITY];
 
@@ -157,9 +142,7 @@ pub fn assess(samples: &[SampleSketch], scaled: u32, p: &QcParams) -> Vec<Sample
             None => (None, "none"),
         };
         let shoulder = match kmer_cov {
-            Some(c) if reads && c >= 6.0 => {
-                window_fractions(&s.spectrum.abunds, c).map(|x| (x.0, x.2))
-            }
+            Some(c) if reads && c >= 6.0 => window_fractions(&s.spectrum.abunds, c),
             _ => None,
         };
         shoulder_raw.push(shoulder);
@@ -184,8 +167,8 @@ pub fn assess(samples: &[SampleSketch], scaled: u32, p: &QcParams) -> Vec<Sample
     // coverage
     for q in out.iter_mut().filter(|q| q.kind == "reads") {
         match q.kmer_cov {
-            Some(c) if c >= p.min_cov && q.cov_basis == "peak" => {}
-            Some(c) if c >= p.min_cov => {} // Poisson basis at or above the minimum: no peak yet, but enough coverage
+            // at or above the minimum, from a peak or (no peak yet) from the Poisson basis: enough coverage
+            Some(c) if c >= p.min_cov => {}
             Some(c) => q.flags.push(Flag {
                 code: "low_coverage",
                 detail: format!("k-mer coverage {c:.1} is below {:.1}", p.min_cov),
@@ -231,7 +214,6 @@ pub fn assess(samples: &[SampleSketch], scaled: u32, p: &QcParams) -> Vec<Sample
                 out[i].flags.push(Flag { code, detail });
             }
         }
-        let _ = mad_sd(&sizes);
     }
     // abundance shoulder: the part of the shoulder that the heterozygous-window mass does not explain, standardised within
     // coverage bins. A heterozygous (or polyploid) genome raises both; a contaminant raises only the shoulder.
@@ -240,13 +222,25 @@ pub fn assess(samples: &[SampleSketch], scaled: u32, p: &QcParams) -> Vec<Sample
         .collect();
     if cand.len() >= p.min_cohort {
         let pts: Vec<(f64, f64)> = cand.iter().map(|&i| shoulder_raw[i].unwrap()).collect();
-        // robust line s ~ a + b h: median of pairwise slopes over a fixed set of pairs, then the median intercept
+        // robust line s ~ a + b h: median of pairwise slopes (all pairs up to PAIRS_ALL points, otherwise PAIRS_SAMPLED random
+        // pairs from a fixed seed), then the median intercept
         let n = pts.len();
         let mut slopes = Vec::new();
-        for k in 0..4000.min(n * (n - 1) / 2) {
-            let (i, j) = (k % n, (k * 7919 + 13) % n);
+        let mut add = |i: usize, j: usize| {
             if i != j && (pts[i].1 - pts[j].1).abs() > 1e-3 {
                 slopes.push((pts[i].0 - pts[j].0) / (pts[i].1 - pts[j].1));
+            }
+        };
+        if n <= SLOPE_ALL_PAIRS_MAX_N {
+            for i in 0..n {
+                for j in i + 1..n {
+                    add(i, j);
+                }
+            }
+        } else {
+            let mut rng = crate::rng::SplitMix(0x5107_E5E1);
+            for _ in 0..SLOPE_SAMPLED_PAIRS {
+                add(rng.below(n), rng.below(n));
             }
         }
         let slope = if slopes.is_empty() {
@@ -592,15 +586,15 @@ mod tests {
             .map(|_| r.poisson(40.0))
             .filter(|&a| a > 0)
             .collect();
-        let (clean, _) = shoulder_features(&host, 40.0).unwrap();
+        let (clean, _) = window_fractions(&host, 40.0).unwrap();
         // 8,000 heterozygous sites: their k-mers are seen at half the coverage
         let mut het = host.clone();
         het.extend((0..8_000).map(|_| r.poisson(20.0)).filter(|&a| a > 0));
-        let (with_het, _) = shoulder_features(&het, 40.0).unwrap();
+        let (with_het, _) = window_fractions(&het, 40.0).unwrap();
         // a second organism of 8,000 hashes at a quarter of the coverage
         let mut mixed = host.clone();
         mixed.extend((0..8_000).map(|_| r.poisson(10.0)).filter(|&a| a > 0));
-        let (with_contaminant, _) = shoulder_features(&mixed, 40.0).unwrap();
+        let (with_contaminant, _) = window_fractions(&mixed, 40.0).unwrap();
         // the lower tail of a half-coverage peak reaches into the window, but far less than a real contaminant does
         let (het_effect, contaminant_effect) = (with_het - clean, with_contaminant - clean);
         assert!(
@@ -622,9 +616,17 @@ mod tests {
             .collect();
         let mut mixed = clean.clone();
         mixed.extend((0..20_000).map(|_| r.poisson(10.0)).filter(|&a| a > 0));
-        let (a, _) = shoulder_features(&clean, 40.0).unwrap();
-        let (b, _) = shoulder_features(&mixed, 40.0).unwrap();
+        let (a, _) = window_fractions(&clean, 40.0).unwrap();
+        let (b, _) = window_fractions(&mixed, 40.0).unwrap();
         assert!(b > a + 0.3, "{a} vs {b}");
-        assert!(shoulder_features(&clean, 3.0).is_none());
+        assert!(window_fractions(&clean, 3.0).is_none());
+    }
+
+    #[test]
+    fn the_shoulder_is_defined_at_very_high_coverage_too() {
+        // the Poisson comparison this replaced returned None above about 1,250x (its lambda was clamped to 600)
+        let abunds: Vec<u32> = (0..20_000).map(|i| 1_480 + i % 41).collect();
+        let (shoulder, het) = window_fractions(&abunds, 1_500.0).expect("defined at 1,500x");
+        assert!(shoulder.abs() < 1e-12 && het.abs() < 1e-12);
     }
 }

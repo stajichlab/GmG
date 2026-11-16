@@ -28,4 +28,10 @@ printf "study\trun_accession\nS1\tRUN001\n" > "$T/swapped"
 check "the run_accession column is found wherever it is" test "$(chunk_runs "$T/swapped" 5 0)" = RUN001
 printf "acc\nRUN001\n" > "$T/nocol"
 check "a manifest with no run_accession column is refused" bash -c '. "$0"; ! chunk_runs "$1" 5 0 2>/dev/null' "$HERE/popsra_chunk.sh" "$T/nocol"
+printf 'sample,geo,run_accession\nS1,"USA: California, Riverside",RUN001\nS2,"x, y, z",RUN002\n' > "$T/quoted"
+check "a quoted comma does not shift the columns" test "$(chunk_runs "$T/quoted" 5 0 | tr '\n' ' ')" = "RUN001 RUN002 "
+printf 'run_accession,study\nRUN001,S\n\nRUN002,S\n' > "$T/blank"
+check "a blank row is not a run" test "$(chunk_count "$T/blank" 1)" = 2
+printf 'run_accession,study\n' > "$T/headeronly"
+check "a header-only manifest is zero chunks, not an error" test "$(chunk_count "$T/headeronly" 5)" = 0
 echo "all chunk tests passed"

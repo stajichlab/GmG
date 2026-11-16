@@ -6,14 +6,9 @@
 #   chunk_count MANIFEST CHUNK    prints the number of chunks (the array size is that minus 1).
 # The manifest is a CSV or TSV with a run_accession column, as popseq fetch reads it.
 
+# The columns are read with Python's csv module (popsra_manifest.py), not cut: a quoted field with a comma must not shift them.
 _manifest_runs() { # MANIFEST: the run_accession of every data row
-  local m=$1 delim=","
-  head -1 "$m" | grep -q $'\t' && delim=$'\t'
-  local col
-  col=$(head -1 "$m" | tr "$delim" '\n' | grep -n -x run_accession | cut -d: -f1)
-  [ -n "$col" ] || { echo "no run_accession column in $m" >&2; return 2; }
-  # grep exits 1 when there is no data row; an empty manifest is zero chunks, not an error
-  tail -n +2 "$m" | cut -d"$delim" -f"$col" | { grep -v '^[[:space:]]*$' || true; }
+  python3 "$(dirname "${BASH_SOURCE[0]}")/popsra_manifest.py" "$1"
 }
 
 # The runs are read into a variable first so that a manifest error (no run_accession column) is returned, not lost
