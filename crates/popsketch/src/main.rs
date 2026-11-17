@@ -307,6 +307,7 @@ fn main() -> Result<()> {
                 max_cov_ratio,
                 min_kmer_cov,
                 max_size_ratio,
+                ..CheckParams::default()
             };
             if let Err(e) = validate(genome_mb, coverage, &params) {
                 fail(e);
