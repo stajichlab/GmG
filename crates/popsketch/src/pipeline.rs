@@ -627,6 +627,7 @@ pub fn analyze(o: &Options, a: Analysis) -> Result<Results> {
         size_z: o.size_z,
         size_floor: o.size_floor,
         spectrum_z: o.shoulder_z,
+        k: o.ksize,
         ..QcParams::default()
     };
     let mut qcs = assess(&sketches, o.scaled, &qp);
@@ -1306,7 +1307,7 @@ fn write_outputs(o: &Options, r: &Results) -> Result<()> {
             Some(q) => {
                 let _ = writeln!(
                     s,
-                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{:.2}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}",
+                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}",
                     row.id,
                     row.kind,
                     row.status.as_str(),
@@ -1318,7 +1319,8 @@ fn write_outputs(o: &Options, r: &Results) -> Result<()> {
                     q.n_hashes,
                     q.cutoff,
                     q.kept,
-                    q.est_mb,
+                    // no size for a sample whose coverage cannot be right (the number counts errors)
+                    if q.has("depth_without_peak") { String::new() } else { format!("{:.2}", q.est_mb) },
                     f(q.kmer_cov, 1),
                     q.cov_basis,
                     f(q.size_z, 1),
