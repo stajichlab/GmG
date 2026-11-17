@@ -1,0 +1,321 @@
+run	tier	sampling	route	outcome	host	threads	seconds	plan_s	transfer_s	convert_s	count_s	md5_s	cut_s	postcut_s	check_s	hook_s	finish_s	other_s	python_peak_mib	child_peak_mib	tree_peak_mib	tree_peak_stage
+SRR19854872	coverage	windows	aws_odp	ok	r11	4	507.0	1.7	98.4	329.4	22.1	0.0	0.5	0.0	9.2	43.8	0.0	2.4	54.7	146.2	201.2	convert
+ERR10949383	coverage	windows	aws_odp	ok	r11	4	543.7	1.3	96.3	372.4	22.5	0.0	0.8	0.0	9.3	39.3	0.0	2.2	54.9	145.4	200.5	convert
+DRR059888	coverage	windows	aws_odp	ok	r11	4	635.7	1.4	136.2	405.4	34.2	0.0	0.5	0.0	14.1	42.5	0.0	1.8	53.8	70.4	123.2	hook
+SRR6232156	coverage	windows	aws_odp	ok	r11	4	791.2	1.4	304.1	388.7	24.9	0.0	0.5	0.0	11.1	56.3	0.0	5.4	136.1	87.2	147.5	hook
+DRR445894	coverage	windows	aws_odp	ok	r11	4	449.0	1.2	42.1	320.4	27.3	0.0	0.3	0.0	10.2	45.9	0.0	2.0	64.1	135.5	199.9	convert
+ERR17700531	coverage	windows	aws_odp	ok	r11	4	431.4	1.0	42.7	295.8	24.2	0.0	0.3	0.0	8.1	57.8	0.0	1.8	65.5	91.0	154.5	convert
+SRR14813102	coverage	windows	aws_odp	ok	r11	4	440.5	1.6	23.2	322.7	23.6	0.0	0.3	0.0	8.8	58.2	0.0	2.4	64.3	145.6	207.4	convert
+DRR195603	coverage	windows	aws_odp	ok	r11	4	476.6	1.1	47.6	346.6	20.0	0.0	0.4	0.0	10.1	46.5	0.0	4.7	57.2	145.4	203.0	convert
+ERR9866254	coverage	windows	aws_odp	ok	r11	4	454.5	1.4	40.2	334.3	24.0	0.0	0.3	0.0	8.0	44.3	0.0	2.3	65.3	145.8	209.3	convert
+DRR342044	coverage	windows	aws_odp	ok	r11	4	497.9	0.9	57.2	355.1	22.7	0.0	0.5	0.0	9.5	46.2	0.0	6.2	63.8	145.3	206.0	convert
+SRR25731893	coverage	windows	aws_odp	ok	r11	4	573.0	1.1	104.6	374.6	38.5	0.0	0.4	0.0	11.3	41.4	0.0	1.5	63.5	92.5	154.2	convert
+ERR18066360	coverage		ena_https	transient	r11	4	384.5	1.2	383.2	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	46.6	46.3	55.5	transfer
+SRR11528298	coverage	windows	aws_odp	ok	r11	4	530.4	1.2	150.8	308.1	21.4	0.0	0.3	0.0	7.2	39.6	0.0	2.2	65.5	145.6	205.7	convert
+SRR30725259	coverage	windows	aws_odp	ok	r11	4	520.2	0.9	83.4	360.9	19.1	0.0	0.4	0.0	9.5	43.2	0.0	3.3	60.8	91.5	148.7	convert
+DRR413375	coverage	windows	aws_odp	ok	r11	4	427.2	1.2	54.6	295.0	21.9	0.0	0.3	0.0	6.5	45.9	0.0	2.1	63.4	145.7	203.9	convert
+SRR33381578	coverage	windows	aws_odp	ok	r11	4	465.3	1.1	105.3	284.6	22.8	0.0	0.3	0.0	7.2	42.1	0.0	2.2	55.1	91.8	147.0	convert
+SRR12887196	coverage	windows	aws_odp	ok	r11	4	499.3	1.3	73.0	336.8	26.5	0.0	0.6	0.0	8.8	50.1	0.0	2.3	64.8	145.4	210.4	convert
+SRR3624701	coverage	windows	aws_odp	ok	r11	4	594.4	1.0	127.8	350.9	28.9	0.0	0.9	0.0	11.8	71.8	0.0	2.1	63.0	77.9	135.2	hook
+SRR40320337	coverage	windows	aws_odp	ok	r11	4	577.0	3.1	139.1	343.2	25.7	0.0	0.3	0.0	9.7	54.2	0.0	2.2	64.7	92.9	157.4	convert
+SRR24675057	coverage	windows	aws_odp	ok	r11	4	619.2	1.5	148.4	375.4	30.1	0.0	0.4	0.0	13.7	48.7	0.0	1.7	62.3	145.4	208.1	convert
+SRR24890911	coverage	windows	aws_odp	ok	r11	4	464.3	1.4	61.9	324.4	24.7	0.0	0.4	0.0	8.4	40.9	0.0	2.3	65.3	91.2	156.5	convert
+SRR9989238	coverage	windows	aws_odp	ok	r11	4	572.0	1.2	115.6	372.8	29.7	0.0	0.7	0.0	10.4	40.2	0.0	1.8	66.1	145.9	210.2	convert
+SRR34026451	coverage	windows	aws_odp	ok	r11	4	570.1	1.1	230.2	265.4	22.6	0.0	0.5	0.0	8.1	40.4	0.0	2.4	65.2	152.1	192.9	hook
+SRR18092228	coverage	windows	aws_odp	ok	r11	4	749.1	1.3	315.6	348.9	29.1	0.0	0.5	0.0	11.5	40.9	0.0	2.2	67.5	73.6	137.1	hook
+ERR9872206	coverage	windows	aws_odp	ok	r11	4	397.2	1.3	49.0	281.3	19.7	0.0	0.3	0.0	6.3	37.7	0.0	1.9	68.9	145.0	214.2	convert
+ERR9860970	coverage	windows	aws_odp	ok	r11	4	479.0	1.4	31.1	361.4	33.7	0.0	0.4	0.0	9.9	40.0	0.0	1.4	63.6	92.9	154.4	convert
+ERR10176472	coverage	windows	aws_odp	ok	r11	4	250.4	2.1	15.1	191.7	14.2	0.0	0.2	0.0	4.9	21.0	0.0	1.4	63.3	153.8	217.1	convert
+SRR7503877	coverage	windows	aws_odp	ok	r11	4	429.1	1.9	44.6	312.9	21.2	0.0	0.3	0.0	7.5	39.0	0.0	2.0	63.8	149.9	213.9	convert
+ERR3771233	coverage	stride	aws_odp	hook_failed	r11	4	219.2	2.8	7.9	160.1	14.1	0.0	0.1	0.0	2.9	30.0	0.0	1.4	66.2	70.1	369.2	convert
+SRR11836441	coverage	windows	aws_odp	ok	r11	4	500.0	4.5	60.2	352.1	28.4	0.0	0.5	0.0	12.1	41.1	0.0	1.5	62.4	72.8	131.1	hook
+ERR15535081	coverage	windows	aws_odp	ok	r11	4	636.3	3.6	255.4	306.6	21.0	0.0	0.4	0.0	9.6	38.4	0.0	2.3	62.4	90.7	150.4	convert
+ERR2061624	coverage		ena_https	transient	r11	4	3720.2	1.3	3718.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.5	56.5	56.5	65.8	transfer
+SRR6384767	coverage	windows	aws_odp	ok	i35	4	304.8	0.9	15.6	226.1	12.2	0.0	0.3	0.0	5.8	38.9	0.1	4.9	58.2	145.3	203.6	convert
+SRR6384776	coverage	windows	aws_odp	ok	i33	4	337.8	1.3	16.7	245.1	15.8	0.0	0.4	0.0	7.1	45.0	0.0	6.6	58.3	145.4	203.7	convert
+ERR2653636	coverage		ena_https	transient	i35	4	446.2	0.9	444.3	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.9	126.2	46.2	55.3	transfer
+ERR17700530	coverage	windows	aws_odp	ok	i37	4	446.4	0.9	20.0	332.3	24.1	0.0	0.3	0.0	7.9	57.9	0.0	3.0	127.1	92.0	147.3	convert
+SRR14813101	coverage	windows	aws_odp	ok	i37	4	458.4	1.2	23.0	338.0	23.7	0.0	0.3	0.0	7.6	62.2	0.0	2.6	57.4	145.6	203.2	convert
+SRR26305402	coverage	windows	aws_odp	ok	i35	4	518.7	0.9	53.4	365.1	23.8	0.0	0.3	0.0	8.5	64.0	0.0	2.8	58.5	91.3	147.9	convert
+SRR8258942	coverage	windows	aws_odp	ok	i34	4	558.0	0.9	70.4	383.2	19.0	0.0	0.6	0.0	9.4	68.2	0.0	6.4	129.5	145.1	204.5	convert
+ERR12103114	coverage	windows	aws_odp	ok	i33	4	550.7	1.3	47.8	394.6	31.0	0.0	0.5	0.0	10.1	61.1	0.0	4.6	130.2	90.1	145.7	convert
+DRR342052	coverage	windows	aws_odp	ok	i37	4	553.9	0.9	69.6	384.8	21.8	0.0	0.5	0.0	10.9	61.0	0.0	4.7	56.1	145.0	203.4	convert
+DRR445898	coverage	windows	aws_odp	ok	i37	4	559.6	1.0	75.4	380.9	22.6	0.0	0.5	0.0	11.2	63.2	0.0	5.0	55.5	135.0	192.7	convert
+SRR11836446	coverage	windows	aws_odp	ok	i35	4	608.0	1.1	71.1	427.4	31.3	0.0	0.6	0.0	14.3	60.2	0.3	1.9	56.3	71.7	125.5	hook
+SRR16280147	coverage	windows	aws_odp	ok	i34	4	708.4	0.9	189.6	415.1	26.1	0.0	0.8	0.0	11.6	61.8	0.3	2.4	57.5	144.9	200.6	convert
+ERR12645200	coverage	windows	aws_odp	ok	i34	4	715.2	2.6	241.7	376.7	24.5	0.0	0.6	0.0	8.5	58.1	0.0	2.8	56.8	90.5	147.2	convert
+SRR25528370	coverage	windows	aws_odp	ok	i34	4	869.7	1.7	399.3	365.9	23.0	0.0	0.8	0.0	11.3	62.0	0.0	6.1	59.5	91.5	153.5	convert
+ERR6065779	coverage	windows	aws_odp	ok	i35	4	633.8	1.2	134.0	394.9	27.5	0.0	0.5	0.0	11.3	61.9	0.1	2.8	57.1	90.7	146.0	convert
+ERR15561590	coverage	windows	aws_odp	ok	i35	4	489.1	1.7	56.9	339.6	23.6	0.0	0.3	0.0	8.0	56.5	0.0	2.7	55.3	92.1	147.3	convert
+ERR6065781	coverage	windows	aws_odp	ok	i33	4	684.8	1.6	154.9	407.5	33.7	0.0	1.0	0.0	12.9	65.5	0.1	8.2	56.0	90.8	144.9	convert
+SRR18767170	coverage	windows	aws_odp	ok	i35	4	595.5	1.1	107.8	391.5	23.7	0.0	0.4	0.0	9.4	58.6	0.1	3.1	59.7	85.4	143.1	convert
+DRR413391	coverage	windows	aws_odp	ok	i37	4	489.6	0.9	43.0	355.0	22.6	0.0	0.3	0.0	7.6	57.6	0.1	2.7	57.3	145.6	203.2	convert
+SRR25731888	coverage	windows	aws_odp	ok	i37	4	646.2	1.0	118.0	418.9	39.3	0.0	0.4	0.0	11.2	56.1	0.0	1.4	54.6	92.5	144.9	convert
+SRR11528300	coverage	windows	aws_odp	ok	i37	4	564.0	0.9	122.0	352.6	22.2	0.0	0.3	0.0	7.5	55.8	0.0	2.9	58.2	145.7	204.1	convert
+SRR18767177	coverage	windows	aws_odp	ok	i33	4	621.0	1.1	107.0	405.1	29.8	0.0	0.6	0.0	11.3	61.0	0.1	5.6	55.6	85.7	137.5	convert
+SRR6669151	coverage	windows	aws_odp	ok	i35	4	612.5	1.1	92.3	414.1	27.1	0.0	0.6	0.0	12.9	61.4	0.0	3.3	54.9	75.7	127.0	hook
+SRR23501853	coverage	windows	aws_odp	ok	i35	4	499.3	1.3	57.3	351.4	22.4	0.0	0.3	0.0	7.7	56.4	0.0	2.9	55.9	145.4	201.7	convert
+SRR16282278	coverage	windows	aws_odp	ok	i34	4	886.9	1.5	342.7	436.9	30.2	0.0	0.9	0.0	13.1	59.6	0.3	2.0	53.7	144.7	198.7	convert
+ERR10949382	coverage	windows	aws_odp	ok	i34	4	591.4	1.2	83.2	412.4	22.9	0.0	0.6	0.0	9.4	58.8	0.0	3.2	58.0	145.6	203.7	convert
+ERR2653643	coverage	stride	aws_odp	ok	i33	4	1457.0	1.0	189.8	262.2	56.6	0.0	836.8	15.8	0.0	89.5	0.3	5.4	48.3	145.7	672.4	convert
+SRR9655591	coverage	windows	aws_odp	ok	i33	4	545.6	1.6	71.6	372.6	30.0	0.0	0.4	0.0	10.9	55.4	0.1	3.4	56.8	145.8	200.8	convert
+SRR6227504	coverage	windows	aws_odp	ok	i35	4	561.6	0.9	48.3	418.3	23.0	0.0	0.5	0.0	9.4	58.6	0.1	2.7	56.4	147.9	204.5	convert
+SRR12887177	coverage	windows	aws_odp	ok	i37	4	533.5	1.1	63.1	378.0	22.4	0.0	0.3	0.0	8.6	57.3	0.3	2.7	55.9	145.4	201.5	convert
+DRR059885	coverage	windows	aws_odp	ok	i34	4	951.9	7.8	112.6	714.8	39.7	0.0	0.7	0.0	14.4	60.7	0.0	1.4	55.4	70.3	124.8	hook
+SRR3624700	coverage	windows	aws_odp	ok	i37	4	608.6	1.1	108.0	397.6	26.3	0.0	0.5	0.0	11.8	61.1	0.1	2.4	56.2	76.0	128.5	hook
+ERR15561582	coverage	windows	aws_odp	ok	i33	4	548.5	1.4	65.4	356.2	30.2	0.0	0.4	0.0	10.5	82.0	0.0	2.8	55.0	92.4	147.6	convert
+SRR3056585	coverage	windows	aws_odp	ok	i34	4	1081.6	5.9	538.7	430.3	30.7	0.0	0.7	0.0	13.2	60.2	0.1	2.5	57.2	145.0	200.6	convert
+SRR33381572	coverage	windows	aws_odp	ok	i37	4	783.7	0.9	88.9	602.3	23.1	0.0	0.3	0.0	7.9	57.1	0.2	3.0	61.7	92.3	153.8	convert
+ERR17700532	coverage	windows	aws_odp	ok	i34	4	440.9	0.9	16.6	331.2	24.0	0.0	0.4	0.0	8.0	56.6	0.0	3.4	56.9	92.4	149.4	convert
+DRR445895	coverage	windows	aws_odp	ok	i34	4	484.2	1.2	38.3	350.9	23.4	0.0	0.4	0.0	8.4	58.9	0.0	2.8	57.0	135.4	190.8	convert
+ERR9883080	coverage	windows	aws_odp	ok	i35	4	568.1	1.4	110.2	365.4	22.9	0.0	0.4	0.0	7.7	56.7	0.1	3.5	54.4	145.3	200.0	convert
+ERR1976663	coverage	windows	aws_odp	ok	i35	4	808.9	0.9	322.8	389.9	23.1	0.0	0.6	0.0	10.0	58.8	0.3	2.9	56.3	95.5	127.5	hook
+SRR6669163	coverage	windows	aws_odp	ok	i33	4	600.6	1.0	76.1	412.4	32.0	0.0	0.5	0.0	12.1	61.8	0.0	5.1	55.5	146.8	202.6	convert
+SRR14813097	coverage	windows	aws_odp	ok	i34	4	476.9	1.1	25.0	360.5	22.8	0.0	0.4	0.0	7.8	56.4	0.1	3.1	55.1	146.4	201.7	convert
+SRR21640535	coverage	windows	aws_odp	ok	i33	4	562.5	1.1	80.8	379.1	27.4	0.0	0.3	0.0	10.6	58.8	0.0	4.6	56.8	145.4	200.4	convert
+SRR40320345	coverage	windows	aws_odp	ok	i37	4	559.1	1.0	89.6	376.0	23.7	0.0	0.4	0.0	8.6	57.4	0.0	2.8	54.6	93.8	148.7	convert
+ERR9866173	coverage	windows	aws_odp	ok	i34	4	506.5	1.0	50.0	365.9	22.9	0.0	0.3	0.0	7.7	55.8	0.2	2.8	54.9	145.8	200.9	convert
+SRR32815023	coverage	windows	aws_odp	ok	i33	4	627.0	1.1	146.4	375.2	33.1	0.0	0.3	0.0	11.6	56.5	0.1	3.1	57.7	91.8	149.6	convert
+SRR24675059	coverage	windows	aws_odp	ok	i37	4	652.5	1.1	136.0	417.3	29.8	0.0	0.4	0.0	9.9	56.4	0.1	1.9	53.8	145.4	199.6	convert
+SRR36642583	coverage	windows	aws_odp	ok	i35	4	793.1	0.9	173.5	515.9	26.1	0.0	0.7	0.0	12.1	61.1	0.0	2.9	56.9	94.8	151.4	convert
+DRR342045	coverage	windows	aws_odp	ok	i34	4	537.8	1.2	48.1	386.8	22.3	0.0	0.5	0.0	11.1	61.4	0.4	6.3	56.8	145.0	204.1	convert
+SRR12101027	coverage	windows	aws_odp	ok	i37	4	630.4	1.1	100.0	429.6	30.0	0.0	0.4	0.0	10.2	57.2	0.1	2.0	54.4	146.6	201.2	convert
+SRR34585764	coverage	windows	aws_odp	ok	i35	4	439.9	1.1	73.4	274.4	23.7	0.0	0.3	0.0	7.4	56.4	0.9	2.6	55.2	92.0	147.4	convert
+SRR25731890	coverage	windows	aws_odp	ok	i34	4	608.9	1.2	94.0	406.7	39.5	0.0	0.5	0.0	11.0	54.0	0.1	2.4	56.0	93.4	147.4	convert
+SRR27893520	coverage	windows	aws_odp	ok	i33	4	525.2	1.0	64.5	359.3	30.6	0.0	0.3	0.0	10.4	54.7	0.0	4.6	56.8	93.4	148.5	convert
+SRR11528299	coverage	windows	aws_odp	ok	i34	4	529.1	1.1	103.5	336.9	22.5	0.0	0.3	0.0	7.4	54.2	0.0	3.5	56.3	145.6	202.1	convert
+SRR6227419	coverage	windows	aws_odp	ok	i33	4	588.7	1.8	91.9	393.7	28.5	0.0	0.6	0.0	10.9	56.4	0.0	5.1	56.6	147.9	202.8	convert
+SRR18092273	coverage	windows	aws_odp	ok	i37	4	761.2	1.4	232.2	421.1	29.6	0.0	0.8	0.0	13.5	58.9	0.6	3.5	53.9	145.7	200.0	convert
+SRR30725253	coverage	windows	aws_odp	ok	i34	4	555.5	0.9	64.2	392.5	22.3	0.0	0.5	0.0	11.0	60.0	0.1	4.3	57.9	91.6	149.3	convert
+DRR413389	coverage	windows	aws_odp	ok	i34	4	461.5	1.2	38.2	336.2	22.9	0.0	0.3	0.0	7.5	52.8	0.0	2.5	55.6	145.6	201.4	convert
+ERR4832468	coverage	windows	aws_odp	ok	i35	4	631.7	0.9	120.3	413.1	25.9	0.0	0.7	0.0	9.8	58.3	0.0	2.8	54.2	145.9	200.3	convert
+ERR9980916	coverage	windows	aws_odp	ok	i35	4	570.2	1.1	65.9	398.3	28.6	0.0	0.7	0.0	10.1	62.8	0.0	3.0	56.1	91.8	148.0	convert
+SRR34026495	coverage	windows	aws_odp	ok	i37	4	662.7	1.2	211.7	358.2	23.3	0.0	0.4	0.0	9.8	55.3	0.2	3.0	58.0	93.7	150.1	convert
+ERR18066421	coverage		ena_https	transient	i37	4	2755.6	1.1	2754.4	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.2	45.0	45.0	54.1	transfer
+ERR18066403	coverage		ena_https	transient	i34	4	1087.1	1.4	1085.6	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	46.4	46.4	55.7	transfer
+SRR33381577	coverage	windows	aws_odp	ok	i34	4	436.0	2.4	67.6	279.4	23.8	0.0	0.3	0.0	7.0	53.2	0.0	2.6	65.5	92.4	158.1	convert
+ERR2662958	coverage		ena_https	transient	i33	4	1244.0	1.1	1242.8	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	44.6	44.6	54.2	transfer
+ERR1976661	coverage	windows	aws_odp	ok	i33	4	816.6	1.0	339.2	380.8	24.9	0.0	0.6	0.0	10.6	57.0	0.1	3.1	54.5	89.0	126.6	hook
+ERR10176471	coverage	windows	aws_odp	ok	i37	4	200.9	1.2	9.3	154.6	9.5	0.0	0.2	0.0	3.8	20.3	0.1	1.9	54.2	146.2	200.7	convert
+ERR4757125	coverage	windows	aws_odp	ok	i35	4	499.0	1.1	33.4	363.6	21.8	0.0	0.7	0.0	10.7	62.3	0.0	5.5	58.5	91.5	134.8	hook
+SRR12887202	coverage	windows	aws_odp	ok	i34	4	602.0	0.9	126.9	380.6	22.8	0.0	0.5	0.0	9.1	58.4	0.4	2.5	54.8	147.2	202.3	convert
+ERR9883091	coverage	windows	aws_odp	ok	i33	4	638.7	1.6	189.3	357.7	23.9	0.0	0.4	0.0	8.6	54.2	0.1	3.2	56.8	145.3	200.4	convert
+SRR3624699	coverage	windows	aws_odp	ok	i34	4	612.6	0.9	128.2	382.2	26.6	0.0	0.6	0.0	11.9	59.9	0.0	2.6	55.8	76.2	133.6	hook
+ERR3771237	coverage	stride	aws_odp	hook_failed	i37	4	201.3	0.9	6.8	146.1	10.5	0.0	0.1	0.0	2.7	31.5	0.6	2.2	54.5	69.7	354.5	convert
+ERR5060394	coverage	windows	aws_odp	ok	i35	4	587.9	0.9	89.7	404.0	22.4	0.0	0.4	0.0	9.2	58.3	0.4	3.0	54.5	145.8	200.7	convert
+ERR9860951	coverage	windows	aws_odp	ok	i37	4	587.1	0.9	30.1	445.3	40.1	0.0	0.5	0.0	11.6	57.1	0.0	1.6	60.6	92.9	153.9	convert
+SRR40320346	coverage	windows	aws_odp	ok	i34	4	569.8	1.0	105.1	370.0	24.0	0.0	0.4	0.0	8.7	57.7	0.4	2.8	55.7	92.5	148.2	convert
+SRR24675053	coverage	windows	aws_odp	ok	i34	4	661.0	0.9	145.9	415.1	29.9	0.0	0.5	0.0	10.2	56.9	0.0	1.9	54.2	145.4	197.8	convert
+DRR079310	coverage	windows	aws_odp	ok	i35	4	533.7	1.3	44.7	387.4	21.6	0.0	0.7	0.0	10.5	62.3	0.1	5.5	54.5	145.7	202.3	convert
+SRR34585762	coverage	windows	aws_odp	ok	i33	4	496.5	1.1	89.8	303.9	30.1	0.0	0.4	0.0	10.8	57.4	0.2	3.1	53.3	92.6	149.0	convert
+SRR23973578	coverage	windows	aws_odp	ok	i35	4	496.7	0.9	47.5	358.0	22.6	0.0	0.4	0.0	7.6	57.0	0.1	2.7	59.7	145.3	205.2	convert
+SRR14705967	coverage	windows	aws_odp	ok	i33	4	751.0	1.1	306.4	340.1	28.0	0.0	0.5	0.0	9.5	62.3	0.3	3.2	54.9	145.4	201.7	convert
+SRR11836445	coverage	windows	aws_odp	ok	i37	4	584.5	1.0	48.6	426.6	31.1	0.0	0.6	0.0	14.3	60.4	0.2	1.9	57.2	72.0	126.0	hook
+ERR14126201	coverage	windows	aws_odp	ok	i37	4	691.5	1.5	211.5	377.9	26.3	0.0	0.5	0.0	11.8	59.7	0.0	2.9	54.7	90.7	143.6	convert
+SRR9993991	coverage	windows	aws_odp	ok	i34	4	729.9	2.4	180.9	445.7	30.4	0.0	0.7	0.0	11.1	57.2	0.1	1.9	54.2	146.0	198.4	convert
+SRR18092256	coverage	windows	aws_odp	ok	i34	4	808.3	1.0	418.2	288.0	30.8	0.0	0.5	0.0	11.5	56.6	0.0	2.0	54.6	71.7	117.6	hook
+SRR36642585	coverage	windows	aws_odp	ok	i33	4	1056.2	1.2	369.1	559.8	26.9	0.0	0.6	0.0	13.7	81.8	0.0	3.6	58.4	93.5	152.1	convert
+SRR14705959	coverage	stride	aws_odp	ok	i35	4	2496.2	1.6	241.9	862.3	135.8	0.0	1177.3	18.6	0.0	55.9	0.0	3.6	48.4	146.6	675.1	convert
+SRR6384783	coverage	windows	aws_odp	ok	i37	4	284.1	1.1	14.9	212.6	11.1	0.0	0.2	0.0	5.5	34.8	0.0	4.1	56.4	145.3	202.0	convert
+DRR893802	coverage	windows	aws_odp	ok	i35	4	499.4	1.6	54.4	352.2	23.2	0.0	0.3	0.0	8.0	57.0	0.0	2.7	59.6	134.8	194.7	convert
+SRR33681162	coverage	windows	aws_odp	ok	i33	4	646.0	1.3	52.2	467.2	28.9	0.0	0.5	0.0	12.0	79.3	0.2	4.6	54.9	92.8	148.0	convert
+ERR9872277	coverage	windows	aws_odp	ok	i34	4	495.9	1.1	54.4	348.9	23.7	0.0	0.5	0.0	8.0	56.8	0.1	2.8	54.5	146.8	201.7	convert
+SRR19854871	coverage	windows	ena_https	ok	i33	4	4861.4	1.3	3646.9	0.0	71.1	5.6	986.7	16.9	0.0	78.2	0.1	54.8	54.9	77.4	126.2	hook
+ERR9861190	coverage	windows	aws_odp	ok	i34	4	514.4	2.0	36.2	378.0	21.5	0.0	0.5	0.0	10.7	61.1	0.0	4.5	54.8	91.5	146.3	convert
+ERR4832459	coverage	windows	aws_odp	ok	i33	4	788.2	0.9	205.2	472.6	27.5	0.0	0.5	0.0	11.0	66.7	0.6	3.6	57.4	145.8	203.5	convert
+ERR10176137	coverage	windows	aws_odp	ok	i34	4	217.7	1.1	8.7	168.8	10.4	0.0	0.2	0.0	4.1	22.5	0.1	2.0	59.1	146.0	205.4	convert
+ERR9980874	coverage	windows	aws_odp	ok	i33	4	583.6	0.9	47.8	427.5	28.7	0.0	0.4	0.0	14.3	60.0	0.1	4.0	55.5	91.6	147.2	convert
+ERR6065780	coverage	windows	aws_odp	ok	i37	4	630.6	1.2	93.0	426.5	31.4	0.0	0.6	0.0	13.8	62.4	0.0	2.1	47.8	91.1	138.2	convert
+SRR9936846	coverage	windows	aws_odp	ok	i35	4	648.2	1.1	120.2	420.8	29.5	0.0	0.5	0.0	12.5	61.4	0.2	2.3	57.1	73.9	128.3	hook
+ERR6688915	coverage	windows	aws_odp	ok	i35	4	582.2	1.1	68.6	418.7	22.6	0.0	0.4	0.0	9.6	58.7	0.0	2.8	56.9	146.0	201.0	convert
+ERR3771227	coverage	stride	aws_odp	hook_failed	i34	4	228.0	1.3	5.9	165.6	13.1	0.0	0.1	0.0	3.2	36.5	0.2	2.2	56.2	68.2	357.3	convert
+ERR4757123	coverage	windows	aws_odp	ok	i33	4	598.7	1.3	44.8	435.2	26.4	0.0	0.8	0.0	14.9	63.2	0.1	12.2	60.9	99.6	138.9	hook
+DRR079315	coverage	windows	aws_odp	ok	i33	4	540.1	1.1	87.2	336.7	42.9	0.0	0.5	0.0	13.4	57.2	0.0	1.4	53.9	146.7	199.0	convert
+ERR5060395	coverage	windows	aws_odp	ok	i33	4	655.9	1.4	87.6	467.9	26.4	0.0	0.4	0.0	11.0	58.3	0.0	3.1	54.5	145.9	200.7	convert
+SRR23973571	coverage	windows	aws_odp	ok	i33	4	513.3	0.9	43.5	374.8	23.4	0.0	0.3	0.0	9.2	58.6	0.0	2.7	61.4	145.2	207.0	convert
+ERR12645140	coverage	windows	aws_odp	ok	i35	4	544.4	1.0	78.3	371.9	23.9	0.0	0.4	0.0	8.4	57.6	0.3	2.8	57.3	91.3	148.0	convert
+SRR18767172	coverage	windows	aws_odp	ok	i37	4	577.1	1.2	92.2	389.5	23.4	0.0	0.4	0.0	9.4	58.0	0.0	3.3	56.6	84.9	139.4	convert
+ERR15535082	coverage	windows	aws_odp	ok	i34	4	700.3	1.1	209.3	388.8	26.4	0.0	0.7	0.0	11.5	60.1	0.1	2.7	59.2	90.1	149.5	convert
+DRR893805	coverage	windows	aws_odp	ok	i33	4	518.0	1.2	61.5	361.0	26.2	0.0	0.3	0.0	9.1	55.0	0.9	3.0	54.5	134.8	189.5	convert
+SRR25528372	coverage	windows	aws_odp	ok	i35	4	736.5	0.9	280.6	353.7	23.1	0.0	0.8	0.0	11.1	60.8	0.0	6.0	57.5	91.5	149.2	convert
+ERR9872274	coverage	windows	ena_https	ok	i37	4	2968.8	1.2	1824.2	0.0	35.2	3.3	1000.5	17.6	0.0	55.8	0.1	31.1	51.4	78.0	124.9	hook
+SRR9936847	coverage	windows	aws_odp	ok	i33	4	608.1	1.6	67.3	424.2	33.8	0.0	0.6	0.0	13.9	64.3	0.1	2.9	53.6	73.2	124.5	hook
+ERR15561597	coverage	windows	aws_odp	ok	i37	4	490.1	1.1	55.3	341.3	23.3	0.0	0.3	0.0	7.9	58.1	0.2	3.0	57.8	92.4	150.4	convert
+SRR34026542	coverage	stride	aws_odp	ok	i34	4	2538.7	1.2	261.4	792.4	120.4	0.0	1288.1	20.9	0.0	51.6	0.2	3.2	48.4	98.3	456.1	convert
+ERR12117550	coverage	windows	aws_odp	ok	i33	4	521.3	1.3	34.3	379.3	29.3	0.0	0.4	0.0	11.4	61.0	0.0	4.4	58.5	91.9	148.5	convert
+SRR6669154	coverage	windows	aws_odp	ok	i37	4	517.3	0.9	61.6	363.6	22.5	0.0	0.3	0.0	8.2	57.1	0.4	2.7	56.9	146.2	201.3	convert
+SRR16282279	coverage	windows	aws_odp	ok	i35	4	748.8	1.3	216.1	425.6	29.8	0.0	0.8	0.0	13.5	59.6	0.4	2.0	54.7	145.9	198.8	convert
+SRR3056583	coverage	windows	aws_odp	ok	i35	4	697.4	1.3	153.7	439.2	29.6	0.0	0.6	0.0	12.4	59.0	0.0	2.1	55.9	144.3	198.5	convert
+ERR1448265	coverage		ena_https	transient	i33	4	1161.0	1.2	1159.7	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	49.7	49.6	58.8	transfer
+ERR1448266	coverage		ena_https	transient	i35	4	2522.4	0.9	2521.3	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.2	45.8	45.8	55.1	transfer
+SRR20852131	coverage	windows	aws_odp	ok	i33	4	1162.6	1.0	648.7	408.3	29.1	0.0	0.4	0.0	11.6	59.9	0.4	3.8	55.7	145.5	201.3	convert
+SRR27892087	coverage	windows	aws_odp	ok	i37	4	518.7	1.3	53.5	369.0	23.3	0.0	0.3	0.0	8.4	59.9	0.4	2.8	54.4	89.9	144.4	convert
+ERR6688914	coverage	windows	aws_odp	ok	i33	4	579.2	1.3	70.4	404.5	26.8	0.0	0.4	0.0	11.5	58.5	0.8	5.2	54.3	145.8	200.4	convert
+DRR059884	coverage	windows	aws_odp	ok	i35	4	613.8	1.2	78.6	423.3	38.8	0.0	0.5	0.0	12.4	57.7	0.1	1.5	54.4	71.1	124.3	hook
+ERR10949381	coverage	windows	aws_odp	ok	i35	4	536.1	1.5	38.7	403.0	22.9	0.0	0.4	0.0	9.2	57.9	0.0	2.7	57.2	145.4	202.9	convert
+ERR2660591	coverage	stride	ena_https	ok	i35	4	6148.4	1.2	4798.7	0.0	86.2	8.9	1105.8	21.1	0.0	56.6	0.9	69.2	63.5	74.1	134.9	hook
+SRR6227418	coverage	windows	aws_odp	ok	i37	4	554.7	1.3	49.4	410.7	22.8	0.0	0.4	0.0	9.5	58.1	0.0	2.7	54.5	147.9	202.7	convert
+ERR2653638	coverage	stride	ena_https	ok	i37	4	3309.7	1.1	2390.8	0.0	43.1	3.8	754.4	24.9	0.0	54.4	0.0	37.6	50.5	70.7	121.2	hook
+ERR2061620	coverage	stride	ena_https	ok	i37	4	9528.5	1.1	8054.1	0.0	135.1	9.1	1148.5	20.5	0.0	55.4	0.1	105.1	59.0	74.1	131.1	hook
+ERR2662959	coverage	stride	ena_https	ok	i37	4	6507.0	1.7	5256.0	0.0	76.0	5.7	1029.7	20.7	0.0	53.8	0.4	63.3	64.4	74.5	137.4	hook
+ERR2061626	coverage	stride	ena_https	ok	i34	4	10462.0	1.4	8849.5	0.0	147.7	11.2	1259.5	20.4	0.0	56.6	0.2	116.0	57.7	78.6	134.8	hook
+ERR9883100	coverage	windows	aws_odp	ok	i32	4	574.9	1.2	113.3	365.6	25.7	0.0	0.5	0.0	8.3	57.5	0.0	2.9	56.6	145.6	202.8	convert
+SRR37941786	coverage	windows	aws_odp	ok	i32	4	645.1	1.8	235.7	312.0	25.1	0.0	0.5	0.0	9.1	58.3	0.0	3.0	55.7	92.5	148.5	convert
+SRR34026545	coverage	windows	aws_odp	ok	i33	4	663.1	0.9	195.6	370.9	23.4	0.0	0.4	0.0	9.8	58.7	0.1	3.7	56.5	92.0	148.7	convert
+SRR9983183	coverage	windows	aws_odp	ok	i33	4	711.0	0.9	171.6	439.0	30.3	0.0	0.5	0.0	10.4	56.7	0.0	1.9	54.0	145.6	197.7	convert
+SRR36642582	coverage	windows	aws_odp	ok	i32	4	811.0	0.9	178.9	528.3	25.6	0.0	0.6	0.0	11.8	62.0	0.2	3.1	54.1	93.2	147.6	convert
+ERR1976658	coverage	windows	aws_odp	ok	i32	4	833.5	1.9	327.1	404.6	24.8	0.0	0.7	0.0	11.2	59.9	0.0	3.8	57.6	92.1	136.4	hook
+SRR14813096	coverage	windows	aws_odp	ok	i39	4	458.6	1.3	22.4	341.2	23.9	0.0	0.3	0.0	7.5	55.1	0.1	7.0	55.0	145.7	200.8	convert
+DRR342048	coverage	windows	aws_odp	ok	i39	4	514.9	1.9	53.9	364.2	21.6	0.0	0.5	0.0	10.8	56.2	0.3	5.8	58.2	145.0	205.5	convert
+DRR445896	coverage	windows	aws_odp	ok	i39	4	514.7	1.7	49.1	366.3	22.8	0.0	0.5	0.0	11.3	56.7	0.3	6.3	56.4	135.0	193.6	convert
+SRR34585763	coverage	windows	aws_odp	ok	i32	4	432.5	1.2	63.9	275.9	23.7	0.0	0.4	0.0	7.7	56.2	0.3	3.5	59.8	93.0	153.0	convert
+ERR9872276	coverage	windows	aws_odp	ok	i33	4	478.8	0.9	40.1	347.9	23.0	0.0	0.3	0.0	7.3	56.2	0.4	2.8	55.0	145.1	200.2	convert
+ERR4832467	coverage	windows	aws_odp	ok	i32	4	619.7	1.1	96.5	425.6	23.9	0.0	0.4	0.0	10.1	59.1	0.1	3.2	63.7	145.9	209.8	convert
+ERR4757129	coverage	windows	aws_odp	ok	i32	4	510.3	0.9	38.6	368.1	22.8	0.0	0.5	0.0	10.9	62.9	0.0	5.7	62.7	99.0	143.8	hook
+ERR9980911	coverage	windows	aws_odp	ok	i32	4	548.2	1.1	61.5	390.0	24.4	0.0	0.4	0.0	9.8	58.5	0.0	2.9	54.4	91.8	146.3	convert
+SRR11528305	coverage	windows	aws_odp	ok	i39	4	519.2	1.1	103.1	326.8	22.8	0.0	0.3	0.0	7.5	54.3	0.1	3.5	57.1	145.0	202.4	convert
+DRR413380	coverage	windows	aws_odp	ok	i39	4	501.8	1.9	79.9	334.7	22.8	0.0	0.3	0.0	7.5	52.2	0.0	2.6	58.3	145.6	202.2	convert
+DRR893803	coverage	windows	aws_odp	ok	i34	4	508.5	1.2	64.8	349.6	23.3	0.0	0.3	0.0	8.3	58.3	0.0	2.8	55.5	134.8	190.5	convert
+SRR23973575	coverage	windows	aws_odp	ok	i34	4	510.2	0.9	59.8	358.6	23.7	0.0	0.3	0.0	7.8	56.5	0.1	2.7	56.5	145.3	202.0	convert
+ERR9860914	coverage	windows	aws_odp	ok	i33	4	811.4	1.1	20.7	679.5	39.6	0.0	0.5	0.0	11.6	56.6	0.5	1.5	54.9	93.6	146.7	convert
+DRR079311	coverage	windows	aws_odp	ok	i34	4	543.4	1.1	51.4	385.1	20.8	0.0	0.5	0.0	10.6	68.5	0.0	5.6	57.4	145.6	205.7	convert
+SRR33381575	coverage	windows	aws_odp	ok	i39	4	641.0	1.0	80.1	472.5	23.8	0.0	0.3	0.0	8.0	52.8	0.1	2.7	58.2	91.9	149.5	convert
+ERR5060398	coverage	windows	aws_odp	ok	i32	4	583.5	0.9	73.2	411.1	25.8	0.0	0.5	0.0	9.6	59.3	0.0	3.3	57.8	145.8	204.0	convert
+ERR5060405	coverage	windows	aws_odp	ok	i34	4	600.5	0.9	104.3	402.2	22.3	0.0	0.4	0.0	9.2	58.6	0.0	2.8	55.3	145.8	201.5	convert
+ERR14146278	coverage	windows	aws_odp	ok	i33	4	632.3	1.1	136.0	393.6	26.2	0.0	0.5	0.0	11.9	60.6	0.2	2.5	55.5	90.4	144.0	convert
+DRR079312	coverage	windows	aws_odp	ok	i32	4	547.4	1.1	49.0	391.9	24.9	0.0	0.5	0.0	11.3	62.8	0.2	5.8	56.3	145.7	204.5	convert
+SRR23973580	coverage	windows	aws_odp	ok	i32	4	496.2	1.2	43.0	361.8	23.1	0.0	0.3	0.0	7.8	56.4	0.0	2.8	54.8	145.2	200.4	convert
+DRR893807	coverage	windows	aws_odp	ok	i32	4	512.9	2.1	56.2	355.5	24.1	0.0	0.3	0.0	8.7	63.5	0.0	2.7	55.2	134.9	190.3	convert
+SRR12887199	coverage	windows	aws_odp	ok	i39	4	513.3	1.1	66.3	357.3	22.6	0.0	0.4	0.0	8.7	54.6	0.1	2.7	56.9	145.4	200.6	convert
+SRR6207183	coverage	windows	aws_odp	ok	i39	4	568.3	1.1	98.1	372.4	26.6	0.0	0.5	0.0	12.0	55.8	0.0	2.2	55.9	76.6	127.5	hook
+SRR6384775	coverage	windows	aws_odp	ok	i33	4	282.0	1.3	13.5	212.3	11.0	0.0	0.2	0.0	5.4	34.2	0.2	4.2	58.0	145.2	203.4	convert
+SRR40320358	coverage	windows	aws_odp	ok	i39	4	516.8	1.1	74.5	353.5	24.0	0.0	0.3	0.0	8.6	52.3	0.1	2.6	56.9	92.6	147.7	convert
+ERR12645138	coverage	windows	aws_odp	ok	i34	4	549.9	0.9	84.6	372.6	23.4	0.0	0.3	0.0	8.4	56.9	0.0	2.8	58.8	90.3	147.2	convert
+SRR11836442	coverage	windows	aws_odp	ok	i33	4	575.2	1.1	38.8	427.1	31.2	0.0	0.6	0.0	14.6	60.0	0.1	1.8	56.1	72.3	126.1	hook
+SRR25528373	coverage	windows	aws_odp	ok	i34	4	681.4	1.0	191.0	378.6	23.3	0.0	0.6	0.0	11.7	69.9	0.0	5.8	57.2	97.7	152.5	convert
+DRR059891	coverage	windows	aws_odp	ok	i34	4	637.6	0.9	88.3	434.3	39.1	0.0	0.6	0.0	14.1	59.2	0.0	1.5	55.8	72.5	125.5	hook
+SRR9936845	coverage	windows	aws_odp	ok	i32	4	570.4	1.0	53.8	418.3	23.2	0.0	0.5	0.0	9.8	61.1	0.1	2.8	56.2	145.4	201.7	convert
+ERR12645145	coverage	windows	aws_odp	ok	i32	4	547.6	1.3	79.9	372.6	24.1	0.0	0.5	0.0	8.8	57.9	0.0	2.7	54.9	91.8	146.9	convert
+ERR1448263	coverage		ena_https	transient	i32	4	915.8	0.9	914.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.4	46.8	46.7	55.8	transfer
+SRR24675062	coverage	windows	aws_odp	ok	i39	4	612.5	0.9	113.3	401.2	30.3	0.0	0.6	0.0	10.2	53.7	0.6	1.9	64.1	145.4	204.6	convert
+SRR25528369	coverage	windows	aws_odp	ok	i32	4	703.1	1.3	200.9	396.6	24.4	0.0	0.6	0.0	11.8	62.8	0.2	4.9	56.1	92.4	150.7	convert
+SRR9989237	coverage	windows	aws_odp	ok	i39	4	610.9	1.1	100.9	407.7	30.4	0.0	0.4	0.0	10.3	58.5	0.1	1.8	63.4	145.4	200.3	convert
+DRR445890	coverage	windows	aws_odp	ok	i34	4	518.7	0.9	42.5	377.2	21.1	0.0	0.5	0.0	10.4	61.4	0.6	4.2	55.9	134.9	191.0	convert
+SRR14813099	coverage	windows	aws_odp	ok	i34	4	461.6	1.1	18.2	352.9	22.5	0.0	0.3	0.0	7.6	56.3	0.3	2.6	56.8	145.8	200.8	convert
+ERR18066425	coverage		ena_https	transient	i39	4	2258.0	1.3	2256.6	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.2	53.2	44.4	62.2	transfer
+ERR2653651	coverage		ena_https	transient	i33	4	613.8	1.5	612.3	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	52.9	45.4	62.1	transfer
+DRR342049	coverage	windows	aws_odp	ok	i34	4	506.9	1.0	38.5	372.5	19.2	0.0	0.4	0.0	9.7	61.6	0.1	4.1	56.3	145.0	201.5	convert
+SRR18092182	coverage	windows	aws_odp	ok	i39	4	697.6	1.6	223.4	369.0	30.9	0.0	0.6	0.0	13.8	56.6	0.0	2.1	64.9	73.3	131.7	hook
+SRR3056613	coverage	windows	aws_odp	ok	i32	4	606.6	1.1	55.1	443.4	32.6	0.0	0.6	0.0	12.6	59.3	0.1	2.1	54.8	145.1	198.1	convert
+ERR10949380	coverage	windows	aws_odp	ok	i32	4	543.2	1.1	35.3	410.1	25.0	0.0	0.5	0.0	9.4	59.1	0.1	2.7	59.7	145.4	205.4	convert
+DRR445892	coverage	windows	aws_odp	ok	i32	4	533.8	0.9	42.8	387.1	24.3	0.0	0.8	0.0	11.6	61.6	0.0	5.0	54.5	135.0	192.2	convert
+DRR059886	coverage	windows	aws_odp	ok	i32	4	686.1	1.4	115.4	448.7	44.0	0.0	0.7	0.0	15.6	59.1	0.0	1.6	62.5	69.2	130.8	convert
+ERR9872275	coverage	windows	aws_odp	ok	i39	4	453.0	1.1	39.1	325.6	23.1	0.0	0.3	0.0	7.4	53.6	0.1	2.9	65.2	145.3	210.8	convert
+SRR34026497	coverage	windows	aws_odp	ok	i39	4	651.4	1.1	174.7	384.5	23.6	0.0	0.4	0.0	10.2	54.3	0.0	3.1	64.3	95.2	159.4	convert
+SRR11528303	coverage	windows	aws_odp	ok	i34	4	567.9	0.9	124.9	352.9	22.2	0.0	0.3	0.0	7.4	56.6	0.1	2.8	56.6	145.5	200.4	convert
+DRR413378	coverage	windows	aws_odp	ok	i34	4	491.5	1.2	44.8	355.8	22.5	0.0	0.3	0.0	7.5	56.6	0.0	3.1	55.4	145.6	201.2	convert
+SRR18767173	coverage	windows	aws_odp	ok	i33	4	582.6	1.1	97.6	389.7	23.4	0.0	0.4	0.0	9.4	58.4	0.1	2.9	65.1	85.0	150.0	convert
+ERR9860918	coverage	windows	aws_odp	ok	i39	4	563.8	0.9	20.6	412.2	40.2	0.0	0.5	0.0	11.7	76.5	0.1	1.3	62.0	95.2	154.7	convert
+ERR17700529	coverage	windows	aws_odp	ok	i32	4	367.6	0.9	10.4	277.4	21.1	0.0	0.3	0.0	7.0	47.6	0.1	2.9	56.9	91.9	146.7	convert
+SRR6384781	coverage	windows	aws_odp	ok	i39	4	258.3	1.1	12.6	192.1	10.9	0.0	0.2	0.0	5.5	32.0	0.1	3.8	65.4	167.0	232.6	convert
+SRR14813098	coverage	windows	aws_odp	ok	i32	4	469.9	1.2	20.6	350.1	23.5	0.0	0.3	0.0	8.1	63.4	0.0	2.7	56.2	145.7	202.1	convert
+DRR342047	coverage	windows	aws_odp	ok	i32	4	542.6	1.1	50.2	390.7	22.7	0.0	0.6	0.0	11.3	61.0	0.0	5.2	56.0	145.1	204.0	convert
+ERR14112734	coverage	windows	aws_odp	ok	i39	4	579.3	1.1	118.0	367.2	23.9	0.0	0.5	0.0	11.6	54.0	0.2	3.2	64.6	92.4	156.3	convert
+SRR25731886	coverage	windows	aws_odp	ok	i32	4	605.1	0.9	73.1	418.7	41.1	0.0	0.5	0.0	11.8	56.7	1.0	1.6	58.7	93.1	152.0	convert
+ERR15561580	coverage	windows	aws_odp	ok	i33	4	480.3	1.0	50.4	338.3	23.5	0.0	0.3	0.0	7.8	56.4	0.0	2.8	57.6	92.4	149.9	convert
+SRR33381582	coverage	windows	aws_odp	ok	i34	4	521.4	0.9	76.2	352.0	23.2	0.0	0.3	0.0	8.0	57.0	1.0	3.1	55.1	92.4	147.7	convert
+SRR18767171	coverage	windows	aws_odp	ok	i39	4	534.9	1.1	93.5	345.5	23.9	0.0	0.4	0.0	9.5	58.6	0.0	2.7	64.2	88.8	153.3	convert
+SRR11528302	coverage	windows	aws_odp	ok	i32	4	543.3	1.1	94.1	357.0	23.0	0.0	0.3	0.0	7.9	57.0	0.0	3.2	58.0	145.6	203.9	convert
+DRR413382	coverage	windows	aws_odp	ok	i32	4	494.0	1.1	41.8	360.4	23.0	0.0	0.3	0.0	8.0	56.7	0.0	2.7	57.1	147.4	202.8	convert
+ERR15561589	coverage	windows	aws_odp	ok	i39	4	453.8	1.9	64.3	302.6	23.8	0.0	0.3	0.0	7.9	50.5	0.1	2.5	65.6	94.5	160.4	convert
+SRR33381573	coverage	windows	aws_odp	ok	i32	4	520.2	1.7	67.4	353.8	23.8	0.0	0.4	0.0	8.1	61.9	0.5	2.9	56.4	91.0	145.3	convert
+SRR3624698	coverage	windows	aws_odp	ok	i34	4	593.5	0.9	89.8	400.0	26.5	0.0	0.7	0.0	12.2	61.2	0.0	2.4	55.6	76.5	128.7	hook
+SRR6669157	coverage	windows	aws_odp	ok	i33	4	612.7	0.9	91.3	416.7	26.6	0.0	0.5	0.0	12.9	61.5	0.2	2.4	56.5	77.4	128.3	hook
+SRR6669152	coverage	windows	aws_odp	ok	i39	4	464.5	1.2	54.1	323.9	23.0	0.0	0.3	0.0	8.4	50.9	0.1	2.6	56.9	146.2	201.5	convert
+SRR28533132	coverage	windows	aws_odp	ok	i39	4	464.7	1.1	51.3	326.7	23.9	0.0	0.3	0.0	8.6	50.5	0.0	2.4	59.9	90.8	150.4	convert
+SRR12887207	coverage	windows	aws_odp	ok	i32	4	553.0	1.5	73.8	383.8	22.9	0.0	0.4	0.0	8.8	58.5	0.2	3.4	56.9	145.5	200.5	convert
+SRR6207182	coverage	windows	aws_odp	ok	i32	4	600.8	2.5	95.0	400.3	26.8	0.0	0.6	0.0	12.3	61.0	0.2	2.5	54.5	76.3	126.4	hook
+SRR40320348	coverage	windows	aws_odp	ok	i32	4	554.5	1.5	79.1	380.6	23.9	0.0	0.4	0.0	8.9	57.6	0.0	2.8	54.4	92.6	147.2	convert
+SRR23491016	coverage	windows	aws_odp	ok	i33	4	510.9	1.2	63.5	356.2	22.7	0.0	0.3	0.0	7.8	56.5	0.1	2.8	55.6	145.5	201.3	convert
+SRR40320343	coverage	windows	aws_odp	ok	i34	4	557.5	1.1	82.5	380.8	23.5	0.0	0.3	0.0	8.6	57.8	0.2	2.9	56.7	92.6	149.6	convert
+SRR18092260	coverage	windows	ena_https	ok	i33	4	5163.7	0.9	4080.5	0.0	94.8	6.2	833.3	21.0	0.0	53.3	0.0	74.0	65.5	76.2	133.9	hook
+ERR2653650	coverage		ena_https	transient	i39	4	1909.9	1.1	1908.7	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.2	55.9	55.8	65.1	transfer
+ERR1448269	coverage		ena_https	transient	i34	4	3763.2	1.1	3762.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.2	45.1	45.1	54.4	transfer
+SRR24675056	coverage	windows	aws_odp	ok	i32	4	645.8	1.3	113.2	431.7	30.0	0.0	0.5	0.0	10.2	56.9	0.1	2.3	55.2	145.4	199.0	convert
+ERR1976662	coverage	windows	aws_odp	ok	i39	4	658.5	1.1	219.2	343.2	24.6	0.0	0.4	0.0	10.4	57.2	0.0	2.7	61.4	92.7	134.1	hook
+SRR12887173	coverage	stride	aws_odp	hook_failed	i34	4	2254.7	0.9	60.8	694.8	62.1	0.0	1288.9	20.3	8.8	115.4	0.1	3.0	54.5	145.4	677.9	convert
+SRR24675063	coverage	windows	aws_odp	ok	i34	4	642.9	0.9	103.5	438.5	30.1	0.0	0.6	0.0	10.4	57.2	0.0	1.8	56.7	145.5	208.4	convert
+SRR6227503	coverage	windows	aws_odp	ok	i33	4	560.1	0.9	41.3	424.0	22.8	0.0	0.4	0.0	9.6	58.4	0.0	2.9	56.2	147.9	204.4	convert
+ERR9883098	coverage	windows	aws_odp	ok	i39	4	514.4	0.9	106.4	323.1	22.8	0.0	0.3	0.0	7.6	50.5	0.0	2.9	59.8	145.0	205.0	convert
+SRR12101018	coverage	windows	aws_odp	ok	i34	4	614.8	0.9	84.5	430.1	29.8	0.0	0.6	0.0	10.2	56.9	0.1	1.9	56.2	146.5	201.0	convert
+ERR6065932	coverage	stride	ena_https	ok	i33	4	3816.7	1.4	2617.5	0.0	55.8	3.7	991.1	52.2	0.0	49.8	0.0	45.6	64.0	64.0	104.2	hook
+SRR36642586	coverage	windows	aws_odp	ok	i39	4	697.0	1.5	140.0	458.9	24.1	0.0	0.5	0.0	11.8	57.9	0.1	2.7	55.9	94.1	147.9	convert
+ERR18066418	coverage		ena_https	transient	i32	4	2800.6	1.1	2799.1	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.4	46.2	46.2	55.4	transfer
+SRR18092181	coverage	windows	aws_odp	ok	i34	4	720.4	1.2	184.5	431.6	29.6	0.0	0.6	0.0	12.2	58.9	0.0	2.0	56.9	145.8	200.9	convert
+SRR34026616	coverage	windows	aws_odp	ok	i34	4	679.8	1.0	171.4	405.3	23.2	0.0	0.6	0.0	10.2	65.6	0.0	2.9	56.0	91.5	147.8	convert
+SRR37941788	coverage	windows	aws_odp	ok	i39	4	559.6	1.1	151.9	319.2	24.0	0.0	0.3	0.0	9.2	51.3	0.3	2.6	57.3	92.6	150.1	convert
+ERR1976665	coverage	windows	aws_odp	ok	i33	4	735.0	1.2	235.4	401.5	25.7	0.0	0.6	0.0	10.1	58.0	0.0	3.1	55.5	89.3	130.4	hook
+ERR9883099	coverage	windows	aws_odp	ok	i33	4	544.8	1.0	94.9	361.1	22.8	0.0	0.4	0.0	7.6	54.6	0.0	2.8	55.4	145.6	201.3	convert
+ERR4832470	coverage	windows	aws_odp	ok	i39	4	547.6	1.1	98.8	359.9	24.0	0.0	0.4	0.0	9.4	51.6	0.0	2.6	54.4	145.9	200.5	convert
+ERR9872278	coverage	windows	aws_odp	ok	i34	4	493.9	1.1	53.4	345.7	26.1	0.0	0.3	0.0	7.3	56.9	0.0	3.2	54.4	145.4	200.0	convert
+ERR18066420	coverage	windows	ena_https	ok	i34	4	4102.6	0.9	2649.7	0.0	60.2	6.1	1259.4	18.2	0.0	56.2	0.0	52.0	51.7	82.6	131.8	hook
+ERR9860924	coverage	windows	aws_odp	ok	i34	4	546.4	0.9	19.2	420.9	38.2	0.0	0.4	0.0	11.0	54.5	0.0	1.3	55.9	93.6	146.9	convert
+ERR9980906	coverage	windows	aws_odp	ok	i39	4	485.8	1.6	55.5	340.0	24.4	0.0	0.4	0.0	10.0	51.2	0.0	2.9	56.9	91.9	148.8	convert
+SRR6384790	coverage	windows	aws_odp	ok	i34	4	276.1	1.1	15.1	205.5	10.7	0.0	0.2	0.0	5.3	33.8	0.1	4.3	60.7	145.1	206.2	convert
+SRR14705960	coverage	windows	aws_odp	ok	i33	4	546.0	0.9	186.7	271.9	22.3	0.0	0.3	0.0	7.3	54.2	0.0	2.9	54.5	145.5	200.1	convert
+ERR4757128	coverage	windows	aws_odp	ok	i39	4	656.3	1.1	247.3	315.3	22.5	0.0	0.5	0.0	11.2	53.8	0.0	4.8	56.8	95.3	135.0	hook
+ERR2660592	coverage		ena_https	transient	i33	4	2356.4	1.1	2355.2	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.2	47.1	47.0	56.3	transfer
+SRR36642587	coverage	windows	aws_odp	ok	i33	4	771.9	1.6	171.8	500.6	24.0	0.0	0.5	0.0	11.7	59.1	0.0	2.9	56.1	94.0	150.5	convert
+ERR14112735	coverage	windows	aws_odp	ok	i34	4	633.5	3.2	122.7	409.0	23.6	0.0	0.5	0.0	11.5	60.5	0.1	2.9	56.9	90.5	147.6	convert
+SRR18767176	coverage	windows	aws_odp	ok	i34	4	565.2	1.1	74.7	394.1	24.5	0.0	0.4	0.0	9.6	58.2	0.0	2.9	58.0	86.4	143.9	convert
+ERR4832461	coverage	windows	aws_odp	ok	i33	4	590.8	1.0	96.3	399.5	22.5	0.0	0.4	0.0	9.3	59.0	0.3	2.8	55.3	145.9	201.4	convert
+ERR4757127	coverage	windows	aws_odp	ok	i33	4	490.3	1.0	27.8	361.9	21.7	0.0	0.5	0.0	10.8	61.5	0.1	5.3	55.4	92.6	133.5	hook
+ERR9980883	coverage	windows	aws_odp	ok	i33	4	553.6	1.1	70.5	387.4	23.9	0.0	0.4	0.0	9.7	58.1	0.0	2.8	56.3	91.7	148.2	convert
+ERR15561595	coverage	windows	aws_odp	ok	i34	4	476.4	1.5	45.7	338.7	23.2	0.0	0.3	0.0	7.8	56.4	0.0	2.9	54.9	92.5	147.3	convert
+ERR2653642	coverage		ena_https	transient	i34	4	1229.0	1.2	1227.7	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	46.8	46.7	55.8	transfer
+ERR2660590	coverage		ena_https	transient	i01	4	299.9	0.9	298.9	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	46.8	46.8	56.1	transfer
+SRR6669207	coverage	windows	aws_odp	ok	i34	4	514.8	2.3	50.6	363.9	22.8	0.0	0.4	0.0	8.3	63.7	0.1	2.9	57.5	146.2	203.9	convert
+ERR5060406	coverage	windows	aws_odp	ok	i33	4	566.1	0.9	69.5	400.8	23.7	0.0	0.4	0.0	9.3	58.3	0.1	3.2	56.9	145.9	201.1	convert
+DRR079314	coverage	windows	aws_odp	ok	i33	4	517.3	1.3	34.6	382.7	20.9	0.0	0.6	0.0	10.6	61.5	0.0	5.4	56.4	145.7	204.4	convert
+SRR23973581	coverage	windows	aws_odp	ok	i33	4	476.3	1.1	43.0	343.1	22.7	0.0	0.3	0.0	7.8	55.7	0.0	2.6	56.0	145.3	201.5	convert
+ERR9883090	coverage	windows	aws_odp	ok	i01	4	549.2	0.9	91.6	365.1	22.9	0.0	0.5	0.0	7.8	57.2	0.1	3.3	57.4	145.6	203.3	convert
+SRR29065219	coverage	windows	aws_odp	ok	i34	4	515.8	0.9	56.3	366.3	23.4	0.0	0.3	0.0	8.5	57.2	0.1	3.0	55.4	90.2	145.8	convert
+ERR1976660	coverage	windows	aws_odp	ok	i01	4	740.0	0.9	249.4	391.8	24.1	0.0	0.6	0.0	10.6	59.9	0.1	3.0	54.2	87.5	126.3	hook
+SRR36642584	coverage	windows	aws_odp	ok	i01	4	785.6	1.9	160.5	519.9	26.1	0.0	0.8	0.0	12.2	61.7	0.0	2.9	55.3	93.6	148.8	convert
+SRR14705976	coverage	windows	aws_odp	ok	i01	4	607.0	1.3	135.8	374.5	24.5	0.0	0.4	0.0	9.0	58.7	0.0	3.1	54.7	145.4	200.4	convert
+DRR893804	coverage	windows	aws_odp	ok	i33	4	585.8	1.2	146.3	347.2	23.2	0.0	0.4	0.0	8.2	56.8	0.0	2.7	55.4	134.8	190.5	convert
+ERR4832471	coverage	windows	aws_odp	ok	i01	4	627.1	1.0	106.8	419.1	24.5	0.0	0.5	0.0	10.0	62.5	0.1	3.0	55.4	145.9	201.5	convert
+SRR25528371	coverage	windows	aws_odp	ok	i33	4	638.2	1.3	160.6	373.9	23.1	0.0	0.7	0.0	11.6	61.8	0.0	5.6	55.5	91.8	149.4	convert
+ERR4757126	coverage	windows	aws_odp	ok	i01	4	503.1	1.4	32.1	365.7	24.4	0.0	0.5	0.0	11.2	62.1	0.1	5.8	57.3	97.1	138.8	hook
+ERR9980878	coverage	windows	aws_odp	ok	i01	4	553.0	1.2	60.9	393.2	25.4	0.0	0.6	0.0	10.0	59.2	0.0	2.8	55.8	91.5	147.5	convert
+ERR5060402	coverage	windows	aws_odp	ok	i01	4	576.0	1.1	73.4	406.0	23.9	0.0	0.4	0.0	9.7	58.9	0.0	2.9	54.7	145.9	200.7	convert
+ERR12645156	coverage	windows	aws_odp	ok	i33	4	528.1	1.1	62.4	372.3	23.6	0.0	0.4	0.0	8.4	57.3	0.2	2.9	55.8	91.0	146.1	convert
+DRR079313	coverage	windows	aws_odp	ok	i01	4	524.3	1.2	32.1	388.0	22.2	0.0	0.5	0.0	10.8	62.3	0.1	7.2	57.3	145.8	205.5	convert
+ERR2660589	coverage	stride	ena_https	ok	i39	4	4980.1	1.3	3818.9	0.0	69.6	4.7	942.3	20.9	0.0	62.0	0.3	60.4	56.7	78.9	127.3	hook
+SRR23973577	coverage	windows	aws_odp	ok	i01	4	497.0	1.1	42.4	360.2	24.7	0.0	0.4	0.0	8.5	56.8	0.1	3.0	57.5	145.1	202.9	convert
+DRR893806	coverage	windows	aws_odp	ok	i01	4	496.9	1.2	49.9	354.0	23.4	0.0	0.4	0.0	8.6	56.9	0.0	2.7	55.1	134.9	190.1	convert
+DRR059887	coverage	windows	aws_odp	ok	i33	4	640.7	0.9	89.8	437.6	39.1	0.0	0.6	0.0	14.0	57.4	0.0	1.6	58.6	70.1	127.9	hook
+ERR2061614	coverage	stride	ena_https	ok	i39	4	7004.9	1.1	5683.0	0.0	123.4	8.7	1035.2	21.1	0.0	48.9	0.0	83.9	65.9	79.1	137.6	hook
+ERR2188724	coverage	stride	ena_https	ok	i33	4	9940.3	2.5	8002.3	0.0	136.1	12.8	1601.2	21.7	0.0	54.4	0.1	109.6	64.1	79.0	137.5	hook
+ERR18066360	coverage		ena_https	transient	r11	4	106.8	1.6	105.2	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	45.2	44.9	54.2	transfer
+ERR1448265	coverage		ena_https	transient	r11	4	115.9	1.7	114.2	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	46.8	46.5	55.7	transfer
+ERR18066403	coverage		ena_https	transient	r11	4	8.5	1.1	5.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	1.8	48.4	48.1	57.2	transfer
+ERR1448266	coverage		ena_https	transient	r11	4	594.2	1.1	593.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	47.2	46.9	56.3	transfer
+ERR1448268	coverage		ena_https	transient	i33	4	4222.4	1.1	4220.9	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.3	47.1	47.0	56.2	transfer
+ERR2662958	coverage		ena_https	transient	r11	4	2614.0	2.0	2611.8	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.3	47.0	46.6	55.8	transfer
+ERR2061624	coverage		ena_https	transient	r11	4	3013.8	2.0	3011.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.3	46.4	46.1	55.3	transfer
+ERR18066421	coverage		ena_https	transient	r11	4	2441.3	1.4	2439.4	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.5	44.5	44.2	53.5	transfer
+ERR2188724	coverage		ena_https	ok	r11	4	0.0	3.4	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	45.7	0.0	45.7	other
+ERR2061621	coverage	stride	ena_https	ok	i34	4	7159.2	1.2	5642.0	0.0	120.0	9.3	1213.1	20.9	0.0	56.8	0.1	96.2	64.1	74.8	136.3	hook
+ERR2653636	coverage	stride	ena_https	ok	r11	4	3096.5	1.0	2500.4	0.0	33.8	2.8	482.1	17.8	0.0	32.5	0.1	26.4	60.0	69.8	128.6	hook
+ERR18066418	coverage		ena_https	transient	r11	4	758.3	1.3	757.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	45.3	45.0	54.1	transfer
+ERR1448268	coverage		ena_https	transient	r11	4	3.3	1.2	2.1	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	45.5	45.2	54.5	transfer
+ERR2660592	coverage		ena_https	transient	r11	4	712.5	0.9	711.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	46.6	46.3	55.6	transfer
+ERR2653650	coverage		ena_https	transient	r11	4	6.6	1.1	5.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	45.7	45.4	54.6	transfer
+ERR18066425	coverage		ena_https	transient	r11	4	217.5	2.0	215.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	46.4	46.1	55.3	transfer
+ERR2061621	coverage		ena_https	ok	r11	4	0.0	1.1	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	49.8	0.0	49.8	other
+ERR2653642	coverage		ena_https	transient	r11	4	11.5	2.5	9.1	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	51.7	51.4	60.6	transfer
+ERR1448269	coverage		ena_https	transient	r11	4	531.7	0.9	530.7	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.1	47.0	46.7	55.7	transfer
+ERR1448263	coverage		ena_https	transient	r11	4	2709.7	2.1	2707.3	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.3	47.7	47.4	56.8	transfer
+ERR2660590	coverage	stride	ena_https	ok	r11	4	1925.0	0.9	1269.0	0.0	19.2	1.4	571.4	15.7	0.0	31.9	0.0	15.7	54.6	74.0	126.6	hook
+ERR2653651	coverage	stride	ena_https	ok	r11	4	3183.7	0.9	2112.5	0.0	29.5	2.5	451.4	19.3	0.0	31.6	0.0	536.2	56.7	69.7	125.5	hook
