@@ -10,10 +10,16 @@
 //!   mixture, not a mislabel (kept, flagged);
 //! * `mismatch`: the index makes a genus call that differs from the filed genus, the best hit holds at least `min_share` of the
 //!   sample's hashes (a weak call is not enough to refuse a run) and the filed genus holds less than `min_purity_mixed`;
-//! * `no_fungal_call_suspect`: no confident call, and the index has references for the filed genus, so it should have found them;
+//! * `host_dominated`: no confident call, but the filed genus holds between `min_host_purity` and `min_purity_mixed` of the hashes:
+//!   the organism is there but something else (host tissue, another source) dominates the reads, so the run is not an isolate
+//!   genome (infected plant samples, PRJEB20844). Says what the reads are, so it is kept apart from the next status;
+//! * `no_fungal_call_suspect`: no confident call, and the index has references for the filed genus but almost none of its hashes
+//!   (below `min_host_purity`) or a share above `min_purity_mixed` without a call: it should have found them;
 //! * `no_fungal_call`: no confident call, and the index has no references for the filed genus: it cannot judge.
 //!
-//! `unchecked` (no sketch yet) is written by the consumer, not here. `purity` is the share of the sample's hashes found in any
+//! Excluded by default (`exclude_default`, the last column): `mismatch`, `host_dominated`, `no_fungal_call_suspect`. Kept and only
+//! flagged: `match`, `genus_only`, `genus_match`, `mixed`, `no_fungal_call`. `unchecked` (no sketch yet) is written by the
+//! consumer, not here. `purity` is the share of the sample's hashes found in any
 //! genome of the filed genus (exact, from the index; empty when the index has no reference for the filed genus). The default `min_share` is a placeholder until the post-hoc pass over the
 //! sketched runs has been read (the order of work in #52).
 
@@ -27,6 +33,10 @@ pub struct MatchParams {
     /// another genus is `mixed`, not `mismatch`, when the filed genus holds at least this share of the sample's hashes (placeholder,
     /// to be calibrated on the C. beticola runs)
     pub min_purity_mixed: f64,
+    /// with no confident call, a filed-genus share of at least this (and below `min_purity_mixed`) is `host_dominated`; below it the
+    /// run is a `no_fungal_call_suspect` (placeholder: the plant-tissue runs hold 0.6 to 5.9%, the probably non-fungal ones 0.1 to 1.4%,
+    /// so the sets do not separate them well)
+    pub min_host_purity: f64,
 }
 
 impl Default for MatchParams {
@@ -34,6 +44,7 @@ impl Default for MatchParams {
         MatchParams {
             min_share: 0.02,
             min_purity_mixed: 0.2,
+            min_host_purity: 0.005,
         }
     }
 }
@@ -52,17 +63,30 @@ pub struct MatchRow {
 }
 
 pub const TSV_HEADER: &str =
-    "id\tfiled_name\tstatus\tdetected_genus\tdetected_species\tbest_shared_hashes\tbest_share\tpurity\treason";
+    "id\tfiled_name\tstatus\texclude_default\tdetected_genus\tdetected_species\tbest_shared_hashes\tbest_share\tpurity\treason";
+
+/// Statuses a consumer drops from a new selection unless asked to keep them (PopSeq#52).
+pub fn excluded_by_default(status: &str) -> bool {
+    matches!(
+        status,
+        "mismatch" | "host_dominated" | "no_fungal_call_suspect"
+    )
+}
 
 impl MatchRow {
     pub fn tsv(&self) -> String {
         let f = |x: Option<f64>| x.map_or(String::new(), |v| format!("{v:.4}"));
         let c = |x: &str| x.replace(['\t', '\n', '\r'], " ");
         format!(
-            "{}\t{}\t{}\t{}\t{}\t{}\t{:.4}\t{}\t{}",
+            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{:.4}\t{}\t{}",
             c(&self.id),
             c(&self.filed),
             self.status,
+            if excluded_by_default(self.status) {
+                "yes"
+            } else {
+                "no"
+            },
             c(&self.detected_genus),
             c(&self.detected_species),
             self.best_shared,
@@ -110,7 +134,15 @@ pub fn judge(
     };
     let purity = filed_genus_hashes.map(share);
     let (status, reason) = if genus.is_empty() {
-        if index_genera.contains(filed_genus) {
+        if purity.is_some_and(|x| x >= p.min_host_purity && x < p.min_purity_mixed) {
+            (
+                "host_dominated",
+                format!(
+                    "no confident call; {:.1}% of the hashes are {filed_genus} but something else dominates the reads (host tissue or another source): not an isolate genome",
+                    100.0 * purity.unwrap_or(0.0)
+                ),
+            )
+        } else if index_genera.contains(filed_genus) {
             (
                 "no_fungal_call_suspect",
                 format!("no confident call, but the index has references for {filed_genus}"),
@@ -402,6 +434,63 @@ mod tests {
             judge1("Cryptococcus neoformans", &none).status,
             "no_fungal_call_suspect"
         );
+    }
+
+    /// PRJEB20844: infected wheat, the filed genus present at 0.6 to 5.9% with no confident call.
+    #[test]
+    fn some_of_the_filed_genus_but_no_call_is_host_dominated() {
+        let none = rec("", "", &[("Pyricularia", 400)]);
+        let r = judge_fg("Pyricularia oryzae", &none, Some(900)); // 3% of 30,000
+        assert_eq!(r.status, "host_dominated");
+        assert!(r.reason.contains("not an isolate genome"));
+        // almost none of the genus: a suspect, not host-dominated
+        assert_eq!(
+            judge_fg("Pyricularia oryzae", &none, Some(30)).status,
+            "no_fungal_call_suspect"
+        ); // 0.1%
+           // a large share without a call stays a suspect (the index should have called it)
+        assert_eq!(
+            judge_fg("Pyricularia oryzae", &none, Some(9_000)).status,
+            "no_fungal_call_suspect"
+        ); // 30%
+           // the lower bound is a parameter
+        let p = MatchParams {
+            min_host_purity: 0.0005,
+            ..MatchParams::default()
+        };
+        let r = judge(
+            "x",
+            "Pyricularia oryzae",
+            &none,
+            30_000,
+            Some(30),
+            &genera(),
+            &p,
+        );
+        assert_eq!(r.status, "host_dominated");
+    }
+
+    #[test]
+    fn the_default_exclusion_set_is_explicit() {
+        for s in ["mismatch", "host_dominated", "no_fungal_call_suspect"] {
+            assert!(excluded_by_default(s), "{s}");
+        }
+        for s in [
+            "match",
+            "genus_only",
+            "genus_match",
+            "mixed",
+            "no_fungal_call",
+            "unchecked",
+        ] {
+            assert!(!excluded_by_default(s), "{s}");
+        }
+        let r = judge_fg(
+            "Cryptococcus neoformans",
+            &rec("Aspergillus", "", &[("Aspergillus", 25_000)]),
+            Some(0),
+        );
+        assert!(r.tsv().split('\t').nth(3) == Some("yes"));
     }
 
     #[test]

@@ -92,6 +92,9 @@ enum Cmd {
         /// another genus is `mixed`, not `mismatch`, when the filed genus also holds at least this share of the hashes
         #[arg(long, default_value_t = 0.2)]
         mixed_purity: f64,
+        /// with no confident call, a filed-genus share from this up to --mixed-purity is `host_dominated` (below it: suspect)
+        #[arg(long, default_value_t = 0.005)]
+        host_purity: f64,
     },
     /// Check one sketched sample against the genome it should cover (was the run sampled evenly?). Prints one TSV line;
     /// exit 0 = ok, 75 = undersampled (the reads miss part of the genome or pile up on part of it: resample), 65 = not
@@ -314,11 +317,15 @@ fn main() -> Result<()> {
             out,
             min_share,
             mixed_purity,
+            host_purity,
         } => {
             use anyhow::Context as _;
             use popsketch::species_match::{run_folder, MatchParams, TSV_HEADER};
             if !(min_share.is_finite() && (0.0..=1.0).contains(&min_share)) {
                 anyhow::bail!("--min-share must be between 0 and 1, got {min_share}");
+            }
+            if !(host_purity.is_finite() && (0.0..=1.0).contains(&host_purity)) {
+                anyhow::bail!("--host-purity must be between 0 and 1, got {host_purity}");
             }
             if !(mixed_purity.is_finite() && (0.0..=1.0).contains(&mixed_purity)) {
                 anyhow::bail!("--mixed-purity must be between 0 and 1, got {mixed_purity}");
@@ -359,6 +366,7 @@ fn main() -> Result<()> {
                 "index": index.display().to_string(),
                 "min_share": min_share,
                 "min_purity_mixed": mixed_purity,
+                "min_host_purity": host_purity,
                 "filed_table": filed.display().to_string(),
                 "rows": rows.len(),
                 "in_filed_table_not_sketched": missing,
