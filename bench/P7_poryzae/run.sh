@@ -10,6 +10,10 @@ GMG_ROOT=$(cd "$HERE/../.." && pwd)
 : "${POPSEQ_ROOT:?}" "${ARRAY:?array range, e.g. 0 or 1-9}"
 OUT=${OUT:-$HOME/projects/GmG/bench/P7_poryzae/out}
 MEM=${MEM:-12G}
+# species check in the fetch hook (PopSeq#52): the small index (0.56 GB; about 1 s and 1.4 GB per run). A run whose reads are another genus than the filed
+# species is refused (hook_failed, 14; its sketch goes to sketches/refused/). SPECIES_MATCH=off reproduces a run made before the check existed.
+export SPECIES_INDEX=${SPECIES_INDEX:-/bigdata/stajichlab/shared/projects/GmG_runs/index/bfd_s10000.gmgi}
+export SPECIES_MATCH=${SPECIES_MATCH:-refuse}
 mkdir -p "$OUT"
 cat > "$OUT/job.sh" <<JOB
 #!/bin/bash
