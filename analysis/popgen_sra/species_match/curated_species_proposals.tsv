@@ -1,0 +1,3 @@
+run_accession	filed_species	proposed_curated_species	evidence	action
+SRR34066269	Cryptococcus neoformans	Cryptococcus deneoformans	species-match: index calls C. deneoformans, 94% of hashes in the genus; reads map 96.6% to JEC21 and 58.5% to H99 (controls: 97-98% to H99, 58-60% to JEC21); strain CBS7748, study PRJNA1279655	propose
+SRR34066268	Cryptococcus neoformans		species-match: index calls C. deneoformans, 86% of hashes in the genus; but reads map 57.9% to JEC21 and 65.1% to H99: no clear parent, hybrid-like; strain CBS7816, study PRJNA1279655	not proposed (evidence does not support a single species)
