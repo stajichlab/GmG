@@ -185,5 +185,51 @@ class Merge(Tmp):
         self.assertEqual([r["run_accession"] for r in csv.DictReader(io.StringIO(out.getvalue()))], ["B", "C"])
 
 
+class FiledTable(unittest.TestCase):
+    """popsra_filed_table.py: the name each run is filed under, for the species check."""
+
+    def run_tool(self, manifest_text, name="m.csv"):
+        import popsra_filed_table as ft
+        with tempfile.TemporaryDirectory() as d:
+            m, out = os.path.join(d, name), os.path.join(d, "out.tsv")
+            with open(m, "w") as fh:
+                fh.write(manifest_text)
+            err = io.StringIO()
+            with redirect_stderr(err):
+                rc = ft.main([m, "-o", out])
+            return rc, (open(out).read() if os.path.exists(out) else None), err.getvalue()
+
+    def test_species_name_is_the_default_and_the_effective_name_wins_when_present(self):
+        rc, out, _ = self.run_tool("run_accession,species_name,study_accession\nR1,Fusarium oxysporum,P1\nR2,Aspergillus fumigatus,P2\n")
+        self.assertEqual((rc, out), (0, "id\tfiled\nR1\tFusarium oxysporum\nR2\tAspergillus fumigatus\n"))
+        rc, out, _ = self.run_tool("run_accession,species_name,effective_species\nR1,Fusarium oxysporum,Fusarium oxysporum f. sp. x\nR2,A b,\n")
+        self.assertEqual(out, "id\tfiled\nR1\tFusarium oxysporum f. sp. x\n")   # R2 has no effective name: left out, not silently the NCBI one
+
+    def test_a_row_without_a_name_or_a_run_is_left_out_and_a_repeat_keeps_the_first(self):
+        rc, out, _ = self.run_tool("run,species_name\nR1,\nR2,X y\n,Z z\nR2,Other name\n")
+        self.assertEqual(out, "id\tfiled\nR2\tX y\n")
+
+    def test_tab_separated_manifests_are_read_and_a_missing_column_exits_2(self):
+        rc, out, _ = self.run_tool("run_accession\tspecies_name\nR1\tX y\n", name="m.tsv")
+        self.assertEqual((rc, out), (0, "id\tfiled\nR1\tX y\n"))
+        rc, out, err = self.run_tool("run_accession,country\nR1,BR\n")
+        self.assertEqual(rc, 2)
+        self.assertIsNone(out)
+        self.assertIn("name column", err)
+
+
+class MergeSpeciesMatch(unittest.TestCase):
+    def test_species_match_files_are_merged_with_one_header(self):
+        with tempfile.TemporaryDirectory() as d:
+            for i, run in ((0, "R1"), (1, "R2")):
+                os.makedirs(os.path.join(d, "tasks", str(i)))
+                with open(os.path.join(d, "tasks", str(i), "species_match.tsv"), "w") as fh:
+                    fh.write("id\tfiled_name\tstatus\n" + f"{run}\tX y\tmatch\n")
+            with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+                merge.main([d]) if hasattr(merge, "main") else merge.merge(d, "species_match")
+            text = open(os.path.join(d, "merged", "species_match.tsv")).read()
+            self.assertEqual(text, "id\tfiled_name\tstatus\nR1\tX y\tmatch\nR2\tX y\tmatch\n")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=1)

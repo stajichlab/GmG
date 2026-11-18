@@ -1,0 +1,3 @@
+id	filed_name	status	exclude_default	detected_genus	detected_species	best_shared_hashes	best_share	purity	reason
+SRR30534096	Cryptococcus neoformans	mismatch	yes	Aspergillus		2549	0.4198	0.0023	reads are Aspergillus, filed Cryptococcus neoformans; best hit holds 42.0% of the hashes
+DRR829882	Cryptococcus neoformans	match	no	Cryptococcus	Cryptococcus neoformans	1823	0.9545	0.9618	

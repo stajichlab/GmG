@@ -1,0 +1,3 @@
+run_accession,species_name,note
+SRR30534096,Cryptococcus neoformans,filed C. neoformans; the reads are A. fumigatus (PopSeq#52): the hook must refuse it
+DRR829882,Cryptococcus neoformans,clean C. neoformans control: the hook must keep it

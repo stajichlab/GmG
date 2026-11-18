@@ -51,6 +51,18 @@ echo "chunk $i: $(printf '%s\n' "$runs" | wc -l | tr -d ' ') runs, $PAR at a tim
 # nodes to one file on a shared file system can interleave or lose lines. popsra_merge.sh joins them afterwards.
 TASKDIR="$WORK/tasks/$i"
 mkdir -p "$WORK/sketches" "$WORK/reads" "$WORK/logs/runs" "$TASKDIR"
+# Species check (PopSeq#52): SPECIES_INDEX (use bfd_s10000.gmgi) and SPECIES_MATCH (refuse, warn or off; default refuse) come from the
+# environment. The filed species name of each run is taken from the manifest (column effective_species, else species_name).
+# Without a readable SPECIES_INDEX every run is recorded as `unchecked` and warned about: say so once, here, in the job log.
+SPECIES_MATCH=${SPECIES_MATCH:-refuse}
+# a manifest with no name column is not a failure of the job: the table is empty and every run is recorded as unchecked, with a warning
+python3 "$GMG_ROOT/scripts/popsra_filed_table.py" "$MANIFEST" -o "$TASKDIR/filed.tsv" 2> "$TASKDIR/filed_table.err" || {
+  echo "chunk $i: WARNING cannot make the filed-name table ($(tr '\n' ' ' < "$TASKDIR/filed_table.err")): every run will be recorded as unchecked" >&2
+  printf "id\tfiled\n" > "$TASKDIR/filed.tsv"; }
+export SPECIES_LOG="$TASKDIR/species_match.tsv" SPECIES_FILED="$TASKDIR/filed.tsv" SPECIES_MATCH SPECIES_INDEX="${SPECIES_INDEX:-}"
+if [ "$SPECIES_MATCH" = off ]; then echo "chunk $i: species check OFF"
+elif [ -r "${SPECIES_INDEX:-}" ]; then echo "chunk $i: species check $SPECIES_MATCH, index $SPECIES_INDEX"
+else echo "chunk $i: WARNING species check NOT configured (SPECIES_INDEX='${SPECIES_INDEX:-}' is not readable): every run will be recorded as unchecked" >&2; fi
 export SKETCH_DIR="$WORK/sketches" HOOK_LOG="$TASKDIR/hook_times.tsv" CHECK_LOG="$TASKDIR/sampling_check.tsv" POPSKETCH
 export WORK TASKDIR GMG_ROOT COVERAGE SAMPLING THREADS CONCURRENCY
 FETCH_CMD=${FETCH_CMD:-"$HOME/.local/bin/uv run --project $POPSEQ_ROOT popseq fetch"}

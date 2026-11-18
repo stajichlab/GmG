@@ -25,6 +25,8 @@ export POPSEQ_ROOT=/x GMG_ROOT="$HERE/.." POPSKETCH=/x/popsketch WORK="$T/work" 
        SKIP_MODULES=1 FETCH_CMD="$T/fakefetch" ACTIVE="$T/active" CALLS="$T/calls" CHUNK=5 PAR=2 CONCURRENCY=8 SLURM_CPUS_PER_TASK=8
 for task in 0 1; do SLURM_ARRAY_TASK_ID=$task bash "$HERE/popsra_fetch_chunks.slurm" > "$T/job$task.out" 2>&1; check "chunk $task exits 0" test $? -eq 0; done
 
+check "a manifest with no name column still runs the chunk, and the job log says every run will be unchecked" grep -q "cannot make the filed-name table" "$T/job0.out"
+check "and that the species check is not configured when there is no index" grep -q "species check NOT configured" "$T/job0.out"
 check "every run was fetched exactly once" test "$(cut -d' ' -f1 "$T/calls" | sort | uniq -d | wc -l | tr -d ' ')" = 0
 check "all 10 runs were fetched" test "$(wc -l < "$T/calls" | tr -d ' ')" = 10
 check "two at a time, no more" test "$(sort -n "$T/active.max" | tail -1)" = 2
