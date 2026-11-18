@@ -68,6 +68,28 @@ enum Cmd {
         #[arg(long)]
         r1_only: bool,
     },
+    /// Do the reads of each sketched run belong to the species it is filed under? Writes one verdict per run (match, genus_match,
+    /// mismatch, no_fungal_call_suspect, no_fungal_call) and a sidecar `<out>.meta.json` with the index and thresholds used
+    #[command(
+        after_long_help = "EXAMPLES\n  popsketch species-match --index bfd_s1000.gmgi -s sketches/ --filed filed.tsv -o species_match.tsv\n\nfiled.tsv: two columns, the run id and the species name it is filed under (header line). The --min-share default is a PLACEHOLDER until it is calibrated on the sketched runs (PopSeq#52)."
+    )]
+    SpeciesMatch {
+        /// reference index (.gmgi)
+        #[arg(long)]
+        index: PathBuf,
+        /// folder of sketches made by `popsketch sketch`
+        #[arg(short, long)]
+        sketches: PathBuf,
+        /// table: run id, filed species name (tab-separated, one header line)
+        #[arg(long)]
+        filed: PathBuf,
+        /// output TSV
+        #[arg(short, long)]
+        out: PathBuf,
+        /// the best hit must hold at least this share of the sample's hashes for another genus to count as a mismatch
+        #[arg(long, default_value_t = 0.02)]
+        min_share: f64,
+    },
     /// Check one sketched sample against the genome it should cover (was the run sampled evenly?). Prints one TSV line;
     /// exit 0 = ok, 75 = undersampled (the reads miss part of the genome or pile up on part of it: resample), 65 = not
     /// assessed (too little k-mer coverage, or not this genome: resampling will not help), 2 = error
@@ -279,6 +301,61 @@ fn main() -> Result<()> {
                 s.counts.reads,
                 s.counts.bases,
                 s.spectrum.hashes.len()
+            );
+            Ok(())
+        }
+        Cmd::SpeciesMatch {
+            index,
+            sketches,
+            filed,
+            out,
+            min_share,
+        } => {
+            use anyhow::Context as _;
+            use popsketch::species_match::{run_folder, MatchParams, TSV_HEADER};
+            if !(min_share.is_finite() && (0.0..=1.0).contains(&min_share)) {
+                anyhow::bail!("--min-share must be between 0 and 1, got {min_share}");
+            }
+            let table =
+                std::fs::read_to_string(&filed).with_context(|| filed.display().to_string())?;
+            let mut names = std::collections::HashMap::new();
+            for line in table.lines().skip(1) {
+                let mut c = line.split('\t');
+                if let (Some(id), Some(name)) = (c.next(), c.next()) {
+                    if !id.is_empty() && !name.trim().is_empty() {
+                        names.insert(id.to_string(), name.trim().to_string());
+                    }
+                }
+            }
+            let (rows, missing) =
+                run_folder(&index, &sketches, &names, &MatchParams { min_share })?;
+            let mut text = format!("{TSV_HEADER}\n");
+            for r in &rows {
+                text.push_str(&r.tsv());
+                text.push('\n');
+            }
+            std::fs::write(&out, text).with_context(|| out.display().to_string())?;
+            let mut counts = std::collections::BTreeMap::new();
+            for r in &rows {
+                *counts.entry(r.status).or_insert(0usize) += 1;
+            }
+            let meta = serde_json::json!({
+                "tool": "popsketch species-match",
+                "version": env!("CARGO_PKG_VERSION"),
+                "index": index.display().to_string(),
+                "min_share": min_share,
+                "filed_table": filed.display().to_string(),
+                "rows": rows.len(),
+                "in_filed_table_not_sketched": missing,
+                "status_counts": counts,
+            });
+            let mut mp = out.clone().into_os_string();
+            mp.push(".meta.json");
+            std::fs::write(&mp, serde_json::to_string_pretty(&meta)? + "\n")?;
+            eprintln!(
+                "{} verdicts ({:?}); {missing} filed runs have no sketch",
+                rows.len(),
+                counts
             );
             Ok(())
         }
