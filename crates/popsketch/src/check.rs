@@ -29,7 +29,7 @@
 //! 1.07) and 299 *B. bruxellensis* runs (size ratio 0.5 to 2.35, median 1.09); beyond those they are UNMEASURED.
 
 use crate::sketch_io::SampleSketch;
-use gmg_core::coverage::{auto_min_abund, profile};
+use gmg_core::coverage::{auto_min_abund, depth_without_peak, kmer_bases, profile, MAX_GENOME_MB};
 
 /// Exit code of `popsketch check` for an undersampled sample (sysexits EX_TEMPFAIL: "try again", here with another sampling).
 pub const EXIT_UNDERSAMPLED: i32 = 75;
@@ -49,6 +49,8 @@ pub struct CheckParams {
     pub min_kmer_cov: f64,
     /// above this multiple of the genome size a failing sample is `NotAssessed` and a passing one is too (it is not this genome)
     pub max_size_ratio: f64,
+    /// a deep read set (more k-mers read than a genome of this size needs) with no coverage peak is `NotAssessed`
+    pub max_genome_mb: f64,
 }
 
 impl Default for CheckParams {
@@ -58,6 +60,7 @@ impl Default for CheckParams {
             max_cov_ratio: 2.5,
             min_kmer_cov: 3.0,
             max_size_ratio: 5.0,
+            max_genome_mb: MAX_GENOME_MB,
         }
     }
 }
@@ -172,11 +175,16 @@ pub fn check(
     let cutoff = if is_reads { auto_min_abund(abunds) } else { 1 };
     let kept = abunds.iter().filter(|&&a| a >= cutoff).count();
     let est_size_mb = kept as f64 * scaled as f64 / 1e6;
-    let kmer_cov = if is_reads {
-        profile(abunds).map(|c| c.kmer)
-    } else {
-        None
-    };
+    let prof = if is_reads { profile(abunds) } else { None };
+    let kmer_cov = prof.as_ref().map(|c| c.kmer);
+    let deep_no_peak = s.counts.reads > 0
+        && prof.as_ref().is_some_and(|c| {
+            depth_without_peak(
+                c,
+                kmer_bases(s.counts.bases, s.counts.reads, ksize),
+                p.max_genome_mb,
+            )
+        });
     let size_ratio = est_size_mb / genome_mb;
     // a read of L bases holds L - k + 1 k-mers, so k-mer coverage is base coverage times (L - k + 1) / L
     let read_length = (s.counts.reads > 0).then(|| s.counts.bases as f64 / s.counts.reads as f64);
@@ -211,7 +219,15 @@ pub fn check(
         Verdict::Undersampled
     };
     // the situations the two rules cannot judge (see the module doc)
-    if size_ratio > p.max_size_ratio {
+    if deep_no_peak {
+        verdict = Verdict::NotAssessed;
+        reasons.push(format!(
+            "{:.1} Gb of k-mers read but no coverage peak (the fallback gives {:.1}x, which would need a genome over {:.0} Mb): mixed or damaged reads, so the size {est_size_mb:.1} Mb is not reliable and resampling cannot fix that",
+            kmer_bases(s.counts.bases, s.counts.reads, ksize) / 1e9,
+            kmer_cov.unwrap_or(0.0),
+            p.max_genome_mb
+        ));
+    } else if size_ratio > p.max_size_ratio {
         verdict = Verdict::NotAssessed;
         reasons.push(format!(
             "estimated size {est_size_mb:.1} Mb is {size_ratio:.1} times the genome ({genome_mb:.1} Mb), above {:.1} times: not this genome, or the genome size is wrong",
@@ -472,5 +488,58 @@ mod tests {
             Some((21, 200))
         );
         assert_eq!(crate::sketch_io::ksize_scaled_from_tag("k=21"), None);
+    }
+
+    /// #159: a deep run with only an error tail (no coverage peak) cannot be sized: not "not this genome", not undersampled.
+    #[test]
+    fn a_deep_run_without_a_peak_is_not_assessed_and_says_why() {
+        let mut abunds = Vec::new();
+        for (a, n) in [
+            (1u32, 100_000usize),
+            (2, 30_000),
+            (3, 9_000),
+            (4, 2_500),
+            (5, 800),
+        ] {
+            abunds.extend(std::iter::repeat_n(a, n));
+        }
+        let hashes: Vec<u64> = (0..abunds.len() as u64).collect();
+        let deep = SampleSketch {
+            id: "deep".into(),
+            kind: "reads".into(),
+            files: vec![],
+            spectrum: Spectrum { hashes, abunds },
+            counts: Counts {
+                reads: 40_000_000,
+                bases: 6_000_000_000,
+                non_acgt: 0,
+            },
+            halves: None,
+        };
+        let r = check(&deep, 200, 21, 19.0, Some(300.0), &CheckParams::default());
+        assert_eq!(r.verdict, Verdict::NotAssessed);
+        assert!(
+            r.reasons.iter().any(|x| x.contains("no coverage peak")),
+            "{:?}",
+            r.reasons
+        );
+        assert!(
+            !r.reasons.iter().any(|x| x.contains("not this genome")),
+            "{:?}",
+            r.reasons
+        );
+        // the same histogram from a shallow run keeps the earlier verdict path (no depth reason)
+        let mut shallow = deep.clone();
+        shallow.counts = Counts {
+            reads: 1_000_000,
+            bases: 150_000_000,
+            non_acgt: 0,
+        };
+        let r = check(&shallow, 200, 21, 19.0, Some(5.0), &CheckParams::default());
+        assert!(
+            !r.reasons.iter().any(|x| x.contains("Gb of k-mers")),
+            "{:?}",
+            r.reasons
+        );
     }
 }

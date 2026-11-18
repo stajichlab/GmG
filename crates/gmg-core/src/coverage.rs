@@ -36,6 +36,10 @@ const PEAK_MASS_SHARE: f64 = 0.5;
 /// False peaks (high-copy bumps, noise) hold 0.10 or less of them in the sets checked.
 const PEAK_WINDOW_SHARE: f64 = 0.3;
 
+/// Largest genome (Mb) a read set is taken to hold when asking whether its coverage can be right (see [`depth_without_peak`]).
+/// Fungal genomes are tens to a few hundred Mb; 1 Gb leaves room for the largest.
+pub const MAX_GENOME_MB: f64 = 1000.0;
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Coverage {
     /// k-mer coverage: the mean abundance of the genome's k-mers
@@ -122,6 +126,25 @@ pub fn profile(abunds: &[u32]) -> Option<Coverage> {
         basis: "poisson",
         valley: None,
     })
+}
+
+/// k-mers read: bases times `(L - k + 1) / L` for mean read length `L = bases / reads` (all bases when `reads` is 0).
+pub fn kmer_bases(bases: u64, reads: u64, k: u32) -> f64 {
+    if reads == 0 {
+        return bases as f64;
+    }
+    let l = bases as f64 / reads as f64;
+    bases as f64 * ((l - k as f64 + 1.0).max(1.0) / l)
+}
+
+/// A deep read set with no coverage peak: the Poisson fallback gave a coverage so low that, for the amount read, the genome
+/// would have to be larger than `max_genome_mb` (`kmer_bases / coverage > max_genome_mb`). The fallback takes the coverage from
+/// the counts of k-mers seen 2 and 3 times, which at depth are the error tail, not the genome; and the size then counts
+/// everything seen twice or more, so it grows with depth (#159: 18 to 96 Mb for the same run from 1 Gb to the whole run). Neither
+/// the coverage nor the size can be trusted. Does not apply to a `peak` basis, and a genuine low-coverage sample (about 1x of
+/// a normal genome) reads far fewer k-mers than this needs.
+pub fn depth_without_peak(c: &Coverage, kmer_bases: f64, max_genome_mb: f64) -> bool {
+    c.basis == "poisson" && c.kmer > 0.0 && kmer_bases / c.kmer > max_genome_mb * 1e6
 }
 
 /// Genome coverage from the k-mer coverage: `lambda * L / (L - k + 1)` for reads of mean length `L`.
@@ -319,6 +342,46 @@ mod tests {
         let v = auto_min_abund(&healthy);
         assert!((8..=20).contains(&v), "valley {v}");
         assert_eq!(profile(&healthy).unwrap().basis, "peak");
+    }
+
+    #[test]
+    fn kmer_bases_discounts_the_k_minus_1_of_every_read() {
+        assert!((kmer_bases(150_000, 1000, 21) - 150_000.0 * 130.0 / 150.0).abs() < 1e-6);
+        assert_eq!(kmer_bases(500, 0, 21), 500.0); // no read count: all bases
+        assert_eq!(kmer_bases(1000, 100, 21), 1000.0 * 1.0 / 10.0); // reads shorter than k keep one k-mer window
+    }
+
+    fn poisson(kmer: f64) -> Coverage {
+        Coverage {
+            kmer,
+            basis: "poisson",
+            valley: None,
+        }
+    }
+
+    #[test]
+    fn a_deep_read_set_with_a_tiny_poisson_coverage_is_refused_a_size() {
+        // 7.7 Gb of k-mers read, coverage 0.8: the genome would be 9.6 Gb (SRR10298347 whole run, #159)
+        assert!(depth_without_peak(&poisson(0.8), 7.7e9, MAX_GENOME_MB));
+        // the same coverage with 6 Gb read at the 1 Gb limit: 7.5 Gb genome, still refused
+        assert!(depth_without_peak(&poisson(0.8), 6.0e9, MAX_GENOME_MB));
+    }
+
+    #[test]
+    fn honest_low_coverage_and_peaks_are_not_refused() {
+        // 30 Mb genome sequenced to about 1.2x: 36 Mb of k-mers, coverage 1.2 -> implied genome 30 Mb
+        assert!(!depth_without_peak(&poisson(1.2), 36e6, MAX_GENOME_MB));
+        // largest case allowed: 1 Gb genome at 2x
+        assert!(!depth_without_peak(&poisson(2.0), 2.0e9, MAX_GENOME_MB));
+        // a peak basis is never refused for depth, however deep
+        let peak = Coverage {
+            kmer: 300.0,
+            basis: "peak",
+            valley: Some(20),
+        };
+        assert!(!depth_without_peak(&peak, 7.7e9, MAX_GENOME_MB));
+        // a zero or negative coverage is not divided by
+        assert!(!depth_without_peak(&poisson(0.0), 7.7e9, MAX_GENOME_MB));
     }
 
     #[test]

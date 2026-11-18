@@ -2,6 +2,9 @@
 //! cohort, and every flag carries its reason and numbers.
 //!
 //! * `low_coverage`: the k-mer coverage from the abundance histogram is below `min_cov`, or there is no coverage peak.
+//! * `depth_without_peak`: a deep read set (too many k-mers read for a genome of at most `max_genome_mb`) whose histogram has no
+//!   coverage peak; the coverage and the size are not trusted (see `gmg_core::coverage::depth_without_peak`). Replaces
+//!   `low_coverage` for such a sample, because its coverage is not low.
 //! * `size_high` / `size_low`: the estimated size (hashes above the abundance cutoff x scaled) is far from the cohort median
 //!   (robust z, with a floor so a tight cohort does not flag everything). Heavy contamination (a second genome) shows as
 //!   `size_high`; a sample missing half its content as `size_low`.
@@ -13,7 +16,7 @@
 
 use crate::sketch_io::SampleSketch;
 use crate::stats::{median, robust_z};
-use gmg_core::coverage::{auto_min_abund, profile};
+use gmg_core::coverage::{auto_min_abund, depth_without_peak, kmer_bases, profile, MAX_GENOME_MB};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Flag {
@@ -33,6 +36,10 @@ pub struct QcParams {
     pub spectrum_z: f64,
     /// no relative flag is raised for a cohort smaller than this
     pub min_cohort: usize,
+    /// k-mer size of the sketches (converts bases read to k-mers read)
+    pub k: u32,
+    /// largest genome (Mb) a read set can hold; a deep set with no coverage peak is `depth_without_peak`
+    pub max_genome_mb: f64,
 }
 
 impl Default for QcParams {
@@ -43,6 +50,8 @@ impl Default for QcParams {
             size_floor: 0.03,
             spectrum_z: 5.0,
             min_cohort: 8,
+            k: 21,
+            max_genome_mb: MAX_GENOME_MB,
         }
     }
 }
@@ -125,15 +134,27 @@ fn cov_bin(c: f64) -> usize {
 pub fn assess(samples: &[SampleSketch], scaled: u32, p: &QcParams) -> Vec<SampleQc> {
     let mut out: Vec<SampleQc> = Vec::with_capacity(samples.len());
     let mut shoulder_raw: Vec<Option<(f64, f64)>> = Vec::new();
+    let mut deep_no_peak: Vec<bool> = Vec::new();
     for s in samples {
         let reads = s.kind == "reads";
         let (cutoff, cov) = if reads {
             let prof = profile(&s.spectrum.abunds);
+            deep_no_peak.push(
+                s.counts.reads > 0
+                    && prof.as_ref().is_some_and(|c| {
+                        depth_without_peak(
+                            c,
+                            kmer_bases(s.counts.bases, s.counts.reads, p.k),
+                            p.max_genome_mb,
+                        )
+                    }),
+            );
             (
                 auto_min_abund(&s.spectrum.abunds),
                 prof.map(|c| (c.kmer, c.basis)),
             )
         } else {
+            deep_no_peak.push(false);
             (1, None)
         };
         let kept = s.spectrum.abunds.iter().filter(|&&a| a >= cutoff).count();
@@ -165,7 +186,24 @@ pub fn assess(samples: &[SampleSketch], scaled: u32, p: &QcParams) -> Vec<Sample
         });
     }
     // coverage
-    for q in out.iter_mut().filter(|q| q.kind == "reads") {
+    for (i, q) in out
+        .iter_mut()
+        .enumerate()
+        .filter(|(_, q)| q.kind == "reads")
+    {
+        if deep_no_peak[i] {
+            let c = q.kmer_cov.unwrap_or(0.0);
+            q.flags.push(Flag {
+                code: "depth_without_peak",
+                detail: format!(
+                    "{:.1} Gb of k-mers read but no coverage peak (the fallback gives {c:.1}x, which would need a genome over {:.0} Mb): mixed or damaged reads; the size {:.1} Mb counts errors and is not trusted",
+                    kmer_bases(q.bases, q.reads, p.k) / 1e9,
+                    p.max_genome_mb,
+                    q.est_mb
+                ),
+            });
+            continue;
+        }
         match q.kmer_cov {
             // at or above the minimum, from a peak or (no peak yet) from the Poisson basis: enough coverage
             Some(c) if c >= p.min_cov => {}
@@ -184,7 +222,9 @@ pub fn assess(samples: &[SampleSketch], scaled: u32, p: &QcParams) -> Vec<Sample
         let ok: Vec<usize> = out
             .iter()
             .enumerate()
-            .filter(|(_, q)| q.kind == kind && !q.has("low_coverage"))
+            .filter(|(_, q)| {
+                q.kind == kind && !q.has("low_coverage") && !q.has("depth_without_peak")
+            })
             .map(|(i, _)| i)
             .collect();
         if ok.len() < p.min_cohort {
@@ -628,5 +668,72 @@ mod tests {
         let abunds: Vec<u32> = (0..20_000).map(|i| 1_480 + i % 41).collect();
         let (shoulder, het) = window_fractions(&abunds, 1_500.0).expect("defined at 1,500x");
         assert!(shoulder.abs() < 1e-12 && het.abs() < 1e-12);
+    }
+
+    /// An error-tail histogram with no peak: 100k singletons, 30k seen twice, 9k three times, and so on down (Poisson basis,
+    /// coverage 3 * 9000 / 30000 = 0.9), with `reads` and `bases` as given.
+    fn tail_only(id: &str, reads: u64, bases: u64) -> SampleSketch {
+        let mut abunds = Vec::new();
+        for (a, n) in [
+            (1u32, 100_000usize),
+            (2, 30_000),
+            (3, 9_000),
+            (4, 2_500),
+            (5, 800),
+            (6, 250),
+        ] {
+            abunds.extend(std::iter::repeat_n(a, n));
+        }
+        let hashes: Vec<u64> = (0..abunds.len() as u64).collect();
+        SampleSketch {
+            id: id.into(),
+            kind: "reads".into(),
+            files: vec![],
+            spectrum: Spectrum { hashes, abunds },
+            counts: Counts {
+                reads,
+                bases,
+                non_acgt: 0,
+            },
+            halves: None,
+        }
+    }
+
+    /// #159: a deep run with no coverage peak is not "low coverage": 6 Gb read would need a genome of about 6 Gb at 0.9x.
+    #[test]
+    fn a_deep_run_without_a_peak_is_flagged_for_depth_not_for_low_coverage() {
+        let q = assess(
+            &[tail_only("deep", 40_000_000, 6_000_000_000)],
+            200,
+            &QcParams::default(),
+        );
+        let f = flags_of(&q, "deep");
+        assert!(f.contains(&"depth_without_peak"), "{f:?}");
+        assert!(!f.contains(&"low_coverage"), "{f:?}");
+        assert!(q[0].flagged());
+    }
+
+    #[test]
+    fn a_genuine_low_coverage_run_is_still_low_coverage() {
+        // 1 M reads of 150 bases at the same histogram: 130 Mb of k-mers over 0.9x is a 144 Mb genome, plausible
+        let q = assess(
+            &[tail_only("shallow", 1_000_000, 150_000_000)],
+            200,
+            &QcParams::default(),
+        );
+        let f = flags_of(&q, "shallow");
+        assert!(f.contains(&"low_coverage"), "{f:?}");
+        assert!(!f.contains(&"depth_without_peak"), "{f:?}");
+    }
+
+    #[test]
+    fn the_depth_limit_is_a_parameter() {
+        // with a 10 Gb ceiling the deep run's implied 5.8 Gb genome is allowed again: low_coverage, as before the rule
+        let p = QcParams {
+            max_genome_mb: 10_000.0,
+            ..QcParams::default()
+        };
+        let q = assess(&[tail_only("deep", 40_000_000, 6_000_000_000)], 200, &p);
+        assert!(flags_of(&q, "deep").contains(&"low_coverage"));
     }
 }
