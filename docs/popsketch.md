@@ -177,6 +177,48 @@ Twelve deep runs each of *C. neoformans* (7 to 9 Gb, about 18 Mb genome) and *Z.
 - Flags: low coverage is common (*P. nodorum* 34 of 265, *P. oryzae* 22, *Z. tritici* 39); `size_high` in *C. neoformans* (21) is at least in part the estimator failure described above for runs deeper than 100x and has not been checked sample by sample.
 - Not checked: whether any of these sets contains duplicates, clones or mixed-species runs beyond what the flags say; the ordination figures and trees (`<slug>_pcoa/figures`, `tree.nwk`) were not inspected by eye for this note.
 
+## Do the reads belong to the species the run is filed under: `species-match`
+
+`popsketch species-match --index bfd_s10000.gmgi -s sketches/ --filed filed.tsv -o species_match.tsv` compares each sketched run with the
+species name it is filed under (`filed.tsv`: `id<TAB>filed name`, one header line) and writes one verdict per run, plus `species_match.tsv.meta.json`
+(index, popsketch version, cutoffs, status counts). Found with SRR30534096 (filed *C. neoformans*, reads of *A. fumigatus*); PopSeq#52 has the
+decisions. The verdict is the reference index's own call (the classifier of `gmg guess`) against the filed name:
+
+| status | meaning | `exclude_default` |
+|---|---|---|
+| `match` | the called species is the filed species | no |
+| `genus_only` | the genus agrees, the species is not called (the index is thin there) | no |
+| `genus_match` | the index names another species of the filed genus | no |
+| `mixed` | another genus is called but the filed genus holds at least `--mixed-purity` (0.2) of the sample's hashes: a mixture | no |
+| `mismatch` | another genus is called, its best hit holds at least `--min-share` (0.02) of the hashes, the filed genus holds little | **yes** |
+| `host_dominated` | no confident call, the filed genus holds `--host-purity` (0.005) to `--mixed-purity` of the hashes: something else (host tissue) dominates | **yes** |
+| `no_fungal_call_suspect` | no confident call and almost none of the filed genus, or a large share without a call | **yes** |
+| `no_fungal_call` | no confident call and the index has no reference for the filed genus: it cannot judge | no |
+| `unchecked` | written by the fetch hook when the check could not run; the reason is in the last column | no |
+
+Columns: `id, filed_name, status, exclude_default, detected_genus, detected_species, best_shared_hashes, best_share, purity, reason`. `purity` is exact
+(the share of the sample's hashes found in any genome of the filed genus, from the index). **The three cutoffs are placeholders**: on the seven SRA
+sets (2,002 runs) any `--min-share` from near 0 to 0.3 and any `--mixed-purity` from about 0.01 to 0.3 give the same verdicts, so they are
+UNMEASURED beyond those species, one index and one read type (`analysis/popgen_sra/species_match/`). `host_dominated` names a pattern, not a cause.
+
+**Which index.** `bfd_s10000.gmgi` (0.56 GB): 0.6 to 1.5 s and 1.4 GB per run, and the same exclusions as `bfd_s1000.gmgi` on all 2,002 runs (9 runs flip
+between `match` and `genus_only`). `bfd_s1000.gmgi` needs 13.7 GB and 6 to 8 s per run, which four parallel fetches cannot afford.
+
+### In the fetch job
+`scripts/popsra_sketch_hook.sh` runs the check after the sampling check when `SPECIES_LOG` is set (`popsra_fetch_chunks.slurm` sets it to
+`$WORK/tasks/<i>/species_match.tsv`). `SPECIES_MATCH` is `refuse` (default), `warn` or `off`; `SPECIES_INDEX` is the index; the filed name of each
+run comes from the manifest (`effective_species`, else `species_name`; `scripts/popsra_filed_table.py`).
+- **refuse**: a run whose `exclude_default` is yes exits 66 (`popseq fetch` reports `hook_failed`, 14). Its sketch is **moved to `$SKETCH_DIR/refused/`**,
+  not deleted (a re-check against a newer index needs no new download), and `popsketch run --from-sketches` does not read that subfolder, so the folder
+  still holds only samples that passed. The verdict row is in the log either way.
+- **warn**: the run is kept and a warning is printed. **off**: no check.
+- **A check that cannot run** (no readable `SPECIES_INDEX`, no filed name, `species-match` failing, a manifest without a name column) keeps the run,
+  records an `unchecked` row with the reason and warns in the job log; the job log says once at the start when no index is configured.
+`popsra_merge.py` joins the per-task `species_match.tsv` files into `$WORK/merged/species_match.tsv`, which is what PopSeq's `gmg_species_match` import
+reads (PopSeq PR #53).
+Tests: `crates/popsketch/src/species_match.rs` (verdict logic), `scripts/test_popsra_sketch_hook.sh` (refuse, warn, off, unchecked, six checks at once;
+`species-match` stubbed), `scripts/test_popsra_fetch_chunks.sh`, `scripts/test_popsra_retry_list.py` (filed table, merge).
+
 ## Key options
 
 `-k` (21), `-s/--scaled` (200), `--max-bases`, `--r1-only`, `--min-cov`, `--max-samples`, `--flagged`, `--index`, `--ordination`, `--components`, `--k`, `--cut`, `--min-floors`, `--no-tree`, `--root`, `--tree-floor`, `--floor-samples`, `--collapse`, `--collapse-within`, `--bitset-max-gib`, `--from-sketches`, `--target-cov`, `--size-z`, `--size-floor`, `--shoulder-z`, `--no-pca`, `--dapc-pcs`, `--strata`, `--permutations`, `--compare-tree`, `--compare-pcs`, `--report-format`, `--resume`, `--threads`. `popsketch demo` writes a simulated example. See `popsketch run --help`.
