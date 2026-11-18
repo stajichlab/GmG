@@ -55,7 +55,10 @@ mkdir -p "$WORK/sketches" "$WORK/reads" "$WORK/logs/runs" "$TASKDIR"
 # environment. The filed species name of each run is taken from the manifest (column effective_species, else species_name).
 # Without a readable SPECIES_INDEX every run is recorded as `unchecked` and warned about: say so once, here, in the job log.
 SPECIES_MATCH=${SPECIES_MATCH:-refuse}
-python3 "$GMG_ROOT/scripts/popsra_filed_table.py" "$MANIFEST" -o "$TASKDIR/filed.tsv" || { echo "chunk $i: cannot make the filed-name table from $MANIFEST" >&2; exit 2; }
+# a manifest with no name column is not a failure of the job: the table is empty and every run is recorded as unchecked, with a warning
+python3 "$GMG_ROOT/scripts/popsra_filed_table.py" "$MANIFEST" -o "$TASKDIR/filed.tsv" 2> "$TASKDIR/filed_table.err" || {
+  echo "chunk $i: WARNING cannot make the filed-name table ($(tr '\n' ' ' < "$TASKDIR/filed_table.err")): every run will be recorded as unchecked" >&2
+  printf "id\tfiled\n" > "$TASKDIR/filed.tsv"; }
 export SPECIES_LOG="$TASKDIR/species_match.tsv" SPECIES_FILED="$TASKDIR/filed.tsv" SPECIES_MATCH SPECIES_INDEX="${SPECIES_INDEX:-}"
 if [ "$SPECIES_MATCH" = off ]; then echo "chunk $i: species check OFF"
 elif [ -r "${SPECIES_INDEX:-}" ]; then echo "chunk $i: species check $SPECIES_MATCH, index $SPECIES_INDEX"
