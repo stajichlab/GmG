@@ -3,7 +3,7 @@
 
 usage: popsra_merge.py WORK
 
-Each array task of popsra_fetch_chunks.slurm writes results.tsv, profile.tsv, exits.tsv, hook_times.tsv and sampling_check.tsv to
+Each array task of popsra_fetch_chunks.slurm writes results.tsv, profile.tsv, exits.tsv, hook_times.tsv, sampling_check.tsv and species_match.tsv to
 WORK/tasks/<i>/ (appends from several nodes to one shared file can interleave or lose lines). The inputs for each name are
 WORK/<name>.tsv if it exists (the flat layout of the earlier runs) followed by the task files in numeric task order. The first
 line of the first file is kept as the header and a later line equal to it is dropped (a task that was run twice). The output goes
@@ -13,9 +13,9 @@ import os
 import re
 import sys
 
-NAMES = ("results", "profile", "exits", "hook_times", "sampling_check")
+NAMES = ("results", "profile", "exits", "hook_times", "sampling_check", "species_match")
 # exits.tsv and hook_times.tsv have no header line; the others do (their first line starts with "run" or "id")
-HEADERED = {"results": "run", "profile": "run", "sampling_check": "id"}
+HEADERED = {"results": "run", "profile": "run", "sampling_check": "id", "species_match": "id"}
 
 
 def task_files(work, name):
