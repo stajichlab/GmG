@@ -302,6 +302,34 @@ fn flag(q: &mut SampleQc, code: &'static str, detail: String) {
 
 /// Classify one sample against the index (downsampled to the index's scale); None when it cannot be done.
 fn screen(ix: &RefIndex, th: &Thresholds, ctx: &RefContext, s: &SampleSketch) -> Option<IndexCall> {
+    let rec = screen_record(ix, th, ctx, s, 1)?;
+    let taxon = |r: &str| rec["guess"]["calls"][r]["taxon"].as_str().map(String::from);
+    let mixture = (rec["qc"]["mixture"]["suspected"] == true).then(|| {
+        (
+            rec["qc"]["mixture"]["second"]["taxon"]
+                .as_str()
+                .unwrap_or("?")
+                .to_string(),
+            rec["qc"]["mixture"]["second"]["explained_fraction"]
+                .as_f64()
+                .unwrap_or(0.0),
+        )
+    });
+    Some(IndexCall {
+        genus: taxon("genus"),
+        species: taxon("species"),
+        mixture,
+    })
+}
+
+/// The classifier's record (a line of `gmg run`'s results.jsonl) for one sample, with `top` hits kept; None when it cannot be done.
+pub(crate) fn screen_record(
+    ix: &RefIndex,
+    th: &Thresholds,
+    ctx: &RefContext,
+    s: &SampleSketch,
+    top: usize,
+) -> Option<Value> {
     let mh = max_hash_for_scaled(ix.scaled);
     let (mut hashes, mut abunds) = (Vec::new(), Vec::new());
     for (&h, &a) in s.spectrum.hashes.iter().zip(&s.spectrum.abunds) {
@@ -340,27 +368,11 @@ fn screen(ix: &RefIndex, th: &Thresholds, ctx: &RefContext, s: &SampleSketch) ->
         &st,
         // a fixed cutoff of 2 for reads, as `gmg run` uses: the auto cutoff drops the low-abundance k-mers of a light contaminant
         if reads { 2 } else { 1 },
-        1,
+        top,
         &|_| false,
     )
     .ok()?;
-    let taxon = |r: &str| rec["guess"]["calls"][r]["taxon"].as_str().map(String::from);
-    let mixture = (rec["qc"]["mixture"]["suspected"] == true).then(|| {
-        (
-            rec["qc"]["mixture"]["second"]["taxon"]
-                .as_str()
-                .unwrap_or("?")
-                .to_string(),
-            rec["qc"]["mixture"]["second"]["explained_fraction"]
-                .as_f64()
-                .unwrap_or(0.0),
-        )
-    });
-    Some(IndexCall {
-        genus: taxon("genus"),
-        species: taxon("species"),
-        mixture,
-    })
+    Some(rec)
 }
 
 /// Seconds spent in each stage of `analyze`, recorded only in the native build (the browser has no clock we can use here).
