@@ -297,7 +297,7 @@ mod tests {
             "species": {"taxon": (!species.is_empty()).then_some(species)}}, "hits": hits}})
     }
     fn genera() -> HashSet<String> {
-        ["Cryptococcus", "Aspergillus"]
+        ["Cryptococcus", "Aspergillus", "Pyricularia"]
             .iter()
             .map(|s| s.to_string())
             .collect()
