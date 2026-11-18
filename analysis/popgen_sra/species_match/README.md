@@ -1,28 +1,31 @@
-# Post-hoc species_match over the 2,002 sketched SRA runs (PopSeq#52, step 2 of the agreed order; run 2026-11-17)
+# Post-hoc species_match over the 2,002 sketched SRA runs (PopSeq#52; run 2026-11-18 with exact purity)
 
-`popsketch species-match --index bfd_s1000.gmgi -s <set>/sketches --filed filed_<set>.tsv`, filed name = the `species` column of each set's `runs.tsv` (the PopSeq catalog name at the time; the effective-name rule curated > label > NCBI is not applied yet). Default `--min-share` 0.02. Full per-run verdicts are on the HPCC (`GmG_popgen/species_match/sm_<set>.tsv` with a `.meta.json`); `not_match_or_genus_match.tsv` lists the runs that are neither.
+`popsketch species-match --index bfd_s1000.gmgi -s <set>/sketches --filed filed_<set>.tsv`, filed name = the `species` column of each set's `runs.tsv` (the PopSeq catalog name at the time; the effective-name rule curated > label > NCBI is not applied yet). Defaults `--min-share` 0.02, `--mixed-purity` 0.2. Per-run verdicts are on the HPCC (`GmG_popgen/species_match_v2/sm_<set>.tsv` with a `.meta.json`; `species_match/` is the first run, with the top-20-hit purity); `not_match_or_genus_match.tsv` here is from that first run and is superseded by the table below.
 
-| set | match | genus_match | mismatch | no_fungal_call_suspect | filed runs with no sketch |
-|---|---|---|---|---|---|
-| b_cinerea (300) | 289 | 11 | 0 | 0 | 0 |
-| c_beticola (300) | 1 | 294 | 3 | 2 | 0 |
-| c_neoformans (300) | 225 | 72 | 1 | 2 | 0 |
-| n_discreta (223) | 197 | 26 | 0 | 0 | 0 |
-| p_nodorum (300) | 265 | 35 | 0 | 0 | 0 |
-| p_oryzae (279) | 258 | 15 | 0 | 6 | 21 (the failed fetches) |
-| z_tritici (300) | 90 | 209 | 0 | 1 | 0 |
+Statuses: `match` species agrees; `genus_only` genus agrees, species not called; `genus_match` the index names another species of the genus; `mixed` another genus is called but the filed genus holds at least `--mixed-purity` of the hashes; `mismatch` another genus and little of the filed genus; `no_fungal_call_suspect` no confident call although the index has the filed genus. `purity` is the exact share of the sample's hashes found in any genome of the filed genus.
+
+| set | match | genus_only | genus_match | mixed | mismatch | no_fungal_call_suspect | no sketch |
+|---|---|---|---|---|---|---|---|
+| b_cinerea (300) | 289 | 11 | 0 | 0 | 0 | 0 | 0 |
+| c_beticola (300) | 1 | 294 | 0 | 3 | 0 | 2 | 0 |
+| c_neoformans (300) | 225 | 70 | 2 | 0 | 1 | 2 | 0 |
+| n_discreta (223) | 197 | 26 | 0 | 0 | 0 | 0 | 0 |
+| p_nodorum (300) | 265 | 35 | 0 | 0 | 0 | 0 | 0 |
+| p_oryzae (279) | 258 | 15 | 0 | 0 | 0 | 6 | 21 (failed fetches) |
+| z_tritici (300) | 90 | 209 | 0 | 0 | 0 | 1 | 0 |
 
 ## What it found
-- The known cases come out as expected: SRR30534096 `mismatch` (*Aspergillus*, 27,014 hashes, 33% of the sample's hashes); SRR26462617 and ERR13824414 `no_fungal_call_suspect`.
-- **Three *C. beticola* runs (ERR12084585, SRR31166608, SRR31166716) are `mismatch`** against *Penicillium* / *Akanthomyces* (47 to 58% of hashes), and ERR12084630 and SRR31166705 are suspects. Only 5 to 34% of their reads map to the *C. beticola* reference (3M pairs). That says they are not clean *C. beticola*, **not** that they are mislabelled: they may be mixed samples (leaf material). Not resolved.
-- Six *P. oryzae* runs from one study (ERR1976666 to ERR1976671) are suspects with 0.6 to 5% of hashes in the best hit, and were already off size (1.5 to 2.0 times the assembly).
-- `genus_match` is dominated by thin species calls (*C. beticola* 294 of 300, *Z. tritici* 209 of 300): the index calls the genus but not the species, so this status mostly measures the index, not the runs. It is kept and not excluded, as agreed.
+- **SRR30534096 is a `mismatch`** (*Aspergillus*, 27,014 hashes = 33% of the sample; 0.2% of its hashes are in *Cryptococcus*).
+- **SRR34066268 and SRR34066269 are `genus_match`**: the index calls *C. deneoformans* (86 to 93% of the hashes in the genus) for runs filed as *C. neoformans*. A species-level mislabel, same study as the runs in `RESULTS_hybrids_and_155.md`.
+- **The three *C. beticola* runs (ERR12084585, SRR31166608, SRR31166716) are `mixed`**, not `mismatch`: 32 to 50% of their hashes are *Cercospora* and 47 to 58% sit in *Penicillium* or *Akanthomyces* (5 to 34% of reads map to the *C. beticola* reference). Mixed samples, not mislabels. ERR12084630 (no call, purity 14%) and SRR31166705 (no call, 50%) are suspects of the same kind.
+- `no_fungal_call_suspect` also holds SRR26462617 (0.1% in the filed genus) and ERR13824414 (1.4%), probably non-fungal; SRR10233430 (5%) is new and unexamined; six *P. oryzae* runs of one study (ERR1976666 to ERR1976671, 0.6 to 5.9% *Pyricularia* hashes) are examined in `RESULTS_species_match_suspects.md` when that file exists.
+- `genus_only` (about 650 runs) mostly measures thin species calls in the index (*C. beticola* 294 of 300, *Z. tritici* 209 of 300), not run problems. Not excluded.
 
-## Calibration of `--min-share`
-`min-share` only applies to a sample with a confident genus call that differs from the filed genus. Every such call here (the 4 `mismatch` runs) has 33 to 58% of the hashes in the best hit, and no run had a genus call with a share under 2% (the `weak` branch never fired). **Any cutoff from near 0 to 0.3 gives the same verdicts on these 2,002 runs**, so these sets do not discriminate between values; 0.02 is kept as the default and the value is UNMEASURED beyond these seven species. The suspects are a different group: they have no confident genus call, and their best-hit share is anywhere from 0.2% to 72% (ERR12084630 72%, SRR31166705 45%, the others 7% or less), which looks like hits spread over several genera, not a weak single call.
+## Calibration of the two cutoffs
+- `--min-share` (0.02) only applies to a confident genus call that differs from the filed genus. Every such call here has 33 to 58% of the hashes in the best hit; none was weak. Any value from near 0 to 0.3 gives the same verdicts.
+- `--mixed-purity` (0.2) separates `mixed` from `mismatch`: filed-genus shares of the other-genus calls are 0.2% (SRR30534096) against 32 to 50% (the three *C. beticola* runs); nothing falls in between. **Any cutoff from about 0.01 to 0.3 gives the same verdicts on these runs**, so the sets do not discriminate it and 0.2 stays as a placeholder. UNMEASURED beyond these seven species and one index (bfd_s1000).
 
-## Known limits (to settle before the fetch hook uses it)
-- `purity` is computed from the top 20 hits only, so it is a lower bound: it is 0.0000 for the runs whose best hits are all another genus, which does not mean they hold no filed-genus hashes. A proper value needs the filed genus's share over all genomes of the index (an index query, not the hit list).
-- A mixed sample whose majority is another genus is called `mismatch` even if the filed species is also present. By the agreed rules purity does not drive the status; this case (the three *C. beticola* runs may be one) needs a decision once purity is exact.
-- The filed name here is the set's `runs.tsv` species; the effective-name rule is not applied, and a label change does not yet make a verdict stale.
-- One index (bfd_s1000), one read type; checked only for the seven species above.
+## Known limits
+- A `mixed` or `mismatch` verdict says what the reads are, not why (leaf material, a pooled library, a wrong label): that needs the sample metadata.
+- The filed name is the set's `runs.tsv` species; the effective-name rule is not applied, and a label change does not yet make a verdict stale.
+- One index, one read type, seven species.
