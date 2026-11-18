@@ -4,14 +4,17 @@
 //! One verdict per sample from the reference index's own call (the same classifier as `gmg guess`), compared with the filed name:
 //!
 //! * `match`: the called species is the filed species;
-//! * `genus_match`: the called genus is the filed genus but the species is not called or differs (kept, reported);
-//! * `mismatch`: the index makes a genus call that differs from the filed genus, and the best hit holds at least `min_share` of
-//!   the sample's hashes (a weak call is not enough to refuse a run);
+//! * `genus_only`: the called genus is the filed genus and the species is not called (the index is thin there; says little);
+//! * `genus_match`: the called genus is the filed genus but the index names a different species of it (worth a look; kept);
+//! * `mixed`: the index calls another genus, but at least `min_purity_mixed` of the sample's hashes are in the filed genus too: a
+//!   mixture, not a mislabel (kept, flagged);
+//! * `mismatch`: the index makes a genus call that differs from the filed genus, the best hit holds at least `min_share` of the
+//!   sample's hashes (a weak call is not enough to refuse a run) and the filed genus holds less than `min_purity_mixed`;
 //! * `no_fungal_call_suspect`: no confident call, and the index has references for the filed genus, so it should have found them;
 //! * `no_fungal_call`: no confident call, and the index has no references for the filed genus: it cannot judge.
 //!
-//! `unchecked` (no sketch yet) is written by the consumer, not here. `purity` is the share of the sample's hashes found in the best
-//! reference of the filed genus (not used for the status). The default `min_share` is a placeholder until the post-hoc pass over the
+//! `unchecked` (no sketch yet) is written by the consumer, not here. `purity` is the share of the sample's hashes found in any
+//! genome of the filed genus (exact, from the index; empty when the index has no reference for the filed genus). The default `min_share` is a placeholder until the post-hoc pass over the
 //! sketched runs has been read (the order of work in #52).
 
 use serde_json::Value;
@@ -21,11 +24,17 @@ use std::collections::HashSet;
 pub struct MatchParams {
     /// the best hit must hold at least this share of the sample's hashes for a genus call to count as `mismatch`
     pub min_share: f64,
+    /// another genus is `mixed`, not `mismatch`, when the filed genus holds at least this share of the sample's hashes (placeholder,
+    /// to be calibrated on the C. beticola runs)
+    pub min_purity_mixed: f64,
 }
 
 impl Default for MatchParams {
     fn default() -> Self {
-        MatchParams { min_share: 0.02 }
+        MatchParams {
+            min_share: 0.02,
+            min_purity_mixed: 0.2,
+        }
     }
 }
 
@@ -69,13 +78,15 @@ pub fn genus_of(name: &str) -> &str {
     name.split_whitespace().next().unwrap_or("")
 }
 
-/// The verdict for one sample. `rec` is the classifier's record (`guess.calls`, `guess.hits` with a `lineage` and `shared` each),
-/// `n_query` the number of the sample's hashes that were classified, `index_genera` the genera the index holds references for.
+/// The verdict for one sample. `rec` is the classifier's record (`guess.calls`, `guess.hits` with a `shared` each), `n_query` the
+/// number of the sample's hashes that were classified, `filed_genus_hashes` how many of them are in any genome of the filed genus
+/// (None when the index has no reference for it), `index_genera` the genera the index holds references for.
 pub fn judge(
     id: &str,
     filed: &str,
     rec: &Value,
     n_query: usize,
+    filed_genus_hashes: Option<u64>,
     index_genera: &HashSet<String>,
     p: &MatchParams,
 ) -> MatchRow {
@@ -89,7 +100,6 @@ pub fn judge(
     let (genus, species) = (call("genus"), call("species"));
     let hits = rec["guess"]["hits"].as_array().cloned().unwrap_or_default();
     let shared = |h: &Value| h["shared"].as_u64().unwrap_or(0);
-    let lineage_genus = |h: &Value| h["lineage"][4].as_str().unwrap_or("").to_string();
     let best_shared = hits.first().map_or(0, shared);
     let share = |n: u64| {
         if n_query == 0 {
@@ -98,15 +108,7 @@ pub fn judge(
             n as f64 / n_query as f64
         }
     };
-    let purity = (!filed_genus.is_empty()).then(|| {
-        share(
-            hits.iter()
-                .filter(|h| lineage_genus(h) == filed_genus)
-                .map(shared)
-                .max()
-                .unwrap_or(0),
-        )
-    });
+    let purity = filed_genus_hashes.map(share);
     let (status, reason) = if genus.is_empty() {
         if index_genera.contains(filed_genus) {
             (
@@ -123,13 +125,22 @@ pub fn judge(
         if species == filed {
             ("match", String::new())
         } else if species.is_empty() {
-            ("genus_match", format!("genus {genus}; species not called"))
+            ("genus_only", format!("genus {genus}; species not called"))
         } else {
             (
                 "genus_match",
                 format!("genus {genus}; species called {species}, filed {filed}"),
             )
         }
+    } else if share(best_shared) >= p.min_share && purity.is_some_and(|x| x >= p.min_purity_mixed) {
+        (
+            "mixed",
+            format!(
+                "reads are mostly {genus} ({:.1}% of the hashes in the best hit) but {:.1}% are also {filed_genus}: a mixture, filed {filed}",
+                100.0 * share(best_shared),
+                100.0 * purity.unwrap_or(0.0)
+            ),
+        )
     } else if share(best_shared) >= p.min_share {
         (
             "mismatch",
@@ -209,7 +220,33 @@ pub fn run_folder(
             .count();
         let rec =
             crate::pipeline::screen_record(&ix, &th, &ctx, &s, 20).unwrap_or(serde_json::json!({}));
-        rows.push(judge(id, &filed[id], &rec, n_query, &genera, p));
+        // exact purity: query hashes found in any genome of the filed genus (None when the index has no such genus)
+        let filed_genus_hashes = ix.taxa[4]
+            .iter()
+            .position(|g| !g.is_empty() && g == genus_of(&filed[id]))
+            .map(|gid| {
+                let query: Vec<u64> = s
+                    .spectrum
+                    .hashes
+                    .iter()
+                    .zip(&s.spectrum.abunds)
+                    .filter(|(&h, &a)| h <= mh && a >= if reads { 2 } else { 1 })
+                    .map(|(&h, _)| h)
+                    .collect();
+                u64::from(
+                    ix.explained_by_genus(&query, gid as u32, &|_| false)
+                        .primary,
+                )
+            });
+        rows.push(judge(
+            id,
+            &filed[id],
+            &rec,
+            n_query,
+            filed_genus_hashes,
+            &genera,
+            p,
+        ));
     }
     Ok((rows, missing))
 }
@@ -233,8 +270,20 @@ mod tests {
             .map(|s| s.to_string())
             .collect()
     }
+    /// `fg`: hashes (of 30,000) found in any genome of the filed genus
+    fn judge_fg(filed: &str, r: &Value, fg: Option<u64>) -> MatchRow {
+        judge(
+            "x",
+            filed,
+            r,
+            30_000,
+            fg,
+            &genera(),
+            &MatchParams::default(),
+        )
+    }
     fn judge1(filed: &str, r: &Value) -> MatchRow {
-        judge("x", filed, r, 30_000, &genera(), &MatchParams::default())
+        judge_fg(filed, r, Some(0))
     }
 
     /// SRR30534096: filed Cryptococcus neoformans, reads Aspergillus fumigatus with 25.8k of about 30k hashes shared.
@@ -256,6 +305,38 @@ mod tests {
         assert_eq!(r.purity, Some(0.0));
     }
 
+    /// A mixture: mostly another genus, but the filed genus holds 40% of the hashes too: kept and flagged, not refused.
+    #[test]
+    fn another_genus_with_the_filed_genus_also_present_is_mixed() {
+        let other = rec("Penicillium", "", &[("Penicillium", 15_000)]);
+        let r = judge_fg("Cercospora beticola", &other, Some(12_000));
+        assert_eq!(r.status, "mixed");
+        assert!((r.purity.unwrap() - 0.4).abs() < 1e-9);
+        // the same call with almost none of the filed genus is a mismatch
+        assert_eq!(
+            judge_fg("Cercospora beticola", &other, Some(300)).status,
+            "mismatch"
+        );
+        // a genus the index does not have has no purity, and cannot be mixed
+        let r = judge_fg("Zymoseptoria tritici", &other, None);
+        assert_eq!(r.status, "mismatch");
+        assert_eq!(r.purity, None);
+        // the purity cutoff is a parameter
+        let lax = judge(
+            "x",
+            "Cercospora beticola",
+            &other,
+            30_000,
+            Some(12_000),
+            &genera(),
+            &MatchParams {
+                min_purity_mixed: 0.5,
+                ..MatchParams::default()
+            },
+        );
+        assert_eq!(lax.status, "mismatch");
+    }
+
     #[test]
     fn species_agreement_is_a_match_and_other_species_of_the_genus_a_genus_match() {
         let same = judge1(
@@ -267,7 +348,7 @@ mod tests {
             ),
         );
         assert_eq!(same.status, "match");
-        assert!((same.purity.unwrap() - 20_000.0 / 30_000.0).abs() < 1e-9);
+        assert_eq!(same.purity, Some(0.0)); // purity is the value passed in, not derived from the hits
         let other = judge1(
             "Cryptococcus neoformans",
             &rec(
@@ -277,11 +358,12 @@ mod tests {
             ),
         );
         assert_eq!(other.status, "genus_match");
+        assert!(other.reason.contains("Cryptococcus gattii"));
         let uncalled = judge1(
             "Cryptococcus neoformans",
             &rec("Cryptococcus", "", &[("Cryptococcus", 20_000)]),
         );
-        assert_eq!(uncalled.status, "genus_match");
+        assert_eq!(uncalled.status, "genus_only");
     }
 
     #[test]
@@ -299,8 +381,12 @@ mod tests {
             "Cryptococcus neoformans",
             &rec("Aspergillus", "", &[("Aspergillus", 100)]),
             30_000,
+            Some(0),
             &genera(),
-            &MatchParams { min_share: 0.001 },
+            &MatchParams {
+                min_share: 0.001,
+                ..MatchParams::default()
+            },
         );
         assert_eq!(strict.status, "mismatch");
     }
@@ -325,6 +411,7 @@ mod tests {
             "Cryptococcus neoformans",
             &json!({}),
             0,
+            Some(0),
             &genera(),
             &MatchParams::default(),
         );

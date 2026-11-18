@@ -89,6 +89,9 @@ enum Cmd {
         /// the best hit must hold at least this share of the sample's hashes for another genus to count as a mismatch
         #[arg(long, default_value_t = 0.02)]
         min_share: f64,
+        /// another genus is `mixed`, not `mismatch`, when the filed genus also holds at least this share of the hashes
+        #[arg(long, default_value_t = 0.2)]
+        mixed_purity: f64,
     },
     /// Check one sketched sample against the genome it should cover (was the run sampled evenly?). Prints one TSV line;
     /// exit 0 = ok, 75 = undersampled (the reads miss part of the genome or pile up on part of it: resample), 65 = not
@@ -310,11 +313,15 @@ fn main() -> Result<()> {
             filed,
             out,
             min_share,
+            mixed_purity,
         } => {
             use anyhow::Context as _;
             use popsketch::species_match::{run_folder, MatchParams, TSV_HEADER};
             if !(min_share.is_finite() && (0.0..=1.0).contains(&min_share)) {
                 anyhow::bail!("--min-share must be between 0 and 1, got {min_share}");
+            }
+            if !(mixed_purity.is_finite() && (0.0..=1.0).contains(&mixed_purity)) {
+                anyhow::bail!("--mixed-purity must be between 0 and 1, got {mixed_purity}");
             }
             let table =
                 std::fs::read_to_string(&filed).with_context(|| filed.display().to_string())?;
@@ -327,8 +334,15 @@ fn main() -> Result<()> {
                     }
                 }
             }
-            let (rows, missing) =
-                run_folder(&index, &sketches, &names, &MatchParams { min_share })?;
+            let (rows, missing) = run_folder(
+                &index,
+                &sketches,
+                &names,
+                &MatchParams {
+                    min_share,
+                    min_purity_mixed: mixed_purity,
+                },
+            )?;
             let mut text = format!("{TSV_HEADER}\n");
             for r in &rows {
                 text.push_str(&r.tsv());
@@ -344,6 +358,7 @@ fn main() -> Result<()> {
                 "version": env!("CARGO_PKG_VERSION"),
                 "index": index.display().to_string(),
                 "min_share": min_share,
+                "min_purity_mixed": mixed_purity,
                 "filed_table": filed.display().to_string(),
                 "rows": rows.len(),
                 "in_filed_table_not_sketched": missing,
