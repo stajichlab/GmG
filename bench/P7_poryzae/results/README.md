@@ -32,3 +32,31 @@ sacct MaxRSS of the batch step was 12.58 GB against the 12 GB request with no ki
 - Despite about 8x the bases per run, a fetch (median 500 s) is close to phase 1's 449 s, and the chunk ran 1.9 task-hours for 32 runs
   (phase 1: 40.9 task-hours for 299; 10 chunks of this kind would be about 19). Extrapolation from 32 runs: UNMEASURED beyond chunk 0.
 - The two ENA transfers failed in the middle and one stalled for an hour: the stall timeout plus `curl -C` resume follow-up for PopSeq is now evidenced.
+
+# All 300 runs (chunks 0 to 9 plus one retry pass; 2026-11-16)
+
+Files: `all/{profile,results,exits,sampling_check,hook_times}.tsv` (every attempt; `exits.tsv` keeps all, the latest per run counts). Summary made with `../summarize.py`.
+
+## Outcome: 281 of 300 ok
+| Latest outcome | Runs |
+|---|---|
+| ok (0) | 281 |
+| transient (13) | 15 |
+| hook_failed (14) | 4 (sketch check refused: run too shallow for the genome; correct refusals) |
+
+The first pass left 17 transient and 3 runs with no exit line; the retry pass (20 runs) recovered 5. **All 15 that still fail died during the ENA transfer** after 2 s to 4,200 s (files of 2.6 to 6.9 GB), so more retries from the same host will likely fail the same way: this is the missing stall timeout and resume in PopSeq (stajichlab/PopSeq#51), not a GmG problem. Failed runs: ERR1448263, ERR1448265, ERR1448266, ERR1448268, ERR1448269, ERR18066360, ERR18066403, ERR18066418, ERR18066421, ERR18066425, ERR2061624, ERR2653642, ERR2653650, ERR2660592, ERR2662958.
+
+## Cost of the 281 ok fetches (median, max)
+| Stage | seconds |
+|---|---|
+| whole fetch | 565, 10,462 |
+| transfer | 81, 8,850 |
+| convert (parallel-fastq-dump) | 372, 862 |
+| count | 24, 148 |
+| cut | 0.4, 1,288 |
+| hook (sketch + check) | 57, 90 |
+
+Sampling: windows 265, **stride 14**, none recorded 2. Process tree peak memory: median 158 MiB, max 675 MiB (12 GB was far more than needed). The chunk 0 estimate of about 19 task-hours for the whole species is superseded by the measured run: see `sacct` of job 32116633 for the actual wall time (not tabulated here).
+
+## The set, sketched (fixed popsketch 0.3.2, `run --from-sketches`)
+281 sketches: 255 in analysis, median size 38.9 Mb (assembly 42 Mb), **no clear cut** (jump 0.86 floors, noise floor 0.0020), flags: abundance_shoulder 4, low_coverage 21, unrelated_to_cohort 9. Not shown: structure against geography or labels (the P7 manifest has study and country only); this is the candidate real population for stajichlab/GmG#155, not yet used for it.
