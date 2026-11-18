@@ -1,0 +1,16 @@
+set	id	filed_name	status	detected_genus	detected_species	best_shared_hashes	best_share	purity	reason
+c_beticola	ERR12084585	Cercospora beticola	mismatch	Penicillium		31224	0.4723	0.0000	reads are Penicillium, filed Cercospora beticola; best hit holds 47.2% of the hashes
+c_beticola	ERR12084630	Cercospora beticola	no_fungal_call_suspect			29301	0.7237	0.0000	no confident call, but the index has references for Cercospora
+c_beticola	SRR31166608	Cercospora beticola	mismatch	Penicillium		30201	0.4828	0.0000	reads are Penicillium, filed Cercospora beticola; best hit holds 48.3% of the hashes
+c_beticola	SRR31166705	Cercospora beticola	no_fungal_call_suspect			28792	0.4516	0.4516	no confident call, but the index has references for Cercospora
+c_beticola	SRR31166716	Cercospora beticola	mismatch	Akanthomyces		30930	0.5834	0.0000	reads are Akanthomyces, filed Cercospora beticola; best hit holds 58.3% of the hashes
+c_neoformans	SRR10233430	Cryptococcus neoformans	no_fungal_call_suspect			1001	0.0470	0.0470	no confident call, but the index has references for Cryptococcus
+c_neoformans	SRR26462617	Cryptococcus neoformans	no_fungal_call_suspect			13	0.0017	0.0000	no confident call, but the index has references for Cryptococcus
+c_neoformans	SRR30534096	Cryptococcus neoformans	mismatch	Aspergillus		27014	0.3294	0.0000	reads are Aspergillus, filed Cryptococcus neoformans; best hit holds 32.9% of the hashes
+p_oryzae	ERR1976666	Pyricularia oryzae	no_fungal_call_suspect			389	0.0056	0.0000	no confident call, but the index has references for Pyricularia
+p_oryzae	ERR1976667	Pyricularia oryzae	no_fungal_call_suspect			592	0.0071	0.0000	no confident call, but the index has references for Pyricularia
+p_oryzae	ERR1976668	Pyricularia oryzae	no_fungal_call_suspect			3160	0.0515	0.0515	no confident call, but the index has references for Pyricularia
+p_oryzae	ERR1976669	Pyricularia oryzae	no_fungal_call_suspect			423	0.0057	0.0000	no confident call, but the index has references for Pyricularia
+p_oryzae	ERR1976670	Pyricularia oryzae	no_fungal_call_suspect			3432	0.0439	0.0439	no confident call, but the index has references for Pyricularia
+p_oryzae	ERR1976671	Pyricularia oryzae	no_fungal_call_suspect			1261	0.0157	0.0157	no confident call, but the index has references for Pyricularia
+z_tritici	ERR13824414	Zymoseptoria tritici	no_fungal_call_suspect			110	0.0116	0.0116	no confident call, but the index has references for Zymoseptoria
