@@ -348,6 +348,7 @@ fn main() -> Result<()> {
                 &MatchParams {
                     min_share,
                     min_purity_mixed: mixed_purity,
+                    min_host_purity: host_purity,
                 },
             )?;
             let mut text = format!("{TSV_HEADER}\n");
