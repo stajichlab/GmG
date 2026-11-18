@@ -1,0 +1,14 @@
+{
+  "filed_table": "/scratch/jstajich/32174455/speciesmatch.pcZxMJ/filed.tsv",
+  "in_filed_table_not_sketched": 0,
+  "index": "/bigdata/stajichlab/shared/projects/GmG_runs/index/bfd_s10000.gmgi",
+  "min_host_purity": 0.005,
+  "min_purity_mixed": 0.2,
+  "min_share": 0.02,
+  "rows": 1,
+  "status_counts": {
+    "match": 1
+  },
+  "tool": "popsketch species-match",
+  "version": "0.3.2"
+}
