@@ -214,6 +214,7 @@ run comes from the manifest (`effective_species`, else `species_name`; `scripts/
 - **warn**: the run is kept and a warning is printed. **off**: no check.
 - **A check that cannot run** (no readable `SPECIES_INDEX`, no filed name, `species-match` failing, a manifest without a name column) keeps the run,
   records an `unchecked` row with the reason and warns in the job log; the job log says once at the start when no index is configured.
+The hook keeps `species_match.meta.json` (next to the log) from the first run's call: it is valid for the index and the cutoffs, but its `rows` and `status_counts` describe that one run.
 `popsra_merge.py` joins the per-task `species_match.tsv` files into `$WORK/merged/species_match.tsv`, which is what PopSeq's `gmg_species_match` import
 reads (PopSeq PR #53).
 Tests: `crates/popsketch/src/species_match.rs` (verdict logic), `scripts/test_popsra_sketch_hook.sh` (refuse, warn, off, unchecked, six checks at once;
