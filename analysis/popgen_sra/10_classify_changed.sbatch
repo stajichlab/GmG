@@ -5,13 +5,15 @@
 # Fetches the first N read pairs (default 4M), then reports (a) the fraction of reads that map to the species' reference assembly (minimap2 -x sr)
 # and (b) the top gmg guess. A low mapped fraction supports "most reads are from another genome" (the explanation for the new 3-4 Mb estimates).
 # usage: sbatch --array=1-4 10_classify_changed.sbatch      (results in classify/<run>/summary.tsv; temp files in $SCRATCH)
+# CLASSDIR=<dir> (default classify) holds tasks.tsv and the results, so the same runs can be mapped to a second reference
+# (hybrid check: map to both parents' references, see RESULTS_159_hybrids.md).
 set -uo pipefail
 module load sratoolkit/3.2.0 minimap2/2.30 samtools/1.22.1 2>/dev/null || true
 P=/bigdata/stajichlab/jstajich/projects/GmG_popgen
 GMG=/bigdata/stajichlab/shared/projects/GmG_runs/bin/gmg
 INDEX=/bigdata/stajichlab/shared/projects/GmG_runs/index/bfd_s1000.gmgi
 N=${N:-4000000}
-cd $P/classify
+cd $P/${CLASSDIR:-classify}
 read -r run acc label < <(awk -F'\t' -v n=$SLURM_ARRAY_TASK_ID 'NR==n' tasks.tsv)
 out=$run; mkdir -p $out
 [[ -s $out/summary.tsv ]] && { echo "skip $run"; exit 0; }
