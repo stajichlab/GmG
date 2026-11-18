@@ -48,17 +48,18 @@ pub const TSV_HEADER: &str =
 impl MatchRow {
     pub fn tsv(&self) -> String {
         let f = |x: Option<f64>| x.map_or(String::new(), |v| format!("{v:.4}"));
+        let c = |x: &str| x.replace(['\t', '\n', '\r'], " ");
         format!(
             "{}\t{}\t{}\t{}\t{}\t{}\t{:.4}\t{}\t{}",
-            self.id,
-            self.filed,
+            c(&self.id),
+            c(&self.filed),
             self.status,
-            self.detected_genus,
-            self.detected_species,
+            c(&self.detected_genus),
+            c(&self.detected_species),
             self.best_shared,
             self.best_share,
             f(self.purity),
-            self.reason.replace(['\t', '\n'], " ")
+            c(&self.reason)
         )
     }
 }
@@ -163,6 +164,54 @@ pub fn judge(
         purity,
         reason,
     }
+}
+
+/// Verdicts for every sample of a sketch folder whose id is in `filed` (id -> filed name), against the index in `index_path`.
+/// Samples of the folder with no filed name are skipped (and counted in the second value). Reads only the sketches' own
+/// cached files, so a run that is not sketched yet is simply absent (`unchecked` for the consumer).
+#[cfg(feature = "native")]
+pub fn run_folder(
+    index_path: &std::path::Path,
+    sketches: &std::path::Path,
+    filed: &std::collections::HashMap<String, String>,
+    p: &MatchParams,
+) -> anyhow::Result<(Vec<MatchRow>, usize)> {
+    use crate::sketch_io::cache_read_checked;
+    use anyhow::Context;
+    use gmg_core::classify::Context as RefContext;
+    use gmg_core::{max_hash_for_scaled, RefIndex, Thresholds};
+    let bytes = std::fs::read(index_path).with_context(|| index_path.display().to_string())?;
+    let ix = RefIndex::read_owned(bytes)
+        .with_context(|| format!("reading index {}", index_path.display()))?;
+    let genera: HashSet<String> = ix.taxa[4]
+        .iter()
+        .filter(|g| !g.is_empty())
+        .cloned()
+        .collect();
+    let th = Thresholds::default();
+    let ctx = RefContext::new(&ix);
+    let mh = max_hash_for_scaled(ix.scaled);
+    let mut ids: Vec<&String> = filed.keys().collect();
+    ids.sort();
+    let (mut rows, mut missing) = (Vec::new(), 0usize);
+    for id in ids {
+        let Some(s) = cache_read_checked(sketches, id, false)? else {
+            missing += 1;
+            continue;
+        };
+        let reads = s.kind == "reads";
+        let n_query = s
+            .spectrum
+            .hashes
+            .iter()
+            .zip(&s.spectrum.abunds)
+            .filter(|(&h, &a)| h <= mh && a >= if reads { 2 } else { 1 })
+            .count();
+        let rec =
+            crate::pipeline::screen_record(&ix, &th, &ctx, &s, 20).unwrap_or(serde_json::json!({}));
+        rows.push(judge(id, &filed[id], &rec, n_query, &genera, p));
+    }
+    Ok((rows, missing))
 }
 
 #[cfg(test)]
@@ -291,52 +340,4 @@ mod tests {
         );
         assert_eq!(r.tsv().split('\t').count(), TSV_HEADER.split('\t').count());
     }
-}
-
-/// Verdicts for every sample of a sketch folder whose id is in `filed` (id -> filed name), against the index in `index_path`.
-/// Samples of the folder with no filed name are skipped (and counted in the second value). Reads only the sketches' own
-/// cached files, so a run that is not sketched yet is simply absent (`unchecked` for the consumer).
-#[cfg(feature = "native")]
-pub fn run_folder(
-    index_path: &std::path::Path,
-    sketches: &std::path::Path,
-    filed: &std::collections::HashMap<String, String>,
-    p: &MatchParams,
-) -> anyhow::Result<(Vec<MatchRow>, usize)> {
-    use crate::sketch_io::cache_read_checked;
-    use anyhow::Context;
-    use gmg_core::classify::Context as RefContext;
-    use gmg_core::{max_hash_for_scaled, RefIndex, Thresholds};
-    let bytes = std::fs::read(index_path).with_context(|| index_path.display().to_string())?;
-    let ix = RefIndex::read_owned(bytes)
-        .with_context(|| format!("reading index {}", index_path.display()))?;
-    let genera: HashSet<String> = ix.taxa[4]
-        .iter()
-        .filter(|g| !g.is_empty())
-        .cloned()
-        .collect();
-    let th = Thresholds::default();
-    let ctx = RefContext::new(&ix);
-    let mh = max_hash_for_scaled(ix.scaled);
-    let mut ids: Vec<&String> = filed.keys().collect();
-    ids.sort();
-    let (mut rows, mut missing) = (Vec::new(), 0usize);
-    for id in ids {
-        let Some(s) = cache_read_checked(sketches, id, false)? else {
-            missing += 1;
-            continue;
-        };
-        let reads = s.kind == "reads";
-        let n_query = s
-            .spectrum
-            .hashes
-            .iter()
-            .zip(&s.spectrum.abunds)
-            .filter(|(&h, &a)| h <= mh && a >= if reads { 2 } else { 1 })
-            .count();
-        let rec =
-            crate::pipeline::screen_record(&ix, &th, &ctx, &s, 20).unwrap_or(serde_json::json!({}));
-        rows.push(judge(id, &filed[id], &rec, n_query, &genera, p));
-    }
-    Ok((rows, missing))
 }
