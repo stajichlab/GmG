@@ -1,0 +1,60 @@
+id	field	old	new
+GCA_000150475.2_Paracocci_br_Pb03_V2	taxid	482561	121759
+GCA_003693665.1_ASM369366v1	family		Domatiomycetaceae
+GCA_003693665.1_ASM369366v1	genus		Domatiomyces
+GCA_003693665.1_ASM369366v1	species	Chaetothyriales sp. CBS 134920	Domatiomyces catenatus
+GCA_003709845.1_ASM370984v1	family		Domatiomycetaceae
+GCA_003709845.1_ASM370984v1	genus		Domatiomyces
+GCA_003709845.1_ASM370984v1	species	Chaetothyriales sp. CBS 134916	Domatiomyces globalis
+GCA_004217705.1_ASM421770v1	taxid	2163413	27326
+GCA_004217705.1_ASM421770v1	species	Metschnikowia aff. pulcherrima	Metschnikowia pulcherrima
+GCA_009650685.1_Cryp_gatt_MF34	species	Cryptococcus gattii VGV	Cryptococcus hyracis
+GCA_014462655.1_ASM1446265v1	genus	Mycena	Glaucomycena
+GCA_014462655.1_ASM1446265v1	species	Mycena venus	Glaucomycena venus
+GCA_022578605.1_CtCBS203_1	family	Xylariaceae	Graphostromataceae
+GCA_027627215.1_Lecanicillium_saksenae_reassembly	genus	Lecanicillium	Corniculantispora
+GCA_027627215.1_Lecanicillium_saksenae_reassembly	species	Lecanicillium saksenae	Corniculantispora saksenae
+GCA_028827225.1_ASM2882722v1	species	Penicillium sp. CMV-2018d	Penicillium hesseltinei
+GCA_036426225.1_ASM3642622v1	taxid	2770023	3896964
+GCA_036426225.1_ASM3642622v1	species	Cryptococcus sp. DSM 104548	Cryptococcus maquisensis
+GCA_036427605.1_ASM3642760v1	taxid	2770025	3896966
+GCA_036427605.1_ASM3642760v1	species	Cryptococcus sp. DSM 104549	Cryptococcus jaspeensis
+GCA_040207425.1_EGAP_PsGnd_1	taxid	3120211	3349646
+GCA_040207425.1_EGAP_PsGnd_1	species	Psilocybe maluti	Psilocybe sp. gandalfiana
+GCA_040207545.1_ASM4020754v1	family	Herpotrichiellaceae	Epibryaceae
+GCA_040207545.1_ASM4020754v1	genus	Cladophialophora	Epibryon
+GCA_040207545.1_ASM4020754v1	species	Cladophialophora brunneola	Epibryon brunneolum
+GCA_042370755.1_Myche1	taxid	1149849	1149786
+GCA_048127505.1_ASM4812750v1	genus	Xylaria	Pseudoxylaria
+GCA_048127505.1_ASM4812750v1	species	Xylaria escharoidea	Pseudoxylaria escharoidea
+GCA_048127525.1_ASM4812752v1	genus	Xylaria	Pseudoxylaria
+GCA_048127525.1_ASM4812752v1	species	Xylaria rogersionigripes	Pseudoxylaria rogersionigripes
+GCA_049354935.1_ASM4935493v1	species	Fonsecazyma sp. YL-2025a	Fonsecazyma yulaniae
+GCA_049354965.1_ASM4935496v1	species	Fonsecazyma sp. YL-2025a	Fonsecazyma yulaniae
+GCA_050872005.1_ASM5087200v1	taxid	3400697	3422802
+GCA_050872005.1_ASM5087200v1	species	Purpureocillium sp. XYC-2025d	Purpureocillium araneicola
+GCA_051528695.1_YNP80	genus	Lecanicillium	Corniculantispora
+GCA_051528695.1_YNP80	species	Lecanicillium saksenae	Corniculantispora saksenae
+GCA_051529435.1_YNP44	genus	Lecanicillium	Corniculantispora
+GCA_051529435.1_YNP44	species	Lecanicillium saksenae	Corniculantispora saksenae
+GCA_054471015.1_ASM5447101v1	phylum	Ascomycota	Basidiomycota
+GCA_054471015.1_ASM5447101v1	class		Microbotryomycetes
+GCA_054471075.1_ASM5447107v1	phylum	Ascomycota	Basidiomycota
+GCA_054471075.1_ASM5447107v1	class		Cystobasidiomycetes
+GCA_054658755.1_Hdr_assembly01	species	Hanseniaspora sp. JCM 36741	Hanseniaspora drosophilae
+GCA_056247895.1_Pb28934	species	Paracoccidioides sp. americana	Paracoccidioides americana
+GCA_056247915.1_Pb03	species	Paracoccidioides sp. americana	Paracoccidioides americana
+GCA_056513125.1_ASM5651312v1	family	Herpotrichiellaceae	Epibryaceae
+GCA_056513125.1_ASM5651312v1	genus	Cladophialophora	Epibryon
+GCA_056513125.1_ASM5651312v1	species	Cladophialophora sylvestris	Epibryon sylvestris
+GCA_056513135.1_ASM5651313v1	family	Herpotrichiellaceae	Epibryaceae
+GCA_056513135.1_ASM5651313v1	genus	Cladophialophora	Epibryon
+GCA_056513135.1_ASM5651313v1	species	Cladophialophora minutissima	Epibryon minutissimum
+GCA_056513155.1_ASM5651315v1	family	Herpotrichiellaceae	Epibryaceae
+GCA_056513155.1_ASM5651315v1	genus	Cladophialophora	Epibryon
+GCA_056513155.1_ASM5651315v1	species	Cladophialophora humicola	Epibryon humicola
+GCA_056632975.1_ASM5663297v1	taxid	3121206	3896963
+GCA_056632975.1_ASM5663297v1	species	Cryptococcus sp. CMW60451	Cryptococcus cederbergensis
+GCA_903819665.1_AWRI4233	species	Aureobasidium mustum	Aureobasidium musti
+GCA_965643365.1_PYCC10392	species	Zygosaccharomyces sapae	Zygosaccharomyces rouxii
+GCF_042370625.1_Mychet1	taxid	1149848	1149786
