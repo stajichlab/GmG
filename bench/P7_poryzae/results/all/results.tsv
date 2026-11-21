@@ -322,3 +322,25 @@ ERR1448269	coverage	ena_https						531.7	false	transient
 ERR1448263	coverage	ena_https						2709.7	false	transient		
 ERR2660590	coverage	ena_https	PAIRED	1024510082	4110757	25.000	25.000	1925.0	true	ok	stride	
 ERR2653651	coverage	ena_https	PAIRED	1024520198	5202561	25.000	25.000	3183.7	true	ok	stride	
+ERR18066360	coverage	ena_https						5739.5	false	verify_failed		
+ERR2662958	coverage	ena_https	PAIRED	1024507384	4190163	25.000	25.000	7002.7	true	ok	stride	
+ERR1448265	coverage	ena_https	PAIRED	1024488075	5255718	25.000	25.000	10334.1	true	ok	stride	
+ERR2653636	coverage	ena_https	PAIRED	1024496140	5191113	25.000	25.000	4273.2	true	ok	stride	
+ERR2061624	coverage	ena_https	PAIRED	1024479126	4116882	25.000	24.999	11662.9	true	ok	stride	
+ERR18066403	coverage	ena_https	PAIRED	1024500000	3415000	25.000	25.000	6139.1	true	ok	stride	
+ERR1448266	coverage	ena_https	PAIRED	1024465334	5337964	25.000	24.999	4509.7	true	ok	stride	
+ERR18066418	coverage	ena_https	PAIRED	1024500000	3415000	25.000	25.000	5011.5	true	ok	stride	
+ERR18066421	coverage	ena_https	PAIRED	1024500000	3415000	25.000	25.000	5638.6	true	ok	stride	
+ERR1448263	coverage	ena_https	PAIRED	1024501069	5298317	25.000	25.000	6397.4	true	ok	stride	
+ERR2653651	coverage	ena_https	PAIRED	1024520198	5202561	25.000	25.000	3117.8	true	ok	stride	
+ERR2660592	coverage	ena_https	PAIRED	1024470751	4151135	25.000	24.999	4042.8	true	ok	stride	
+ERR2188724	coverage	ena_https						5592.2	false	verify_failed		
+ERR18066425	coverage	ena_https	PAIRED	1024500000	3415000	25.000	25.000	2509.9	true	ok	stride	
+ERR1448268	coverage	ena_https	PAIRED	1024510828	5298236	25.000	25.000	5011.2	true	ok	stride	
+ERR2653650	coverage	ena_https	PAIRED	1024488574	5202613	25.000	25.000	1925.4	true	ok	stride	
+ERR1448269	coverage	ena_https	PAIRED	1024562043	5297022	25.000	25.002	3648.9	true	ok	stride	
+ERR2660590	coverage	ena_https	PAIRED	1024510082	4110757	25.000	25.000	2157.9	true	ok	stride	
+ERR2653642	coverage	ena_https	PAIRED	1024494232	5199952	25.000	25.000	2766.8	true	ok	stride	
+ERR2061621	coverage	ena_https	PAIRED	1024458569	4245591	25.000	24.999	6190.4	true	ok	stride	
+ERR18066360	coverage	ena_https	PAIRED	1024500000	3415000	25.000	25.000	4826.8	true	ok	stride	
+ERR2188724	coverage	ena_https	PAIRED	1024520871	4124468	25.000	25.001	6884.4	true	ok	stride	

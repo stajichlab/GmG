@@ -60,3 +60,21 @@ Sampling: windows 265, **stride 14**, none recorded 2. Process tree peak memory:
 
 ## The set, sketched (fixed popsketch 0.3.2, `run --from-sketches`)
 281 sketches: 255 in analysis, median size 38.9 Mb (assembly 42 Mb), **no clear cut** (jump 0.86 floors, noise floor 0.0020), flags: abundance_shoulder 4, low_coverage 21, unrelated_to_cohort 9. Not shown: structure against geography or labels (the P7 manifest has study and country only); this is the candidate real population for stajichlab/GmG#155, not yet used for it.
+
+# Update 2026-11-21: the 15 ENA failures re-fetched with PopSeq #55 and #56 (stall timeout, `curl -C -` resume)
+
+All 15 runs listed above now finish, and the set is **296 of 300 ok** plus the 4 correct refusals (14). The re-fetch used PopSeq main `06539ed`,
+`--sampling auto` (stride, coverage 25), 4 fetches at a time, species check `refuse` against `bfd_s10000.gmgi` (all 20 re-fetched runs: `match`; table
+`all/species_match_retry.tsv`, one row per fetch). Files: the new rows are appended to `all/{results,exits,profile,hook_times,sampling_check}.tsv`.
+
+- The retry manifest also held 5 runs that had already finished in the first pass (ERR2653636, ERR2653651, ERR2188724, ERR2660590, ERR2061621); they were fetched again, so
+  those 5 have two or three rows in the files above; the latest row per run counts. This was a mistake of the retry list, not a finding.
+- Pass 1 (4 h job limit) finished 6 of 20 (5 ok, ERR18066360 failed its md5) and hit the limit with the rest still downloading. Pass 2 (12 h limit, the 14 unfinished runs)
+  finished all 14: 13 ok and ERR2188724 failed its md5. ENA served the 2 to 6 GB files at about 1 MB/s, cut connections (curl 18) and once sent an empty reply (curl 52);
+  resume continued every time.
+- **The two md5 failures (ERR18066360_2, ERR2188724_2) did not reproduce.** A plain `curl` of ERR18066360_2 matched ENA's md5; ERR2188724_2 matched after 12 and 7
+  forced resumes in a stand-alone test; and the two runs passed on a third fetch (ERR2188724_2: 2 resumes, md5 ok). The cause of the two failures is **UNKNOWN**
+  (a bad range response, or a damaged scratch file under four parallel fetches, are untested guesses). `curl_resume` now says on stderr how many resumes a transfer
+  needed (PopSeq branch `resume-trace-51`, no PR yet) so the next failure can be read.
+- The earlier 281 sketches of this set were deleted from the HPCC with the other P7 one-offs; the sketches of the re-fetched 20 are in `bench/T51_retry_p7/` (purgeable).
+  The set summary above (255 in analysis, median 38.9 Mb) is **not** redone with the 13 newly recovered runs.
