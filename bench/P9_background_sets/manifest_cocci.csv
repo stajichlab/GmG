@@ -1,0 +1,101 @@
+run_accession,set,species_name,strain,study_accession,country_iso,geo_loc_name,est_depth_x,base_count,region
+SRR3468022,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,AR,Argentina,41.4,1198088360,South America
+ERR15375042,coccidioides_immitis_50,Coccidioides immitis,,PRJEB90459,DE,Germany,49.0,1418705250,Europe
+ERR15375050,coccidioides_immitis_50,Coccidioides immitis,,PRJEB90459,DE,Germany,76.1,2202280899,Europe
+ERR14883901,coccidioides_immitis_50,Coccidioides immitis,,PRJEB88900,IN,India,41.6,1204989971,Asia
+SRR3468021,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,MX,Mexico,80.1,2319296224,North America
+SRR21204680,coccidioides_immitis_50,Coccidioides immitis,B16536,PRJNA808058,US,USA: Oregon,122.0,3531301932,North America
+SRR21204682,coccidioides_immitis_50,Coccidioides immitis,B16364,PRJNA808058,US,USA: Michigan,96.4,2792007536,North America
+SRR21204683,coccidioides_immitis_50,Coccidioides immitis,B16339,PRJNA808058,US,USA: Oregon,130.9,3790790250,North America
+SRR21204684,coccidioides_immitis_50,Coccidioides immitis,B16338,PRJNA808058,US,USA: Maryland,90.1,2609766476,North America
+SRR21204692,coccidioides_immitis_50,Coccidioides immitis,B15146,PRJNA808058,US,USA: Oregon,98.7,2858654562,North America
+SRR21204694,coccidioides_immitis_50,Coccidioides immitis,B15142,PRJNA808058,US,USA: Oregon,86.9,2514375934,North America
+SRR21204697,coccidioides_immitis_50,Coccidioides immitis,B14291,PRJNA808058,US,USA: Oregon,43.0,1244730586,North America
+SRR21204699,coccidioides_immitis_50,Coccidioides immitis,B14288,PRJNA808058,US,USA: Oregon,87.5,2531837502,North America
+SRR21204704,coccidioides_immitis_50,Coccidioides immitis,B14132,PRJNA808058,US,USA: Oregon,149.0,4312438028,North America
+SRR21204723,coccidioides_immitis_50,Coccidioides immitis,B12220,PRJNA808058,US,USA: Oregon,125.7,3639103922,North America
+SRR21204724,coccidioides_immitis_50,Coccidioides immitis,B12219,PRJNA808058,US,USA: Wisconsin,117.0,3387039682,North America
+SRR21295063,coccidioides_immitis_50,Coccidioides immitis,B11343,PRJNA808058,US,USA: Oregon,78.8,2280590312,North America
+SRR25626827,coccidioides_immitis_50,Coccidioides immitis,CBS 120936,PRJNA1004889,US,"USA: California,Los Angeles",45.1,1306738535,North America
+SRR3468016,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,67.6,1958063400,North America
+SRR3468017,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,36.3,1049502000,North America
+SRR3468018,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,32.7,946917000,North America
+SRR3468019,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,50.4,1459449200,North America
+SRR3468038,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,87.7,2538024600,North America
+SRR3468049,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,55.2,1598915600,North America
+SRR3468071,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,97.5,2822466200,North America
+SRR3468079,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,32.0,926718400,North America
+SRR3468080,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,25.5,737526000,North America
+SRR3468081,coccidioides_immitis_50,Coccidioides immitis,missing,PRJNA274372,US,USA,71.0,2056881748,North America
+SRR35701394,coccidioides_immitis_50,Coccidioides immitis,23742X123,PRJNA1337116,US,USA: California,226.4,6552930088,North America
+SRR35701403,coccidioides_immitis_50,Coccidioides immitis,23742X170,PRJNA1337116,US,USA: California,274.5,7946013506,North America
+SRR35701404,coccidioides_immitis_50,Coccidioides immitis,23742X162,PRJNA1337116,US,USA: California,118.8,3438882154,North America
+SRR35701405,coccidioides_immitis_50,Coccidioides immitis,23742X153,PRJNA1337116,US,USA: California,262.7,7604396844,North America
+SRR35701409,coccidioides_immitis_50,Coccidioides immitis,23742X227,PRJNA1337116,US,USA: Utah,198.0,5732109792,North America
+SRR35701410,coccidioides_immitis_50,Coccidioides immitis,23742X225,PRJNA1337116,US,USA: Utah,276.5,8005088632,North America
+SRR35701411,coccidioides_immitis_50,Coccidioides immitis,23742X214,PRJNA1337116,US,USA: Utah,294.0,8510813604,North America
+SRR35701415,coccidioides_immitis_50,Coccidioides immitis,23742X138,PRJNA1337116,US,USA: California,261.5,7569351254,North America
+SRR35701421,coccidioides_immitis_50,Coccidioides immitis,23742X111,PRJNA1337116,US,USA: California,218.6,6327891768,North America
+SRR35701423,coccidioides_immitis_50,Coccidioides immitis,23742X260,PRJNA1337116,US,USA: California,271.9,7871353066,North America
+SRR35701430,coccidioides_immitis_50,Coccidioides immitis,23742X211,PRJNA1337116,US,USA: California,297.4,8610222038,North America
+SRR35701432,coccidioides_immitis_50,Coccidioides immitis,20380X16,PRJNA1337116,US,USA: California,260.6,7543712662,North America
+SRR7206598,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,124.2,3595502712,North America
+SRR7206599,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,136.8,3960015454,North America
+SRR7206600,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,36.5,1056901262,North America
+SRR7206601,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,104.1,3014959290,North America
+SRR7206602,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,66.3,1918313334,North America
+SRR7206603,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,39.1,1131408604,North America
+SRR7206605,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,72.9,2110206854,North America
+SRR7206606,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,46.6,1350309478,North America
+SRR8530933,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,112.0,3243147908,North America
+SRR8530934,coccidioides_immitis_50,Coccidioides immitis,,PRJNA472461,US,USA:Washington,164.5,4763392158,North America
+SRR25495559,coccidioides_posadasii_50,Coccidioides posadasii,,PRJNA1000610,BR,Brazil:Piaui,70.7,1993628400,South America
+SRR25495565,coccidioides_posadasii_50,Coccidioides posadasii,,PRJNA1000610,BR,Brazil:Piaui,75.7,2134665900,South America
+SRR25495568,coccidioides_posadasii_50,Coccidioides posadasii,,PRJNA1000610,BR,Brazil:Piaui,88.1,2483106000,South America
+SRR3468072,coccidioides_posadasii_50,Coccidioides posadasii,missing,PRJNA274372,BR,Brazil,52.7,1486764818,South America
+ERR15375041,coccidioides_posadasii_50,Coccidioides posadasii,,PRJEB90459,DE,Germany,49.6,1399083305,Europe
+ERR15375046,coccidioides_posadasii_50,Coccidioides posadasii,,PRJEB90459,DE,Germany,48.5,1366485866,Europe
+ERR15375047,coccidioides_posadasii_50,Coccidioides posadasii,,PRJEB90459,DE,Germany,49.3,1389889278,Europe
+SRR3468076,coccidioides_posadasii_50,Coccidioides posadasii,missing,PRJNA274372,GT,Guatemala,33.9,956060280,North America
+SRR3468078,coccidioides_posadasii_50,Coccidioides posadasii,missing,PRJNA274372,GT,Guatemala,43.8,1233967560,North America
+SRR3468051,coccidioides_posadasii_50,Coccidioides posadasii,missing,PRJNA274372,MX,Mexico,46.1,1300335800,North America
+SRR3468052,coccidioides_posadasii_50,Coccidioides posadasii,missing,PRJNA274372,MX,Mexico,33.1,934323000,North America
+SRR6830887,coccidioides_posadasii_50,Coccidioides posadasii,3490,PRJNA438145,MX,Mexico: Coahuila,215.2,6065357256,North America
+SRR3468074,coccidioides_posadasii_50,Coccidioides posadasii,missing,PRJNA274372,PY,Paraguay,38.9,1096979450,South America
+SRR14250210,coccidioides_posadasii_50,Coccidioides posadasii,,PRJNA722304,US,"USA: Flagstaff, Arizona",42.8,1207938300,North America
+SRR14250214,coccidioides_posadasii_50,Coccidioides posadasii,,PRJNA722304,US,"USA: Flagstaff, Arizona",25.3,713131200,North America
+SRR14250215,coccidioides_posadasii_50,Coccidioides posadasii,,PRJNA722304,US,"USA: Flagstaff, Arizona",49.9,1407100800,North America
+SRR21204672,coccidioides_posadasii_50,Coccidioides posadasii,B11866,PRJNA808058,US,USA: Wisconsin,169.9,4788805406,North America
+SRR21204673,coccidioides_posadasii_50,Coccidioides posadasii,B11519,PRJNA808058,US,USA: Minnesota,115.8,3265253980,North America
+SRR21204678,coccidioides_posadasii_50,Coccidioides posadasii,B16712,PRJNA808058,US,USA: Washington/Oregon,106.9,3012459330,North America
+SRR21204696,coccidioides_posadasii_50,Coccidioides posadasii,B14292,PRJNA808058,US,USA: Oregon,90.4,2549059616,North America
+SRR21204707,coccidioides_posadasii_50,Coccidioides posadasii,B14104,PRJNA808058,US,USA: Minnesota,146.8,4138793216,North America
+SRR21204717,coccidioides_posadasii_50,Coccidioides posadasii,B12402,PRJNA808058,US,USA: Michigan,51.3,1446966306,North America
+SRR21204727,coccidioides_posadasii_50,Coccidioides posadasii,B12202,PRJNA808058,US,USA: Michigan,110.6,3118890860,North America
+SRR21204729,coccidioides_posadasii_50,Coccidioides posadasii,B11872,PRJNA808058,US,USA: Pennsylvania,129.4,3647802578,North America
+SRR21204730,coccidioides_posadasii_50,Coccidioides posadasii,B11871,PRJNA808058,US,USA: Wisconsin,129.3,3644228338,North America
+SRR21204732,coccidioides_posadasii_50,Coccidioides posadasii,New_Mexico_1,PRJNA808058,US,USA: New Mexico,177.5,5003661460,North America
+SRR21292482,coccidioides_posadasii_50,Coccidioides posadasii,B10918,PRJNA472461,US,USA: Washington,73.1,2060622522,North America
+SRR21292483,coccidioides_posadasii_50,Coccidioides posadasii,B10917,PRJNA472461,US,USA: Washington,57.1,1608291762,North America
+SRR21295066,coccidioides_posadasii_50,Coccidioides posadasii,B11058,PRJNA808058,US,USA: Oregon,48.8,1374453290,North America
+SRR30104688,coccidioides_posadasii_50,Coccidioides posadasii,3315,PRJNA1143091,US,"USA: Tucson, Arizona",87.0,2453325388,North America
+SRR30104711,coccidioides_posadasii_50,Coccidioides posadasii,Tucson_19,PRJNA1143091,US,"USA: Tucson, Arizona",72.7,2049460184,North America
+SRR30316899,coccidioides_posadasii_50,Coccidioides posadasii,,PRJNA1150245,US,"USA:Arizona, Tucson",149.5,4214947232,North America
+SRR34010696,coccidioides_posadasii_50,Coccidioides posadasii,Z09114,PRJNA1276095,US,USA:Arizona,139.4,3930083556,North America
+SRR34010699,coccidioides_posadasii_50,Coccidioides posadasii,,PRJNA1276095,US,USA:Arizona,149.8,4222543888,North America
+SRR3468059,coccidioides_posadasii_50,Coccidioides posadasii,missing,PRJNA274372,US,USA,37.4,1054885800,North America
+SRR3468062,coccidioides_posadasii_50,Coccidioides posadasii,missing,PRJNA274372,US,USA,40.0,1126197800,North America
+SRR35701389,coccidioides_posadasii_50,Coccidioides posadasii,20380X2,PRJNA1337116,US,USA: Utah,172.9,4875133452,North America
+SRR35701390,coccidioides_posadasii_50,Coccidioides posadasii,20380X1,PRJNA1337116,US,USA: Utah,194.7,5487956080,North America
+SRR35701393,coccidioides_posadasii_50,Coccidioides posadasii,23742X40,PRJNA1337116,US,USA: Nevada,167.5,4720435160,North America
+SRR35701395,coccidioides_posadasii_50,Coccidioides posadasii,20380X5,PRJNA1337116,US,USA: Nevada,227.3,6408316180,North America
+SRR35701396,coccidioides_posadasii_50,Coccidioides posadasii,23742X44,PRJNA1337116,US,USA: Colorado,247.9,6987065960,North America
+SRR35701401,coccidioides_posadasii_50,Coccidioides posadasii,23742X160,PRJNA1337116,US,USA: Colorado,149.0,4200666282,North America
+SRR35701420,coccidioides_posadasii_50,Coccidioides posadasii,23742X6,PRJNA1337116,US,USA: California,390.4,11006025486,North America
+SRR35701431,coccidioides_posadasii_50,Coccidioides posadasii,23742X209,PRJNA1337116,US,USA: California,350.9,9891668136,North America
+SRR6830879,coccidioides_posadasii_50,Coccidioides posadasii,GT162,PRJNA438145,US,USA: Texas,93.5,2635656828,North America
+SRR6830880,coccidioides_posadasii_50,Coccidioides posadasii,GT120,PRJNA438145,US,USA: Florida,113.5,3198395340,North America
+SRR6830883,coccidioides_posadasii_50,Coccidioides posadasii,34698,PRJNA438145,VE,Venezuela,70.3,1982946420,South America
+SRR6830884,coccidioides_posadasii_50,Coccidioides posadasii,4542,PRJNA438145,VE,Venezuela,57.0,1606289832,South America
+SRR6830886,coccidioides_posadasii_50,Coccidioides posadasii,3796,PRJNA438145,VE,Venezuela,85.2,2402378748,South America
+SRR6830888,coccidioides_posadasii_50,Coccidioides posadasii,JTORRES,PRJNA438145,VE,Venezuela: Falcon,113.7,3204950616,South America

@@ -2,7 +2,10 @@
 # P9: background sets, first three (the Coccidioides pair (100 runs) and the A. fumigatus pool (150), analysis/popsets), with popseq fetch --profile. Runs over 30 Gb of bases are in manifest_deferred.csv, not here (no size ceiling in popseq fetch yet, PopSeq #48).
 # Run on the HPCC from a clone of GmG:
 #   POPSEQ_ROOT=<PopSeq checkout at v0.2.0 or later> ARRAY=0-7 bash bench/P9_background_sets/run.sh     # 8 chunks of 32 runs (249 runs)
-# Sampling is the popseq default (auto); coverage 25. Output under $OUT (purgeable); temp files in node-local $SCRATCH.
+# Sampling is the popseq default (auto); coverage 25. Output under $OUT; temp files in node-local $SCRATCH.
+# MANIFEST (default manifest.csv: all three sets; manifest_cocci.csv: the Coccidioides pair only) and OUT can be set. The first run wrote to a purgeable
+# out/ folder that was later deleted with its sketches: for sketches that are kept, point OUT at a named folder that is not a one-off,
+# for example OUT=$HOME/projects/GmG/sketches_background/cocci (manifest_cocci.csv: 100 runs, ARRAY=0-3).
 set -euo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
 GMG_ROOT=$(cd "$HERE/../.." && pwd)
@@ -22,5 +25,5 @@ export POPSKETCH="\$SCRATCH/target/release/popsketch"
 exec bash "$GMG_ROOT/scripts/popsra_fetch_chunks.slurm"
 JOB
 sbatch --parsable --array="$ARRAY%4" -p "${PARTITION:-stajichlab}" -c 16 -t 08:00:00 --mem "$MEM" -J p9background -o "$OUT/slurm-%a.out" \
-  --export=ALL,POPSEQ_ROOT="$POPSEQ_ROOT",GMG_ROOT="$GMG_ROOT",WORK="$OUT/work",MANIFEST="$HERE/manifest.csv",CHUNK=32,PAR=4,CONCURRENCY=16,SAMPLING=auto \
+  --export=ALL,POPSEQ_ROOT="$POPSEQ_ROOT",GMG_ROOT="$GMG_ROOT",WORK="$OUT/work",MANIFEST="${MANIFEST:-$HERE/manifest.csv}",CHUNK=32,PAR=4,CONCURRENCY=16,SAMPLING=auto \
   "$OUT/job.sh"
