@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-15]
+        os: [ubuntu-24.04, macos-15]
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: dtolnay/rust-toolchain@stable
@@ -45,7 +45,7 @@ jobs:
   # the binary that ships in the container image (built from the Dockerfile of this commit) must give the same calls as the native build
   container:
     name: golden (container binary)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7.0.1
@@ -87,7 +87,7 @@ jobs:
   # FracMinHash parity with Python sourmash 4.9.4 on the real panel genomes: identical hash sets (k = 21, scaled = 10000, seed 42)
   sourmash:
     name: sourmash 4.9.4 parity
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7.0.1

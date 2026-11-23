@@ -4,5 +4,5 @@ members = ["crates/gmg-core", "crates/gmg-input", "crates/popsketch", "crates/po
 
 [workspace.package]
 edition = "2021"
-version = "0.3.2"
+version = "0.4.0"
 license = "MIT"

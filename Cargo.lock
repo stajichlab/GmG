@@ -808,7 +808,7 @@ dependencies = [
 
 [[package]]
 name = "gmg-cli"
-version = "0.3.2"
+version = "0.4.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -828,7 +828,7 @@ dependencies = [
 
 [[package]]
 name = "gmg-core"
-version = "0.3.2"
+version = "0.4.0"
 dependencies = [
  "murmurhash3",
  "needletail",
@@ -838,14 +838,14 @@ dependencies = [
 
 [[package]]
 name = "gmg-input"
-version = "0.3.2"
+version = "0.4.0"
 dependencies = [
  "anyhow",
 ]
 
 [[package]]
 name = "gmg-pdf"
-version = "0.3.2"
+version = "0.4.0"
 dependencies = [
  "gmg-report",
  "krilla",
@@ -858,7 +858,7 @@ dependencies = [
 
 [[package]]
 name = "gmg-report"
-version = "0.3.2"
+version = "0.4.0"
 dependencies = [
  "roxmltree 0.20.0",
  "serde_json",
@@ -866,7 +866,7 @@ dependencies = [
 
 [[package]]
 name = "gmg-wasm"
-version = "0.3.2"
+version = "0.4.0"
 dependencies = [
  "gmg-core",
  "gmg-report",
@@ -1493,7 +1493,7 @@ dependencies = [
 
 [[package]]
 name = "popsketch"
-version = "0.3.2"
+version = "0.4.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -1508,7 +1508,7 @@ dependencies = [
 
 [[package]]
 name = "popsketch-wasm"
-version = "0.3.2"
+version = "0.4.0"
 dependencies = [
  "gmg-core",
  "popsketch",

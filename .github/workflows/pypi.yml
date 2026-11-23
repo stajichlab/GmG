@@ -18,7 +18,7 @@ permissions:
 jobs:
   version:
     name: tag matches the package version
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7.0.1
       - name: pyproject version equals the tag
@@ -35,7 +35,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: linux-x86_64, os: ubuntu-latest, manylinux: auto }
+          - { name: linux-x86_64, os: ubuntu-24.04, manylinux: auto }
           - { name: linux-aarch64, os: ubuntu-24.04-arm, manylinux: auto }
           - { name: macos-arm64, os: macos-15, manylinux: "off" }
     steps:
@@ -63,7 +63,7 @@ jobs:
     name: publish to PyPI
     if: startsWith(github.ref, 'refs/tags/v')
     needs: wheels
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment:
       name: pypi
       url: https://pypi.org/project/guess-my-genome/
@@ -82,7 +82,7 @@ jobs:
     name: publish to TestPyPI
     if: github.event_name == 'workflow_dispatch' && inputs.testpypi
     needs: wheels
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment:
       name: testpypi
       url: https://test.pypi.org/project/guess-my-genome/
